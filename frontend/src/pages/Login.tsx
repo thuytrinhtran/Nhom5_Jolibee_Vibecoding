@@ -221,7 +221,7 @@ export const Login: React.FC = () => {
 
           {/* Error Message */}
           {(localError || error) && (
-            <div style={{
+            <div role="alert" style={{
               display: 'flex',
               alignItems: 'flex-start',
               gap: '0.625rem',
@@ -243,7 +243,7 @@ export const Login: React.FC = () => {
           <form onSubmit={handleSubmit}>
             {/* Email Field */}
             <div style={{ marginBottom: '1.25rem' }}>
-              <label style={{
+              <label htmlFor="login-email" style={{
                 display: 'block',
                 fontSize: '0.875rem',
                 fontWeight: 600,
@@ -264,6 +264,8 @@ export const Login: React.FC = () => {
                   }}
                 />
                 <input
+                  id="login-email"
+                  autoComplete="username"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -295,7 +297,7 @@ export const Login: React.FC = () => {
 
             {/* Password Field */}
             <div style={{ marginBottom: '1.75rem' }}>
-              <label style={{
+              <label htmlFor="login-password" style={{
                 display: 'block',
                 fontSize: '0.875rem',
                 fontWeight: 600,
@@ -316,6 +318,8 @@ export const Login: React.FC = () => {
                   }}
                 />
                 <input
+                  id="login-password"
+                  autoComplete="current-password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -343,6 +347,8 @@ export const Login: React.FC = () => {
                 />
                 <button
                   type="button"
+                  aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                  aria-pressed={showPassword}
                   onClick={() => setShowPassword(!showPassword)}
                   style={{
                     position: 'absolute',
