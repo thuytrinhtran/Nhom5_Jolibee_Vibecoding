@@ -1,7 +1,8 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
+import path from 'node:path';
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const rawUrl = process.env.SUPABASE_URL || '';
 // Sanitize URL in case it has trailing slash or /rest/v1 suffix
@@ -36,3 +37,14 @@ export const createAuthClient = (): SupabaseClient => {
 };
 
 export { supabaseUrl };
+
+export async function userAuthRequest(token: string, endpoint: '/user' | '/reauthenticate', body?: object) {
+  const response = await fetch(`${supabaseUrl}/auth/v1${endpoint}`, {
+    method: body ? 'PUT' : 'GET',
+    headers: { apikey: supabaseKey, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    ...(body ? { body: JSON.stringify(body) } : {}),
+    signal: AbortSignal.timeout(15000),
+  });
+  const data = await response.json().catch(() => ({}));
+  return { ok: response.ok, status: response.status, data };
+}

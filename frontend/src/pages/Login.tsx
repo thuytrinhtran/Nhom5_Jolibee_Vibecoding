@@ -13,19 +13,21 @@ export const Login: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
-  const { login, user } = useAuth();
+  const { login, user, error } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
     if (user) {
-      redirectToDashboard(user.role);
+      if (user.must_change_password) navigate('/change-password', { replace: true });
+      else redirectToDashboard(user.role);
     }
   }, [user]);
 
   const redirectToDashboard = (role: UserRole) => {
     const from = (location.state as any)?.from?.pathname;
-    if (from && from !== '/login') {
+    const dashboard = { NV: '/employee', QL: '/manager', GS: '/supervisor' }[role];
+    if (from && (from === dashboard || from.startsWith(`${dashboard}/`))) {
       navigate(from, { replace: true });
       return;
     }
@@ -48,7 +50,8 @@ export const Login: React.FC = () => {
     setSubmitting(true);
     try {
       const loggedInUser = await login(email.trim(), password);
-      redirectToDashboard(loggedInUser.role);
+      if (loggedInUser.must_change_password) navigate('/change-password', { replace: true });
+      else redirectToDashboard(loggedInUser.role);
     } catch (err: any) {
       setLocalError(err.message || 'Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin.');
     } finally {
@@ -217,7 +220,7 @@ export const Login: React.FC = () => {
           </div>
 
           {/* Error Message */}
-          {localError && (
+          {(localError || error) && (
             <div style={{
               display: 'flex',
               alignItems: 'flex-start',
@@ -232,7 +235,7 @@ export const Login: React.FC = () => {
               lineHeight: 1.4,
             }}>
               <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
-              <div>{localError}</div>
+              <div>{localError || error}</div>
             </div>
           )}
 

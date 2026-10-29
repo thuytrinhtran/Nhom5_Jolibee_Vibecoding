@@ -2,7 +2,9 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { Navbar } from './components/Navbar';
+import { AppLayout } from './components/layout/AppLayout';
+import { PlaceholderPage } from './pages/common/PlaceholderPage';
+import { ChangePassword } from './pages/ChangePassword';
 import { Login } from './pages/Login';
 import { EmployeeDashboard } from './pages/employee/EmployeeDashboard';
 import { ManagerDashboard } from './pages/manager/ManagerDashboard';
@@ -30,6 +32,8 @@ const RootRedirect: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
+  if (user.must_change_password) return <Navigate to="/change-password" replace />;
+
   if (user.role === 'NV') return <Navigate to="/employee" replace />;
   if (user.role === 'QL') return <Navigate to="/manager" replace />;
   if (user.role === 'GS') return <Navigate to="/supervisor" replace />;
@@ -45,6 +49,8 @@ export const App: React.FC = () => {
           {/* Public Login Route */}
           <Route path="/login" element={<Login />} />
 
+          <Route path="/change-password" element={<ProtectedRoute allowPasswordChange><ChangePassword /></ProtectedRoute>} />
+
           {/* Root Redirect based on Role */}
           <Route path="/" element={<RootRedirect />} />
 
@@ -53,8 +59,7 @@ export const App: React.FC = () => {
             path="/employee"
             element={
               <ProtectedRoute allowedRoles={['NV']}>
-                <Navbar />
-                <EmployeeDashboard />
+                <AppLayout><EmployeeDashboard /></AppLayout>
               </ProtectedRoute>
             }
           />
@@ -64,8 +69,7 @@ export const App: React.FC = () => {
             path="/manager"
             element={
               <ProtectedRoute allowedRoles={['QL']}>
-                <Navbar />
-                <ManagerDashboard />
+                <AppLayout><ManagerDashboard /></AppLayout>
               </ProtectedRoute>
             }
           />
@@ -75,11 +79,28 @@ export const App: React.FC = () => {
             path="/supervisor"
             element={
               <ProtectedRoute allowedRoles={['GS']}>
-                <Navbar />
-                <SupervisorDashboard />
+                <AppLayout><SupervisorDashboard /></AppLayout>
               </ProtectedRoute>
             }
           />
+
+          <Route path="/employee/*" element={
+            <ProtectedRoute allowedRoles={['NV']}>
+              <AppLayout><PlaceholderPage /></AppLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/manager/*" element={
+            <ProtectedRoute allowedRoles={['QL']}>
+              <AppLayout><PlaceholderPage /></AppLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/supervisor/*" element={
+            <ProtectedRoute allowedRoles={['GS']}>
+              <AppLayout><PlaceholderPage /></AppLayout>
+            </ProtectedRoute>
+          } />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

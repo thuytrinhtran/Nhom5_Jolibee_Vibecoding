@@ -7,9 +7,10 @@ import { ShieldAlert, ArrowLeft, RefreshCw } from 'lucide-react';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   allowedRoles?: UserRole[];
+  allowPasswordChange?: boolean;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles, allowPasswordChange = false }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -33,6 +34,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowe
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (user.must_change_password !== false && !allowPasswordChange) {
+    return <Navigate to="/change-password" replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {

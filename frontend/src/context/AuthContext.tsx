@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile, UserRole } from '../types/auth';
-import { authService } from '../services/auth.service';
+import { authService, ApiError } from '../services/auth.service';
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -11,6 +11,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   clearError: () => void;
   refreshUser: () => Promise<void>;
+  changePassword: (password: string, confirmation: string, nonce?: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,7 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(profile);
     } catch (err: any) {
       console.warn('Initial session check failed:', err.message);
-      authService.clearStoredToken();
+      setError(err.message || 'Không thể khôi phục phiên đăng nhập.');
       setUser(null);
     } finally {
       setLoading(false);
@@ -63,11 +64,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async (): Promise<void> => {
     setLoading(true);
+    setError(null);
     try {
       await authService.logout();
+    } catch (err: any) {
+      setError(err.message || 'Không thể thu hồi phiên trên máy chủ.');
     } finally {
       setUser(null);
-      setError(null);
       setLoading(false);
     }
   };
@@ -79,9 +82,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const profile = await authService.getMe();
       setUser(profile);
     } catch (err) {
-      setUser(null);
+      if (err instanceof ApiError && [401, 403].includes(err.status)) setUser(null);
     }
   };
+
+  const changePassword = async (password: string, confirmation: string, nonce?: string) => {
+    const profile = await authService.changePassword(password, confirmation, nonce);
+    setUser(profile);
+  };
+
+  useEffect(() => {
+    if (!user) return;
+    const refresh = () => { void refreshUser(); };
+    window.addEventListener('focus', refresh);
+    const timer = window.setInterval(refresh, 60000);
+    return () => { window.removeEventListener('focus', refresh); window.clearInterval(timer); };
+  }, [user?.id]);
 
   return (
     <AuthContext.Provider
@@ -94,6 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         clearError,
         refreshUser,
+        changePassword,
       }}
     >
       {children}

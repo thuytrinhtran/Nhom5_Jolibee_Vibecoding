@@ -17,6 +17,8 @@ export interface AuthenticatedUser {
   branch_id: string | null;
   branch_name?: string | null;
   is_active: boolean;
+  must_change_password: boolean;
+  password_reset_id?: string | null;
   employee?: EmployeeInfo | null;
 }
 

@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { supabase } from './config/supabase.js';
@@ -15,7 +15,9 @@ app.use(cors({
   origin: [FRONTEND_URL, 'http://localhost:5173', 'http://127.0.0.1:5173'],
   credentials: true
 }));
+app.use('/api/auth', (_req, res, next) => { res.setHeader('Cache-Control', 'no-store'); next(); });
 app.use(express.json());
+
 
 // Auth & RBAC Routes
 app.use('/api/auth', authRoutes);
@@ -86,6 +88,14 @@ app.get('/api/db-health', async (_req: Request, res: Response) => {
       timestamp: new Date().toISOString()
     });
   }
+});
+
+app.use('/api', (_req: Request, res: Response) => {
+  res.status(404).json({ status: 'error', message: 'API không tồn tại.' });
+});
+app.use((err: { status?: number; type?: string }, _req: Request, res: Response, _next: NextFunction) => {
+  const status = err.status && err.status >= 400 && err.status < 600 ? err.status : 500;
+  res.status(status).json({ status: 'error', message: status === 400 ? 'Nội dung JSON không hợp lệ.' : 'Không thể xử lý yêu cầu.' });
 });
 
 // Start Server

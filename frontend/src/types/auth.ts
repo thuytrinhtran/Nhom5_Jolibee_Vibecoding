@@ -17,6 +17,7 @@ export interface UserProfile {
   branch_id: string | null;
   branch_name?: string | null;
   is_active: boolean;
+  must_change_password: boolean;
   employee?: EmployeeInfo | null;
 }
 
