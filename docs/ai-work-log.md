@@ -47,3 +47,43 @@ Tài liệu này ghi nhận nhật ký các tương tác thực tế giữa Nhó
   - Cài đặt dependencies cho cả frontend và backend, thực hiện typecheck và build thử nghiệm.
   - Khởi động thử nghiệm backend và frontend, gửi request đến `/api/health` để xác thực phản hồi hợp lệ.
 - **Kết quả:** Bước 1 của Sprint 1 hoàn thành trọn vẹn, hệ thống sẵn sàng để nhóm nghiệm thu trước khi bước sang thiết lập CSDL và xác thực.
+
+---
+
+### Phiên 3: Sprint 1 – Bước 2: Kết nối Express Backend với Supabase & Kiểm thử truy vấn thực tế
+- **Thời gian:** 29/10/2026 (01:13 – 01:21)
+- **Nội dung yêu cầu từ nhóm:**
+  - Đọc `docs/Jollishift.sql` và rà soát mã nguồn Backend hiện hữu.
+  - Cài đặt và sử dụng `@supabase/supabase-js` kết nối qua các biến môi trường trong `backend/.env`.
+  - Tạo endpoint `GET /api/db-health` thực hiện truy vấn `SELECT` thật từ một bảng hiện có trong database (`public.branches`), đo lường độ trễ và trả về JSON kết quả.
+  - Giữ nguyên endpoint `/api/health`.
+  - Cập nhật `.env.example` và kiểm tra build.
+  - Tuân thủ các ràng buộc: Không sửa CSDL, không dùng mock data, không đổi Frontend, không triển khai Auth, không làm lộ secret key, không tự commit/push.
+- **Hành động thực hiện:**
+  - Đọc và phân tích `docs/Jollishift.sql` xác nhận danh mục 18 bảng.
+  - Cài đặt gói `@supabase/supabase-js` cho backend.
+  - Khởi tạo module cấu hình `backend/src/config/supabase.ts`, bổ sung logic chuẩn hóa `SUPABASE_URL` tự động loại bỏ hậu tố `/rest/v1/` để tương thích tuyệt đối với SDK.
+  - Thêm API `GET /api/db-health` vào `backend/src/server.ts` thực hiện truy vấn `SELECT id, name FROM branches LIMIT 1`.
+  - Cập nhật `.env.example` ở cả thư mục gốc và thư mục `backend/`.
+  - Thực hiện build kiểm tra: `npm run build` (tsc) thành công 100% với 0 lỗi.
+  - Thử nghiệm kết nối thực tế tới Supabase: Endpoint `/api/db-health` trả về HTTP 200 `status: "ok"`, `database: "connected"`, đo lường độ trễ thực tế. Endpoint `/api/health` được duy trì nguyên vẹn.
+- **Kết quả:** Kết nối giữa Express Backend và Supabase đạt trạng thái PASS, sẵn sàng cho các nghiệp vụ tiếp theo.
+
+---
+
+### Phiên 4: Sprint 1 – Bước 3: Đăng nhập, Đăng xuất, Phân quyền 3 vai trò (RBAC) & Khung giao diện
+- **Thời gian:** 29/10/2026 (01:26 – 01:38)
+- **Nội dung yêu cầu từ nhóm:**
+  - Rà soát `docs/Jollishift.sql` xác định cơ chế liên kết giữa `auth.users` và `public.users`.
+  - Xây dựng tính năng đăng nhập bằng email/mật khẩu, đăng xuất, duy trì phiên qua Supabase Auth.
+  - Phân quyền 3 vai trò (`NV`, `QL`, `GS`) lấy từ database, bảo vệ API bằng middleware Backend.
+  - Xây dựng trang Login (không có chức năng Sign up tự do, thông báo tài khoản do Admin cấp) và 3 khung Dashboard theo vai trò, phong cách Jollibee (đỏ - trắng - vàng).
+  - Bảo vệ điều hướng (Protected routes) theo vai trò, hiển thị thông báo 403 khi truy cập trái quyền.
+  - Kiểm tra build cả Frontend và Backend; hướng dẫn chi tiết cách tạo tài khoản kiểm thử trên Supabase.
+- **Hành động thực hiện:**
+  - Xác nhận cơ chế liên kết: `public.users.id REFERENCES auth.users(id) ON DELETE CASCADE`, không cần sửa schema CSDL.
+  - Backend: Tạo `auth.types.ts`, `auth.middleware.ts` (xác thực token Supabase JWT, truy vấn `public.users` và `public.employees`, kiểm tra vai trò), `auth.routes.ts` (`POST /api/auth/login`, `GET /api/auth/me`, `POST /api/auth/logout`, các endpoint test phân quyền).
+  - Frontend: Cài đặt `react-router-dom`, tạo `types/auth.ts`, `services/auth.service.ts`, `context/AuthContext.tsx`, `components/ProtectedRoute.tsx`, `components/Navbar.tsx`, `pages/Login.tsx`, các dashboard `EmployeeDashboard.tsx`, `ManagerDashboard.tsx`, `SupervisorDashboard.tsx`.
+  - Kiểm tra build: Frontend (`vite build`) và Backend (`tsc`) đều vượt qua 100% với 0 lỗi.
+  - Kiểm tra endpoint bảo mật: Chặn không có token (401), thiếu thông tin (400), sai mật khẩu (401).
+- **Kết quả:** Bộ khung Đăng nhập, Đăng xuất và Phân quyền RBAC 3 vai trò đã hoàn thành trên mã nguồn, sẵn sàng để nhóm tạo 3 tài khoản kiểm thử trên Supabase Studio để xác thực thực tế.
