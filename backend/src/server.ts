@@ -1,6 +1,8 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { supabase } from './config/supabase.js';
+import authRoutes from './routes/auth.routes.js';
 
 dotenv.config();
 
@@ -15,13 +17,16 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Auth & RBAC Routes
+app.use('/api/auth', authRoutes);
+
 // Basic Root Route
 app.get('/', (_req: Request, res: Response) => {
   res.json({
     name: 'Jollibee Shift Management API',
     description: 'MIS3047 - Quản lý quy trình kinh doanh (Nhóm 5)',
     status: 'online',
-    docs: '/api/health'
+    docs: ['/api/health', '/api/db-health']
   });
 });
 
@@ -35,6 +40,52 @@ app.get('/api/health', (_req: Request, res: Response) => {
     version: '1.0.0',
     environment: process.env.NODE_ENV || 'development'
   });
+});
+
+// Database health check endpoint querying a real table from Jollishift.sql
+app.get('/api/db-health', async (_req: Request, res: Response) => {
+  try {
+    const startTime = Date.now();
+    // Real SELECT query against public.branches
+    const { data, error, count } = await supabase
+      .from('branches')
+      .select('id, name', { count: 'exact' })
+      .limit(1);
+
+    const latencyMs = Date.now() - startTime;
+
+    if (error) {
+      return res.status(500).json({
+        status: 'error',
+        database: 'disconnected',
+        provider: 'supabase',
+        table_checked: 'branches',
+        error: error.message,
+        code: error.code,
+        latency_ms: latencyMs,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    return res.status(200).json({
+      status: 'ok',
+      database: 'connected',
+      provider: 'supabase',
+      table_checked: 'branches',
+      query: 'SELECT id, name FROM branches LIMIT 1',
+      rows_found: count ?? (data ? data.length : 0),
+      latency_ms: latencyMs,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err: any) {
+    return res.status(500).json({
+      status: 'error',
+      database: 'error',
+      provider: 'supabase',
+      error: err.message || 'Unknown database connection error',
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Start Server
