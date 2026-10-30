@@ -1,0 +1,50 @@
+{
+  "project_name": "jollishift-tv2-test",
+  "project_ref": "wimikwyuzhltpjciafod",
+  "project_url": "https://wimikwyuzhltpjciafod.supabase.co",
+  "prepared_only": true,
+  "execution": "manual SQL Editor, files 01-04 once; create TEST Auth user; file 05 once; 06 read-only repeatable",
+  "guard_limit": "SQL cannot determine Dashboard project URL. Step 01 refuses any existing public tables; later steps require this bundle marker and predecessor checksum. Operator must verify project identity.",
+  "foundation_adjustment": "Only the TEST copy removes the redundant second idx_schedule_approvals_schedule declaration. Original docs/Jollishift.sql is unchanged.",
+  "artifacts": [
+    {
+      "file": "01_foundation.sql",
+      "source": "docs/Jollishift.sql",
+      "source_sha256": "6520546beb231ba3377968f5a61c122a2a051867e4bbb34f774918e7abd4b4c2",
+      "sha256": "cab206486c253080b48733a6cf47009730c9038afa1ccceb11adf1099d57d2bd",
+      "step": "01"
+    },
+    {
+      "file": "02_auth_compatibility.sql",
+      "source": "backend/migrations/20261029_require_password_change.sql",
+      "source_sha256": "fee1a57e7e8ff8a97ba8b93841d11ab784e2b89bfd21ceec77537db81adf9582",
+      "sha256": "ff162fa703819ca341d626ab76902ba1462cf1c710ee507e9a50f0e32a4454e3",
+      "step": "02"
+    },
+    {
+      "file": "03_tv2_m1.sql",
+      "source": "backend/migrations/20261029_employee_registration.sql",
+      "source_sha256": "e900d1897ff02cbfed76bf3a7081873ff182269037022d53349f815ac716b04e",
+      "sha256": "fcff815d4640fc883357efda0ded99b011f21462bf7369617d86e2e0bae22a56",
+      "step": "03"
+    },
+    {
+      "file": "04_tv2_m2.sql",
+      "source": "backend/migrations/20261029_registration_off_schedule.sql",
+      "source_sha256": "52142c9e6902a7b432a7d0b7b403349877ad8bb0f6bd86fb75640af69cc935a9",
+      "sha256": "c606c189ca2d0df967b5d00daa9e67db4760c62de06a7dbae67d46d6700643b0",
+      "step": "04"
+    },
+    {
+      "file": "05_test_fixture.sql",
+      "step": "05",
+      "sha256": "eedb8f4f802afaf6079ce85ded12bb4bb3aa298bfe4415aacc4d4ad8e67b27cd",
+      "source_sha256": "2a8f3b3e6012461e44fee321eed37ed9c645ecae31b8b0824077dd8548f57808"
+    },
+    {
+      "file": "06_verify.sql",
+      "read_only": true,
+      "sha256": "2aed4d12f463de64560269d088906632b745cdba918f7081325410bc353eae37"
+    }
+  ]
+}

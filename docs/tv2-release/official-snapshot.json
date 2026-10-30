@@ -1,0 +1,22 @@
+{
+  "project_ref": "wlbpprpiieonjrqglicv",
+  "checked_at": "2026-10-29T11:47:30.525Z",
+  "read_only": true,
+  "branches": [
+    {
+      "id": "11111111-1111-1111-1111-111111111111",
+      "name": "Jollibee Lê Duẩn",
+      "status": "ACTIVE",
+      "employees": 60,
+      "eligible_employees": 53
+    },
+    {
+      "id": "d25dd99d-b882-56ea-a272-e0a325c0592b",
+      "name": "Chi nhánh mô phỏng Hải Châu",
+      "status": "ACTIVE",
+      "employees": 10,
+      "eligible_employees": 9
+    }
+  ],
+  "employee_count": 70
+}

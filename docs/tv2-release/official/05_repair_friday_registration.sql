@@ -1,0 +1,3 @@
+-- RETIRED: do not use manual PLANNED -> OPEN transitions.
+-- Review backend/migrations/20261030_registration_effective_state.sql instead.
+-- The new additive migration derives status from timestamps and does not backfill status.

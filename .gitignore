@@ -16,6 +16,7 @@ build/
 .env
 .env.*
 !.env.example
+!frontend/.env.tv2-official
 *.pem
 
 # Logs
@@ -43,3 +44,6 @@ lerna-debug.log*
 .stylelintcache
 *.tsbuildinfo
 .vite/
+
+# Local test packages and backup inventories
+.tmp/
