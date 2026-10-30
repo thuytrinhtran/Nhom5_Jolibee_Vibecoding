@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { CalendarDays } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ScheduleWorkflowError, TV4_SHIFT_DEFINITIONS, mockActorForProfile, resolveTv4MockBranch } from './scheduleWorkflow.types';
 import type { ScheduleAssignment, ScheduleWorkflowService, ScheduleWorkflowView, ScheduleWorkflowRecord } from './scheduleWorkflow.types';
@@ -95,13 +96,13 @@ export const ScheduleWorkflow = ({
   const load = useCallback(async () => {
     if (!actor) {
       setSchedules([]);
-      setError('Cần đăng nhập để xem dữ liệu TV4 giả lập.');
+      setError('Cần đăng nhập để xem dữ liệu TV4.');
       setLoading(false);
       return;
     }
     if (actor.role === 'QL' && !actor.branch_id) {
       setSchedules([]);
-      setError(usesMockWorkflow ? '' : 'Hồ sơ quản lý chưa có branch_id; backend không thể xác định phạm vi chi nhánh.');
+      setError(usesMockWorkflow ? '' : 'Tài khoản chưa được phân công chi nhánh. Vui lòng liên hệ quản trị viên.');
       setLoading(false);
       return;
     }
@@ -136,7 +137,9 @@ export const ScheduleWorkflow = ({
           ...assignment,
           shifts: shiftChoices().find(shift => shift.id === adjustmentShifts[assignment.id]) || assignment.shifts,
         }));
-        const submittedVersion = await service.resubmitSchedule(actor, schedule.id, adjustmentNote, changedAssignments);
+        const submittedVersion = await service.resubmitSchedule(
+          actor, schedule.id, adjustmentNote, changedAssignments, schedule.version, schedule.schedule_group_id,
+        );
         successMessage = `Lịch đã được điều chỉnh và gửi đến GS phê duyệt. Phiên bản ${submittedVersion.version} đang chờ phê duyệt.`;
       }
       if (action === 'publish') await service.publishSchedule(actor, schedule.id, new Date(deadline).toISOString());
@@ -164,6 +167,22 @@ export const ScheduleWorkflow = ({
   const title = mode === 'approvals' ? 'Lịch chờ phê duyệt'
     : mode === 'history' ? 'Lịch sử quyết định'
       : mode === 'publication-history' ? 'Lịch sử công bố' : 'Công bố và trình lại lịch';
+  const emptyTitle = usesMockWorkflow && actor?.role === 'QL' && !actor.branch_id
+    ? 'Chưa xác định được chi nhánh dữ liệu thử nghiệm'
+    : usesMockWorkflow ? 'Chưa có lịch trong danh sách này' : 'Chưa có lịch làm việc phù hợp.';
+  const emptyDescription = !usesMockWorkflow
+    ? mode === 'publish'
+      ? 'Khi có lịch được duyệt thuộc chi nhánh của bạn, lịch sẽ xuất hiện tại đây. Nhấn “Làm mới” để kiểm tra dữ liệu mới.'
+      : mode === 'approvals'
+        ? 'Hiện chưa có lịch chờ phê duyệt phù hợp.'
+        : mode === 'history'
+          ? 'Chưa có lịch sử quyết định phù hợp.'
+          : 'Chưa có lịch đã công bố phù hợp.'
+    : actor?.role === 'QL' && actor.branch_id
+      ? 'Không có lịch phù hợp với danh sách này. Lịch chờ phê duyệt được hiển thị trong hàng chờ của GS.'
+      : actor?.role === 'QL' && !actor.branch_id
+        ? 'Vui lòng kiểm tra cấu hình chi nhánh dữ liệu thử nghiệm.'
+        : 'Dữ liệu mẫu có thể được khôi phục bằng cách tải lại trang.';
   return <section className="workflow-page">
     <div className="workflow-mock-banner" role="note">
       {usesMockWorkflow
@@ -171,7 +190,7 @@ export const ScheduleWorkflow = ({
         : 'Dữ liệu TV4 được tải qua Backend. Backend xác minh phiên đăng nhập, vai trò và phạm vi chi nhánh; thao tác ghi phụ thuộc migration TV4 đã được triển khai.'}
     </div>
     {usesMockWorkflow && actor?.role === 'QL' && branchResolution && !branchResolution.fixtureBranchId && <div className="workflow-alert error" role="alert">
-      {branchResolution.diagnostic}
+      Không thể xác định chi nhánh dữ liệu thử nghiệm cho tài khoản này. Vui lòng kiểm tra cấu hình demo.
     </div>}
     <div className="workflow-heading">
       <div>
@@ -181,17 +200,21 @@ export const ScheduleWorkflow = ({
             : mode === 'publication-history' ? 'Lịch đã công bố cùng thông tin do API hiện có trả về.'
               : 'Quản lý xem lịch trong phạm vi chi nhánh; công bố lịch đã duyệt.'}</p>
       </div>
-      <button className="workflow-button secondary" onClick={() => void load()} disabled={loading}>Tải lại</button>
+      <button className="workflow-button secondary" onClick={() => void load()} disabled={loading}>Làm mới</button>
     </div>
-    {error && <div className="workflow-alert error" role="alert">{error}<button className="workflow-button secondary" onClick={() => void load()} disabled={loading}>Thử tải lại</button></div>}
-    {loading ? <div className="workflow-empty" role="status">{usesMockWorkflow ? 'Đang tải dữ liệu giả lập…' : 'Đang tải dữ liệu từ Backend…'}</div>
+    {error && <div className="workflow-alert error" role="alert">{error}<button className="workflow-button secondary" onClick={() => void load()} disabled={loading}>Thử lại</button></div>}
+    {loading ? <div className="workflow-empty" role="status">{usesMockWorkflow ? 'Đang tải dữ liệu giả lập…' : 'Đang tải lịch làm việc...'}</div>
       : error ? null
-        : schedules.length === 0 ? <div className="workflow-empty"><strong>{actor?.role === 'QL' && !actor.branch_id ? (usesMockWorkflow ? 'Chưa ánh xạ được chi nhánh hồ sơ sang fixture TV4' : 'Hồ sơ chưa được gán chi nhánh') : 'Chưa có lịch trong danh sách này'}</strong><p>{actor?.role === 'QL' && actor.branch_id ? `Không có lịch thuộc phạm vi ${usesMockWorkflow ? branchResolution?.fixtureBranchName || actor.branch_id : actor.branch_id} trong các trạng thái API trả về. Lịch PENDING_APPROVAL nằm trong hàng chờ GS.` : usesMockWorkflow ? 'Dữ liệu mẫu có thể được khôi phục bằng cách tải lại trang.' : 'Backend hiện không trả bản ghi phù hợp với bộ lọc này.'}</p></div>
+        : schedules.length === 0 ? <div className="workflow-empty" role="status">
+          {!usesMockWorkflow && mode === 'publish' && <CalendarDays size={30} aria-hidden="true" />}
+          <strong>{emptyTitle}</strong>
+          <p>{!usesMockWorkflow && mode === 'publish' ? <em>{emptyDescription}</em> : emptyDescription}</p>
+        </div>
         : <div className="workflow-list">{schedules.map(schedule => {
           const open = selected === schedule.id;
           const entries = schedule.shift_assignments || [];
           const latest = schedule.approvals?.[0];
-          const canResubmit = usesMockWorkflow && canManagerResubmit(canPublish, schedule);
+          const canResubmit = canManagerResubmit(canPublish, schedule);
           const canPublishSchedule = canPublish && schedule.status === 'APPROVED' && schedule.is_latest;
           return <article className="workflow-card" key={schedule.id}>
             <button className="workflow-card-toggle" onClick={() => {
