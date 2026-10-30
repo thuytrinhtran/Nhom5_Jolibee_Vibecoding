@@ -1,4 +1,5 @@
 import { registrationReports } from './routes/registration-reports.routes.js';
+import { employeeCompetencyRoutes } from './routes/employee-competency.routes.js';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -26,6 +27,7 @@ app.use(express.json());
 
 // Auth & RBAC Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/employee-competencies', employeeCompetencyRoutes);
 app.use('/api/registrations', registrationRoutes);
 app.use('/api/registration-reports', registrationReports);
 app.use('/api/internal/registration-automation', automationRoutes);
