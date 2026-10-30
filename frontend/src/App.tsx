@@ -11,6 +11,7 @@ import { EmployeeDashboard } from './pages/employee/EmployeeDashboard';
 import { ManagerDashboard } from './pages/manager/ManagerDashboard';
 import { ManagerSchedule } from './pages/manager/ManagerSchedule';
 import { ManagerDemand } from './pages/manager/ManagerDemand';
+import { EmployeeCompetency } from './pages/manager/EmployeeCompetency';
 import { SupervisorDashboard } from './pages/supervisor/SupervisorDashboard';
 import { ScheduleWorkflow } from './pages/schedules/ScheduleWorkflow';
 
@@ -112,6 +113,8 @@ export const App: React.FC = () => {
             </ProtectedRoute>
           } />
 
+          <Route path="/manager/staff" element={<Navigate to="/manager/staff/competency" replace />} />
+          <Route path="/manager/staff/competency" element={<ProtectedRoute allowedRoles={['QL']}><AppLayout><EmployeeCompetency /></AppLayout></ProtectedRoute>} />
           <Route path="/manager/*" element={
             <ProtectedRoute allowedRoles={['QL']}>
               <AppLayout><PlaceholderPage /></AppLayout>

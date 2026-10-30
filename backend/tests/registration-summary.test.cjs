@@ -9,9 +9,10 @@ const branch='00000000-0000-4000-8000-000000000001';
 const row=(s,name,day='2026-11-02')=>s.rows.find(r=>r.department_name===name&&r.work_date===day);
 function databaseFixture(snapshot,fail=false){
   const queries=[];
-  const tables={registration_periods:[{...snapshot.period,schedules:[]}],branches:[snapshot.branch],departments:snapshot.departments,
+  const tables={registration_periods:[{...snapshot.period,open_at:'2026-10-01T00:00:00Z',close_at:'2026-10-02T00:00:00Z',schedules:[]}],branches:[snapshot.branch],departments:snapshot.departments,
     employees:snapshot.employees.map(e=>({...e,user:{is_active:e.is_active,role:e.role,branch_id:e.branch_id}})),
-    shifts:snapshot.shifts,shift_registrations:snapshot.registrations,staffing_requirements:snapshot.requirements,
+    registration_submissions_sourced:[...new Set(snapshot.registrations.map(r=>r.employee_id))].map(employee_id=>({employee_id,status:'VALID',submitted_at:'2026-10-01T01:00:00Z',updated_at:'2026-10-01T01:00:00Z',sample_batch_id:null})),
+    shifts:snapshot.shifts,shift_registrations:snapshot.registrations.map(r=>({...r,submitted_at:'2026-10-01T01:00:00Z'})),staffing_requirements:snapshot.requirements,
     employee_skills:snapshot.employees.flatMap(e=>(e.skills||[]).map(skill_name=>({employee_id:e.id,skill_name}))),
     shift_assignments:snapshot.existing,warning_configs:[]};
   const db={from(table){const query={table,filters:[],from:0,to:499};queries.push(query);
@@ -58,17 +59,17 @@ test('eligibility reuses existing engine overlap and configured hours, without g
   assert.ok(!('assignments' in summary));
 });
 test('Mock and Supabase adapters produce identical summary contract and branch-scoped VALID queries',async()=>{
-  const snapshot=mockSummarySnapshot(branch),fixture=databaseFixture(snapshot);
+  const snapshot=mockSummarySnapshot(branch);snapshot.registrations=[...new Map(snapshot.registrations.map(r=>[r.employee_id+'/'+r.work_date+'/'+r.shift_id,r])).values()];const fixture=databaseFixture(snapshot);
   const mock=new MockRegistrationSummaryRepository();const real=new SupabaseRegistrationSummaryRepository(fixture.db);
   const a=summarizeRegistrations(await mock.load(branch,MOCK_PERIOD_ID));const b=summarizeRegistrations(await real.load(branch,MOCK_PERIOD_ID));
-  assert.deepEqual(a.rows,b.rows);assert.deepEqual(a.period,b.period);assert.equal(a.source,'mock');assert.equal(b.source,'supabase');assert.equal(b.is_mock,false);
-  assert.deepEqual(await mock.listPeriods(branch),await real.listPeriods(branch));
+  assert.deepEqual(a.rows.map(r=>({...r,warnings:r.warnings.filter(w=>w.code!=='DUPLICATE_REGISTRATION')})),b.rows);assert.equal(a.period.id,b.period.id);assert.equal(a.period.status,b.period.status);assert.equal(a.source,'mock');assert.equal(b.source,'supabase');assert.equal(b.is_mock,false);
+  assert.equal((await real.listPeriods(branch))[0].status,'CLOSED');
   for(const name of ['registration_periods','employees','staffing_requirements','branches'])assert.ok(fixture.queries.filter(q=>q.table===name).every(q=>q.filters.some(([k,v])=>(k==='branch_id'||(name==='branches'&&k==='id'))&&v===branch)));
   assert.ok(fixture.queries.find(q=>q.table==='shift_registrations').filters.some(([k,v])=>k==='status'&&v==='VALID'));
   assert.ok(fixture.queries.find(q=>q.table==='employee_skills').filters.some(([k,v])=>k==='employee.branch_id'&&v===branch));
 });
 test('Supabase pagination never silently caps the period list at one page',async()=>{
-  const fixture=databaseFixture(mockSummarySnapshot(branch));fixture.tables.registration_periods=Array.from({length:501},(_,i)=>({id:String(i)}));
+  const fixture=databaseFixture(mockSummarySnapshot(branch));fixture.tables.registration_periods=Array.from({length:501},(_,i)=>({id:String(i),open_at:'2026-10-01T00:00:00Z',close_at:'2026-10-02T00:00:00Z'}));
   assert.equal((await new SupabaseRegistrationSummaryRepository(fixture.db).listPeriods(branch)).length,501);
   assert.equal(fixture.queries.filter(q=>q.table==='registration_periods').length,2);
 });

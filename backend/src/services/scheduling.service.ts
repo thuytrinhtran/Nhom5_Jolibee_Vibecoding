@@ -60,28 +60,18 @@ export async function readSchedulingContext(periodId: string, branchId: string) 
       employees: data.employees.map(e => ({ id: e.id, full_name: e.full_name, department_id: e.department_id })),
       shifts: data.shifts, departments: data.departments };
   }
-  const period = await supabaseAdmin.from('registration_periods')
-    .select('id, branch_id, work_start_date, work_end_date, status').eq('id', periodId).eq('branch_id', branchId).maybeSingle();
-  if (period.error) databaseError(period.error);
-  if (!period.data) throw new ScheduleError(404, 'PERIOD_NOT_FOUND', 'Không tìm thấy đợt đăng ký trong chi nhánh.');
-  const results = await Promise.all([
-    supabaseAdmin.from('staffing_requirements').select('id, department_id, shift_id, work_date, required_count, required_skill_name')
-      .eq('branch_id', branchId).gte('work_date', period.data.work_start_date).lte('work_date', period.data.work_end_date).order('work_date').order('shift_id'),
-    supabaseAdmin.from('shift_registrations').select('id', { count: 'exact', head: true }).eq('period_id', periodId).eq('status', 'VALID'),
-    supabaseAdmin.from('employees').select('id, full_name, department_id').eq('branch_id', branchId).order('full_name'),
-    supabaseAdmin.from('shifts').select('id, name, start_time, end_time').or(`branch_id.eq.${branchId},branch_id.is.null`).order('start_time'),
-    supabaseAdmin.from('departments').select('id, name').order('name'),
-  ]);
-  for (const result of results) if (result.error) databaseError(result.error);
-  return { source: 'supabase' as const, period: period.data, requirements: results[0].data ?? [], valid_registration_count: results[1].count ?? 0,
-    employees: results[2].data ?? [], shifts: results[3].data ?? [], departments: results[4].data ?? [] };
+  const data=await repository.load(branchId,periodId);
+  return {source:data.source,period:data.period,requirements:data.requirements,
+    valid_registration_count:data.registrations.length,registration_declarations:data.registration_declarations,
+    employees:data.employees.map(e=>({id:e.id,full_name:e.full_name,department_id:e.department_id})),
+    shifts:data.shifts,departments:data.departments};
 }
 
 
 export async function readRegistrationSummary(periodId: string, branchId: string, filters: { work_date?: string; shift_id?: string; department_id?: string } = {}) {
   const snapshot = await registrationSummaryRepository().load(branchId, periodId);
   const summary = summarizeRegistrations(snapshot);
-  return { ...summary, rows: summary.rows.filter(row =>
+  return { ...summary, registration_declarations:snapshot.registration_declarations, rows: summary.rows.filter(row =>
     (!filters.work_date || row.work_date === filters.work_date) &&
     (!filters.shift_id || row.shift_id === filters.shift_id) &&
     (!filters.department_id || row.department_id === filters.department_id)) };

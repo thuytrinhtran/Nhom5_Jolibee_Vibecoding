@@ -21,15 +21,15 @@ async function createHarness(){
  class Query{
   constructor(table){this.table=table;this.fields='*';this.filters=[];this.params=[];this.sort='';this.cap='';}
   select(fields){this.fields=fields;return this;}
-  filter(column,op,value){this.params.push(value);this.filters.push(`${identifier(column)} ${op} $${this.params.length}`);return this;}
-  eq(c,v){return this.filter(c,'=',v);}gt(c,v){return this.filter(c,'>',v);}lte(c,v){return this.filter(c,'<=',v);}
+  filter(column,op,value){this.params.push(value);this.filters.push(`${column==='employee.branch_id'?'(SELECT branch_id FROM employees WHERE employees.id=employee_id)':identifier(column)} ${op} $${this.params.length}`);return this;}
+  eq(c,v){return this.filter(c,'=',v);}neq(c,v){return this.filter(c,'<>',v);}gte(c,v){return this.filter(c,'>=',v);}range(a,b){this.cap=` LIMIT ${b-a+1} OFFSET ${a}`;return this;}gt(c,v){return this.filter(c,'>',v);}lte(c,v){return this.filter(c,'<=',v);}
   in(c,values){const slots=values.map(v=>{this.params.push(v);return '$'+this.params.length;});this.filters.push(`${identifier(c)} IN (${slots.join(',')})`);return this;}
-  or(value){const match=/^branch_id\.is\.null,branch_id\.eq\.([\da-f-]+)$/.exec(value);if(!match)throw Error('Unexpected fixture OR');this.params.push(match[1]);this.filters.push(`(branch_id IS NULL OR branch_id=$${this.params.length})`);return this;}
+  or(value){value=value.replace(/^branch_id\.eq\.([\da-f-]+),branch_id\.is\.null$/,'branch_id.is.null,branch_id.eq.$1');const match=/^branch_id\.is\.null,branch_id\.eq\.([\da-f-]+)$/.exec(value);if(!match)throw Error('Unexpected fixture OR');this.params.push(match[1]);this.filters.push(`(branch_id IS NULL OR branch_id=$${this.params.length})`);return this;}
   order(c,options={}){this.sort=` ORDER BY ${identifier(c)} ${options.ascending===false?'DESC':'ASC'}`;return this;}
   limit(n){if(!Number.isInteger(n))throw Error('Unexpected fixture limit');this.cap=` LIMIT ${n}`;return this;}
   async run(single=false){
    try{
-    const fields=this.fields==='*'?'*':this.fields.split(/,(?![^()]*\))/).map(c=>c.trim()).map(c=>c==='departments:department_id(name)'?"(SELECT json_build_object('name',d.name) FROM departments d WHERE d.id=employees.department_id) AS departments":identifier(c)).join(',');
+    const fields=this.fields==='*'?'*':this.fields.split(/,(?![^()]*\))/).map(c=>c.trim()).map(c=>c==='schedules(id, status, version, created_at)'?"coalesce((SELECT json_agg(s) FROM schedules s WHERE s.period_id=registration_periods.id),'[]'::json) AS schedules":c==='user:user_id(is_active, role, branch_id)'?"(SELECT json_build_object('is_active',u.is_active,'role',u.role,'branch_id',u.branch_id) FROM users u WHERE u.id=employees.user_id) AS \"user\"":c==='employee:employees!inner(branch_id)'?"(SELECT json_build_object('branch_id',e.branch_id) FROM employees e WHERE e.id=employee_id) AS employee":c==='shift:shift_id(id, name, start_time, end_time, is_active, branch_id)'?"(SELECT row_to_json(s) FROM shifts s WHERE s.id=shift_id) AS shift":c==='departments:department_id(name)'?"(SELECT json_build_object('name',d.name) FROM departments d WHERE d.id=employees.department_id) AS departments":identifier(c)).join(',');
     const rows=(await sql.query(`SELECT ${fields} FROM public.${identifier(this.table)}${this.filters.length?' WHERE '+this.filters.join(' AND '):''}${this.sort}${this.cap}`,this.params)).rows;
     for(const row of rows)for(const name of ['work_date','work_start_date','work_end_date'])if(row[name] instanceof Date)row[name]=row[name].toISOString().slice(0,10);
     return{data:single?rows[0]||null:rows,error:null};

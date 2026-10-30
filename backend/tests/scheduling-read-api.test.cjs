@@ -12,9 +12,9 @@ test('manager period APIs are registered, branch-scoped, validated and read-only
   db.auth.getUser=async()=>({data:{user:{id}}});
   db.from=table=>{
     const filters=[];const query={table,filters};queries.push(query);
-    const data=()=> table==='registration_periods' ? [{id,branch_id:id,work_start_date:'2026-11-02',work_end_date:'2026-11-08',status:'CLOSED',schedules:[]}]
-      :table==='employees'?[{id,full_name:'Test Employee',department_id:id}]:[];
-    return {select(columns){query.columns=columns;return this},eq(k,v){filters.push([k,v]);return this},gte(){return this},lte(){return this},or(value){query.or=value;return this},order(){return this},range(){return this},
+    const data=()=> table==='registration_periods' ? [{id,branch_id:id,work_start_date:'2026-11-02',work_end_date:'2026-11-08',status:'PLANNED',open_at:'2026-10-01T00:00:00Z',close_at:'2026-10-02T00:00:00Z',schedules:[]}]
+      :table==='employees'?[{id,full_name:'Test Employee',department_id:id,branch_id:id,status:'ACTIVE',skill_level:'REGULAR',user:{is_active:true,role:'NV',branch_id:id}}]:table==='shift_registrations'?[1,2,3].map(n=>({id:String(n),period_id:id,employee_id:id,work_date:'2026-11-02',shift_id:String(n),status:'VALID',submitted_at:'stamp'})):table==='shifts'?[1,2,3].map(n=>({id:String(n),branch_id:id,is_active:true})):table==='registration_submissions_sourced'?[{employee_id:id,status:'VALID',submitted_at:'stamp',updated_at:'stamp',sample_batch_id:null}]:[];
+    return {select(columns){query.columns=columns;return this},eq(k,v){filters.push([k,v]);return this},neq(){return this},gte(){return this},lte(){return this},or(value){query.or=value;return this},order(){return this},range(){return this},
       single:async()=>({data:table==='users'?{id,username:'fixture',role,branch_id:id,is_active:true,must_change_password:false}:{name:'Test Branch'}}),
       maybeSingle:async()=>({data:missing?null:data()[0],error:fail?{message:'private failure'}:null}),
       then(resolve){resolve({data:data(),count:table==='shift_registrations'?3:null,error:fail?{message:'private failure'}:null});}};
