@@ -3,7 +3,18 @@ import { supabaseAdmin } from '../config/supabase.js';
 import { authenticate, requireRole } from '../middleware/auth.middleware.js';
 
 const router = Router();
-const scheduleSelect = 'id,schedule_group_id,branch_id,period_id,version,status,created_at,published_at,feedback_deadline_at,branches(name),registration_periods(work_start_date,work_end_date),shift_assignments(id,work_date,status,assignment_source,employees(full_name,department_id,departments(name)),shifts(name,start_time,end_time),departments(name))';
+const scheduleSelect = 'id,schedule_group_id,branch_id,period_id,version,status,created_by,created_at,published_at,feedback_deadline_at,branches(id,name),registration_periods(work_start_date,work_end_date),shift_assignments(id,work_date,status,assignment_source,shift_id,employee_id,department_id,employees(id,full_name,department_id,departments(name)),shifts(id,name,start_time,end_time),departments(id,name))';
+
+export function markLatestVersions<T extends { schedule_group_id: string; version: number }>(
+  schedules: T[],
+  versions: Array<{ schedule_group_id: string; version: number }>,
+): Array<T & { is_latest: boolean }> {
+  const latestByGroup = new Map<string, number>();
+  for (const row of versions) {
+    latestByGroup.set(row.schedule_group_id, Math.max(latestByGroup.get(row.schedule_group_id) || 0, row.version));
+  }
+  return schedules.map(row => ({ ...row, is_latest: latestByGroup.get(row.schedule_group_id) === row.version }));
+}
 
 router.use(authenticate);
 
@@ -31,14 +42,22 @@ router.get('/', async (req, res) => {
     const schedules = data || [];
     const ids = schedules.map(schedule => schedule.id);
     let approvals: any[] = [];
+    let versions: Array<{ schedule_group_id: string; version: number }> = [];
     if (ids.length) {
       const result = await supabaseAdmin.from('schedule_approvals')
         .select('id,schedule_id,supervisor_id,decision,reason,decided_at,users:supervisor_id(username)')
         .in('schedule_id', ids).order('decided_at', { ascending: false });
       if (result.error) throw result.error;
       approvals = result.data || [];
+
+      const groupIds = [...new Set(schedules.map(schedule => schedule.schedule_group_id))];
+      const versionResult = await supabaseAdmin.from('schedules')
+        .select('schedule_group_id,version').in('schedule_group_id', groupIds);
+      if (versionResult.error) throw versionResult.error;
+      versions = versionResult.data || [];
     }
-    return res.json({ schedules: schedules.map(schedule => ({
+    const withLatest = markLatestVersions(schedules, versions);
+    return res.json({ schedules: withLatest.map(schedule => ({
       ...schedule,
       approvals: approvals.filter(approval => approval.schedule_id === schedule.id),
     })) });

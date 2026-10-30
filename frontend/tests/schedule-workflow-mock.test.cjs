@@ -45,11 +45,13 @@ function renderWorkflowWithProfile(profile) {
     '../../context/AuthContext': { useAuth: () => ({ user: profile }) },
     './scheduleWorkflow.types': types,
     './tv4MockWorkflow.service': { tv4MockWorkflowService: { listSchedules: async () => [] } },
+    './scheduleWorkflow.api.service': { scheduleWorkflowApiService: serviceModule.tv4MockWorkflowService },
     './ScheduleWorkflow.css': {},
   };
   vm.runInNewContext(javascript, {
     exports: loaded.exports,
     module: loaded,
+    Error: Object.getPrototypeOf(types.ScheduleWorkflowError.prototype).constructor,
     require: id => {
       if (dependencies[id]) return dependencies[id];
       throw new Error(`Unexpected UI module import in isolated TV4 render: ${id}`);
@@ -66,6 +68,7 @@ function createInteractiveWorkflowHarness(profile, service, initialSchedules, mo
   const loaded = { exports: {} };
   const state = [initialSchedules, null, null, '', '', {}, '', false, false, '', '', null];
   let stateIndex = 0;
+  const effects = [];
   const jsx = (type, props, key) => ({ type, props: props || {}, key });
   const runtime = { jsx, jsxs: jsx, Fragment: Symbol('Fragment') };
   const fakeReact = {
@@ -76,7 +79,7 @@ function createInteractiveWorkflowHarness(profile, service, initialSchedules, mo
     },
     useMemo(factory) { return factory(); },
     useCallback(callback) { return callback; },
-    useEffect() {},
+    useEffect(effect) { effects.push(effect); },
   };
   const dependencies = {
     react: fakeReact,
@@ -84,11 +87,13 @@ function createInteractiveWorkflowHarness(profile, service, initialSchedules, mo
     '../../context/AuthContext': { useAuth: () => ({ user: profile }) },
     './scheduleWorkflow.types': types,
     './tv4MockWorkflow.service': { tv4MockWorkflowService: service },
+    './scheduleWorkflow.api.service': { scheduleWorkflowApiService: service },
     './ScheduleWorkflow.css': {},
   };
   vm.runInNewContext(javascript, {
     exports: loaded.exports,
     module: loaded,
+    Error: Object.getPrototypeOf(types.ScheduleWorkflowError.prototype).constructor,
     require: id => {
       if (dependencies[id]) return dependencies[id];
       throw new Error('Unexpected module import in isolated TV4 interaction test: ' + id);
@@ -115,7 +120,11 @@ function createInteractiveWorkflowHarness(profile, service, initialSchedules, mo
     assert.ok(button, 'Expected button "' + label + '" to render; found: ' + buttons.map(textOf).join(' | '));
     button.props.onClick();
   };
-  return { render, allNodes, textOf, clickButton, state };
+  const runEffects = () => {
+    const pending = effects.splice(0);
+    pending.forEach(effect => effect());
+  };
+  return { render, allNodes, textOf, clickButton, runEffects, state };
 }
 
 const flushPromises = () => new Promise(resolve => setImmediate(resolve));
@@ -390,6 +399,35 @@ test('QL TV4 screen hides mapped-branch diagnostics and warns on an unmapped pro
   });
   assert.match(unmappedMarkup, /Không ánh xạ được chi nhánh demo/);
   assert.match(unmappedMarkup, /unknown-branch-id/);
+});
+
+test('TV4 API load failure shows an error without a false empty state or mock fallback', async () => {
+  const profile = {
+    id: 'manager-hai-chau', username: 'QL Hải Châu', role: 'QL',
+    branch_id: 'real-hai-chau-id', branch_name: 'Hải Châu', is_active: true, must_change_password: false,
+  };
+  const staleSchedule = serviceModule.createTv4MockSeed().schedules.find(schedule => schedule.status === 'APPROVED');
+  let apiCalls = 0;
+  const service = {
+    mode: 'api',
+    listSchedules: async () => {
+      apiCalls += 1;
+      throw new types.ScheduleWorkflowError('Backend lỗi HTTP 500.', 'HTTP_500', 500);
+    },
+  };
+  const harness = createInteractiveWorkflowHarness(profile, service, [staleSchedule]);
+  harness.render();
+  harness.runEffects();
+  await flushPromises();
+  const tree = harness.render();
+  const nodes = harness.allNodes(tree);
+  const errorAlert = nodes.find(node => node.props.role === 'alert' && node.props.className === 'workflow-alert error');
+
+  assert.equal(apiCalls, 1);
+  assert.ok(errorAlert);
+  assert.match(harness.textOf(errorAlert), /Backend lỗi HTTP 500/);
+  assert.equal(nodes.some(node => node.props.className === 'workflow-empty' && /Chưa có lịch/.test(harness.textOf(node))), false);
+  assert.equal(nodes.some(node => node.props.className === 'workflow-list'), false);
 });
 
 test('TV4 shows a success modal only after an action succeeds and keeps failures in the error alert', async () => {

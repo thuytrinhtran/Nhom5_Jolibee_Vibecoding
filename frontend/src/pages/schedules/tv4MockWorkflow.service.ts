@@ -165,6 +165,7 @@ export function createTv4MockSeed(): MockStore {
 }
 
 export class Tv4MockWorkflowService implements ScheduleWorkflowService {
+  readonly mode = 'mock' as const;
   private store: MockStore;
 
   constructor(private readonly clock: Clock = () => new Date(), seed: MockStore = createTv4MockSeed()) {
