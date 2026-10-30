@@ -43,6 +43,7 @@ function renderWorkflowWithProfile(profile) {
     react: React,
     'react/jsx-runtime': require('react/jsx-runtime'),
     '../../context/AuthContext': { useAuth: () => ({ user: profile }) },
+    'lucide-react': { CalendarDays: 'svg' },
     './scheduleWorkflow.types': types,
     './tv4MockWorkflow.service': { tv4MockWorkflowService: { listSchedules: async () => [] } },
     './scheduleWorkflow.api.service': { scheduleWorkflowApiService: serviceModule.tv4MockWorkflowService },
@@ -85,6 +86,7 @@ function createInteractiveWorkflowHarness(profile, service, initialSchedules, mo
     react: fakeReact,
     'react/jsx-runtime': runtime,
     '../../context/AuthContext': { useAuth: () => ({ user: profile }) },
+    'lucide-react': { CalendarDays: 'svg' },
     './scheduleWorkflow.types': types,
     './tv4MockWorkflow.service': { tv4MockWorkflowService: service },
     './scheduleWorkflow.api.service': { scheduleWorkflowApiService: service },
@@ -384,7 +386,7 @@ test('Thanh Khê QL can resubmit after repeated rejection and GS can review both
   await assert.rejects(service.publishSchedule(thanhKheManager, centralApproved.id, '2026-11-01T12:00:00.000Z'), { code: 'OUT_OF_SCOPE' });
 });
 
-test('QL TV4 screen hides mapped-branch diagnostics and warns on an unmapped profile', () => {
+test('QL TV4 screen hides branch IDs and shows a friendly warning for an unmapped demo profile', () => {
   const matchedMarkup = renderWorkflowWithProfile({
     id: 'real-manager', username: 'Quản lý Thanh Khê', role: 'QL', branch_id: 'real-branch-thanh-khe',
     branch_name: 'Thanh Khê 1', is_active: true, must_change_password: false,
@@ -397,8 +399,38 @@ test('QL TV4 screen hides mapped-branch diagnostics and warns on an unmapped pro
     id: 'real-manager', username: 'Quản lý chưa ánh xạ', role: 'QL', branch_id: 'unknown-branch-id',
     branch_name: 'Chi nhánh chưa có fixture', is_active: true, must_change_password: false,
   });
-  assert.match(unmappedMarkup, /Không ánh xạ được chi nhánh demo/);
-  assert.match(unmappedMarkup, /unknown-branch-id/);
+  assert.match(unmappedMarkup, /Không thể xác định chi nhánh dữ liệu thử nghiệm cho tài khoản này/);
+  assert.doesNotMatch(unmappedMarkup, /unknown-branch-id|branch_name=|fixture TV4/);
+});
+
+test('TV4 publish empty API response shows the friendly message and refresh action without branch diagnostics', async () => {
+  const branchUuid = '11111111-1111-4111-8111-111111111111';
+  const profile = {
+    id: 'manager-id', username: 'Quản lý', role: 'QL', branch_id: branchUuid,
+    branch_name: 'Jollibee Demo', is_active: true, must_change_password: false,
+  };
+  let apiCalls = 0;
+  const apiService = {
+    mode: 'api',
+    listSchedules: async () => { apiCalls += 1; return []; },
+  };
+  const harness = createInteractiveWorkflowHarness(profile, apiService, [], 'publish');
+  harness.render();
+  harness.runEffects();
+  await flushPromises();
+
+  const nodes = harness.allNodes(harness.render());
+  const emptyState = nodes.find(node => node.props.className === 'workflow-empty' && node.props.role === 'status');
+  assert.ok(emptyState);
+  assert.match(harness.textOf(emptyState), /Chưa có lịch làm việc phù hợp\./);
+  assert.match(harness.textOf(emptyState), /Khi có lịch được duyệt thuộc chi nhánh của bạn, lịch sẽ xuất hiện tại đây\. Nhấn “Làm mới” để kiểm tra dữ liệu mới\./);
+  assert.doesNotMatch(harness.textOf(emptyState), new RegExp(branchUuid));
+  assert.equal(nodes.some(node => node.props.role === 'alert'), false);
+  assert.equal(apiCalls, 1);
+
+  harness.clickButton(harness.render(), 'Làm mới');
+  await flushPromises();
+  assert.equal(apiCalls, 2);
 });
 
 test('TV4 API load failure shows an error without a false empty state or mock fallback', async () => {
@@ -595,6 +627,61 @@ test('failed QL adjustment shows an error and retains the edited fields', async 
   assert.equal(harness.state[2], schedule.id, 'editor remains open after validation failure');
   assert.equal(harness.state[4], 'Điều chỉnh nhưng service từ chối.');
   assert.equal(harness.state[5][schedule.shift_assignments[0].id], 'tv4-shift-evening');
+});
+
+test('API mode opens the NEEDS_REVISION editor but preserves edits and shows an error when resubmit is not configured', async () => {
+  const schedule = JSON.parse(JSON.stringify(serviceModule.createTv4MockSeed().schedules
+    .find(row => row.id === 'tv4-seed-needs-revision-01')));
+  const profile = {
+    id: 'manager-hai-chau', email: 'manager@example.invalid', username: 'QL Hải Châu', role: 'QL',
+    branch_id: 'tv4-branch-central', branch_name: 'Hải Châu', is_active: true, must_change_password: false,
+  };
+  let submitted;
+  const service = {
+    mode: 'api',
+    listSchedules: async () => [schedule],
+    resubmitSchedule: async (...args) => {
+      submitted = args;
+      throw new types.ScheduleWorkflowError('API điều chỉnh và trình lại lịch chưa được cấu hình trên backend.', 'RESUBMIT_NOT_CONFIGURED', 501);
+    },
+  };
+  const harness = createInteractiveWorkflowHarness(profile, service, [schedule]);
+  harness.render();
+  harness.runEffects();
+  await flushPromises();
+
+  let tree = harness.render();
+  harness.clickButton(tree, 'JolliShift Demo · Hải Châu · Phiên bản 1');
+  tree = harness.render();
+  harness.clickButton(tree, 'Điều chỉnh lịch');
+  tree = harness.render();
+
+  const note = harness.allNodes(tree).find(node => node.type === 'textarea');
+  const shiftSelect = harness.allNodes(tree).find(node => node.type === 'select');
+  assert.ok(note);
+  assert.ok(shiftSelect);
+  note.props.onChange({ target: { value: 'Điều chỉnh ca sau khi GS phản hồi.' } });
+  const nextShift = shiftSelect.props.children.find(option => option.props.value !== shiftSelect.props.value);
+  assert.ok(nextShift);
+  shiftSelect.props.onChange({ target: { value: nextShift.props.value } });
+
+  tree = harness.render();
+  harness.clickButton(tree, 'Điều chỉnh');
+  tree = harness.render();
+  harness.clickButton(tree, 'Xác nhận');
+  await flushPromises();
+  tree = harness.render();
+
+  assert.equal(submitted[1], schedule.id);
+  assert.equal(submitted[2], 'Điều chỉnh ca sau khi GS phản hồi.');
+  assert.equal(submitted[4], schedule.version);
+  assert.equal(submitted[5], schedule.schedule_group_id);
+  assert.equal(harness.state[2], schedule.id, 'editor remains open after the unconfigured API error');
+  assert.equal(harness.state[4], 'Điều chỉnh ca sau khi GS phản hồi.', 'note remains available for retry');
+  assert.equal(harness.allNodes(tree).some(node => node.props['aria-labelledby'] === 'workflow-success-title'), false);
+  const errorAlert = harness.allNodes(tree).find(node => node.props.role === 'alert' && node.props.className === 'workflow-alert error');
+  assert.ok(errorAlert);
+  assert.match(harness.textOf(errorAlert), /chưa được cấu hình trên backend/);
 });
 
 test('QL initial list returns schedules in its exact fixture scope and keeps pending approval with GS', async () => {

@@ -58,12 +58,23 @@ export interface ScheduleWorkflowRecord {
   is_latest: boolean;
 }
 
+export interface ResubmitAssignmentChange {
+  source_assignment_id: string;
+  shift_id: string;
+}
+
+export interface ResubmitScheduleRequest {
+  expected_version: number;
+  adjustment_note: string;
+  assignments: ResubmitAssignmentChange[];
+}
+
 export interface ScheduleWorkflowService {
   /** Identifies whether this provider uses fixtures or the authenticated backend. */
   mode?: 'mock' | 'api';
   listSchedules(actor: ScheduleWorkflowActor, view: ScheduleWorkflowView): Promise<ScheduleWorkflowRecord[]>;
   decideSchedule(actor: ScheduleWorkflowActor, scheduleId: string, decision: ScheduleDecision, reason?: string): Promise<ScheduleWorkflowRecord>;
-  resubmitSchedule(actor: ScheduleWorkflowActor, scheduleId: string, adjustmentNote: string, assignments: ScheduleAssignment[]): Promise<ScheduleWorkflowRecord>;
+  resubmitSchedule(actor: ScheduleWorkflowActor, scheduleId: string, adjustmentNote: string, assignments: ScheduleAssignment[], expectedVersion: number, expectedScheduleGroupId: string): Promise<ScheduleWorkflowRecord>;
   publishSchedule(actor: ScheduleWorkflowActor, scheduleId: string, feedbackDeadlineAt: string): Promise<ScheduleWorkflowRecord>;
 }
 

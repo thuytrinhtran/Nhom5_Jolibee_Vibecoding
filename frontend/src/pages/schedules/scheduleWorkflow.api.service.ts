@@ -1,7 +1,7 @@
 import { authService } from '../../services/auth.service';
 import type {
   ScheduleApproval, ScheduleAssignment, ScheduleDecision, ScheduleWorkflowActor,
-  ScheduleWorkflowRecord, ScheduleWorkflowService, ScheduleWorkflowView,
+  ResubmitScheduleRequest, ScheduleWorkflowRecord, ScheduleWorkflowService, ScheduleWorkflowView,
 } from './scheduleWorkflow.types';
 import { ScheduleWorkflowError } from './scheduleWorkflow.types';
 
@@ -11,6 +11,8 @@ type ApiDependencies = {
   fetcher?: typeof fetch;
   getToken?: () => string | null;
   refreshSession?: () => Promise<unknown>;
+  /** Explicit endpoint opt-in; leave unset until backend support is deployed. */
+  resubmitEndpoint?: (scheduleId: string) => string | null;
 };
 
 type ApiRow = Record<string, any>;
@@ -19,11 +21,47 @@ const one = <T,>(value: T | T[] | null | undefined): T | undefined =>
   Array.isArray(value) ? value[0] : value || undefined;
 
 function apiError(status: number, message: string, code?: string): ScheduleWorkflowError {
+  const workflowMessages: Record<string, string> = {
+    STALE_VERSION: 'Lịch đã có phiên bản mới. Hãy tải lại danh sách trước khi trình lại.',
+    SCHEDULE_STATUS_CONFLICT: 'Lịch không còn ở trạng thái cần điều chỉnh.',
+    INVALID_ASSIGNMENTS: 'Thông tin phân công không hợp lệ. Hãy kiểm tra lại các ca đã chọn.',
+    ADJUSTMENT_NOTE_REQUIRED: 'Vui lòng nhập ghi chú điều chỉnh.',
+    RESUBMIT_NOT_CONFIGURED: 'API điều chỉnh và trình lại lịch chưa được cấu hình trên backend.',
+    VERSION_CONFLICT: 'Có thao tác khác vừa tạo phiên bản lịch. Hãy tải lại danh sách.',
+  };
   const fallback = status === 401 ? 'Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.'
     : status === 403 ? 'Tài khoản không có quyền thực hiện thao tác này.'
       : status >= 500 ? 'Backend tạm thời không xử lý được yêu cầu TV4.'
         : 'Yêu cầu TV4 không hợp lệ.';
-  return new ScheduleWorkflowError(message || fallback, code || `HTTP_${status}`, status);
+  return new ScheduleWorkflowError((code && workflowMessages[code]) || message || fallback, code || `HTTP_${status}`, status);
+}
+
+export function createResubmitScheduleRequest(
+  expectedVersion: number,
+  adjustmentNote: string,
+  assignments: ScheduleAssignment[],
+): ResubmitScheduleRequest {
+  if (!Number.isSafeInteger(expectedVersion) || expectedVersion < 1) {
+    throw apiError(400, 'Version lịch không hợp lệ.', 'INVALID_VERSION');
+  }
+  const note = adjustmentNote.trim();
+  if (!note) throw apiError(422, '', 'ADJUSTMENT_NOTE_REQUIRED');
+  if (!Array.isArray(assignments) || assignments.length === 0) {
+    throw apiError(422, '', 'INVALID_ASSIGNMENTS');
+  }
+
+  const seenAssignmentIds = new Set<string>();
+  const normalizedAssignments = assignments.map(assignment => {
+    const sourceAssignmentId = assignment?.id?.trim();
+    const shiftId = assignment?.shifts?.id?.trim();
+    if (!sourceAssignmentId || !shiftId || seenAssignmentIds.has(sourceAssignmentId)) {
+      throw apiError(422, '', 'INVALID_ASSIGNMENTS');
+    }
+    seenAssignmentIds.add(sourceAssignmentId);
+    return { source_assignment_id: sourceAssignmentId, shift_id: shiftId };
+  });
+
+  return { expected_version: expectedVersion, adjustment_note: note, assignments: normalizedAssignments };
 }
 
 function normalizeApproval(row: ApiRow): ScheduleApproval {
@@ -93,6 +131,7 @@ function normalizeSchedule(row: ApiRow): ScheduleWorkflowRecord {
       };
     }),
     approvals: (Array.isArray(row.approvals) ? row.approvals : []).map(normalizeApproval),
+    resubmission_note: row.resubmission_note ?? null,
     is_latest: row.is_latest,
   };
 }
@@ -162,8 +201,22 @@ export function createScheduleWorkflowApiService(dependencies: ApiDependencies =
       if (!result?.schedule) throw apiError(502, 'Backend không trả kết quả quyết định lịch hợp lệ.');
       return result.schedule as ScheduleWorkflowRecord;
     },
-    async resubmitSchedule() {
-      throw apiError(501, 'API điều chỉnh và trình lại lịch chưa được TV3 cung cấp.', 'RESUBMIT_API_UNAVAILABLE');
+    async resubmitSchedule(actor, scheduleId, adjustmentNote, assignments, expectedVersion, expectedScheduleGroupId) {
+      requireRole(actor, 'QL');
+      const body = createResubmitScheduleRequest(expectedVersion, adjustmentNote, assignments);
+      const endpoint = dependencies.resubmitEndpoint?.(scheduleId) || null;
+      if (!endpoint || !endpoint.startsWith('/')) {
+        throw apiError(501, '', 'RESUBMIT_NOT_CONFIGURED');
+      }
+
+      const result = await request(endpoint, { method: 'POST', body: JSON.stringify(body) });
+      if (!result?.schedule) throw apiError(502, 'Backend không trả phiên bản lịch mới hợp lệ.');
+      const schedule = normalizeSchedule(result.schedule);
+      if (schedule.status !== 'PENDING_APPROVAL' || schedule.version !== expectedVersion + 1
+        || schedule.schedule_group_id !== expectedScheduleGroupId || !schedule.is_latest) {
+        throw apiError(502, 'Backend trả phiên bản trình duyệt lại không khớp hợp đồng.', 'INVALID_RESUBMIT_RESPONSE');
+      }
+      return schedule;
     },
     async publishSchedule(actor, scheduleId, feedbackDeadlineAt) {
       requireRole(actor, 'QL');

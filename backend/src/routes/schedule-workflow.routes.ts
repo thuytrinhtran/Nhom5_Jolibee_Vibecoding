@@ -3,7 +3,53 @@ import { supabaseAdmin } from '../config/supabase.js';
 import { authenticate, requireRole } from '../middleware/auth.middleware.js';
 
 const router = Router();
+const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const scheduleSelect = 'id,schedule_group_id,branch_id,period_id,version,status,created_by,created_at,published_at,feedback_deadline_at,branches(id,name),registration_periods(work_start_date,work_end_date),shift_assignments(id,work_date,status,assignment_source,shift_id,employee_id,department_id,employees(id,full_name,department_id,departments(name)),shifts(id,name,start_time,end_time),departments(id,name))';
+
+type ResubmitAssignmentInput = { source_assignment_id: string; shift_id: string };
+type ResubmitInput = { expected_version: number; adjustment_note: string; assignments: ResubmitAssignmentInput[] };
+
+function validateResubmitInput(body: unknown): { value?: ResubmitInput; error?: { code: string; message: string } } {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return { error: { code: 'INVALID_RESUBMIT_REQUEST', message: 'Nội dung trình lại lịch không hợp lệ.' } };
+  }
+  const value = body as Record<string, unknown>;
+  if (Object.keys(value).some(key => !['expected_version', 'adjustment_note', 'assignments'].includes(key))) {
+    return { error: { code: 'INVALID_RESUBMIT_REQUEST', message: 'Request chỉ hỗ trợ expected_version, adjustment_note và assignments.' } };
+  }
+  if (!Number.isSafeInteger(value.expected_version) || Number(value.expected_version) < 1) {
+    return { error: { code: 'INVALID_RESUBMIT_REQUEST', message: 'expected_version phải là số nguyên dương an toàn.' } };
+  }
+  if (typeof value.adjustment_note !== 'string' || !value.adjustment_note.trim()) {
+    return { error: { code: 'ADJUSTMENT_NOTE_REQUIRED', message: 'Vui lòng nhập ghi chú điều chỉnh.' } };
+  }
+  if (!Array.isArray(value.assignments) || value.assignments.length === 0) {
+    return { error: { code: 'INVALID_ASSIGNMENTS', message: 'Cần ít nhất một phân công đã điều chỉnh.' } };
+  }
+
+  const seen = new Set<string>();
+  const assignments: ResubmitAssignmentInput[] = [];
+  for (const item of value.assignments) {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      return { error: { code: 'INVALID_ASSIGNMENTS', message: 'Thông tin phân công không hợp lệ.' } };
+    }
+    const assignment = item as Record<string, unknown>;
+    if (Object.keys(assignment).some(key => !['source_assignment_id', 'shift_id'].includes(key))
+      || typeof assignment.source_assignment_id !== 'string' || !uuid.test(assignment.source_assignment_id)
+      || typeof assignment.shift_id !== 'string' || !uuid.test(assignment.shift_id)
+      || seen.has(assignment.source_assignment_id)) {
+      return { error: { code: 'INVALID_ASSIGNMENTS', message: 'Mã phân công nguồn hoặc ca không hợp lệ, hoặc bị lặp.' } };
+    }
+    seen.add(assignment.source_assignment_id);
+    assignments.push({ source_assignment_id: assignment.source_assignment_id, shift_id: assignment.shift_id });
+  }
+
+  return { value: {
+    expected_version: Number(value.expected_version),
+    adjustment_note: value.adjustment_note.trim(),
+    assignments,
+  } };
+}
 
 export function markLatestVersions<T extends { schedule_group_id: string; version: number }>(
   schedules: T[],
@@ -115,6 +161,45 @@ router.post('/:id/publish', requireRole(['QL']), async (req, res) => {
   if (error) return res.status(error.message.includes('FORBIDDEN') ? 403 : error.message.includes('NOT_FOUND') ? 404 : 409)
     .json({ message: error.message.includes('STALE') ? 'Lịch đã có phiên bản mới hơn; hãy tải lại.' : 'Chỉ lịch đã phê duyệt mới được công bố.' });
   return res.json({ schedule: data });
+});
+
+// Resubmit is intentionally validation-only until TV3 and the database owner
+// provide the shared transactional version allocator and persistence RPC.
+router.post('/:id/resubmit', requireRole(['QL']), async (req, res) => {
+  if (!uuid.test(req.params.id)) {
+    return res.status(400).json({ status: 'error', code: 'INVALID_RESUBMIT_REQUEST', message: 'Mã lịch không hợp lệ.' });
+  }
+  const validated = validateResubmitInput(req.body);
+  if (validated.error) {
+    const status = validated.error.code === 'INVALID_RESUBMIT_REQUEST' ? 400 : 422;
+    return res.status(status).json({ status: 'error', ...validated.error });
+  }
+
+  // Branch scope is derived only from the authenticated database profile.
+  const branchId = req.user?.branch_id;
+  if (!branchId) {
+    return res.status(403).json({ status: 'error', code: 'FORBIDDEN', message: 'Tài khoản QL chưa được phân công chi nhánh.' });
+  }
+
+  try {
+    const { data: source, error } = await supabaseAdmin.from('schedules')
+      .select('id,branch_id').eq('id', req.params.id).maybeSingle();
+    if (error) throw error;
+    if (!source) return res.status(404).json({ status: 'error', code: 'SCHEDULE_NOT_FOUND', message: 'Không tìm thấy lịch nguồn.' });
+    if (source.branch_id !== branchId) {
+      return res.status(403).json({ status: 'error', code: 'FORBIDDEN', message: 'Lịch nằm ngoài chi nhánh được phân công.' });
+    }
+  } catch (error: any) {
+    console.error('[Schedule workflow] Resubmit scope check failed:', error.code || error.message);
+    return res.status(503).json({ status: 'error', code: 'RESUBMIT_VALIDATION_UNAVAILABLE', message: 'Không thể xác minh phạm vi lịch. Vui lòng thử lại.' });
+  }
+
+  // Do not call an unverified RPC or report a successful resubmission.
+  return res.status(501).json({
+    status: 'error',
+    code: 'RESUBMIT_NOT_CONFIGURED',
+    message: 'Chức năng trình lại lịch chưa được cấu hình trên backend.',
+  });
 });
 
 export default router;
