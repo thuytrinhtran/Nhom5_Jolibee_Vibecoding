@@ -1,0 +1,11 @@
+# FUTURE TEST setup only. Save privately as backend/.env.tv2-test after SQL is prepared.
+TV2_DATABASE_ENV=isolated-test
+TV2_TEST_PROJECT_REF=wimikwyuzhltpjciafod
+SUPABASE_URL=https://wimikwyuzhltpjciafod.supabase.co
+SUPABASE_SECRET_KEY=REPLACE_WITH_TEST_SERVER_KEY
+SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_ANON_KEY=
+PORT=5001
+FRONTEND_URL=http://localhost:5174
+PASSWORD_MIN_LENGTH=12
+PASSWORD_REQUIRED_GROUPS=lower,upper,digit,symbol

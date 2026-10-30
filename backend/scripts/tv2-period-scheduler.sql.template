@@ -1,0 +1,50 @@
+-- Period creation only. No reminders, notifications or changes to existing periods.
+DO $unique$ BEGIN
+ IF NOT EXISTS(SELECT 1 FROM pg_constraint k WHERE k.conrelid='public.registration_periods'::regclass
+ AND k.contype='u' AND ARRAY(SELECT a.attname::text FROM unnest(k.conkey) WITH ORDINALITY t(num,pos)
+ JOIN pg_attribute a ON a.attrelid=k.conrelid AND a.attnum=t.num ORDER BY pos)=ARRAY['branch_id','work_start_date']::text[])
+ THEN RAISE EXCEPTION 'Missing unique branch/week constraint'; END IF;
+END $unique$;
+CREATE TABLE IF NOT EXISTS public.registration_period_generation_state (
+ singleton boolean PRIMARY KEY DEFAULT true CHECK(singleton),
+ last_success_at timestamptz NOT NULL, created_count integer NOT NULL CHECK(created_count>=0)
+);
+ALTER TABLE public.registration_period_generation_state ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.registration_period_generation_state FROM PUBLIC,anon,authenticated,service_role;
+GRANT SELECT ON public.registration_period_generation_state TO service_role;
+
+-- Privileged helper supports isolated clock tests. Browser/server JWT cannot supply a clock.
+CREATE OR REPLACE FUNCTION public.tv2_ensure_registration_periods_at(p_now timestamptz)
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public,pg_temp AS $$
+DECLARE monday date; made integer;
+BEGIN
+ IF p_now IS NULL THEN RAISE EXCEPTION 'Clock is required'; END IF;
+ IF NOT pg_try_advisory_xact_lock(72910454) THEN RETURN jsonb_build_object('skipped','already_running'); END IF;
+ IF NOT EXISTS(SELECT 1 FROM public.registration_schedule_config WHERE singleton AND timezone='Asia/Ho_Chi_Minh'
+ AND open_iso_day=5 AND open_local_time=time '15:00' AND close_iso_day=7 AND close_local_time=time '12:00')
+ THEN RAISE EXCEPTION 'Friday registration policy is not configured'; END IF;
+ monday:=date_trunc('week',p_now AT TIME ZONE 'Asia/Ho_Chi_Minh')::date+7;
+ INSERT INTO public.registration_periods(branch_id,work_start_date,work_end_date,open_at,close_at,status)
+ SELECT b.id,monday+7*w,monday+7*w+6,
+ ((monday+7*w-3)+time '15:00') AT TIME ZONE 'Asia/Ho_Chi_Minh',
+ ((monday+7*w-1)+time '12:00') AT TIME ZONE 'Asia/Ho_Chi_Minh','PLANNED'
+ FROM public.branches b CROSS JOIN generate_series(0,3) w
+ WHERE b.status='ACTIVE' AND EXISTS(
+ SELECT 1 FROM public.employees e JOIN public.users u ON u.id=e.user_id
+ WHERE e.branch_id=b.id AND e.status='ACTIVE' AND e.skill_level<>'CREW_LEADER'
+ AND u.role='NV' AND u.is_active AND u.branch_id=e.branch_id)
+ ORDER BY b.id,w ON CONFLICT(branch_id,work_start_date) DO NOTHING;
+ GET DIAGNOSTICS made=ROW_COUNT;
+ INSERT INTO public.registration_period_generation_state(singleton,last_success_at,created_count)
+ VALUES(true,p_now,made) ON CONFLICT(singleton) DO UPDATE
+ SET last_success_at=excluded.last_success_at,created_count=excluded.created_count;
+ RETURN jsonb_build_object('created',made,'first_work_monday',monday,'weeks_ahead',4);
+END;
+$$;
+REVOKE ALL ON FUNCTION public.tv2_ensure_registration_periods_at(timestamptz) FROM PUBLIC,anon,authenticated,service_role;
+CREATE OR REPLACE FUNCTION public.tv2_ensure_registration_periods()
+RETURNS jsonb LANGUAGE sql SECURITY DEFINER SET search_path=public,pg_temp AS $$
+ SELECT public.tv2_ensure_registration_periods_at(clock_timestamp());
+$$;
+REVOKE ALL ON FUNCTION public.tv2_ensure_registration_periods() FROM PUBLIC,anon,authenticated,service_role;
+-- Cron executes as the approving postgres owner, not through an internet endpoint.

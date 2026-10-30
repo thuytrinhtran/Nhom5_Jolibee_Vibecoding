@@ -1,0 +1,16 @@
+# Supabase TEST riêng cho TV2
+
+Không dùng NODE_ENV=development để kết luận database riêng. backend/.env hiện tại từng trỏ project nhóm; chưa có backend/.env.tv2-test. Không sửa .env hoặc ghi dữ liệu nhóm. Chỉ dùng project TEST được người vận hành xác nhận và ref khác project nhóm.
+
+1. Tạo project Supabase TEST riêng trong Dashboard. Chạy node backend/scripts/prepare-tv2-test-schema.cjs để xuất SQL vào thư mục tạm (không thực thi). Bản sinh gồm foundation chuẩn hóa index trùng, Auth nền, M1 rồi M2 cuối. Chỉ dùng trên TEST trống; DB có schema chỉ áp dụng migration còn thiếu sau khi duyệt.
+2. Trong SQL Editor đúng TEST project, đặt SET app.tv2_environment='isolated-test'; SET app.tv2_project_ref='REF_TEST_RIENG'; trước SQL đã sinh và chạy cùng một lượt. Settings là xác nhận thủ công, không tự chứng minh server identity. Script chặn ref nhóm.
+3. Tạo Auth user disposable trong Dashboard TEST, không reset/copy tài khoản thật. Dùng hai settings guard và SET app.tv2_test_auth_user_id='UUID_AUTH_TEST'; rồi chạy prepare-employee.sql; script tạo hồ sơ TEST mới, từ chối ghi đè.
+4. Chạy seed.sql cùng hai settings và SET app.tv2_test_username='tv2_test_nv';. Tạo 3 ca TEST liền nhau và kỳ TEST mở 2 giờ cho tuần hiện tại. Không dùng lịch TEST này trong production. Automation giữ disabled; chạy seed lại không kéo dài deadline.
+5. Copy backend-env.example.txt thành backend/.env.tv2-test (gitignored), điền đúng ref/URL/server key TEST. Chạy npm.cmd --prefix backend run build rồi node backend/scripts/tv2-test-server.cjs (cổng 5001, chặn project nhóm).
+6. Trong terminal frontend, đặt API_PROXY_TARGET=http://127.0.0.1:5001, VITE_API_URL=/api, VITE_TV2_DEMO=false chỉ cho tiến trình TEST rồi npm.cmd run dev -- --port 5174 --host 127.0.0.1. Không sửa flag server 5173. Mở http://localhost:5174/login và /employee/register, không được có banner DEMO.
+7. Chọn 1 hoặc 3 ca/ngày, lưu nháp, reload: ngày trống chưa gửi. Gửi và reload: header VALID/submitted_at và ngày trống OFF. Gửi 0 ca sau xác nhận: OFF cả tuần; nháp 0 ca: chưa gửi. Sửa rồi gửi lại; verify.sql chỉ đọc header/ca/config. tv3-contract.sql biểu diễn ba trạng thái. Không có bảng OFF hoặc off_dates payload.
+8. Chờ deadline để kiểm tra khóa; không chỉnh đồng hồ. Khi xong, đặt lại hai guard trong cùng lượt và chạy cleanup.sql. Chỉ xóa rows/header/period/shifts/batch TEST; không xóa Auth/employee/audit. Nếu có người khác dùng period hoặc TV3 đã tham chiếu thì rollback. Có thể tự xóa toàn bộ project TEST khi chắc đúng ref và không còn cần; không đụng project nhóm.
+
+Migrations apply-once, M1 trước M2. Nếu đã chạy bản thử nghiệm OFF riêng/RPC 5 tham số, dừng và đề nghị forward migration được duyệt; không chạy bản mới đè lên schema cũ và không xóa bảng OFF tồn tại.
+
+Kiểm thử cô lập (không Supabase): đặt REGISTRATION_PGLITE_PATH=$env:TEMP/jollishift-registration-test/node_modules/@electric-sql/pglite rồi npm.cmd --prefix backend test. PGlite ở thư mục tạm; có thể cần cài lại nếu đã dọn. Frontend: npm.cmd --prefix frontend test. Browser với Edge và playwright-core trong $env:TEMP/jollishift-ui-test: node frontend/scripts/tv2-demo-ui.cjs hoặc node frontend/scripts/tv2-api-ui.cjs. Browser API dùng PostgreSQL/Auth fixture, không truy cập DB nhóm.

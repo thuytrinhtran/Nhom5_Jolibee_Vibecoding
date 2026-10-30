@@ -9,11 +9,11 @@ export class ApiError extends Error {
   constructor(message: string, public status: number, public code?: string) { super(message); }
 }
 
-async function request(path: string, options: RequestInit = {}): Promise<any> {
+async function request(path: string, options: RequestInit = {}, prefix = '/auth'): Promise<any> {
   let response: Response;
   let text: string;
   try {
-    response = await fetch(`${API_URL}/auth${path}`, { ...options, signal: AbortSignal.timeout(20000) });
+    response = await fetch(`${API_URL}${prefix}${path}`, { ...options, signal: AbortSignal.timeout(20000) });
     text = await response.text();
   } catch {
     throw new ApiError('Không thể kết nối dịch vụ hoặc yêu cầu đã hết thời gian. Vui lòng thử lại.', 0);
@@ -60,13 +60,13 @@ async function refreshSession(): Promise<void> {
   refreshPromise = pending;
   return pending;
 }
-async function authorized(path: string, options: RequestInit = {}) {
+export async function authorized(path: string, options: RequestInit = {}, prefix = '/auth') {
   const version = sessionVersion;
   const expiry = Number(localStorage.getItem(EXPIRY_KEY));
   if (localStorage.getItem(REFRESH_KEY) && expiry && expiry * 1000 <= Date.now() + 60000) await refreshSession();
   const send = async () => {
     assertSession(version);
-    const data = await request(path, { ...options, headers: { ...options.headers, Authorization: `Bearer ${authService.getStoredToken() || ''}` } });
+    const data = await request(path, { ...options, headers: { ...options.headers, Authorization: `Bearer ${authService.getStoredToken() || ''}` } }, prefix);
     assertSession(version);
     return data;
   };

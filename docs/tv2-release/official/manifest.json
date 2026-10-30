@@ -1,0 +1,44 @@
+{
+  "project_ref": "wlbpprpiieonjrqglicv",
+  "revision": "tv2-official-shared-compatible-v3",
+  "status": "PREPARED_NOT_EXECUTED_CATALOG_REVIEW_AND_TEAM_APPROVAL_REQUIRED",
+  "transaction": "incremental_atomic_replay_safe",
+  "sources": [
+    {
+      "file": "backend/migrations/20261029_employee_registration.sql",
+      "sha256": "e900d1897ff02cbfed76bf3a7081873ff182269037022d53349f815ac716b04e"
+    },
+    {
+      "file": "backend/migrations/20261029_registration_off_schedule.sql",
+      "sha256": "52142c9e6902a7b432a7d0b7b403349877ad8bb0f6bd86fb75640af69cc935a9"
+    },
+    {
+      "file": "backend/scripts/tv2-official.sql.template",
+      "sha256": "e99c02d25a98ed0b37d192ac89a827cd7a8b72e11a23b45568523cb35a312532"
+    }
+  ],
+  "artifact": {
+    "file": "01_apply_tv2.sql",
+    "sha256": "a5fcc1775f3f2cf9e337a1561d4885597e9786cf75d6a6f8ce2faf41649a491d"
+  },
+  "known_save_rpc_body_md5": [
+    "80aba9df855ce7114555e7a8662d8316",
+    "47ab5d26b865f9569ebe5b2f087d68e1"
+  ],
+  "schedule": {
+    "timezone": "Asia/Ho_Chi_Minh",
+    "open_iso_day": 4,
+    "open_local_time": "15:00",
+    "close_iso_day": 7,
+    "close_local_time": "12:00",
+    "work_week": "next_Monday_through_Sunday_at_execution"
+  },
+  "data_policy": "Discover active branches; reuse compatible shifts/periods; insert only missing rows. Repair Friday PLANNED periods only when empty, keeping IDs. No Auth/employee writes.",
+  "sample_provenance": "registration_submissions.sample_batch_id -> audit_logs.id; NULL means self-service; genuine save clears sample provenance.",
+  "automation": {
+    "install": false,
+    "enable": false,
+    "cron": false,
+    "reminders": false
+  }
+}
