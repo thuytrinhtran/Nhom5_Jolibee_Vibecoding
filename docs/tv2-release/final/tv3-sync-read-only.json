@@ -1,0 +1,25 @@
+{
+  "checked_at": "2026-10-30T11:47:48.910Z",
+  "read_only": true,
+  "project_host": "wlbpprpiieonjrqglicv.supabase.co",
+  "source": "supabase",
+  "period": {
+    "id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+    "branch_id": "11111111-1111-1111-1111-111111111111",
+    "work_start_date": "2026-11-02",
+    "work_end_date": "2026-11-08",
+    "status": "OPEN",
+    "open_at": "2026-10-30T08:00:00+00:00",
+    "close_at": "2026-11-01T05:00:00+00:00",
+    "stored_status": "PLANNED"
+  },
+  "valid_real_registration_rows": 5,
+  "declarations": {
+    "NOT_SUBMITTED": 371,
+    "SHIFT": 5,
+    "OFF": 2
+  },
+  "summary_groups": 63,
+  "requirements": 63,
+  "note": "Real data read through TV3 adapter only. No schedule generation, RPC writes or authenticated browser session tested."
+}

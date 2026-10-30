@@ -9,6 +9,7 @@ export interface SummarySnapshot {
   employees: SummaryEmployee[]; shifts: (Shift & { name: string })[];
   registrations: (Registration & { id: string; period_id: string })[];
   requirements: (Requirement & { sales_forecast_ref?: string | null; updated_at?: string; created_by?: string })[]; existing: (Assignment & {id?:string})[];
+  registration_declarations?: {employee_id:string;work_date:string;declaration:'SHIFT'|'OFF'|'NOT_SUBMITTED'}[];
   new_employee_count_threshold: number | null;
   test_rules?: {max_shifts_per_day:number};
 }
