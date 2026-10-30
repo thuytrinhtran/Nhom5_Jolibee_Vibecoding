@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { supabase } from './config/supabase.js';
 import authRoutes from './routes/auth.routes.js';
+import schedulingRoutes from './routes/scheduling.routes.js';
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use(express.json());
 
 // Auth & RBAC Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/schedules', schedulingRoutes);
 
 // Basic Root Route
 app.get('/', (_req: Request, res: Response) => {

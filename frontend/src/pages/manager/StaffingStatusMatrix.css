@@ -1,0 +1,28 @@
+.staffing-status { display: flex; flex-direction: column; gap: 16px; }
+.staffing-status h3 { font-size: 17px; }
+.staffing-status label { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.staffing-status select { padding: 10px; border: 1px solid var(--border-strong); border-radius: 8px; background: white; font: inherit; }
+.staffing-status-scroll { overflow: auto; max-height: 60vh; }
+.staffing-status-table { width: 100%; min-width: 510px; border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 14px; text-align: left; }
+.staffing-status-table th, .staffing-status-table td { padding: 8px; border-bottom: 1px solid var(--border-subtle); }
+.staffing-status-table thead th { position: sticky; top: 0; background: #f8fafc; z-index: 1; text-align: center; }
+.staffing-status-table thead th:first-child { width: 25%; text-align: left; }
+.staffing-status-date { background: #f8fafc; }
+.staffing-status-table small { display: block; font-size: 12px; color: var(--text-secondary); font-weight: 400; margin-top: 6px; }
+.staffing-cell { width: 100%; min-height: 76px; border: 1px solid transparent; border-radius: 9px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; cursor: pointer; font: inherit; padding: 8px; }
+.staffing-cell strong { font-size: 19px; font-variant-numeric: tabular-nums; }
+.staffing-cell span { font-size: 12px; }
+.staffing-balanced { background: #f0fdf4; color: #166534; }
+.staffing-shortage { background: #fff1f2; color: #991b1b; }
+.staffing-surplus { background: #eff6ff; color: #1e40af; }
+.staffing-unknown { background: #f1f5f9; color: #475569; }
+.staffing-cell[aria-expanded="true"] { border-color: currentColor; }
+.staffing-cell:focus-visible, .staffing-status select:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.staffing-detail { background: #f8fafc; border: 1px solid var(--border-subtle); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 14px; font-size: 13px; }
+.staffing-detail dl { display: flex; gap: 20px; flex-wrap: wrap; }
+.staffing-detail dt { color: var(--text-secondary); margin-bottom: 5px; }
+.staffing-detail dd { font-size: 18px; font-weight: 600; }
+.staffing-detail ul { padding-left: 18px; line-height: 1.7; }
+.staffing-extra { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+.staffing-extra summary { cursor: pointer; font-weight: 600; }
+.staffing-extra p { margin-top: 10px; }
