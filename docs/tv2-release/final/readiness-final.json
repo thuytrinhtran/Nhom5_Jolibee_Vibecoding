@@ -1,0 +1,568 @@
+{
+  "checked_at": "2026-10-30T09:20:16.677Z",
+  "project_host": "wlbpprpiieonjrqglicv.supabase.co",
+  "read_only": true,
+  "database_environment": "Not inferred from NODE_ENV; operator must confirm project identity",
+  "tables": [
+    {
+      "table": "registration_periods_effective",
+      "columns": [
+        "id",
+        "branch_id",
+        "status",
+        "stored_status",
+        "open_at",
+        "close_at"
+      ],
+      "http": 404,
+      "code": "PGRST205",
+      "accessible": false,
+      "count": null,
+      "rest_types": null
+    },
+    {
+      "table": "registration_submissions_sourced",
+      "columns": [
+        "period_id",
+        "employee_id",
+        "status",
+        "submitted_at",
+        "sample_batch_id"
+      ],
+      "http": 404,
+      "code": "PGRST205",
+      "accessible": false,
+      "count": null,
+      "rest_types": null
+    },
+    {
+      "table": "registration_period_generation_state",
+      "columns": [
+        "singleton",
+        "last_success_at",
+        "created_count"
+      ],
+      "http": 404,
+      "code": "PGRST205",
+      "accessible": false,
+      "count": null,
+      "rest_types": null
+    },
+    {
+      "table": "branches",
+      "columns": [
+        "id",
+        "name",
+        "status"
+      ],
+      "http": 206,
+      "code": null,
+      "accessible": true,
+      "count": 2,
+      "rest_types": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "format": "character varying"
+        },
+        "status": {
+          "type": "string",
+          "format": "character varying"
+        }
+      }
+    },
+    {
+      "table": "users",
+      "columns": [
+        "id",
+        "role",
+        "branch_id",
+        "is_active",
+        "must_change_password",
+        "password_reset_id"
+      ],
+      "http": 206,
+      "code": null,
+      "accessible": true,
+      "count": 72,
+      "rest_types": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "role": {
+          "type": "string",
+          "format": "character varying"
+        },
+        "branch_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "is_active": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "must_change_password": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "password_reset_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    {
+      "table": "employees",
+      "columns": [
+        "id",
+        "user_id",
+        "full_name",
+        "branch_id",
+        "department_id",
+        "skill_level",
+        "status"
+      ],
+      "http": 206,
+      "code": null,
+      "accessible": true,
+      "count": 70,
+      "rest_types": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "full_name": {
+          "type": "string",
+          "format": "character varying"
+        },
+        "branch_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "department_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "skill_level": {
+          "type": "string",
+          "format": "character varying"
+        },
+        "status": {
+          "type": "string",
+          "format": "character varying"
+        }
+      }
+    },
+    {
+      "table": "departments",
+      "columns": [
+        "id",
+        "name"
+      ],
+      "http": 206,
+      "code": null,
+      "accessible": true,
+      "count": 3,
+      "rest_types": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "format": "character varying"
+        }
+      }
+    },
+    {
+      "table": "shifts",
+      "columns": [
+        "id",
+        "name",
+        "start_time",
+        "end_time",
+        "branch_id",
+        "is_active"
+      ],
+      "http": 206,
+      "code": null,
+      "accessible": true,
+      "count": 6,
+      "rest_types": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "format": "character varying"
+        },
+        "start_time": {
+          "type": "string",
+          "format": "time without time zone"
+        },
+        "end_time": {
+          "type": "string",
+          "format": "time without time zone"
+        },
+        "branch_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "is_active": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
+    {
+      "table": "registration_periods",
+      "columns": [
+        "id",
+        "branch_id",
+        "work_start_date",
+        "work_end_date",
+        "open_at",
+        "close_at",
+        "status"
+      ],
+      "http": 206,
+      "code": null,
+      "accessible": true,
+      "count": 4,
+      "rest_types": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "branch_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "work_start_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "work_end_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "open_at": {
+          "type": "string",
+          "format": "timestamp with time zone"
+        },
+        "close_at": {
+          "type": "string",
+          "format": "timestamp with time zone"
+        },
+        "status": {
+          "type": "string",
+          "format": "character varying"
+        }
+      }
+    },
+    {
+      "table": "shift_registrations",
+      "columns": [
+        "id",
+        "period_id",
+        "employee_id",
+        "work_date",
+        "shift_id",
+        "status",
+        "submitted_at",
+        "updated_at"
+      ],
+      "http": 206,
+      "code": null,
+      "accessible": true,
+      "count": 474,
+      "rest_types": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "period_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "employee_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "work_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "shift_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "status": {
+          "type": "string",
+          "format": "character varying"
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "timestamp with time zone"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "timestamp with time zone"
+        }
+      }
+    },
+    {
+      "table": "registration_submissions",
+      "columns": [
+        "period_id",
+        "employee_id",
+        "status",
+        "errors",
+        "submitted_at",
+        "updated_at",
+        "sample_batch_id"
+      ],
+      "http": 400,
+      "code": "42703",
+      "accessible": false,
+      "count": null,
+      "rest_types": {
+        "period_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "employee_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "status": {
+          "type": "string",
+          "format": "character varying"
+        },
+        "errors": {
+          "format": "jsonb"
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "timestamp with time zone"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "timestamp with time zone"
+        }
+      }
+    },
+    {
+      "table": "registration_schedule_config",
+      "columns": [
+        "singleton",
+        "timezone",
+        "open_iso_day",
+        "open_local_time",
+        "close_iso_day",
+        "close_local_time",
+        "reminder_minutes"
+      ],
+      "http": 200,
+      "code": null,
+      "accessible": true,
+      "count": 1,
+      "rest_types": {
+        "singleton": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "timezone": {
+          "type": "string",
+          "format": "text"
+        },
+        "open_iso_day": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "open_local_time": {
+          "type": "string",
+          "format": "time without time zone"
+        },
+        "close_iso_day": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "close_local_time": {
+          "type": "string",
+          "format": "time without time zone"
+        },
+        "reminder_minutes": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    {
+      "table": "registration_automation_config",
+      "columns": [
+        "singleton",
+        "enabled"
+      ],
+      "http": 200,
+      "code": null,
+      "accessible": true,
+      "count": 1,
+      "rest_types": {
+        "singleton": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "enabled": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
+    {
+      "table": "notifications",
+      "columns": [
+        "id",
+        "recipient_id",
+        "type",
+        "title",
+        "content",
+        "status",
+        "created_at",
+        "idempotency_key"
+      ],
+      "http": 200,
+      "code": null,
+      "accessible": true,
+      "count": 0,
+      "rest_types": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "recipient_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "type": {
+          "type": "string",
+          "format": "character varying"
+        },
+        "title": {
+          "type": "string",
+          "format": "character varying"
+        },
+        "content": {
+          "type": "string",
+          "format": "text"
+        },
+        "status": {
+          "type": "string",
+          "format": "character varying"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "timestamp with time zone"
+        },
+        "idempotency_key": {
+          "type": "string",
+          "format": "character varying"
+        }
+      }
+    },
+    {
+      "table": "audit_logs",
+      "columns": [
+        "id",
+        "actor_id",
+        "entity_type",
+        "entity_id",
+        "action",
+        "old_data",
+        "new_data",
+        "change_source",
+        "created_at"
+      ],
+      "http": 206,
+      "code": null,
+      "accessible": true,
+      "count": 4,
+      "rest_types": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "actor_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "entity_type": {
+          "type": "string",
+          "format": "character varying"
+        },
+        "entity_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "action": {
+          "type": "string",
+          "format": "character varying"
+        },
+        "old_data": {
+          "format": "jsonb"
+        },
+        "new_data": {
+          "format": "jsonb"
+        },
+        "change_source": {
+          "type": "string",
+          "format": "character varying"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "timestamp with time zone"
+        }
+      }
+    }
+  ],
+  "functions": [
+    {
+      "name": "save_employee_registration",
+      "exposed": true,
+      "arguments": [
+        "p_period",
+        "p_preferences",
+        "p_submit",
+        "p_user"
+      ]
+    },
+    {
+      "name": "run_registration_automation",
+      "exposed": true,
+      "arguments": []
+    }
+  ],
+  "schedule": {
+    "timezone": "Asia/Ho_Chi_Minh",
+    "open_iso_day": 5,
+    "open_local_time": "15:00:00",
+    "close_iso_day": 7,
+    "close_local_time": "12:00:00",
+    "reminder_minutes": 30
+  },
+  "schedule_matches_requested_policy": true,
+  "automation_enabled": false,
+  "api_schema_ready": false,
+  "catalog_checks": "Run docs/tv2-release/official/00_inspect_shared_schema.sql to verify FK, UNIQUE, RLS, policies, function privileges and data eligibility. REST alone cannot certify these.",
+  "activation_ready": false,
+  "note": "activation_ready remains false until catalog checks, approved shifts/period, real login-persistence smoke test and team approval are recorded."
+}

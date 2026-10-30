@@ -96,3 +96,60 @@ test('unsupported or inactive profiles cannot establish a frontend session', asy
     assert.equal(memory.size, 0);
   }
 });
+
+const fixture = { id: 'fixture', username: 'fixture', role: 'NV', is_active: true, must_change_password: false };
+const session = { status: 'ok', user: fixture, access_token: 'fixture-access', refresh_token: 'fixture-refresh', expires_at: 9999999999 };
+test('body read timeout is normalized as ApiError without clearing credentials', async () => {
+  const { authService, ApiError, memory } = service(async () => ({ text: async () => { throw new DOMException('timeout', 'TimeoutError'); } }));
+  memory.set('jollishift_access_token', 'fixture');
+  await assert.rejects(authService.getMe(), e => e instanceof ApiError && e.status === 0);
+  assert.equal(memory.size, 1);
+});
+
+test('refresh transport errors and throttling preserve session', async () => {
+  for (const status of [503, 429]) {
+    const { authService, memory } = service(async () => json({ status: 'error' }, status));
+    memory.set('jollishift_access_token', 'fixture');
+    memory.set('jollishift_refresh_token', 'fixture');
+    memory.set('jollishift_expires_at', '1');
+    await assert.rejects(authService.getMe(), e => e.status === status);
+    assert.equal(memory.size, 3);
+  }
+});
+
+test('late login cannot restore a session after logout', async () => {
+  let resolve;
+  const { authService, memory } = service(() => new Promise(r => { resolve = r; }));
+  const login = authService.login('', '');
+  await authService.logout();
+  resolve(json(session));
+  await assert.rejects(login, e => e.code === 'SESSION_CHANGED');
+  assert.equal(memory.size, 0);
+});
+
+test('old profile success or 401 cannot affect a newer login', async () => {
+  for (const status of [200, 401]) {
+    let resolve;
+    const { authService, memory } = service(path => path.endsWith('/me')
+      ? new Promise(r => { resolve = r; }) : Promise.resolve(json(session)));
+    memory.set('jollishift_access_token', 'old');
+    const old = authService.getMe();
+    await authService.login('', '');
+    resolve(json({ status: 'ok', user: fixture }, status));
+    await assert.rejects(old, e => e.code === 'SESSION_CHANGED');
+    assert.equal(memory.get('jollishift_access_token'), session.access_token);
+  }
+});
+
+test('logout clears immediately and its late completion preserves a newer login', async () => {
+  let resolve;
+  const { authService, memory } = service(path => path.endsWith('/logout')
+    ? new Promise(r => { resolve = r; }) : Promise.resolve(json(session)));
+  memory.set('jollishift_access_token', 'old');
+  const logout = authService.logout();
+  assert.equal(memory.size, 0);
+  await authService.login('', '');
+  resolve(json({ status: 'ok' }));
+  await logout;
+  assert.equal(memory.get('jollishift_access_token'), session.access_token);
+});

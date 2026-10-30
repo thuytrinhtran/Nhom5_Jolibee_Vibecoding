@@ -1,0 +1,233 @@
+{
+  "revision": "tv2-final-friday-time-state-four-week-cloud-cron-v1",
+  "prepared_at": "2026-10-30T09:21:17.530Z",
+  "project_ref": "wlbpprpiieonjrqglicv",
+  "deployment_status": "PREPARED_NOT_APPLIED_NOT_ACTIVATED",
+  "auth_upstream": "origin/main c3ba6f2; copied integration fixes without Git merge",
+  "schedule": {
+    "timezone": "Asia/Ho_Chi_Minh",
+    "open": "Friday 15:00",
+    "close": "Sunday 12:00",
+    "weeks_ahead": 4,
+    "cron": "7 * * * *",
+    "jobname": "tv2-create-registration-periods"
+  },
+  "tests": {
+    "backend": 62,
+    "frontend": 29,
+    "skipped": 0,
+    "browser_fixture_passed": true,
+    "cloud_writes_tested": false,
+    "cron_engine_tested": false,
+    "integration_backend": 68,
+    "integration_frontend": 68
+  },
+  "files": [
+    {
+      "file": "backend/migrations/20261030_registration_effective_state.sql",
+      "sha256": "335d6290785620e06ca094316c182aab312804749c10a3fea5f748e89cfdcdb3"
+    },
+    {
+      "file": "backend/scripts/prepare-tv2-time-state.cjs",
+      "sha256": "4e326525dfd6a3b54b4f02ddbaefc64f0919998672be0f16d633e6900863cd2c"
+    },
+    {
+      "file": "backend/scripts/tv2-period-scheduler.sql.template",
+      "sha256": "98ce695d1cecc02d9744a258f3de681a9d4d06292a03e2ffa52edf5912697af1"
+    },
+    {
+      "file": "backend/scripts/check-tv2-readiness.cjs",
+      "sha256": "13c6b00e238235d04b1734134d0d76c2b0ae977dd3d40a2967b26a887c62b876"
+    },
+    {
+      "file": "backend/src/registrations/period-status.ts",
+      "sha256": "08d0505c44869869d5a09a37419dbd11857252ba4d5c97194ceea082492e512b"
+    },
+    {
+      "file": "backend/src/routes/registration.routes.ts",
+      "sha256": "8e38f75d84ed4c1e3b6fd233fb677554d87cfbb3f08d9756a4b3c51d89a45df8"
+    },
+    {
+      "file": "backend/src/routes/registration-reports.routes.ts",
+      "sha256": "8eb145c0954026cbe87d83709eae6cc502885c0ea73f8aff91116ff45fe78d11"
+    },
+    {
+      "file": "backend/src/server.ts",
+      "sha256": "85f6b32398157a60212846b5afa35ec68e4931b0ea0fc04fc51ef6dd04780669"
+    },
+    {
+      "file": "backend/src/middleware/auth.middleware.ts",
+      "sha256": "3b54272c499bb52d74ec412ccc7131af7d05e6324a2fe6e70833cc33125ca384"
+    },
+    {
+      "file": "backend/src/middleware/data-scope.middleware.ts",
+      "sha256": "eedb6d0202fe5d9cb257ba105d277fab9e9b3831e3a5babb69a85bbdc3abed6e"
+    },
+    {
+      "file": "backend/src/routes/auth.routes.ts",
+      "sha256": "445c77986cac54a865a990cd4a1bea12fcee56c88a1a4942fa113f3c33037f7b"
+    },
+    {
+      "file": "backend/src/utils/auth-error.ts",
+      "sha256": "a431e84e85242d4b4a38f31c77f0c12a0eecfb6621caba294b02714257bcac01"
+    },
+    {
+      "file": "backend/src/utils/profile-details.ts",
+      "sha256": "fb2b6ec7fede44988013f2377b4750083081c9ef92ee57c742d002a719875a30"
+    },
+    {
+      "file": "frontend/src/pages/employee/ShiftRegistration.tsx",
+      "sha256": "80bc56eb1881b1286ae535ed5e51548f8aa6acc8164a9b88bf9527d74ba9439a"
+    },
+    {
+      "file": "frontend/src/services/auth.service.ts",
+      "sha256": "8bd82f808aa07a893b9d1c6464bd363df01336e9ce67f2665fa05bf9e25793b3"
+    },
+    {
+      "file": "frontend/src/context/AuthContext.tsx",
+      "sha256": "ec1db3c7df0ff614bf5495a8a73bf2f76d5509faca7d36f4e291cd97bcab7d03"
+    },
+    {
+      "file": "frontend/src/pages/Login.tsx",
+      "sha256": "afcd65cd5381622550b97f81e960c4fac0b782d46fd14c856370f95033786267"
+    },
+    {
+      "file": "frontend/scripts/tv2-api-ui.cjs",
+      "sha256": "0ad0dd93dc08de50ac57a575b1c633519f19e713269b0091784d2b974a26d056"
+    },
+    {
+      "file": "frontend/tests/proxy.test.mjs",
+      "sha256": "b8ed9a64d7377a18030806cc85bbddd9b9277056744f211e28e3e3336b0629ab"
+    },
+    {
+      "file": "backend/tests/auth-errors.test.cjs",
+      "sha256": "62af872d5e3369200355665bbef187341d323556e66369d2a11a6f8ff447bf21"
+    },
+    {
+      "file": "backend/tests/data-scope.test.cjs",
+      "sha256": "72c180deff07961e4547d9102169dc3f90ac3c3f8ba4a291c87469340e86d390"
+    },
+    {
+      "file": "backend/tests/profile-details.test.cjs",
+      "sha256": "f569b14e28c79e11c329b989576b760360b7a18c18470aa2720f7069dbbdf5f5"
+    },
+    {
+      "file": "backend/tests/period-status.test.cjs",
+      "sha256": "8dfdae1d4db0882c3020972d13a8b04ed29d917e708e52a2ee685d4b0f61d86f"
+    },
+    {
+      "file": "backend/tests/registration-cron.test.cjs",
+      "sha256": "dcf513e77b12762716b1eb557944f8296bc0457226ec2ef74f20102172d936a2"
+    },
+    {
+      "file": "backend/tests/registration-db.test.cjs",
+      "sha256": "1b1466a245498183416eedc4065447848db57a27df0c199e24e4dc4b79f08b84"
+    },
+    {
+      "file": "backend/tests/registration-http.test.cjs",
+      "sha256": "35451ddc476ccd41260c14d0be9e5c7716f86a474bab6c72c792ad5a87793a3b"
+    },
+    {
+      "file": "backend/tests/registration-persistence.test.cjs",
+      "sha256": "3f68a7351f45ec4094e7fb208a4343e68d9766b2c09a19ea45b7b5bd422d9a68"
+    },
+    {
+      "file": "backend/tests/registration-reports.test.cjs",
+      "sha256": "f69b90f674331879f6852a84b610868bf97de62932b5ad6566f03e3523dcca75"
+    },
+    {
+      "file": "backend/tests/registration-scheduler.test.cjs",
+      "sha256": "2d1d4a3717089a640a880434f9705d2b873f33b76168752349fd837c57f9d1a9"
+    },
+    {
+      "file": "backend/tests/registration-time-db.test.cjs",
+      "sha256": "84a92ffe67c9cd5b6cdd3dd459e40fae3fc0daf6518ae24483d21c253f28f908"
+    },
+    {
+      "file": "backend/tests/tv2-readiness.test.cjs",
+      "sha256": "84d253d13471313b1ac23a8324f4058cf13e299fbf580b7cca1d8a5aed856d26"
+    },
+    {
+      "file": "backend/tests/tv2-official-bundle.test.cjs",
+      "sha256": "6e147fd51c43570aca863cc3d78b0981585025243fc3722e0f6f6c8e038ac3a7"
+    },
+    {
+      "file": "backend/tests/helpers/registration-harness.cjs",
+      "sha256": "ded2334ec59eb757097bfadd23366d6a807630e7392c93c2f3b8ae58953ec3b9"
+    },
+    {
+      "file": "frontend/tests/auth-context.test.cjs",
+      "sha256": "36fab07245516e7f95cb2f9e0b27a1281d1129548253c20b5a8831e0b8f264d0"
+    },
+    {
+      "file": "frontend/tests/auth.test.cjs",
+      "sha256": "f3dafb6355da60ef789215c3d3b0fced2106a0804a079eda1eed16e63dbdbfb0"
+    },
+    {
+      "file": "frontend/tests/registration.test.cjs",
+      "sha256": "026d38d7be87b2edc63fddd872797eaa8005a5b27faa56bf8b29cea3d453524b"
+    },
+    {
+      "file": "docs/tv2-release/tv3-contract.sql",
+      "sha256": "c7e267077479639e3427f3bf34b188a2ca553c36ea29adece80fec40d2928cfb"
+    },
+    {
+      "file": "docs/tv2-release/official/05_repair_friday_registration.sql",
+      "sha256": "e794710484f560e2e5e817f4b9e2177a15f412d4b31e2c3bfc4c87571fe1290b"
+    },
+    {
+      "file": "docs/tv2-release/final/00_preflight.sql",
+      "sha256": "13bdf1bd48eba01d461e0cf043d2cfddbf13adfdacf6595cd772b7e1f0d72d80"
+    },
+    {
+      "file": "docs/tv2-release/final/02_activate_scheduler.sql",
+      "sha256": "3a04a822a883d0ec73f70b194d9fb8d64ed532cc22a071633d9345e07de91149"
+    },
+    {
+      "file": "docs/tv2-release/final/03_verify.sql",
+      "sha256": "304daad67e81fae9a83126d1d1320f08a98b0bf763e6fa9df91d79913c4f72d7"
+    },
+    {
+      "file": "docs/tv2-release/final/README.md",
+      "sha256": "53dfecc0775ac24851e4f44258d056d3938c0bc4a3c29c3f193424687f529cff"
+    },
+    {
+      "file": "docs/tv2-release/final/TV3-HANDOFF.md",
+      "sha256": "512497fdef9aa8dc2f739b31ee79b2a99d28eeb97736d34f2f280e35fdb65878"
+    },
+    {
+      "file": "docs/tv2-release/final/RESULTS.md",
+      "sha256": "8eb6628fa6d7a07fbccec12cb43df4324ad5bd623fd1224c191036b869256fec"
+    },
+    {
+      "file": "docs/tv2-release/final/readiness-final.json",
+      "sha256": "3badb63c6929658fbc63a39e6ebc47620b52a75899afb67ba37e67054e17fc44"
+    },
+    {
+      "file": "docs/tv2-release/final/cloud-read-only.json",
+      "sha256": "a5afc26f25720e7810486b3e60c8ae8f5ec9603d24f763349fe34044c6f28616"
+    },
+    {
+      "file": "docs/tv2-time-state.md",
+      "sha256": "a2083b53ed46141d6325dc2c8ecec09617ac63f5836c974fc0296e89d4aaf8a1"
+    },
+    {
+      "file": "docs/tv2-completion.md",
+      "sha256": "24731511aad258c963bc586bd061162123ce5939c2da304b070e553dbd90afb9"
+    },
+    {
+      "file": "docs/employee-registration.md",
+      "sha256": "02fe04e226b47c6c970e72a2bbf981c360eb5ea60bf3d046c36607893bc63671"
+    },
+    {
+      "file": "docs/tv2-release/README.md",
+      "sha256": "7e0e40ae1743a2c608e19197c76c94415d36795cee957b650eb846725e5c258a"
+    },
+    {
+      "file": "docs/tv2-release/official/README.md",
+      "sha256": "ae4e194c68935b5c7a1a5262ec5885597614b13cb0302526e4a5ed18354df9ec"
+    }
+  ],
+  "integration_base": "origin/main e30694b",
+  "hash_normalization": "UTF-8 text with LF line endings"
+}

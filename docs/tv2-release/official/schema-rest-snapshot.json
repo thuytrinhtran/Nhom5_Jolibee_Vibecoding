@@ -1,0 +1,729 @@
+{
+  "checked_at": "2026-10-29T13:12:41.841Z",
+  "project_ref": "wlbpprpiieonjrqglicv",
+  "read_only": true,
+  "definitions": {
+    "branches": {
+      "required": [
+        "id",
+        "name",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "name": {
+          "format": "character varying",
+          "maxLength": 150,
+          "type": "string"
+        },
+        "address": {
+          "format": "text",
+          "type": "string"
+        },
+        "supervisor_id": {
+          "description": "Note:\nThis is a Foreign Key to `users.id`.<fk table='users' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "status": {
+          "default": "ACTIVE",
+          "format": "character varying",
+          "maxLength": 20,
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "users": {
+      "required": [
+        "id",
+        "username",
+        "role",
+        "is_active",
+        "created_at",
+        "must_change_password"
+      ],
+      "properties": {
+        "id": {
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "username": {
+          "format": "character varying",
+          "maxLength": 100,
+          "type": "string"
+        },
+        "role": {
+          "format": "character varying",
+          "maxLength": 30,
+          "type": "string"
+        },
+        "branch_id": {
+          "description": "Note:\nThis is a Foreign Key to `branches.id`.<fk table='branches' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "is_active": {
+          "default": true,
+          "format": "boolean",
+          "type": "boolean"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "must_change_password": {
+          "default": false,
+          "format": "boolean",
+          "type": "boolean"
+        },
+        "password_reset_id": {
+          "format": "uuid",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "employees": {
+      "required": [
+        "id",
+        "user_id",
+        "full_name",
+        "branch_id",
+        "department_id",
+        "skill_level",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "user_id": {
+          "description": "Note:\nThis is a Foreign Key to `users.id`.<fk table='users' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "full_name": {
+          "format": "character varying",
+          "maxLength": 150,
+          "type": "string"
+        },
+        "phone": {
+          "format": "character varying",
+          "maxLength": 20,
+          "type": "string"
+        },
+        "branch_id": {
+          "description": "Note:\nThis is a Foreign Key to `branches.id`.<fk table='branches' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "department_id": {
+          "description": "Note:\nThis is a Foreign Key to `departments.id`.<fk table='departments' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "skill_level": {
+          "format": "character varying",
+          "maxLength": 25,
+          "type": "string"
+        },
+        "experience_level": {
+          "format": "character varying",
+          "maxLength": 30,
+          "type": "string"
+        },
+        "max_weekly_hours": {
+          "format": "numeric",
+          "type": "number"
+        },
+        "status": {
+          "default": "ACTIVE",
+          "format": "character varying",
+          "maxLength": 20,
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "departments": {
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "name": {
+          "format": "character varying",
+          "maxLength": 100,
+          "type": "string"
+        },
+        "description": {
+          "format": "text",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "shifts": {
+      "required": [
+        "id",
+        "name",
+        "start_time",
+        "end_time",
+        "is_active"
+      ],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "name": {
+          "format": "character varying",
+          "maxLength": 80,
+          "type": "string"
+        },
+        "start_time": {
+          "format": "time without time zone",
+          "type": "string"
+        },
+        "end_time": {
+          "format": "time without time zone",
+          "type": "string"
+        },
+        "branch_id": {
+          "description": "Note:\nThis is a Foreign Key to `branches.id`.<fk table='branches' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "is_active": {
+          "default": true,
+          "format": "boolean",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "registration_periods": {
+      "required": [
+        "id",
+        "branch_id",
+        "work_start_date",
+        "work_end_date",
+        "open_at",
+        "close_at",
+        "status",
+        "created_at"
+      ],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "branch_id": {
+          "description": "Note:\nThis is a Foreign Key to `branches.id`.<fk table='branches' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "work_start_date": {
+          "format": "date",
+          "type": "string"
+        },
+        "work_end_date": {
+          "format": "date",
+          "type": "string"
+        },
+        "open_at": {
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "close_at": {
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "status": {
+          "default": "PLANNED",
+          "format": "character varying",
+          "maxLength": 20,
+          "type": "string"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "shift_registrations": {
+      "required": [
+        "id",
+        "period_id",
+        "employee_id",
+        "work_date",
+        "shift_id",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "period_id": {
+          "description": "Note:\nThis is a Foreign Key to `registration_periods.id`.<fk table='registration_periods' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "employee_id": {
+          "description": "Note:\nThis is a Foreign Key to `employees.id`.<fk table='employees' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "work_date": {
+          "format": "date",
+          "type": "string"
+        },
+        "shift_id": {
+          "description": "Note:\nThis is a Foreign Key to `shifts.id`.<fk table='shifts' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "status": {
+          "default": "DRAFT",
+          "format": "character varying",
+          "maxLength": 25,
+          "type": "string"
+        },
+        "submitted_at": {
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "updated_at": {
+          "format": "timestamp with time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "registration_submissions": {
+      "required": [
+        "period_id",
+        "employee_id",
+        "status",
+        "errors",
+        "updated_at"
+      ],
+      "properties": {
+        "period_id": {
+          "description": "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `registration_periods.id`.<fk table='registration_periods' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "employee_id": {
+          "description": "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `employees.id`.<fk table='employees' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "status": {
+          "format": "character varying",
+          "maxLength": 25,
+          "type": "string"
+        },
+        "errors": {
+          "format": "jsonb"
+        },
+        "submitted_at": {
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "updated_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "registration_schedule_config": {
+      "required": [
+        "singleton",
+        "timezone",
+        "open_iso_day",
+        "open_local_time",
+        "close_iso_day",
+        "close_local_time",
+        "reminder_minutes"
+      ],
+      "properties": {
+        "singleton": {
+          "default": true,
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "boolean",
+          "type": "boolean"
+        },
+        "timezone": {
+          "default": "Asia/Ho_Chi_Minh",
+          "format": "text",
+          "type": "string"
+        },
+        "open_iso_day": {
+          "default": 5,
+          "format": "int32",
+          "type": "integer"
+        },
+        "open_local_time": {
+          "default": "15:00:00",
+          "format": "time without time zone",
+          "type": "string"
+        },
+        "close_iso_day": {
+          "default": 7,
+          "format": "int32",
+          "type": "integer"
+        },
+        "close_local_time": {
+          "default": "12:00:00",
+          "format": "time without time zone",
+          "type": "string"
+        },
+        "reminder_minutes": {
+          "default": 30,
+          "format": "int32",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "audit_logs": {
+      "required": [
+        "id",
+        "entity_type",
+        "entity_id",
+        "action",
+        "change_source",
+        "created_at"
+      ],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "actor_id": {
+          "description": "Note:\nThis is a Foreign Key to `users.id`.<fk table='users' column='id'/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "entity_type": {
+          "format": "character varying",
+          "maxLength": 80,
+          "type": "string"
+        },
+        "entity_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "action": {
+          "format": "character varying",
+          "maxLength": 40,
+          "type": "string"
+        },
+        "old_data": {
+          "format": "jsonb"
+        },
+        "new_data": {
+          "format": "jsonb"
+        },
+        "change_source": {
+          "default": "MANUAL",
+          "format": "character varying",
+          "maxLength": 20,
+          "type": "string"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "rpc_paths": {
+    "/rpc/jollishift_business_access": {
+      "get": {
+        "produces": [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "(rpc) jollishift_business_access"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "args",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          },
+          {
+            "$ref": "#/parameters/preferParams"
+          }
+        ],
+        "produces": [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "(rpc) jollishift_business_access"
+        ]
+      }
+    },
+    "/rpc/save_employee_registration": {
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "args",
+            "required": true,
+            "schema": {
+              "properties": {
+                "p_period": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "p_preferences": {
+                  "format": "jsonb"
+                },
+                "p_submit": {
+                  "format": "boolean",
+                  "type": "boolean"
+                },
+                "p_user": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "p_user",
+                "p_period",
+                "p_preferences",
+                "p_submit"
+              ],
+              "type": "object"
+            }
+          },
+          {
+            "$ref": "#/parameters/preferParams"
+          }
+        ],
+        "produces": [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "(rpc) save_employee_registration"
+        ]
+      }
+    },
+    "/rpc/rls_auto_enable": {
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "args",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          },
+          {
+            "$ref": "#/parameters/preferParams"
+          }
+        ],
+        "produces": [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "(rpc) rls_auto_enable"
+        ]
+      }
+    },
+    "/rpc/run_registration_automation": {
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "args",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          },
+          {
+            "$ref": "#/parameters/preferParams"
+          }
+        ],
+        "produces": [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "(rpc) run_registration_automation"
+        ]
+      }
+    }
+  },
+  "branches": [
+    {
+      "id": "11111111-1111-1111-1111-111111111111",
+      "name": "Jollibee Lê Duẩn",
+      "status": "ACTIVE",
+      "employee_count": 60,
+      "eligible_employee_count": 53
+    },
+    {
+      "id": "d25dd99d-b882-56ea-a272-e0a325c0592b",
+      "name": "Chi nhánh mô phỏng Hải Châu",
+      "status": "ACTIVE",
+      "employee_count": 10,
+      "eligible_employee_count": 9
+    }
+  ],
+  "identity_checks": {
+    "employees": 70,
+    "employee_ids_unique": true,
+    "user_ids_unique": true,
+    "user_id_join_matches": true,
+    "branch_mismatch_count": 0
+  },
+  "catalog_verified": false,
+  "business_data_checked_at": "2026-10-29T13:13:17.250Z",
+  "periods": [
+    {
+      "id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "work_start_date": "2026-11-02",
+      "work_end_date": "2026-11-08",
+      "open_at": "2026-10-30T08:00:00+00:00",
+      "close_at": "2026-11-01T05:00:00+00:00",
+      "status": "PLANNED"
+    },
+    {
+      "id": "fe8cc2fe-fec3-4ed0-88e2-8ae40e5442da",
+      "branch_id": "d25dd99d-b882-56ea-a272-e0a325c0592b",
+      "work_start_date": "2026-11-02",
+      "work_end_date": "2026-11-08",
+      "open_at": "2026-10-30T08:00:00+00:00",
+      "close_at": "2026-11-01T05:00:00+00:00",
+      "status": "PLANNED"
+    }
+  ],
+  "shifts": [
+    {
+      "id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "name": "Ca sáng",
+      "start_time": "08:00:00",
+      "end_time": "12:00:00",
+      "is_active": true
+    },
+    {
+      "id": "b476a375-9bec-4407-9e69-e6eaf4b1579c",
+      "branch_id": "d25dd99d-b882-56ea-a272-e0a325c0592b",
+      "name": "Ca sáng",
+      "start_time": "08:00:00",
+      "end_time": "12:00:00",
+      "is_active": true
+    },
+    {
+      "id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "name": "Ca chiều",
+      "start_time": "12:00:00",
+      "end_time": "17:00:00",
+      "is_active": true
+    },
+    {
+      "id": "52080df6-943b-4e60-af80-78f21d6d9579",
+      "branch_id": "d25dd99d-b882-56ea-a272-e0a325c0592b",
+      "name": "Ca chiều",
+      "start_time": "12:00:00",
+      "end_time": "17:00:00",
+      "is_active": true
+    },
+    {
+      "id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "name": "Ca tối",
+      "start_time": "17:00:00",
+      "end_time": "22:00:00",
+      "is_active": true
+    },
+    {
+      "id": "073be198-09a7-4afe-bfc0-98c250550800",
+      "branch_id": "d25dd99d-b882-56ea-a272-e0a325c0592b",
+      "name": "Ca tối",
+      "start_time": "17:00:00",
+      "end_time": "22:00:00",
+      "is_active": true
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { UserProfile, UserRole } from '../types/auth';
 import { authService, ApiError } from '../services/auth.service';
 
@@ -21,7 +21,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const generation = useRef(0);
+
   const initAuth = async () => {
+    const version = generation.current;
     const token = authService.getStoredToken();
     if (!token) {
       setLoading(false);
@@ -30,21 +33,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     try {
       const profile = await authService.getMe();
-      setUser(profile);
+      if (version === generation.current) setUser(profile);
     } catch (err: any) {
-      console.warn('Initial session check failed:', err.message);
+      if (version !== generation.current) return;
       setError(err.message || 'Không thể khôi phục phiên đăng nhập.');
       setUser(null);
     } finally {
-      setLoading(false);
+      if (version === generation.current) setLoading(false);
     }
   };
 
   useEffect(() => {
     initAuth();
+    return () => { generation.current++; };
   }, []);
 
   const login = async (email: string, password: string): Promise<UserProfile> => {
+    const version = ++generation.current;
     setLoading(true);
     setError(null);
     try {
@@ -52,43 +57,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!data.user) {
         throw new Error('Không nhận được thông tin người dùng từ máy chủ.');
       }
+      if (version !== generation.current) throw new ApiError('Phiên đã thay đổi.', 0, 'SESSION_CHANGED');
       setUser(data.user);
       return data.user;
     } catch (err: any) {
-      setError(err.message || 'Đăng nhập không thành công.');
+      if (version === generation.current) setError(err.message || 'Đăng nhập không thành công.');
       throw err;
     } finally {
-      setLoading(false);
+      if (version === generation.current) setLoading(false);
     }
   };
 
   const logout = async (): Promise<void> => {
+    const version = ++generation.current;
     setLoading(true);
     setError(null);
+    setUser(null);
     try {
       await authService.logout();
     } catch (err: any) {
-      setError(err.message || 'Không thể thu hồi phiên trên máy chủ.');
+      if (version === generation.current) setError(err.message || 'Không thể thu hồi phiên trên máy chủ.');
     } finally {
-      setUser(null);
-      setLoading(false);
+      if (version === generation.current) setUser(null);
+      if (version === generation.current) setLoading(false);
     }
   };
 
   const clearError = () => setError(null);
 
   const refreshUser = async (): Promise<void> => {
+    const version = generation.current;
     try {
       const profile = await authService.getMe();
-      setUser(profile);
+      if (version === generation.current) setUser(profile);
     } catch (err) {
-      if (err instanceof ApiError && [401, 403].includes(err.status)) setUser(null);
+      if (version === generation.current && err instanceof ApiError && [401, 403].includes(err.status)) setUser(null);
     }
   };
 
   const changePassword = async (password: string, confirmation: string, nonce?: string) => {
+    const version = ++generation.current;
     const profile = await authService.changePassword(password, confirmation, nonce);
-    setUser(profile);
+    if (version === generation.current) setUser(profile);
   };
 
   useEffect(() => {

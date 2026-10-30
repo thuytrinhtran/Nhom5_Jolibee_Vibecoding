@@ -1,9 +1,13 @@
+import { registrationReports } from './routes/registration-reports.routes.js';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { supabase } from './config/supabase.js';
 import authRoutes from './routes/auth.routes.js';
 import schedulingRoutes from './routes/scheduling.routes.js';
+import { registrationRoutes } from './routes/registration.routes.js';
+import { automationRoutes } from './routes/registration-automation.routes.js';
+import scheduleWorkflowRoutes from './routes/schedule-workflow.routes.js';
 
 dotenv.config();
 
@@ -22,6 +26,11 @@ app.use(express.json());
 
 // Auth & RBAC Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/registrations', registrationRoutes);
+app.use('/api/registration-reports', registrationReports);
+app.use('/api/internal/registration-automation', automationRoutes);
+app.use('/api/schedules/workflow', scheduleWorkflowRoutes);
+// Match TV4 before TV3's broad /:id routes and QL-only router middleware.
 app.use('/api/schedules', schedulingRoutes);
 
 // Basic Root Route

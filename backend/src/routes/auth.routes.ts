@@ -1,3 +1,5 @@
+import { loadProfileDetails, ProfileUnavailable } from '../utils/profile-details.js';
+import { authFailure } from '../utils/auth-error.js';
 import { Router, Request, Response } from 'express';
 import { supabaseAdmin, createAuthClient } from '../config/supabase.js';
 import { authenticate, authenticateSession, requireRole } from '../middleware/auth.middleware.js';
@@ -27,12 +29,8 @@ router.post('/login', async (req: Request, res: Response) => {
     });
 
     if (authError || !authData.user || !authData.session) {
-      return res.status(authError && (!authError.status || authError.status >= 500) ? 503 : 401).json({
-        status: 'error',
-        message: authError && (!authError.status || authError.status >= 500)
-          ? 'Dịch vụ xác thực tạm thời không khả dụng.'
-          : 'Email hoặc mật khẩu không chính xác. Vui lòng kiểm tra lại.',
-      });
+      const failure = authFailure(authError);
+      return res.status(failure.status).json({ status: 'error', message: failure.message });
     }
 
     const authUserId = authData.user.id;
@@ -65,38 +63,7 @@ router.post('/login', async (req: Request, res: Response) => {
       return res.status(503).json({ status: 'error', message: 'Cấu hình bảo mật tài khoản chưa sẵn sàng.' });
     }
 
-    // Branch info
-    let branchName: string | null = null;
-    if (dbUser.branch_id) {
-      const { data: bData } = await supabaseAdmin
-        .from('branches')
-        .select('name')
-        .eq('id', dbUser.branch_id)
-        .single();
-      branchName = bData?.name || null;
-    }
-
-    // Employee info if role is NV
-    let employeeInfo = null;
-    if (dbUser.role === 'NV') {
-      const { data: empData } = await supabaseAdmin
-        .from('employees')
-        .select('id, full_name, skill_level, department_id, phone, departments:department_id(name)')
-        .eq('user_id', authUserId)
-        .maybeSingle();
-
-      if (empData) {
-        const dept = empData.departments as any;
-        employeeInfo = {
-          id: empData.id,
-          full_name: empData.full_name,
-          skill_level: empData.skill_level,
-          department_id: empData.department_id,
-          department_name: dept?.name || undefined,
-          phone: empData.phone || undefined,
-        };
-      }
-    }
+    const { branchName, employeeInfo } = await loadProfileDetails(authUserId, dbUser.role, dbUser.branch_id);
 
     return res.status(200).json({
       status: 'ok',
@@ -117,6 +84,7 @@ router.post('/login', async (req: Request, res: Response) => {
       }
     });
   } catch (err: any) {
+    if (err instanceof ProfileUnavailable) return res.status(503).json({ status: 'error', message: 'Chưa thể đọc thông tin tài khoản. Vui lòng thử lại.' });
     console.error('[Auth] Request failed.');
     return res.status(500).json({
       status: 'error',
@@ -142,7 +110,8 @@ router.post('/refresh', async (req: Request, res: Response) => {
   try {
     const { data, error } = await createAuthClient().auth.refreshSession({ refresh_token });
     if (error || !data.session) {
-      return res.status(error && error.status && error.status >= 500 ? 503 : 401).json({ status: 'error', message: 'Không thể khôi phục phiên. Vui lòng thử lại hoặc đăng nhập lại.' });
+      const failure = authFailure(error);
+      return res.status(failure.status).json({ status: 'error', message: failure.message });
     }
     const session = data.session;
     req.headers.authorization = `Bearer ${session.access_token}`;

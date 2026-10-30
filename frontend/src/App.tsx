@@ -6,11 +6,13 @@ import { AppLayout } from './components/layout/AppLayout';
 import { PlaceholderPage } from './pages/common/PlaceholderPage';
 import { ChangePassword } from './pages/ChangePassword';
 import { Login } from './pages/Login';
+import { ShiftRegistration } from './pages/employee/ShiftRegistration';
 import { EmployeeDashboard } from './pages/employee/EmployeeDashboard';
 import { ManagerDashboard } from './pages/manager/ManagerDashboard';
 import { ManagerSchedule } from './pages/manager/ManagerSchedule';
 import { ManagerDemand } from './pages/manager/ManagerDemand';
 import { SupervisorDashboard } from './pages/supervisor/SupervisorDashboard';
+import { ScheduleWorkflow } from './pages/schedules/ScheduleWorkflow';
 
 const RootRedirect: React.FC = () => {
   const { user, loading } = useAuth();
@@ -86,6 +88,12 @@ export const App: React.FC = () => {
             }
           />
 
+          <Route path="/supervisor/approvals" element={<ProtectedRoute allowedRoles={['GS']}><AppLayout><ScheduleWorkflow mode="approvals" /></AppLayout></ProtectedRoute>} />
+          <Route path="/supervisor/reports" element={<ProtectedRoute allowedRoles={['GS']}><AppLayout><ScheduleWorkflow mode="history" /></AppLayout></ProtectedRoute>} />
+          <Route path="/manager/publish" element={<ProtectedRoute allowedRoles={['QL']}><AppLayout><ScheduleWorkflow mode="publish" /></AppLayout></ProtectedRoute>} />
+          <Route path="/manager/publish-history" element={<ProtectedRoute allowedRoles={['QL']}><AppLayout><ScheduleWorkflow mode="publication-history" /></AppLayout></ProtectedRoute>} />
+
+          <Route path="/employee/register" element={<ProtectedRoute allowedRoles={['NV']}><AppLayout><ShiftRegistration /></AppLayout></ProtectedRoute>} />
           <Route path="/employee/*" element={
             <ProtectedRoute allowedRoles={['NV']}>
               <AppLayout><PlaceholderPage /></AppLayout>

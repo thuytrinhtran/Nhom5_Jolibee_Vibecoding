@@ -8,7 +8,7 @@ test('original proxy failure is empty HTTP 500; fixed proxy returns JSON 502', a
     process.env.API_PROXY_TARGET = 'http://127.0.0.1:1';
     const server = await createServer({
       configFile, logLevel: 'silent',
-      server: { port: 0, strictPort: false, proxy: { '/api': { target: 'http://127.0.0.1:1' } } },
+      server: { host: '127.0.0.1', port: 0, strictPort: false, proxy: { '/api': { target: 'http://127.0.0.1:1' } } },
     });
     try {
       await server.listen();

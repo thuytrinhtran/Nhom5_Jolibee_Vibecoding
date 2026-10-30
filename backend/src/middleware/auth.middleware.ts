@@ -1,6 +1,8 @@
+import { loadProfileDetails, ProfileUnavailable } from '../utils/profile-details.js';
+import { authFailure } from '../utils/auth-error.js';
 import { Request, Response, NextFunction } from 'express';
 import { supabaseAdmin } from '../config/supabase.js';
-import { AuthenticatedUser, UserRole, EmployeeInfo } from '../types/auth.types.js';
+import { AuthenticatedUser, UserRole } from '../types/auth.types.js';
 
 export function passwordLoginAfter(token: string, cutoff: number): boolean {
   try {
@@ -30,10 +32,8 @@ export async function authenticateSession(req: Request, res: Response, next: Nex
     // Verify token with Supabase Auth
     const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(token);
     if (authError || !authData.user) {
-      return res.status(authError && (!authError.status || authError.status >= 500) ? 503 : 401).json({
-        status: 'error',
-        message: 'Phiên đăng nhập đã hết hạn hoặc mã xác thực không hợp lệ. Vui lòng đăng nhập lại.',
-      });
+      const failure = authFailure(authError);
+      return res.status(failure.status).json({ status: 'error', message: failure.message });
     }
 
     const authUserId = authData.user.id;
@@ -71,38 +71,7 @@ export async function authenticateSession(req: Request, res: Response, next: Nex
       return res.status(401).json({ status: 'error', code: 'FRESH_LOGIN_REQUIRED', message: 'Vui lòng đăng xuất và đăng nhập lại bằng mật khẩu hiện tại được cấp hoặc mật khẩu mới đã lưu.' });
     }
 
-    // Optional: Fetch branch name if assigned
-    let branchName: string | null = null;
-    if (dbUser.branch_id) {
-      const { data: branchData } = await supabaseAdmin
-        .from('branches')
-        .select('name')
-        .eq('id', dbUser.branch_id)
-        .single();
-      branchName = branchData?.name || null;
-    }
-
-    // Optional: Fetch employee info if user has role NV
-    let employeeInfo: EmployeeInfo | null = null;
-    if (dbUser.role === 'NV') {
-      const { data: empData } = await supabaseAdmin
-        .from('employees')
-        .select('id, full_name, skill_level, department_id, phone, departments:department_id(name)')
-        .eq('user_id', authUserId)
-        .maybeSingle();
-
-      if (empData) {
-        const dept = empData.departments as any;
-        employeeInfo = {
-          id: empData.id,
-          full_name: empData.full_name,
-          skill_level: empData.skill_level,
-          department_id: empData.department_id,
-          department_name: dept?.name || undefined,
-          phone: empData.phone || undefined,
-        };
-      }
-    }
+    const { branchName, employeeInfo } = await loadProfileDetails(authUserId, dbUser.role, dbUser.branch_id);
 
     const authenticatedUser: AuthenticatedUser = {
       id: dbUser.id,
@@ -120,6 +89,7 @@ export async function authenticateSession(req: Request, res: Response, next: Nex
     req.user = authenticatedUser;
     next();
   } catch (err: any) {
+    if (err instanceof ProfileUnavailable) return res.status(503).json({ status: 'error', message: 'Chưa thể đọc thông tin tài khoản. Vui lòng thử lại.' });
     console.error('[Auth] Request failed.');
     return res.status(500).json({
       status: 'error',

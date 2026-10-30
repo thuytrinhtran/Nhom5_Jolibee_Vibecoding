@@ -1,0 +1,20 @@
+{
+  "policy": "apply_once_in_order_after_team_approval",
+  "execution": "manual_SQL_Editor_or_team_migration_runner; not executed by this manifest",
+  "warning": "Files retain the requested date prefix. Use distinct deployment IDs in team tracking; rename version prefixes under review before using Supabase CLI auto-discovery.",
+  "existing_experimental_schema": "STOP and prepare a separately approved forward migration; never drop existing OFF tables or data",
+  "migrations": [
+    {
+      "deployment_id": "tv2-m1-20261029-final",
+      "file": "backend/migrations/20261029_employee_registration.sql",
+      "sha256": "e900d1897ff02cbfed76bf3a7081873ff182269037022d53349f815ac716b04e",
+      "depends_on": "existing foundation/Auth"
+    },
+    {
+      "deployment_id": "tv2-m2-20261029-final",
+      "file": "backend/migrations/20261029_registration_off_schedule.sql",
+      "sha256": "52142c9e6902a7b432a7d0b7b403349877ad8bb0f6bd86fb75640af69cc935a9",
+      "depends_on": "20261029_employee_registration.sql"
+    }
+  ]
+}
