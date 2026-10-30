@@ -56,6 +56,52 @@ test('new demand added after draft is labelled current-only; inactive shifts do 
  const {ScheduleTable}=page(),html=renderToStaticMarkup(React.createElement(ScheduleTable,{context:data,saved}));assert.ok(html.includes('Chưa có nhu cầu trong phiên bản này'));assert.ok(html.includes('Nhu cầu hiện tại: 2'));assert.equal(views.scheduleRows(data,saved)[0].required_count,3);
  data.shifts.find(s=>s.id==='shift').is_active=false;assert.ok(views.scheduleCalendarRows(data,saved).some(r=>r.requirement_id==='need'));
 });
+
+test('calendar groups seven days with only the first open, preserves 21 shifts and uses four-column tables',()=>{
+ const data=threeShiftContext(),{ScheduleTable}=page(),html=renderToStaticMarkup(React.createElement(ScheduleTable,{context:data,saved}));
+ assert.equal((html.match(/<details class="schedule-day"/g)||[]).length,7);
+ assert.equal((html.match(/<details class="schedule-day" open=""/g)||[]).length,1);
+ assert.equal((html.match(/class="schedule-shift-table"/g)||[]).length,21);
+ assert.equal((html.match(/<th scope="col">/g)||[]).length,84);
+ assert.equal((html.match(/<th scope="row">/g)||[]).length,63);
+ assert.ok(html.includes('Dữ liệu thử nghiệm · MOCK'));
+ assert.ok(html.includes('schedule-employee-chips'));
+ assert.ok(!html.includes('schedule-row-short'));
+});
+
+test('day totals count repeated employee assignments and identify partial unknown demand without claiming full coverage',()=>{
+ const data=threeShiftContext();data.requirements.push({...context.requirements[0],id:'pm',shift_id:'real-shift-b',required_count:1});
+ const schedule={...saved,assignments:[assignment,{...assignment,id:'pm-assignment',shift_id:'real-shift-b'},{...assignment,id:'replaced',status:'REPLACED'},{...assignment,id:'leader',assignment_source:'CREW_LEADER'}],generation_snapshot:{coverage:data.requirements}};
+ const before=JSON.stringify({data,schedule}),{ScheduleTable}=page(),html=renderToStaticMarkup(React.createElement(ScheduleTable,{context:data,saved:schedule}));
+ const firstSummary=html.match(/<details class="schedule-day" open=""><summary>([\s\S]*?)<\/summary>/)[1];
+ assert.match(firstSummary,/<b>2<\/b> lượt đã xếp/);
+ assert.match(firstSummary,/<b>2<\/b> lượt còn thiếu đã biết/);
+ assert.ok(firstSummary.includes('7<!-- --> ô chưa có nhu cầu')||firstSummary.includes('7 ô chưa có nhu cầu'));
+ assert.ok(html.includes('Tổng thiếu chưa đầy đủ'));
+ assert.equal(JSON.stringify({data,schedule}),before);
+});
+
+test('saved zero demand stays zero, missing demand stays unknown, and unsaved demand never claims enough staff',()=>{
+ const data=threeShiftContext(),{ScheduleTable}=page();
+ const zero={...saved,assignments:[],generation_snapshot:{coverage:[{...context.requirements[0],required_count:0}]}};
+ const html=renderToStaticMarkup(React.createElement(ScheduleTable,{context:data,saved:zero}));
+ assert.match(html,/aria-label="Đã xếp 0, cần 0"/);assert.equal((html.match(/Đủ người/g)||[]).length,1);
+ assert.match(html,/aria-label="Đã xếp 0, cần chưa xác định"/);assert.ok(html.includes('Chưa thể đánh giá'));
+ const unsaved=renderToStaticMarkup(React.createElement(ScheduleTable,{context:data,saved:null}));
+ assert.ok(!unsaved.includes('Đủ người'));assert.ok(!unsaved.includes('badge-yellow'));assert.ok(unsaved.includes('Chưa có phân công'));
+});
+
+test('NEW notices are collapsed but changed-demand warning stays outside supplementary details',()=>{
+ const schedule={...saved,demand_changed:true,generation_snapshot:{new_employee_count_threshold:null,coverage:[{...context.requirements[0],warning:'MANY_NEW_WITHOUT_CREW_TRAINING'}]}};
+ const states=[[period],'period',context,schedule,false,false,false,'','',0,null];let index=0;
+ const hooks={...React,useState:()=>[states[index++],()=>{}],useEffect:()=>{},useRef:()=>({current:0})};
+ const {ManagerSchedule}=page(hooks),html=renderToStaticMarkup(React.createElement(ManagerSchedule));
+ const additional=html.match(/<details class="schedule-additional">([\s\S]*?)<\/details>/)?.[1];
+ assert.ok(additional?.includes('chưa có ngưỡng cảnh báo NEW'));
+ assert.ok(additional.includes('không có Crew Training'));
+ assert.match(html,/<div class="schedule-info schedule-demand-changed" role="status">Nhu cầu đã thay đổi/);
+ assert.ok(!additional.includes('Nhu cầu đã thay đổi'));
+});
 test('page exposes selector and draft-only action; empty demand and registrations have explicit notices',()=>{
   // Render a settled page using controlled hook state; no browser/database fixtures are created.
   const state=[[period],'period',context,null,false,false,false,'','',0];let index=0;

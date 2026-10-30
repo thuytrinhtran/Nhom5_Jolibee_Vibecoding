@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { AlertTriangle, CalendarDays, CheckCircle2, Loader2, RefreshCw, Wand2 } from 'lucide-react';
+import { AlertTriangle, CalendarDays, CheckCircle2, ChevronRight, Loader2, RefreshCw, Wand2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ApiError } from '../../services/auth.service';
 import { schedulingService } from '../../services/scheduling.service';
@@ -15,25 +15,63 @@ import { ScheduleAIPanel } from './ScheduleAIPanel';
 export function ScheduleTable({ context, saved, summary }: { context: SchedulingContext; saved: SavedSchedule | null;summary?:RegistrationSummary|null }) {
   const rows = scheduleCalendarRows(context, saved);
   const employeeName = (id: string) => context.employees.find(e => e.id === id)?.full_name || `Nhân viên ${id}`;
-  return <div className="schedule-table-scroll schedule-calendar-scroll" tabIndex={0} role="region" aria-label="Bảng lịch làm việc theo ngày và ca">
-    <table className="schedule-table">
-      <caption>{saved ? 'Phân công đã lưu trong lịch làm việc' : 'Nhu cầu nhân sự của tuần — chưa có phân công'}</caption>
-      <thead><tr><th scope="col">Ngày làm</th><th scope="col">Ca làm</th><th scope="col">Bộ phận</th><th scope="col">Nhân viên được phân công</th><th scope="col">Yêu cầu</th><th scope="col">Đã xếp</th><th scope="col">Còn thiếu</th></tr></thead>
-      <tbody>{rows.map(row => {
-        const shift = context.shifts.find(s => s.id === row.shift_id);
-        const knownRegistrations=summary?.period.id===context.period.id&&summary.branch.id===context.period.branch_id&&(!context.source||context.source===summary.source);
-        const registered=knownRegistrations?summary.rows.some(r=>r.work_date===row.work_date&&r.shift_id===row.shift_id&&r.registered_count>0):null;
-        return <tr key={row.key} data-work-date={row.work_date} data-shift-id={row.shift_id} className={saved && (row.missing_count??0) > 0 ? 'schedule-row-short' : undefined}>
-          <th scope="row">{dateLabel(row.work_date)}</th>
-          <td><strong>{shift?.name || row.shift_id}</strong>{shift && <small>{shift.start_time.slice(0, 5)} – {shift.end_time.slice(0, 5)}{shift.end_time < shift.start_time ? ' (hôm sau)' : ''}</small>}{registered===false&&<small>Chưa có nhân viên đăng ký</small>}</td>
-          <td>{context.departments.find(d => d.id === row.department_id)?.name || row.department_id}{row.required_skill_name && <small>Kỹ năng: {row.required_skill_name}</small>}</td>
-          <td>{row.assignments.length ? <ul className="schedule-employees">{row.assignments.map(a => <li key={a.id || a.employee_id}>{employeeName(a.employee_id)}</li>)}</ul> : <span className="schedule-muted">Chưa phân công</span>}</td>
-          <td>{row.required_count??(saved&&row.current_required_count!==null?'Chưa có nhu cầu trong phiên bản này':'Chưa nhập nhu cầu')}{saved&&row.required_count===null&&row.current_required_count!==null&&<small>Nhu cầu hiện tại: {row.current_required_count}. Cần tạo phiên bản mới để sử dụng.</small>}</td><td>{saved ? row.assigned_count : '—'}</td>
-          <td>{row.missing_count===null?<span className="schedule-muted">Chưa thể đánh giá</span>:saved ? <span className={`badge ${row.missing_count ? 'badge-yellow' : 'badge-green'}`}>{row.missing_count ? `Thiếu ${row.missing_count}` : 'Đủ người'}</span> : '—'}</td>
-        </tr>;
-      })}</tbody>
-    </table>
-  </div>;
+  // Group the existing calendar view, including empty and historical cells.
+  // Counts are assignment occurrences, never distinct employees.
+  const days = new Map<string, typeof rows>();
+  for (const row of rows) {
+    const day = days.get(row.work_date) ?? [];
+    day.push(row); days.set(row.work_date, day);
+  }
+  const knownRegistrations = summary?.period.id === context.period.id && summary.branch.id === context.period.branch_id && (!context.source || context.source === summary.source);
+  return <section className="schedule-calendar" aria-label="Bảng lịch làm việc theo ngày và ca">
+    <header className="schedule-calendar-heading">
+      <div><h4>{saved ? 'Phân công đã lưu trong lịch làm việc' : 'Nhu cầu nhân sự của tuần — chưa có phân công'}</h4>
+        <p>Mở từng ngày để xem phân công. Đã xếp / Cần dùng nhu cầu của phiên bản lịch; tổng theo ngày tính theo lượt phân công.</p></div>
+      {(context.source === 'mock' || saved?.source === 'mock' || saved?.is_mock) && <span className="badge badge-slate">Dữ liệu thử nghiệm · MOCK</span>}
+    </header>
+    {[...days].map(([date, dayRows], index) => {
+      const assigned = dayRows.reduce((total, row) => total + row.assigned_count, 0);
+      const missing = dayRows.reduce((total, row) => total + (row.missing_count ?? 0), 0);
+      const unknown = dayRows.filter(row => row.required_count === null).length;
+      const shiftIds = [...new Set(dayRows.map(row => row.shift_id))];
+      return <details className="schedule-day" key={`${context.period.id}/${saved?.schedule.id ?? 'unsaved'}/${date}`} open={index === 0}>
+        <summary><ChevronRight className="schedule-day-chevron" size={16} aria-hidden="true" />
+          <strong className="schedule-day-date">{dateLabel(date)}</strong>
+          <span className="schedule-day-totals">
+            <span><b>{saved ? assigned : '—'}</b> lượt đã xếp</span>
+            <span className={saved && missing > 0 ? 'schedule-day-missing' : undefined}>{!saved ? 'Chưa có phân công' : unknown === dayRows.length ? 'Còn thiếu: chưa xác định' : <><b>{missing}</b> lượt còn thiếu{unknown > 0 ? ' đã biết' : ''}</>}</span>
+            {unknown > 0 && <span className="schedule-day-unknown">{unknown} ô chưa có nhu cầu</span>}
+          </span>
+        </summary>
+        <div className="schedule-day-body">
+          {saved && unknown > 0 && unknown < dayRows.length && <p className="schedule-muted schedule-day-note">Tổng thiếu chưa đầy đủ: còn ô chưa có nhu cầu trong phiên bản này.</p>}
+          {shiftIds.map(shiftId => {
+            const shift = context.shifts.find(s => s.id === shiftId);
+            const registered = knownRegistrations ? summary.rows.some(r => r.work_date === date && r.shift_id === shiftId && r.registered_count > 0) : null;
+            return <section className="schedule-shift" key={shiftId} aria-label={`${shift?.name || shiftId} · ${dateLabel(date)}`}>
+              <header className="schedule-shift-heading"><h5>{shift?.name || shiftId}</h5>
+                {shift && <span>{shift.start_time.slice(0, 5)} – {shift.end_time.slice(0, 5)}{shift.end_time < shift.start_time ? ' (hôm sau)' : ''}</span>}
+                {registered === false && <small>Chưa có nhân viên đăng ký</small>}
+              </header>
+              <table className="schedule-shift-table">
+                <caption className="schedule-visually-hidden">{shift?.name || shiftId} · {dateLabel(date)}</caption>
+                <thead><tr><th scope="col">Bộ phận</th><th scope="col">Nhân viên được phân công</th><th scope="col">Đã xếp / Cần</th><th scope="col">Trạng thái</th></tr></thead>
+                <tbody>{dayRows.filter(row => row.shift_id === shiftId).map(row => <tr key={row.key} data-work-date={row.work_date} data-shift-id={row.shift_id}>
+                  <th scope="row">{context.departments.find(d => d.id === row.department_id)?.name || row.department_id}{row.required_skill_name && <small>Kỹ năng: {row.required_skill_name}</small>}</th>
+                  <td data-label="Nhân viên được phân công">{row.assignments.length ? <ul className="schedule-employee-chips">{row.assignments.map(a => <li key={a.id || a.employee_id}>{employeeName(a.employee_id)}</li>)}</ul> : <span className="schedule-muted">Chưa phân công</span>}</td>
+                  <td data-label="Đã xếp / Cần"><span className="schedule-assignment-ratio" aria-label={`Đã xếp ${saved ? row.assigned_count : 'chưa xác định'}, cần ${row.required_count ?? 'chưa xác định'}`}>{saved ? row.assigned_count : '—'}<span> / </span>{row.required_count ?? '—'}</span>
+                    {row.required_count === null && <small>{saved && row.current_required_count !== null ? 'Chưa có nhu cầu trong phiên bản này' : 'Chưa nhập nhu cầu'}</small>}
+                    {saved && row.required_count === null && row.current_required_count !== null && <small>Nhu cầu hiện tại: {row.current_required_count}. Cần tạo phiên bản mới để sử dụng.</small>}
+                  </td>
+                  <td data-label="Trạng thái">{row.missing_count === null ? <span className="schedule-muted">Chưa thể đánh giá</span> : saved ? <span className={`badge ${row.missing_count ? 'badge-yellow' : 'badge-green'}`}>{row.missing_count ? `Thiếu ${row.missing_count}` : 'Đủ người'}</span> : <span className="schedule-muted">Chưa có phân công</span>}</td>
+                </tr>)}</tbody>
+              </table>
+            </section>;
+          })}
+        </div>
+      </details>;
+    })}
+  </section>;
 }
 
 export function ManagerSchedule() {
@@ -121,7 +159,7 @@ export function ManagerSchedule() {
       <button type="button" className="btn btn-outline" disabled={busy} onClick={() => setReload(n => n + 1)}><RefreshCw size={16} aria-hidden="true" />Tải lại tuần</button>
       <button type="button" className="btn btn-primary" disabled={!canGenerate} onClick={() => void generate()}>{generating ? <Loader2 className="spin" size={17} aria-hidden="true" /> : <Wand2 size={17} aria-hidden="true" />}{generating ? 'Đang tạo và lưu lịch…' : context?.source==='mock'&&saved?'Tạo lại lịch dự kiến':'Tạo lịch dự kiến'}</button>
     </div>
-    {context?.source === 'mock' && <div className="schedule-alert" role="status">Dữ liệu thử nghiệm — lịch chỉ lưu trong bộ nhớ backend, không gửi lên Supabase. {context.test_rules?.max_shifts_per_day?`Giới hạn ${context.test_rules.max_shifts_per_day} ca/ngày là cấu hình kiểm thử.`:'Không áp đặt giới hạn ca/ngày khi chưa cấu hình.'}</div>}
+    {context?.source === 'mock' && <div className="schedule-info" role="status">Dữ liệu thử nghiệm — lịch chỉ lưu trong bộ nhớ backend, không gửi lên Supabase. {context.test_rules?.max_shifts_per_day?`Giới hạn ${context.test_rules.max_shifts_per_day} ca/ngày là cấu hình kiểm thử.`:'Không áp đặt giới hạn ca/ngày khi chưa cấu hình.'}</div>}
     {!loadingPeriods && <RegistrationSummaryPanel periodId={selected?.id || ''} refreshKey={reload} context={context} onSummary={setRegistrationSummary}/>}
     <p className="schedule-muted">Lịch mới được lưu ở trạng thái dự kiến để quản lý xem xét. Việc phê duyệt và công bố thuộc các bước tiếp theo.</p>
     {!user?.branch_id && <div className="schedule-alert" role="alert">Tài khoản quản lý chưa được phân công chi nhánh.</div>}
@@ -138,11 +176,13 @@ export function ManagerSchedule() {
         {[['Nhân sự yêu cầu', required], ['Đã phân công', saved ? assigned : '—'], ['Còn thiếu', saved ? missing : '—'], ['Đăng ký ca hợp lệ', context.valid_registration_count]].map(([label, value]) => <div className="dashboard-metric" key={label}><div className="dashboard-metric-heading">{label}</div><div className="schedule-metric-value">{value}</div></div>)}
       </div>
       {saved && <p className="schedule-muted">Mã lịch: <code>{saved.schedule.id}</code> · Phiên bản {saved.schedule.version}</p>}
-      {saved?.demand_changed&&<div className="schedule-alert" role="status">Nhu cầu đã thay đổi so với lịch đang xem. Bấm Tạo lại lịch dự kiến để dùng nhu cầu mới.</div>}
-      {saved && missing > 0 && <div className="schedule-alert" role="status"><AlertTriangle size={18} aria-hidden="true" /><span>Chưa đủ nhân viên phù hợp: thiếu {missing} lượt phân công ở {rows.filter(r => r.missing_count > 0).length} ca/bộ phận. Quản lý cần xem xét và bổ sung nhân sự trước khi trình duyệt.</span></div>}
-      {saved && saved.generation_snapshot?.new_employee_count_threshold == null && <div className="schedule-alert">Chưa đủ dữ liệu đánh giá: chưa có ngưỡng cảnh báo NEW trong kết quả lịch.</div>}
-      {saved?.generation_snapshot?.coverage?.some(r => r.warning) && <div className="schedule-alert">Có ca nhiều nhân viên mới và không có Crew Training theo ngưỡng đã cấu hình. Vui lòng kiểm tra cơ cấu nhân sự.</div>}
+      {saved?.demand_changed&&<div className="schedule-info schedule-demand-changed" role="status">Nhu cầu đã thay đổi so với lịch đang xem. Bấm Tạo lại lịch dự kiến để dùng nhu cầu mới.</div>}
+      {saved && missing > 0 && <div className="schedule-info" role="status"><AlertTriangle size={18} aria-hidden="true" /><span>Chưa đủ nhân viên phù hợp: thiếu {missing} lượt phân công ở {rows.filter(r => r.missing_count > 0).length} ca/bộ phận. Quản lý cần xem xét và bổ sung nhân sự trước khi trình duyệt.</span></div>}
       {(!!context.shifts.length||!!rows.length||!!saved?.assignments.length) && <div className="card schedule-table-card"><ScheduleTable context={context} saved={saved} summary={registrationSummary}/></div>}
+      {saved && (saved.generation_snapshot?.new_employee_count_threshold == null || saved.generation_snapshot?.coverage?.some(r => r.warning)) && <details className="schedule-additional"><summary>Thông tin bổ sung · Cơ cấu nhân viên mới</summary>
+        {saved.generation_snapshot?.new_employee_count_threshold == null && <p>Chưa đủ dữ liệu đánh giá: chưa có ngưỡng cảnh báo NEW trong kết quả lịch.</p>}
+        {saved.generation_snapshot?.coverage?.some(r => r.warning) && <p>Có ca nhiều nhân viên mới và không có Crew Training theo ngưỡng đã cấu hình. Vui lòng kiểm tra cơ cấu nhân sự.</p>}
+      </details>}
       {saved && !rows.length && <div className="schedule-alert">Lịch này chưa có dữ liệu nhu cầu để đối chiếu; các ca vẫn được hiển thị và không được coi là nhu cầu 0.</div>}
       {saved?.source==='mock'&&context.source==='mock'&&<MockDraftEditor key={saved.schedule.id} context={context} saved={saved} onSaved={value=>{if(value.schedule.period_id===selected?.id){setSaved(value);setNotice('Đã kiểm tra và lưu phiên bản DRAFT thử nghiệm mới trong bộ nhớ.');}}}/>}
       {saved&&<ScheduleReviewPanel key={`${saved.schedule.id}/${saved.schedule.version}`} saved={saved}/>}

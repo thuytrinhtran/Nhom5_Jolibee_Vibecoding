@@ -3,10 +3,10 @@ import { demandDays, demandRowKey } from './staffing-demand.view';
 export type CellValue = { count:string; forecast:string };
 export type DemandDraft = Record<string,CellValue>;
 export type GridCell = {work_date:string;shift_id:string;department_id:string};
-export function gridShifts(data:DemandContext) {
+export function gridShifts(data:Pick<DemandContext,'shifts'>) {
   return data.shifts.filter(s=>s.is_active).sort((a,b)=>a.start_time.localeCompare(b.start_time)||a.id.localeCompare(b.id));
 }
-export function gridDepartments(data:DemandContext) {
+export function gridDepartments(data:Pick<DemandContext,'departments'>) {
   const order=['Bếp','Thu ngân','Phục vụ'];
   return [...data.departments].sort((a,b)=>(order.includes(a.name)?order.indexOf(a.name):3)-(order.includes(b.name)?order.indexOf(b.name):3)||a.name.localeCompare(b.name));
 }

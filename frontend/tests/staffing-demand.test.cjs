@@ -3,14 +3,13 @@ function load(file,overrides={},globals={}){const source=fs.readFileSync(file,'u
 const scheduleView=load('src/services/scheduling.view.ts'),demandView=load('src/services/staffing-demand.view.ts');
 const grid=load('src/services/staffing-demand.grid.ts',{'./staffing-demand.view':demandView});
 const matrix=load('src/pages/manager/StaffingStatusMatrix.tsx',{'../../services/staffing-demand.view':demandView,'../../services/staffing-demand.grid':grid,'../../services/staffing-status.view':load('src/services/staffing-status.view.ts'),'../../services/scheduling.view':scheduleView});
-const table=load('src/pages/manager/RegistrationSummaryPanel.tsx',{'../../services/scheduling.service':{schedulingService:{}},'../../services/scheduling.view':scheduleView,'../../services/staffing-demand.view':demandView});
 const period={id:'period',branch_id:'branch',work_start_date:'2026-11-02',work_end_date:'2026-11-08',status:'CLOSED',schedules:[]};
 const requirement={id:'demand',work_date:'2026-11-02',shift_id:'shift',department_id:'kitchen',required_count:2,required_skill_name:'Bếp nóng',sales_forecast_ref:'Forecast tuần 45 – mô phỏng',updated_at:'2026-10-29T00:00:00Z',created_by:'creator'};
 const row={branch_id:'branch',period_id:'period',work_date:requirement.work_date,shift_id:'shift',shift_name:'Ca sáng',start_time:'08:00:00',end_time:'12:00:00',department_id:'kitchen',department_name:'Bếp',registered_count:2,eligible_count:1,confirmed_eligible_count:1,required_count:2,balance:-1,shortage_count:1,surplus_count:0,status:'SHORTAGE',required_skill_name:'Bếp nóng',exclusions:{SKILL_MISMATCH:1},other_department_registered_count:0,warnings:[{code:'SKILL_MISMATCH',message:'Có nhân viên không có kỹ năng bắt buộc.'}]};
 const data={source:'mock',is_mock:true,branch:{id:'branch',name:'Chi nhánh mô phỏng'},period,requirements:[requirement],departments:[{id:'kitchen',name:'Bếp'},{id:'cash',name:'Thu ngân'},{id:'service',name:'Phục vụ'}],shifts:[{id:'shift',name:'Ca sáng',start_time:'08:00:00',end_time:'12:00:00',is_active:true}],skill_names:['Bếp nóng'],forecast_mode:'REFERENCE_ONLY',staffing_formula_status:'NOT_CONFIGURED',summary:{source:'mock',is_mock:true,branch:{id:'branch',name:'Chi nhánh mô phỏng'},period,rows:[row],warnings:[{code:'NEW_THRESHOLD_NOT_CONFIGURED',message:'Chưa đủ dữ liệu đánh giá: chưa cấu hình ngưỡng NEW.'}],notes:[]}};
 function component(react=React,service={},globals={}){return load('src/pages/manager/ManagerDemand.tsx',{
  react,'react-router-dom':{Link:({children})=>React.createElement('a',{},children)},'../../context/AuthContext':{useAuth:()=>({user:{branch_id:'branch',branch_name:'Chi nhánh'}})},
- '../../services/scheduling.service':{schedulingService:service},'../../services/scheduling.view':scheduleView,'../../services/staffing-demand.view':demandView,'../../services/staffing-demand.grid':grid,'../../services/staffing-demand.guard':{useUnsavedDemandGuard(){}},'./RegistrationSummaryPanel':table,'./StaffingStatusMatrix':matrix,
+ '../../services/scheduling.service':{schedulingService:service},'../../services/scheduling.view':scheduleView,'../../services/staffing-demand.view':demandView,'../../services/staffing-demand.grid':grid,'../../services/staffing-demand.guard':{useUnsavedDemandGuard(){}},'./StaffingStatusMatrix':matrix,
 },globals);}
 test('/manager/demand has explicit QL route with ManagerDemand, not wildcard placeholder',()=>{
  const source=ts.createSourceFile('App.tsx',fs.readFileSync('src/App.tsx','utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);let found;
@@ -24,7 +23,7 @@ test('demand grid includes all seven days and three departments; missing rows st
 });
 test('workspace shows manual demand, forecast source, three departments and skill/config warnings',()=>{
  const {DemandWorkspace}=component();const html=renderToStaticMarkup(React.createElement(DemandWorkspace,{data,draft:{},errors:{},saving:false,onChange(){}}));
- for(const text of ['Bếp','Thu ngân','Phục vụ','Số nhân viên cần','Nguồn / ghi chú Sales Forecast','Forecast tuần 45','Tình trạng nhân sự từng ca','đủ điều kiện trước xếp lịch','Chưa đủ dữ liệu đánh giá','Thiếu 1 người','Sao chép thứ Hai','Ô trống = chưa xác định'])assert.ok(html.includes(text),text);
+ for(const text of ['Bếp','Thu ngân','Phục vụ','Số nhân viên cần','Nguồn / ghi chú Sales Forecast','Forecast tuần 45','Tình trạng nhân sự theo ca','đủ điều kiện trước xếp lịch','Chưa đủ dữ liệu đánh giá','Thiếu 1','Sao chép thứ Hai','Ô trống = chưa xác định'])assert.ok(html.includes(text),text);
  assert.ok(!html.includes('Tính năng này chưa sẵn sàng'));
 });
 test('weekly grid saves explicit zero with preserved forecast, skills and revision',async()=>{
