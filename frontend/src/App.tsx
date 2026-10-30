@@ -9,6 +9,7 @@ import { Login } from './pages/Login';
 import { EmployeeDashboard } from './pages/employee/EmployeeDashboard';
 import { ManagerDashboard } from './pages/manager/ManagerDashboard';
 import { SupervisorDashboard } from './pages/supervisor/SupervisorDashboard';
+import { ScheduleWorkflow } from './pages/schedules/ScheduleWorkflow';
 
 const RootRedirect: React.FC = () => {
   const { user, loading } = useAuth();
@@ -83,6 +84,11 @@ export const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
+
+          <Route path="/supervisor/approvals" element={<ProtectedRoute allowedRoles={['GS']}><AppLayout><ScheduleWorkflow mode="approvals" /></AppLayout></ProtectedRoute>} />
+          <Route path="/supervisor/reports" element={<ProtectedRoute allowedRoles={['GS']}><AppLayout><ScheduleWorkflow mode="history" /></AppLayout></ProtectedRoute>} />
+          <Route path="/manager/publish" element={<ProtectedRoute allowedRoles={['QL']}><AppLayout><ScheduleWorkflow mode="publish" /></AppLayout></ProtectedRoute>} />
+          <Route path="/manager/publish-history" element={<ProtectedRoute allowedRoles={['QL']}><AppLayout><ScheduleWorkflow mode="publication-history" /></AppLayout></ProtectedRoute>} />
 
           <Route path="/employee/*" element={
             <ProtectedRoute allowedRoles={['NV']}>

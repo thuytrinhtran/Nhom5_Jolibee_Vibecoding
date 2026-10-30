@@ -46,6 +46,8 @@ export const dashboardConfig: Record<UserRole, DashboardConfig> = {
       { label: 'Xem đăng ký', path: '/manager/registrations', icon: ClipboardList },
       { label: 'Nhu cầu nhân sự', path: '/manager/demand', icon: Users },
       { label: 'Lập lịch làm', path: '/manager/schedule', icon: CalendarDays },
+      { label: 'Công bố lịch', path: '/manager/publish', icon: CheckSquare },
+      { label: 'Lịch sử công bố', path: '/manager/publish-history', icon: History },
       { label: 'Yêu cầu đổi ca', path: '/manager/shift-requests', icon: ArrowLeftRight },
       { label: 'Quản lý nhân viên', path: '/manager/staff', icon: Users },
     ],
@@ -58,6 +60,8 @@ export const dashboardConfig: Record<UserRole, DashboardConfig> = {
     actions: [
       { label: 'Xem đăng ký', description: 'Xem nguyện vọng ca làm.', path: '/manager/registrations', icon: ClipboardList },
       { label: 'Lập lịch làm', description: 'Mở lịch làm của chi nhánh.', path: '/manager/schedule', icon: CalendarDays },
+      { label: 'Công bố lịch', description: 'Xem lịch đã duyệt và công bố cho nhân viên.', path: '/manager/publish', icon: CheckSquare },
+      { label: 'Lịch sử công bố', description: 'Tra cứu người công bố, thời điểm và thời hạn phản hồi.', path: '/manager/publish-history', icon: History },
       { label: 'Quản lý nhân viên', description: 'Xem danh sách nhân viên.', path: '/manager/staff', icon: Users },
       { label: 'Xử lý đổi ca', description: 'Xem các yêu cầu đổi ca.', path: '/manager/shift-requests', icon: ArrowLeftRight },
     ],
