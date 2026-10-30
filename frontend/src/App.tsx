@@ -9,6 +9,8 @@ import { Login } from './pages/Login';
 import { ShiftRegistration } from './pages/employee/ShiftRegistration';
 import { EmployeeDashboard } from './pages/employee/EmployeeDashboard';
 import { ManagerDashboard } from './pages/manager/ManagerDashboard';
+import { ManagerSchedule } from './pages/manager/ManagerSchedule';
+import { ManagerDemand } from './pages/manager/ManagerDemand';
 import { SupervisorDashboard } from './pages/supervisor/SupervisorDashboard';
 import { ScheduleWorkflow } from './pages/schedules/ScheduleWorkflow';
 
@@ -95,6 +97,18 @@ export const App: React.FC = () => {
           <Route path="/employee/*" element={
             <ProtectedRoute allowedRoles={['NV']}>
               <AppLayout><PlaceholderPage /></AppLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/manager/demand" element={
+            <ProtectedRoute allowedRoles={['QL']}>
+              <AppLayout><ManagerDemand /></AppLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/manager/schedule" element={
+            <ProtectedRoute allowedRoles={['QL']}>
+              <AppLayout><ManagerSchedule /></AppLayout>
             </ProtectedRoute>
           } />
 

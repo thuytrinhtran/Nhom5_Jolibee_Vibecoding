@@ -1,0 +1,68 @@
+.staffing-status { display: flex; flex-direction: column; gap: 16px; min-width: 0; container-type: inline-size; }
+.staffing-status h3 { font-size: 17px; }
+.staffing-status-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 24px; }
+.staffing-status-controls > p { flex: 1; min-width: min(100%, 240px); }
+.staffing-status label { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 13px; font-weight: 600; }
+.staffing-status select { max-width: 100%; padding: 10px; border: 1px solid var(--border-strong); border-radius: 8px; background: white; color: var(--text-primary); font: inherit; font-weight: 400; }
+.staffing-source-note { font-size: 12px; color: var(--text-secondary); }
+.staffing-shifts { border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; }
+.staffing-shift + .staffing-shift { border-top: 1px solid var(--border-subtle); }
+.staffing-shift > summary { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; list-style: none; cursor: pointer; padding: 16px; }
+.staffing-shift > summary::-webkit-details-marker { display: none; }
+.staffing-shift > summary:hover { background: #fafbfc; }
+.staffing-shift > summary strong { font-size: 14px; }
+.staffing-shift-chevron { flex-shrink: 0; color: var(--text-secondary); transition: transform .15s ease; }
+.staffing-shift[open] > summary .staffing-shift-chevron { transform: rotate(90deg); }
+.staffing-shift-time { font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.staffing-shift > summary small { margin-left: auto; color: var(--text-secondary); font-size: 11px; }
+.staffing-shift-body { padding: 0 16px 12px 44px; }
+.staffing-departments { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px; text-align: left; }
+.staffing-departments :is(th, td) { padding: 14px 10px; border-bottom: 1px solid #eef2f6; vertical-align: middle; overflow-wrap: anywhere; }
+.staffing-departments :is(th, td):first-child { padding-left: 0; }
+.staffing-departments :is(th, td):last-child { padding-right: 0; }
+.staffing-departments thead th { font-size: 11px; font-weight: 500; color: var(--text-secondary); padding-top: 0; padding-bottom: 8px; }
+.staffing-departments thead th:nth-child(1) { width: 22%; }
+.staffing-departments thead th:nth-child(2) { width: 28%; }
+.staffing-departments thead th:nth-child(3) { width: 28%; }
+.staffing-departments thead th:nth-child(4) { width: 22%; }
+.staffing-departments tbody th { font-weight: 600; }
+.staffing-departments tr:last-child > * { border-bottom: 0; }
+.staffing-departments small { display: block; margin-top: 4px; color: var(--text-secondary); font-size: 11px; }
+.staffing-ratio { font-size: 17px; font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.staffing-badge { display: inline-flex; padding: 4px 9px; border: 1px solid; border-radius: 999px; font-size: 11px; font-weight: 600; }
+.staffing-balanced { color: #15803d; background: #f0fdf4; border-color: #bbf7d0; }
+.staffing-shortage { color: #a16207; background: #fefce8; border-color: #fef08a; }
+.staffing-surplus { color: #1e40af; background: #eff6ff; border-color: #dbeafe; }
+.staffing-unknown, .staffing-not-required { color: #475569; background: #f8fafc; border-color: #e2e8f0; }
+.staffing-detail-button { border: 0; background: transparent; color: var(--primary); font: inherit; font-size: 12px; font-weight: 600; padding: 8px 0; text-align: left; cursor: pointer; }
+.staffing-detail-button:hover { text-decoration: underline; }
+.staffing-detail-button:focus-visible, .staffing-status select:focus-visible, .staffing-shift > summary:focus-visible, .staffing-extra summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.staffing-detail-row > td { padding: 4px 0 16px; }
+.staffing-detail { background: #f8fafc; border: 1px solid var(--border-subtle); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 14px; font-size: 13px; }
+.staffing-detail h4 { font-size: 14px; }.staffing-detail h5 { font-size: 12px; margin-bottom: 6px; }
+.staffing-detail dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.staffing-detail dt { color: var(--text-secondary); margin-bottom: 5px; }
+.staffing-detail dd { font-size: 16px; font-weight: 600; }
+.staffing-detail ul { padding-left: 18px; line-height: 1.7; }
+.staffing-warning-code { color: var(--text-secondary); font-size: 11px; }
+.staffing-extra { border-top: 1px solid var(--border-subtle); padding-top: 14px; font-size: 12px; color: var(--text-secondary); line-height: 1.7; }
+.staffing-extra summary { cursor: pointer; font-weight: 600; }
+.staffing-extra p { margin-top: 10px; }
+.staffing-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@container (max-width: 600px) {
+  .staffing-status-controls label { width: 100%; }.staffing-status-controls select { flex: 1; min-width: 0; }
+  .staffing-shift > summary { gap: 6px 8px; }
+  .staffing-shift > summary small { width: 100%; margin-left: 24px; }
+  .staffing-shift-body { padding: 0 12px 12px; }
+  .staffing-departments, .staffing-departments tbody { display: block; }
+  .staffing-departments thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .staffing-departments .staffing-department-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px; margin-bottom: 10px; }
+  .staffing-departments .staffing-department-row > :is(th, td) { padding: 0; border: 0; min-width: 0; }
+  .staffing-department-row th { grid-column: 1 / -1; }
+  .staffing-department-row [data-label="Đủ điều kiện / Cần"]::before { content: "Đủ điều kiện / Cần"; display: block; font-size: 10px; color: var(--text-secondary); margin-bottom: 4px; }
+  .staffing-department-row [data-label="Tình trạng"] { text-align: right; align-self: center; }
+  .staffing-department-row [data-label="Thông tin"] { grid-column: 1 / -1; }
+  .staffing-departments .staffing-detail-row, .staffing-detail-row > td { display: block; width: 100%; padding: 0 0 10px; border: 0; }
+  .staffing-detail dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { .staffing-shift-chevron { transition: none; } }

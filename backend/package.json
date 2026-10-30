@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
-    "test": "npm run build && node --test tests/*.test.cjs"
+    "test": "npm run build && node --test tests/*.test.cjs",
+    "dev:tv3-test": "node scripts/dev-tv3-test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",

@@ -1,0 +1,13 @@
+.schedule-ai { display: flex; flex-direction: column; gap: 14px; }
+.schedule-ai h3 { font-size: 17px; }
+.ai-report { display: flex; flex-direction: column; gap: 18px; border-top: 1px solid var(--border-subtle); padding-top: 18px; font-size: 14px; line-height: 1.7; }
+.ai-report h4 { font-size: 14px; margin-bottom: 8px; }
+.ai-report ul { padding-left: 20px; }
+.ai-report-columns { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; }
+.ai-report-columns p { color: var(--text-secondary); }
+.ai-proposal { padding: 14px; border: 1px solid var(--border-subtle); border-radius: 10px; margin-top: 10px; }
+.ai-proposal p { margin: 6px 0; overflow-wrap: anywhere; }
+.ai-proposal summary, .ai-report > details summary { cursor: pointer; font-size: 13px; }
+.ai-rule-rejected { color: #991b1b; }
+.ai-report-stale { border-left: 3px solid #eab308; padding-left: 14px; }
+@media(max-width:800px){.ai-report-columns{grid-template-columns:1fr;}.schedule-ai .schedule-heading{align-items:flex-start;}}
