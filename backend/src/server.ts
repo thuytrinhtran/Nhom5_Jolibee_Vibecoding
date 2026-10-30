@@ -8,6 +8,7 @@ import schedulingRoutes from './routes/scheduling.routes.js';
 import { registrationRoutes } from './routes/registration.routes.js';
 import { automationRoutes } from './routes/registration-automation.routes.js';
 import scheduleWorkflowRoutes from './routes/schedule-workflow.routes.js';
+import shiftChangeRoutes from './routes/shift-change.routes.js';
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use(express.json());
 
 // Auth & RBAC Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/shift-change-requests', shiftChangeRoutes);
 app.use('/api/registrations', registrationRoutes);
 app.use('/api/registration-reports', registrationReports);
 app.use('/api/internal/registration-automation', automationRoutes);

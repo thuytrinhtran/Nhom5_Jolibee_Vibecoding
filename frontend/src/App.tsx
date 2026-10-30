@@ -13,6 +13,8 @@ import { ManagerSchedule } from './pages/manager/ManagerSchedule';
 import { ManagerDemand } from './pages/manager/ManagerDemand';
 import { SupervisorDashboard } from './pages/supervisor/SupervisorDashboard';
 import { ScheduleWorkflow } from './pages/schedules/ScheduleWorkflow';
+import { EmployeeShiftRequests } from './pages/employee/EmployeeShiftRequests';
+import { ManagerShiftRequests } from './pages/manager/ManagerShiftRequests';
 
 const RootRedirect: React.FC = () => {
   const { user, loading } = useAuth();
@@ -94,6 +96,7 @@ export const App: React.FC = () => {
           <Route path="/manager/publish-history" element={<ProtectedRoute allowedRoles={['QL']}><AppLayout><ScheduleWorkflow mode="publication-history" /></AppLayout></ProtectedRoute>} />
 
           <Route path="/employee/register" element={<ProtectedRoute allowedRoles={['NV']}><AppLayout><ShiftRegistration /></AppLayout></ProtectedRoute>} />
+          <Route path="/employee/shift-requests" element={<ProtectedRoute allowedRoles={['NV']}><AppLayout><EmployeeShiftRequests /></AppLayout></ProtectedRoute>} />
           <Route path="/employee/*" element={
             <ProtectedRoute allowedRoles={['NV']}>
               <AppLayout><PlaceholderPage /></AppLayout>
@@ -112,6 +115,7 @@ export const App: React.FC = () => {
             </ProtectedRoute>
           } />
 
+          <Route path="/manager/shift-requests" element={<ProtectedRoute allowedRoles={['QL']}><AppLayout><ManagerShiftRequests /></AppLayout></ProtectedRoute>} />
           <Route path="/manager/*" element={
             <ProtectedRoute allowedRoles={['QL']}>
               <AppLayout><PlaceholderPage /></AppLayout>
