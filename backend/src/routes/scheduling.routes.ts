@@ -1,4 +1,5 @@
 import { prepareApprovalHandoff, validateSchedule } from '../services/schedule-review.service.js';
+import { readManagerCalendar } from '../services/manager-calendar.service.js';
 import { evaluateSchedule, readAIEvaluation } from '../services/schedule-ai.service.js';
 import { editMockDraft } from '../services/mock-scheduling.service.js';
 import { clearDemand, readDemand, saveDemand } from '../services/staffing-demand.service.js';
@@ -10,6 +11,13 @@ const router = Router();
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 router.use((_req,res,next) => { res.setHeader('Cache-Control','no-store'); next(); });
 router.use(authenticate, requireRole(['QL']));
+router.get('/periods/:id/calendar',async(req,res)=>{
+  try {
+    if(!req.user?.branch_id)throw new ScheduleError(403,'BRANCH_REQUIRED','Quản lý chưa được phân công chi nhánh.');
+    if(!uuid.test(req.params.id))throw new ScheduleError(400,'INVALID_PERIOD_ID','Mã tuần không hợp lệ.');
+    return res.json({status:'ok',result:await readManagerCalendar(req.params.id,req.user.branch_id)});
+  }catch(err){const error=err instanceof ScheduleError?err:new ScheduleError(503,'CALENDAR_UNAVAILABLE','Không tải được lịch. Vui lòng thử lại.');return res.status(error.status).json({status:'error',code:error.code,message:error.message});}
+});
 // Specific read routes must precede /:id.
 router.get('/periods', async (req, res) => {
   try {

@@ -82,7 +82,7 @@ test('guards fail closed; refresh does not count as a fresh password login',()=>
  assert.equal(passwordLoginAfter(jwt({amr:[{method:'password',timestamp:200}]}),100),true);
  assert.equal(passwordLoginAfter('invalid',100),false);
  assert.equal(validPassword('weak'),false);
- assert.throws(()=>selectNames(''),/1-4/);assert.throws(()=>selectNames('ql_jollibee'),/1-4/);assert.throws(()=>selectNames('js_ld_003,js_ld_004,js_ld_005,js_ld_007,js_ld_008'),/1-4/);
+ assert.throws(()=>selectNames(''),/1-4/);assert.deepEqual(selectNames('trangiahan'),['trangiahan']);assert.throws(()=>selectNames('js_ld_003,js_ld_004,js_ld_005,js_ld_007,js_ld_008'),/1-4/);
 });
 
 test('a stale session is denied even after the public flag was cleared',async()=>scenario(async({marker,profile,request})=>{

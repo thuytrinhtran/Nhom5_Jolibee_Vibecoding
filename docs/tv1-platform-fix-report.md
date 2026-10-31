@@ -1,5 +1,7 @@
 # TV1 – Sửa nền tảng và rà soát tích hợp
 
+> Cập nhật sau rà soát CSDL ngày 29/10/2026: hai chi nhánh đã cùng thuộc GS `gs_jollibee`. Ghi nhận `supervisor_id` chưa gán bên dưới là trạng thái lịch sử ở thời điểm sửa nền tảng. Xem [hợp đồng hiện tại](tv1-integration-contract.md) và [checklist metadata/JWT](tv1-database-handover-checklist.md). SQL kiểm tra mới chỉ được chuẩn bị, chưa chạy trên Supabase.
+
 Ngày 29/10/2026. Repository `D:/Project/Nhom5_Jolibee_Vibecoding`, nhánh `feature/ui-ux-improvements`. Working tree sạch trước khi sửa. Không đọc repository cũ ở C, không commit/push/merge, không ghi Supabase.
 
 ## Lỗi và thay đổi

@@ -8,7 +8,7 @@ const requirement={id:'demand',work_date:'2026-11-02',shift_id:'shift',departmen
 const row={branch_id:'branch',period_id:'period',work_date:requirement.work_date,shift_id:'shift',shift_name:'Ca sáng',start_time:'08:00:00',end_time:'12:00:00',department_id:'kitchen',department_name:'Bếp',registered_count:2,eligible_count:1,confirmed_eligible_count:1,required_count:2,balance:-1,shortage_count:1,surplus_count:0,status:'SHORTAGE',required_skill_name:'Bếp nóng',exclusions:{SKILL_MISMATCH:1},other_department_registered_count:0,warnings:[{code:'SKILL_MISMATCH',message:'Có nhân viên không có kỹ năng bắt buộc.'}]};
 const data={source:'mock',is_mock:true,branch:{id:'branch',name:'Chi nhánh mô phỏng'},period,requirements:[requirement],departments:[{id:'kitchen',name:'Bếp'},{id:'cash',name:'Thu ngân'},{id:'service',name:'Phục vụ'}],shifts:[{id:'shift',name:'Ca sáng',start_time:'08:00:00',end_time:'12:00:00',is_active:true}],skill_names:['Bếp nóng'],forecast_mode:'REFERENCE_ONLY',staffing_formula_status:'NOT_CONFIGURED',summary:{source:'mock',is_mock:true,branch:{id:'branch',name:'Chi nhánh mô phỏng'},period,rows:[row],warnings:[{code:'NEW_THRESHOLD_NOT_CONFIGURED',message:'Chưa đủ dữ liệu đánh giá: chưa cấu hình ngưỡng NEW.'}],notes:[]}};
 function component(react=React,service={},globals={}){return load('src/pages/manager/ManagerDemand.tsx',{
- react,'react-router-dom':{Link:({children})=>React.createElement('a',{},children)},'../../context/AuthContext':{useAuth:()=>({user:{branch_id:'branch',branch_name:'Chi nhánh'}})},
+ react,'react-router-dom':{Link:({children,to})=>React.createElement('a',{href:to},children)},'../../context/AuthContext':{useAuth:()=>({user:{branch_id:'branch',branch_name:'Chi nhánh'}})},
  '../../services/scheduling.service':{schedulingService:service},'../../services/scheduling.view':scheduleView,'../../services/staffing-demand.view':demandView,'../../services/staffing-demand.grid':grid,'../../services/staffing-demand.guard':{useUnsavedDemandGuard(){}},'./StaffingStatusMatrix':matrix,
 },globals);}
 test('/manager/demand has explicit QL route with ManagerDemand, not wildcard placeholder',()=>{
@@ -61,4 +61,24 @@ test('changing week asks before discarding unsaved cells; cancelling retains the
  const page=interactive({periods:async()=>[period,next],demand:async id=>{calls.push(id);return{...data,period:{...period,id}}}},{window:{confirm(){prompts++;return allow}}});
  await page.settle();page.edit();await page.settle();assert.deepEqual(calls,['period']);page.chooseWeek('next');await page.settle();assert.equal(page.selectedWeek,'period');assert.equal(prompts,1);assert.ok(page.html().includes('1 ô chưa lưu'));assert.deepEqual(calls,['period']);
  allow=true;page.chooseWeek('next');await page.settle();assert.equal(page.selectedWeek,'next');assert.deepEqual(calls,['period','next']);assert.ok(!page.html().includes('1 ô chưa lưu'));
+});
+
+test('empty/partial demand never claims ready; schedule link preserves loaded week',async()=>{
+ for(const requirements of [[],[requirement]]){
+  const page=interactive({periods:async()=>[period],demand:async()=>({...data,requirements})});await page.settle();
+  const html=page.html();assert.doesNotMatch(html,/sẵn sàng cho Rule Engine/);
+  assert.match(html,requirements.length?/Đã lưu 1\/21 ô nhu cầu/:/Chưa nhập nhu cầu nhân sự/);
+  assert.match(html,/href="\/manager\/schedule\?period_id=period"/);
+ }
+ const second={...period,id:'another-week'};const page=interactive({periods:async()=>[period,second],demand:async id=>({...data,period:{...period,id}})});
+ await page.settle();page.chooseWeek(second.id);await page.settle();assert.match(page.html(),/href="\/manager\/schedule\?period_id=another-week"/);
+});
+
+test('zero is declared demand; pending writes and failed reads never claim readiness',()=>{
+ const requirements=grid.gridCells(data).map((c,i)=>({...requirement,...c,id:String(i),required_count:0}));
+ const full={...data,requirements};
+ assert.match(grid.demandSyncMessage(full,0,false,''),/Đã đồng bộ đầy đủ/);
+ assert.match(grid.demandSyncMessage(full,1,false,''),/1 ô chưa lưu/);
+ assert.match(grid.demandSyncMessage(full,0,true,''),/Đang lưu/);
+ assert.match(grid.demandSyncMessage(full,0,false,'Read failed'),/Cần kiểm tra dữ liệu/);
 });

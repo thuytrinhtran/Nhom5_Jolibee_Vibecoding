@@ -1,4 +1,5 @@
 import { authService, ApiError } from './auth.service';
+import type { ManagerCalendarData } from '../types/manager-calendar';
 import type { AIReviewResponse, ApprovalHandoff, ScheduleValidation, DemandContext, DemandInput, DemandRequirement, ScheduleAssignment, RegistrationSummary, SavedSchedule, SchedulingContext, SchedulingPeriod } from '../types/scheduling';
 
 const API_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
@@ -29,6 +30,9 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
 }
 export const schedulingService = {
+  async calendar(periodId:string):Promise<ManagerCalendarData> {
+    return (await request<{result:ManagerCalendarData}>(`/periods/${encodeURIComponent(periodId)}/calendar`)).result;
+  },
   async aiEvaluation(id:string,expected_version:number):Promise<AIReviewResponse> {
     return(await request<{result:AIReviewResponse}>(`/${encodeURIComponent(id)}/ai-evaluation?expected_version=${expected_version}`)).result;
   },

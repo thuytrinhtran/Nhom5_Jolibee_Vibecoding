@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { schedulingService } from '../../services/scheduling.service';
 import { dateLabel, weekLabel } from '../../services/scheduling.view';
 import { demandDays, demandRowKey } from '../../services/staffing-demand.view';
-import { cellValue, copyDays, countError, gridCells, gridDepartments, gridShifts, overwritesSaved, pasteGrid, saveGrid, updateCell, type DemandDraft } from '../../services/staffing-demand.grid';
+import { cellValue, copyDays, countError, demandSyncMessage, gridCells, gridDepartments, gridShifts, overwritesSaved, pasteGrid, saveGrid, updateCell, type DemandDraft } from '../../services/staffing-demand.grid';
 import { useUnsavedDemandGuard } from '../../services/staffing-demand.guard';
 import { StaffingStatusMatrix } from './StaffingStatusMatrix';
 import type { DemandContext, SchedulingPeriod } from '../../types/scheduling';
@@ -134,6 +134,6 @@ export function ManagerDemand() {
     {pending&&user?.branch_id&&<p className="summary-loading" role="status"><Loader2 className="spin" size={20}/>Đang đọc nhu cầu và cung–cầu…</p>}
     {!loading&&!periods.length&&!error&&user?.branch_id&&<div className="card schedule-empty">Chưa có đợt/tuần của chi nhánh trong nguồn dữ liệu hiện tại. Có thể bật chế độ Dữ liệu thử nghiệm trong development.</div>}
     {data&&<DemandWorkspace key={data.period.id} data={data} draft={draft} onChange={next=>{setDraft(next);setNotice('');setErrors(current=>Object.fromEntries(Object.entries(current).filter(([key])=>next[key]&&next[key]===draft[key])));}} saving={saving} errors={errors}/>}
-    {data&&<div className="demand-bottom-bar"><span>{dirty?`${dirty} ô chưa lưu trên toàn tuần`:'Nhu cầu đã lưu sẵn sàng cho Rule Engine'}</span><Link className="btn btn-outline" to="/manager/schedule">Mở lịch dự kiến →</Link><button type="button" className="btn btn-primary" disabled={!ready||!dirty||saving} onClick={()=>void save()}>{saving?<Loader2 className="spin" size={16}/>:<Save size={16}/>}Lưu tất cả</button></div>}
+    {data&&<div className="demand-bottom-bar"><span role="status">{demandSyncMessage(data,dirty,saving,error)}</span><Link className="btn btn-outline" to={`/manager/schedule?period_id=${encodeURIComponent(data.period.id)}`}>Mở lịch dự kiến →</Link><button type="button" className="btn btn-primary" disabled={!ready||!dirty||saving} onClick={()=>void save()}>{saving?<Loader2 className="spin" size={16}/>:<Save size={16}/>}Lưu tất cả</button></div>}
   </section>;
 }

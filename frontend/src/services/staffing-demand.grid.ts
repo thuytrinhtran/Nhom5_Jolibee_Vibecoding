@@ -13,6 +13,17 @@ export function gridDepartments(data:Pick<DemandContext,'departments'>) {
 export function gridCells(data:DemandContext):GridCell[] {
   return demandDays(data).flatMap(work_date=>gridShifts(data).flatMap(shift=>gridDepartments(data).map(d=>({work_date,shift_id:shift.id,department_id:d.id}))));
 }
+export function demandSyncMessage(data:DemandContext,dirty:number,saving:boolean,error:string) {
+  if(saving)return 'Đang lưu nhu cầu…';
+  if(error)return 'Cần kiểm tra dữ liệu trước khi lập lịch.';
+  if(dirty)return `${dirty} ô chưa lưu trên toàn tuần`;
+  const cells=gridCells(data);
+  if(!cells.length)return 'Chưa đủ danh mục ca và bộ phận để nhập nhu cầu.';
+  const known=cells.filter(c=>data.requirements.some(r=>demandRowKey(r)===demandRowKey(c)&&Number.isInteger(r.required_count)&&r.required_count>=0)).length;
+  if(!known)return 'Chưa nhập nhu cầu nhân sự cho tuần này.';
+  if(known<cells.length)return `Đã lưu ${known}/${cells.length} ô nhu cầu; còn ô chưa xác định.`;
+  return 'Đã đồng bộ đầy đủ nhu cầu. Mở lịch dự kiến để kiểm tra điều kiện xếp lịch.';
+}
 export function storedValue(data:DemandContext,key:string):CellValue {
   const r=data.requirements.find(row=>demandRowKey(row)===key);
   return {count:r?String(r.required_count):'',forecast:r?.sales_forecast_ref??''};

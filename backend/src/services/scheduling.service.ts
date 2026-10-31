@@ -10,6 +10,10 @@ function databaseError(error: { code?: string; message?: string }): never {
   if (error.code === 'P0002') throw new ScheduleError(404, 'PERIOD_NOT_FOUND', 'Không tìm thấy đợt đăng ký.');
   if (error.message?.includes('SCHEDULE_EXISTS')) throw new ScheduleError(409, 'SCHEDULE_EXISTS', 'Tuần đã có lịch; vui lòng sử dụng quy trình điều chỉnh lịch.');
   if (error.code === '40001') throw new ScheduleError(409, 'INPUT_CHANGED', 'Dữ liệu đã thay đổi. Vui lòng thử tạo lịch lại.');
+  if (error.message?.includes('PERIOD_NOT_CLOSED')) throw new ScheduleError(409,'PERIOD_NOT_CLOSED','Đợt đăng ký phải được đóng trước khi xếp lịch.');
+  if (error.code === '23505') throw new ScheduleError(409,'SCHEDULE_CONFLICT','Dữ liệu lịch bị trùng. Vui lòng tải lại tuần.');
+  if (error.code === '22023') throw new ScheduleError(422,'INVALID_ASSIGNMENTS','Phân công không phù hợp dữ liệu hiện tại. Vui lòng tải lại tuần và kiểm tra ràng buộc.');
+  if (['55P03','57014','40P01'].includes(error.code || '')) throw new ScheduleError(503,'SCHEDULING_BUSY','Dữ liệu đang được xử lý. Vui lòng tải lại tuần trước khi thử lại.');
   throw new ScheduleError(503, 'SCHEDULING_DATABASE_ERROR', 'Không thể đọc hoặc lưu lịch. Vui lòng thử lại.');
 }
 export async function createDraft(periodId: string, actorId: string, branchId?:string, options:{regenerate?:boolean;expectedVersion?:number}={}) {

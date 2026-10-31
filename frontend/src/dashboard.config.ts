@@ -43,7 +43,7 @@ export const dashboardConfig: Record<UserRole, DashboardConfig> = {
     roleLabel: 'Quản lý ca',
     navigation: [
       { label: 'Tổng quan', path: '/manager', icon: LayoutDashboard },
-      { label: 'Xem đăng ký', path: '/manager/registrations', icon: ClipboardList },
+      { label: 'Quản lý lịch', path: '/manager/registrations', icon: ClipboardList },
       { label: 'Nhu cầu nhân sự', path: '/manager/demand', icon: Users },
       { label: 'Lập lịch làm', path: '/manager/schedule', icon: CalendarDays },
       { label: 'Công bố lịch', path: '/manager/publish', icon: CheckSquare },
@@ -58,7 +58,7 @@ export const dashboardConfig: Record<UserRole, DashboardConfig> = {
       { label: 'Yêu cầu đổi ca', icon: ArrowLeftRight },
     ],
     actions: [
-      { label: 'Xem đăng ký', description: 'Xem nguyện vọng ca làm.', path: '/manager/registrations', icon: ClipboardList },
+      { label: 'Quản lý lịch', description: 'Xem lịch đăng ký và phân công theo tuần.', path: '/manager/registrations', icon: ClipboardList },
       { label: 'Lập lịch làm', description: 'Mở lịch làm của chi nhánh.', path: '/manager/schedule', icon: CalendarDays },
       { label: 'Công bố lịch', description: 'Xem lịch đã duyệt và công bố cho nhân viên.', path: '/manager/publish', icon: CheckSquare },
       { label: 'Lịch sử công bố', description: 'Tra cứu người công bố, thời điểm và thời hạn phản hồi.', path: '/manager/publish-history', icon: History },

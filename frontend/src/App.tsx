@@ -10,6 +10,7 @@ import { ShiftRegistration } from './pages/employee/ShiftRegistration';
 import { EmployeeDashboard } from './pages/employee/EmployeeDashboard';
 import { ManagerDashboard } from './pages/manager/ManagerDashboard';
 import { ManagerSchedule } from './pages/manager/ManagerSchedule';
+import { ManagerCalendar } from './pages/manager/ManagerCalendar';
 import { ManagerDemand } from './pages/manager/ManagerDemand';
 import { EmployeeCompetency } from './pages/manager/EmployeeCompetency';
 import { SupervisorDashboard } from './pages/supervisor/SupervisorDashboard';
@@ -94,6 +95,7 @@ export const App: React.FC = () => {
           <Route path="/manager/publish" element={<ProtectedRoute allowedRoles={['QL']}><AppLayout><ScheduleWorkflow mode="publish" /></AppLayout></ProtectedRoute>} />
           <Route path="/manager/publish-history" element={<ProtectedRoute allowedRoles={['QL']}><AppLayout><ScheduleWorkflow mode="publication-history" /></AppLayout></ProtectedRoute>} />
 
+          <Route path="/manager/registrations" element={<ProtectedRoute allowedRoles={['QL']}><AppLayout><ManagerCalendar /></AppLayout></ProtectedRoute>} />
           <Route path="/employee/register" element={<ProtectedRoute allowedRoles={['NV']}><AppLayout><ShiftRegistration /></AppLayout></ProtectedRoute>} />
           <Route path="/employee/*" element={
             <ProtectedRoute allowedRoles={['NV']}>

@@ -1,4 +1,5 @@
-﻿-- Run in a disposable Supabase test database AFTER the base schema and both migrations.
+-- Run in a disposable Supabase test database AFTER the base schema and both migrations.
+-- Requires 20261031_tv3_schedule_draft.sql and TV2 effective-state migration.
 -- All fixture writes are rolled back. No existing rows are updated/deleted.
 BEGIN;
 DO $$
@@ -7,6 +8,7 @@ DECLARE
   branch uuid := gen_random_uuid(); department uuid := gen_random_uuid();
   employee uuid := gen_random_uuid(); shift uuid := gen_random_uuid();
   period uuid := gen_random_uuid(); requirement uuid := gen_random_uuid();
+  work_day date := date_trunc('week',now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date-7;
   snapshot jsonb; generated jsonb; saved jsonb; replay jsonb; sid uuid;
 BEGIN
   INSERT INTO auth.users(id) VALUES(actor),(employee_user);
@@ -19,15 +21,16 @@ BEGIN
     VALUES(employee,employee_user,'Synthetic scheduling fixture',branch,department,'REGULAR',8);
   INSERT INTO public.shifts(id,name,start_time,end_time,branch_id) VALUES(shift,'Synthetic shift','08:00','12:00',branch);
   INSERT INTO public.registration_periods(id,branch_id,work_start_date,work_end_date,open_at,close_at,status)
-    VALUES(period,branch,'2099-11-02','2099-11-08','2099-10-30 15:00+07','2099-11-01 12:00+07','CLOSED');
-  INSERT INTO public.shift_registrations(period_id,employee_id,work_date,shift_id,status)
-    VALUES(period,employee,'2099-11-02',shift,'VALID');
+    VALUES(period,branch,work_day,work_day+6,(work_day-3)+time '15:00',(work_day-1)+time '12:00','CLOSED');
+  INSERT INTO public.shift_registrations(period_id,employee_id,work_date,shift_id,status,submitted_at)
+    VALUES(period,employee,work_day,shift,'VALID',now());
   INSERT INTO public.staffing_requirements(id,branch_id,department_id,shift_id,work_date,required_count,created_by)
-    VALUES(requirement,branch,department,shift,'2099-11-02',1,actor);
+    VALUES(requirement,branch,department,shift,work_day,1,actor);
+  INSERT INTO public.registration_submissions(period_id,employee_id,status,submitted_at) VALUES(period,employee,'VALID',now());
   snapshot := public.generate_schedule_draft(period,actor)->'input';
   IF jsonb_array_length(snapshot->'employees') <> 1 THEN RAISE EXCEPTION 'snapshot incorrect'; END IF;
   generated := jsonb_build_object('assignments',jsonb_build_array(jsonb_build_object(
-    'employee_id',employee,'work_date','2099-11-02','shift_id',shift,'department_id',department)));
+    'employee_id',employee,'work_date',work_day,'shift_id',shift,'department_id',department)));
   -- Snapshot changes abort before any schedule is saved.
   BEGIN
     PERFORM public.generate_schedule_draft(period,actor,'{}',generated);
