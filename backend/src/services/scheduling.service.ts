@@ -3,11 +3,14 @@ import { registrationSummaryRepository, requireRealSchedulingData } from '../rep
 import { summarizeRegistrations } from './registration-summary.service.js';
 import { supabaseAdmin } from '../config/supabase.js';
 import { generateSchedule, ScheduleError, SchedulingInput } from './scheduling.engine.js';
+import { requireDraftPersistenceEnabled } from './draft-write-policy.js';
 
-function databaseError(error: { code?: string; message?: string }): never {
+export function databaseError(error: { code?: string; message?: string }): never {
   if (error.code === 'PGRST202') throw new ScheduleError(503, 'SCHEDULING_NOT_CONFIGURED', 'Chức năng tạo lịch chưa được cấu hình trên hệ thống. Vui lòng liên hệ quản trị viên.');
   if (error.code === '42501') throw new ScheduleError(403, 'FORBIDDEN', 'Không có quyền xếp lịch cho chi nhánh này.');
   if (error.code === 'P0002') throw new ScheduleError(404, 'PERIOD_NOT_FOUND', 'Không tìm thấy đợt đăng ký.');
+  if (error.message?.includes('DRAFT_LOCKED')) throw new ScheduleError(409,'DRAFT_LOCKED','Chỉ có thể chỉnh sửa DRAFT chưa gửi duyệt.');
+  if (error.message?.includes('SCHEDULE_VERSION_CHANGED')||error.message?.includes('REQUEST_CONFLICT')) throw new ScheduleError(409,'SCHEDULE_VERSION_CHANGED','Phiên bản hoặc yêu cầu lưu đã thay đổi. Hãy tải lại lịch.');
   if (error.message?.includes('SCHEDULE_EXISTS')) throw new ScheduleError(409, 'SCHEDULE_EXISTS', 'Tuần đã có lịch; vui lòng sử dụng quy trình điều chỉnh lịch.');
   if (error.code === '40001') throw new ScheduleError(409, 'INPUT_CHANGED', 'Dữ liệu đã thay đổi. Vui lòng thử tạo lịch lại.');
   if (error.message?.includes('PERIOD_NOT_CLOSED')) throw new ScheduleError(409,'PERIOD_NOT_CLOSED','Đợt đăng ký phải được đóng trước khi xếp lịch.');
@@ -17,6 +20,7 @@ function databaseError(error: { code?: string; message?: string }): never {
   throw new ScheduleError(503, 'SCHEDULING_DATABASE_ERROR', 'Không thể đọc hoặc lưu lịch. Vui lòng thử lại.');
 }
 export async function createDraft(periodId: string, actorId: string, branchId?:string, options:{regenerate?:boolean;expectedVersion?:number}={}) {
+  requireDraftPersistenceEnabled();
   if(isMockSchedulingFlow()){
     if(!branchId)throw new ScheduleError(403,'BRANCH_REQUIRED','Quản lý chưa được phân công chi nhánh.');
     return createMockDraft(periodId,branchId,actorId,options);
@@ -29,6 +33,7 @@ export async function createDraft(periodId: string, actorId: string, branchId?:s
   if (!loaded.data?.input) throw new ScheduleError(503, 'INVALID_DATABASE_RESPONSE', 'Không thể đọc dữ liệu xếp lịch.');
   const input = loaded.data.input as SchedulingInput;
   const result = generateSchedule(input);
+  requireDraftPersistenceEnabled();
   const saved = await supabaseAdmin.rpc('generate_schedule_draft', {
     p_period_id: periodId, p_actor_id: actorId, p_snapshot: input, p_result: result,
   });

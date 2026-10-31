@@ -69,6 +69,8 @@ Theo SQL nền, anon/authenticated bị thu hồi quyền bảng và Backend dù
 
 ## Lịch tuần và phiên bản công bố
 
+Luồng lưu/sửa DRAFT TV3 được mô tả trong [tv3-preview.md](tv3-preview.md). Sửa DRAFT mới nhất tạo ID lịch mới trong cùng group, tăng version và đánh dấu phân công DRAFT cũ REPLACED trong transaction; không sửa bản đã gửi duyệt/công bố. TV4 phải nhận đúng ID/version mới nhất đã lưu, không nhận preview hoặc chuyển quyết định duyệt từ version cũ. Code persistence được khóa mặc định bằng cấu hình; migration và kiểm thử Supabase thật chưa được thực hiện. Gateway bàn giao TV4 hiện vẫn chưa cấu hình, không coi chuẩn bị payload là đã gửi duyệt.
+
 Đã có `schedules`, `shift_assignments`, `schedule_approvals`, `shift_change_requests`, `replacement_invitations`, `branch_support_requests`; không tạo bảng trùng. Tại lần đọc gần nhất các bảng này chưa có bản ghi; cấu trúc tồn tại không đồng nghĩa luồng nghiệp vụ đã đạt kiểm thử.
 
 - `schedules.period_id` xác định tuần qua registration_periods; `schedules.branch_id` phải khớp branch của period. `schedule_group_id` nhận diện nhóm phiên bản, `version` tăng trong cùng nhóm; phiên bản mới phải giữ group ID, không dùng default UUID mới cho cùng nhóm.

@@ -148,31 +148,48 @@ function interactivePage(api) {
     react:hooks,'react-router-dom':{Link:({children})=>React.createElement('a',{},children),useSearchParams:()=>[new URLSearchParams(),()=>{}]},
     '../../context/AuthContext':{useAuth:()=>({user:{branch_id:'branch',branch_name:'Test Branch'}})},
     '../../services/auth.service':{ApiError},'../../services/scheduling.service':{schedulingService:api},'../../services/scheduling.view':views,
-  });
+  },{crypto:require('node:crypto').webcrypto});
   return {
+    find(predicate){const visit=node=>{if(!React.isValidElement(node))return null;if(predicate(node))return node;for(const child of React.Children.toArray(node.props.children)){const found=visit(child);if(found)return found;}return null;};return visit(tree);},
+    states,
     async settle(){for(let i=0;i<8;i++){stateIndex=refIndex=effectIndex=0;tree=ManagerSchedule();while(pending.length)pending.shift()();await new Promise(r=>setImmediate(r));}},
     html(){return renderToStaticMarkup(tree);},
     generate(){const visit=node=>{if(!React.isValidElement(node))return null;if(node.type==='button'&&React.Children.toArray(node.props.children).some(c=>c==='Tạo lịch dự kiến'))return node;for(const child of React.Children.toArray(node.props.children)){const found=visit(child);if(found)return found;}return null;};const button=visit(tree);assert.ok(button);assert.equal(button.props.disabled,false);button.props.onClick();},
   };
 }
-test('manager creates through API then renders only the separately read persisted schedule',async()=>{
-  const calls=[];const page=interactivePage({periods:async()=>[period],context:async()=>context,
-    generate:async id=>{calls.push(['POST',id]);return{id:'saved',reused:false}},
-    read:async id=>{calls.push(['GET',id]);return saved},
-  });
-  await page.settle();page.generate();await page.settle();
-  assert.deepEqual(calls,[['POST','period'],['GET','saved']]);
-  const html=page.html();assert.ok(html.includes('Đã lưu và đọc lại lịch dự kiến'));assert.ok(html.includes('Nguyễn An'));assert.ok(html.includes('Thiếu 2'));
+
+test('review sends both edited assignments, retains rejected edits and updates only accepted plan',async()=>{
+ const value={kind:'preview',persisted:false,input_revision:'revision',period,context,result:{assignments:[assignment],coverage:context.requirements,shortages:[],notes:[]},warnings:[],persistence:{enabled:false,reason:'Saving disabled'}};
+ const calls=[];let reject=true;
+ const page=interactivePage({periods:async()=>[period],context:async()=>context,preview:async(id,edit)=>{if(!edit)return value;calls.push(edit);if(reject)throw new ApiError('Phân công không có nhu cầu hoặc vượt số người cần.',422,'DEMAND_EXCEEDED');return {...value,result:{...value.result,assignments:edit.assignments}};}});
+ await page.settle();page.generate();await page.settle();
+ const two=[{...assignment,employee_id:'first'},{...assignment,employee_id:'second'}];page.states[12]=two;page.states[13]=true;await page.settle();
+ const clickReview=()=>{const b=page.find(n=>n.type==='button'&&n.props.children==='Kiểm tra lại phương án');assert.ok(b);assert.equal(b.props.disabled,false);b.props.onClick();};
+ clickReview();await page.settle();assert.equal(calls[0].assignments.length,2);assert.deepEqual(calls[0].assignments.map(a=>a.employee_id),['first','second']);assert.equal(calls[0].input_revision,'revision');assert.equal(page.states[11],value);assert.equal(page.states[12],two);assert.equal(page.states[13],true);
+ assert.ok(page.html().includes('Phân công vượt nhu cầu'));assert.ok(page.find(n=>n.type==='footer'&&n.props['aria-label']==='Kiểm tra phương án').props.children.some(n=>React.isValidElement(n)&&n.props.role==='alert'),'review error is next to editor');
+ reject=false;page.states[12]=[assignment];await page.settle();clickReview();await page.settle();assert.equal(page.states[13],false);assert.equal(page.states[11].result.assignments.length,1);assert.ok(page.html().includes('Đã kiểm tra và xác nhận phương án điều chỉnh'));
 });
+test('manager previews without saving or reading a new database schedule',async()=>{
+ const calls=[];const value={kind:'preview',persisted:false,input_revision:'revision',period,context,result:{assignments:[assignment],coverage:context.requirements,shortages:[],notes:[]},warnings:[],persistence:{enabled:false,reason:'Saving disabled'}};
+ const page=interactivePage({periods:async()=>[period],context:async()=>context,preview:async id=>{calls.push(id);return value},generate:()=>assert.fail('write'),read:()=>assert.fail('read fabricated schedule')});
+ await page.settle();page.generate();await page.settle();assert.deepEqual(calls,['period']);const html=page.html();assert.ok(html.includes('Lịch dự kiến — chưa lưu'));assert.ok(html.includes('Lưu lịch dự kiến'));assert.ok(html.includes('disabled'));assert.ok(!html.includes('Mã lịch:'));assert.ok(html.includes('Kiểm tra lại phương án'));
+});
+
+test('preview client sends only period and explicit review input to dedicated endpoint',async()=>{
+ const calls=[];const mod=load('src/services/scheduling.service.ts',{'./auth.service':{ApiError,authService:{getMe:async()=>({}),getStoredToken:()=> 'fixture'}}},{fetch:async(url,options)=>{calls.push({url,options});return {ok:true,status:200,json:async()=>({status:'ok',result:{kind:'preview',persisted:false}})};}});
+ await mod.schedulingService.preview('period');await mod.schedulingService.preview('period',{input_revision:'revision',assignments:[]});
+ assert.ok(calls.every(c=>c.url.endsWith('/schedules/preview')&&c.options.method==='POST'));
+ assert.deepEqual(JSON.parse(calls[0].options.body),{period_id:'period'});assert.deepEqual(JSON.parse(calls[1].options.body),{period_id:'period',input_revision:'revision',assignments:[]});
+});
+
 test('reopening a week restores existing database schedule without POST',async()=>{
   let reads=0;const page=interactivePage({periods:async()=>[{...period,schedules:[saved.schedule]}],context:async()=>context,
     generate:async()=>assert.fail('must not generate on load'),read:async id=>{assert.equal(id,'saved');reads++;return saved},
   });await page.settle();assert.equal(reads,1);assert.ok(page.html().includes('Nguyễn An'));assert.ok(page.html().includes('Dự kiến'));
 });
-test('successful write followed by failed read reports recovery, never reports full success',async()=>{
-  const page=interactivePage({periods:async()=>[period],context:async()=>context,generate:async()=>({id:'saved',reused:false}),read:async()=>{throw new ApiError('Database unavailable',503)}});
-  await page.settle();page.generate();await page.settle();
-  const html=page.html();assert.ok(html.includes('Lịch đã được lưu nhưng chưa đọc lại thành công'));assert.ok(!html.includes('Đã lưu và đọc lại lịch dự kiến.'));
+test('failed preview reports error without claiming persistence',async()=>{
+ const page=interactivePage({periods:async()=>[period],context:async()=>context,preview:async()=>{throw new ApiError('Preview unavailable',503)}});
+ await page.settle();page.generate();await page.settle();const html=page.html();assert.ok(html.includes('role="alert"'));assert.ok(!html.includes('Mã lịch:'));
 });
 
 test('all mock contexts allow memory-only draft generation',()=>{
@@ -180,4 +197,30 @@ test('all mock contexts allow memory-only draft generation',()=>{
   const hooks={...React,useState:()=>[state[index++],()=>{}],useEffect:()=>{},useRef:()=>({current:0})};
   const {ManagerSchedule}=page(hooks);const html=renderToStaticMarkup(React.createElement(ManagerSchedule));
   assert.ok(html.includes('lịch chỉ lưu trong bộ nhớ'));assert.ok(!/<button[^>]*disabled=""[^>]*>.*?Tạo lịch dự kiến/s.test(html));
+});
+
+test('editor groups shifts and supports adding replacing removing with excess warning',async()=>{
+ const data={...context,employees:[...context.employees,{...context.employees[0],id:'second',full_name:'Nguyễn Bình'}],requirements:[{...context.requirements[0],required_count:1}]};
+ const value={kind:'preview',persisted:false,input_revision:'revision',period,context:data,result:{assignments:[assignment],coverage:data.requirements,shortages:[],notes:[]},warnings:[],persistence:{enabled:false,reason:'Saving disabled'}};
+ const page=interactivePage({periods:async()=>[period],context:async()=>data,preview:async()=>value});await page.settle();page.generate();await page.settle();
+ assert.ok(page.html().includes('Điều chỉnh lịch dự kiến'));assert.ok(page.html().includes('08:00'));assert.ok(page.html().includes('Đã được backend xác nhận'));assert.ok(!page.find(n=>n.type==='fieldset'));
+ page.find(n=>n.type==='select'&&n.props.id==='preview-add-employee').props.onChange({target:{value:'second'}});await page.settle();
+ page.find(n=>n.type==='button'&&n.props.children==='Thêm phân công').props.onClick();await page.settle();assert.equal(page.states[12].length,2);assert.ok(page.html().includes('Vượt nhu cầu 1 người'));assert.ok(page.html().includes('Có thay đổi chưa kiểm tra'));assert.equal(page.states[11],value);
+ page.find(n=>n.type==='select'&&n.props.id==='preview-employee-0').props.onChange({target:{value:'second'}});await page.settle();assert.equal(page.states[12][0].employee_id,'second');
+ page.find(n=>n.type==='button'&&n.props.children==='Bỏ phân công').props.onClick();await page.settle();assert.equal(page.states[12].length,1);assert.ok(!page.html().includes('Vượt nhu cầu 1 người'));assert.equal(page.states[11],value);
+});
+
+test('confirmed preview saves exact reviewed assignments then rereads; failed read retains retry id',async()=>{
+ const value={kind:'preview',persisted:false,input_revision:'revision',period,context,result:{assignments:[assignment],coverage:context.requirements,shortages:[],notes:[]},warnings:[],persistence:{enabled:true,reason:'Ready'}};
+ const persisted={...saved,schedule:{...saved.schedule,period_id:period.id}};let failRead=true;const calls=[];
+ const page=interactivePage({periods:async()=>[period],context:async()=>context,preview:async()=>value,savePreview:async(id,body,target)=>{calls.push({id,body,target});return{id:'saved'}},read:async()=>{if(failRead)throw new ApiError('Read unavailable',503);return persisted;}});
+ await page.settle();page.generate();await page.settle();const click=()=>{const b=page.find(n=>n.type==='button'&&n.props.children==='Lưu lịch dự kiến');assert.equal(b.props.disabled,false);b.props.onClick();};
+ click();await page.settle();assert.equal(page.states[11],value);assert.ok(page.html().includes('Đã lưu DRAFT nhưng chưa đọc lại được'));assert.equal(calls[0].body.assignments.length,1);assert.equal(calls[0].body.assignments[0].status,undefined);
+ failRead=false;click();await page.settle();assert.equal(calls[0].body.request_id,calls[1].body.request_id);assert.equal(page.states[11],null);assert.equal(page.states[3],persisted);assert.ok(page.html().includes('Đã lưu DRAFT và đọc lại dữ liệu'));assert.ok(page.html().includes('Chỉnh sửa DRAFT đã lưu'));
+});
+
+test('DRAFT edit opens saved assignments and uses versioned PATCH persistence',async()=>{
+ const persisted={...saved,schedule:{...saved.schedule,period_id:period.id}};let request;
+ const value={kind:'preview',persisted:false,input_revision:'revision',period,context,result:{assignments:[assignment],coverage:context.requirements,shortages:[],notes:[]},warnings:[],edit_target:{id:'saved',version:1},persistence:{enabled:true,reason:'Ready'}};
+ const page=interactivePage({periods:async()=>[{...period,schedules:[persisted.schedule]}],context:async()=>context,read:async()=>persisted,preview:async(id,body)=>{request=body;return value}});await page.settle();page.find(n=>n.type==='button'&&n.props.children==='Chỉnh sửa DRAFT đã lưu').props.onClick();await page.settle();assert.equal(request.schedule_id,'saved');assert.equal(request.expected_version,1);assert.equal(request.use_saved_assignments,true);assert.equal(page.states[11].edit_target.id,'saved');
 });

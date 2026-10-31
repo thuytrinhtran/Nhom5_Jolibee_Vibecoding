@@ -1,3 +1,5 @@
+// Explicit isolated writer-test opt-in; production defaults remain locked.
+process.env.TV3_DRAFT_PERSISTENCE_ENABLED='true';
 const {test}=require('node:test');const assert=require('node:assert/strict');
 process.env.NODE_ENV='test';process.env.SUPABASE_URL ||= 'https://example.supabase.co';process.env.SUPABASE_SECRET_KEY ||= 'isolated-test-placeholder';
 const {tv3FlowSnapshot}=require('../dist/repositories/tv3-flow.fixture.js');

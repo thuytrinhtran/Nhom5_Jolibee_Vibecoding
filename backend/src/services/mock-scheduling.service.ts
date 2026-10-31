@@ -1,4 +1,5 @@
 import { schedulingInput } from './scheduling-input.js';
+import { requireDraftPersistenceEnabled } from './draft-write-policy.js';
 import { randomUUID } from 'node:crypto';
 import { registrationSummaryRepository } from '../repositories/registration-summary.repository.js';
 import { MockRegistrationSummaryRepository } from '../repositories/registration-summary.mock.js';
@@ -21,6 +22,7 @@ function makeRecord(input:SchedulingInput,actorId:string,result:ReturnType<typeo
     input,result,fingerprint:JSON.stringify(input),note};
 }
 export async function createMockDraft(periodId:string,branchId:string,actorId:string,options:{regenerate?:boolean;expectedVersion?:number}={}) {
+  requireDraftPersistenceEnabled();
   const input=mockInput(branchId,periodId);
   // Snapshot, version checks, validation and the memory write do not yield to other requests.
   const previous=mockRecords(branchId,periodId,scenario())[0];
@@ -45,6 +47,7 @@ export async function readMockDraft(id:string,branchId:string) {
     demand_changed:record.fingerprint!==JSON.stringify(current),note:record.note};
 }
 export async function editMockDraft(id:string,branchId:string,actorId:string,body:unknown) {
+  requireDraftPersistenceEnabled();
   if(!isMockSchedulingFlow())throw new ScheduleError(409,'MOCK_FLOW_REQUIRED','Chỉnh sửa thử nghiệm chỉ dùng trong Mock Mode, không ghi lịch thật.');
   if(!body||typeof body!=='object'||Array.isArray(body))throw new ScheduleError(400,'INVALID_DRAFT_EDIT','Nội dung chỉnh sửa không hợp lệ.');
   const value=body as Record<string,unknown>;

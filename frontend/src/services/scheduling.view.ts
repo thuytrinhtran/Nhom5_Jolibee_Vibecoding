@@ -11,7 +11,7 @@ export const statusLabel = (status: string) => ({ DRAFT: 'Dự kiến', PENDING_
 export function latestSchedule(period: SchedulingPeriod) {
   return [...period.schedules].sort((a, b) => b.version - a.version || b.created_at.localeCompare(a.created_at) || b.id.localeCompare(a.id))[0];
 }
-export function scheduleRows(context: SchedulingContext, saved: SavedSchedule | null) {
+export function scheduleRows(context: SchedulingContext, saved: Pick<SavedSchedule,'assignments'|'generation_snapshot'> | null) {
   // Saved demand is the generation-time snapshot. Count the actual persisted assignments,
   // never the original POST result; Crew Leaders do not satisfy regular staffing demand.
   const requirements = saved?.generation_snapshot?.coverage ?? context.requirements;
@@ -26,7 +26,7 @@ export function scheduleRows(context: SchedulingContext, saved: SavedSchedule | 
 }
 
 // Calendar placeholders are view data only: never persisted or passed to the Rule Engine.
-export function scheduleCalendarRows(context:SchedulingContext,saved:SavedSchedule|null) {
+export function scheduleCalendarRows(context:SchedulingContext,saved:Pick<SavedSchedule,'assignments'|'generation_snapshot'>|null) {
   const key=(row:{work_date:string;shift_id:string;department_id:string})=>`${row.work_date}/${row.shift_id}/${row.department_id}`;
   const declared=new Map(scheduleRows(context,saved).map(r=>[key(r),r]));
   const cells=new Map<string,{work_date:string;shift_id:string;department_id:string}>();

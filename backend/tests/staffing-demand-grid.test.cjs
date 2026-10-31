@@ -1,3 +1,5 @@
+// Explicit isolated writer-test opt-in; production defaults remain locked.
+process.env.TV3_DRAFT_PERSISTENCE_ENABLED='true';
 const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const vm=require('node:vm');const ts=require('typescript');
 process.env.NODE_ENV='test';process.env.SUPABASE_URL||='https://example.supabase.co';process.env.SUPABASE_SECRET_KEY||='isolated-test-placeholder';
 const {readDemand,saveDemand,clearDemand}=require('../dist/services/staffing-demand.service.js');

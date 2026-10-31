@@ -1,5 +1,9 @@
 import { prepareApprovalHandoff, validateSchedule } from '../services/schedule-review.service.js';
 import { readManagerCalendar } from '../services/manager-calendar.service.js';
+import { previewSchedule } from '../services/schedule-preview.service.js';
+import { persistPreview } from '../services/draft-persistence.service.js';
+import { requireDraftPersistenceEnabled } from '../services/draft-write-policy.js';
+import { isMockSchedulingFlow } from '../services/mock-scheduling.service.js';
 import { evaluateSchedule, readAIEvaluation } from '../services/schedule-ai.service.js';
 import { editMockDraft } from '../services/mock-scheduling.service.js';
 import { clearDemand, readDemand, saveDemand } from '../services/staffing-demand.service.js';
@@ -11,6 +15,22 @@ const router = Router();
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 router.use((_req,res,next) => { res.setHeader('Cache-Control','no-store'); next(); });
 router.use(authenticate, requireRole(['QL']));
+router.post('/drafts',async(req,res)=>{
+  try{
+    requireDraftPersistenceEnabled();
+    if(!req.user?.branch_id)throw new ScheduleError(403,'BRANCH_REQUIRED','Quản lý chưa được phân công chi nhánh.');
+    if(!req.body||typeof req.body.period_id!=='string'||!uuid.test(req.body.period_id))throw new ScheduleError(400,'INVALID_PERIOD_ID','Cần mã tuần hợp lệ.');
+    return res.json({status:'ok',...await persistPreview(req.body.period_id,req.user.branch_id,req.user.id,req.body)});
+  }catch(err){const error=err instanceof ScheduleError?err:new ScheduleError(503,'DRAFT_SAVE_UNAVAILABLE','Chưa thể xác nhận lưu. Hãy tải lại tuần.');return res.status(error.status).json({status:'error',code:error.code,message:error.message});}
+});
+router.post('/preview',async(req,res)=>{
+  try {
+    if(!req.user?.branch_id)throw new ScheduleError(403,'BRANCH_REQUIRED','Quản lý chưa được phân công chi nhánh.');
+    const body=req.body;
+    if(!body||typeof body!=='object'||Array.isArray(body)||typeof body.period_id!=='string'||!uuid.test(body.period_id))throw new ScheduleError(400,'INVALID_PERIOD_ID','Cần mã tuần hợp lệ.');
+    return res.json({status:'ok',result:await previewSchedule(body.period_id,req.user.branch_id,body)});
+  }catch(err){const error=err instanceof ScheduleError?err:new ScheduleError(503,'PREVIEW_UNAVAILABLE','Không thể xem trước lịch. Không có lịch nào được lưu.');return res.status(error.status).json({status:'error',code:error.code,message:error.message});}
+});
 router.get('/periods/:id/calendar',async(req,res)=>{
   try {
     if(!req.user?.branch_id)throw new ScheduleError(403,'BRANCH_REQUIRED','Quản lý chưa được phân công chi nhánh.');
@@ -106,6 +126,7 @@ router.post('/:id/ai-evaluation',async(req,res)=>{
 });
 router.post('/generate', async (req,res) => {
   try {
+    requireDraftPersistenceEnabled();
     if (!req.user?.branch_id) throw new ScheduleError(403,'BRANCH_REQUIRED','Quản lý chưa được phân công chi nhánh.');
     const { period_id } = req.body || {};
     if (typeof period_id !== 'string' || !uuid.test(period_id)) throw new ScheduleError(400,'INVALID_PERIOD_ID','period_id phải là UUID của đợt đăng ký tuần cần xếp lịch.');
@@ -134,9 +155,12 @@ router.post('/:id/approval-handoff',async(req,res)=>{
 });
 router.patch('/:id/draft-assignments',async(req,res)=>{
   try{
+    requireDraftPersistenceEnabled();
     if(!req.user?.branch_id)throw new ScheduleError(403,'BRANCH_REQUIRED','Quản lý chưa được phân công chi nhánh.');
     if(!uuid.test(req.params.id))throw new ScheduleError(400,'INVALID_SCHEDULE_ID','Mã lịch phải là UUID.');
-    return res.json({status:'ok',result:await editMockDraft(req.params.id,req.user.branch_id,req.user.id,req.body)});
+    if(isMockSchedulingFlow())return res.json({status:'ok',result:await editMockDraft(req.params.id,req.user.branch_id,req.user.id,req.body)});
+    if(!req.body||typeof req.body.period_id!=='string'||!uuid.test(req.body.period_id))throw new ScheduleError(400,'INVALID_PERIOD_ID','Cần mã tuần hợp lệ.');
+    return res.json({status:'ok',...await persistPreview(req.body.period_id,req.user.branch_id,req.user.id,req.body,req.params.id)});
   }catch(err){const error=err instanceof ScheduleError?err:new ScheduleError(503,'DRAFT_EDIT_UNAVAILABLE','Không thể lưu chỉnh sửa lịch dự kiến.');return res.status(error.status).json({status:'error',code:error.code,message:error.message});}
 });
 router.get('/:id', async (req,res) => {

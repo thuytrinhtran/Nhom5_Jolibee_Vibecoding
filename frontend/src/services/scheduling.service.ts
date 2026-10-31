@@ -1,5 +1,6 @@
 import { authService, ApiError } from './auth.service';
 import type { ManagerCalendarData } from '../types/manager-calendar';
+import type { SchedulePreview } from '../types/scheduling';
 import type { AIReviewResponse, ApprovalHandoff, ScheduleValidation, DemandContext, DemandInput, DemandRequirement, ScheduleAssignment, RegistrationSummary, SavedSchedule, SchedulingContext, SchedulingPeriod } from '../types/scheduling';
 
 const API_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
@@ -30,6 +31,14 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
 }
 export const schedulingService = {
+  async preview(period_id:string,edit?:{input_revision?:string;assignments?:ScheduleAssignment[];schedule_id?:string;expected_version?:number;use_saved_assignments?:true}):Promise<SchedulePreview> {
+    return(await request<{result:SchedulePreview}>('/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({period_id,...edit})})).result;
+  },
+  async savePreview(period_id:string,input:{input_revision:string;assignments:ScheduleAssignment[];request_id:string},target?:{id:string;version:number}|null):Promise<{id:string}> {
+    const data=await request<{result:{schedule:{id:string}}}>(target?`/${encodeURIComponent(target.id)}/draft-assignments`:'/drafts',{
+      method:target?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({period_id,...input,...(target?{expected_version:target.version}:{})})});
+    return {id:data.result.schedule.id};
+  },
   async calendar(periodId:string):Promise<ManagerCalendarData> {
     return (await request<{result:ManagerCalendarData}>(`/periods/${encodeURIComponent(periodId)}/calendar`)).result;
   },

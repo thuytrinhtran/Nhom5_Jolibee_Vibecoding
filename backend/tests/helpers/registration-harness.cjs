@@ -21,7 +21,7 @@ async function createHarness(){
  class Query{
   constructor(table){this.table=table;this.fields='*';this.filters=[];this.params=[];this.sort='';this.cap='';}
   select(fields){this.fields=fields;return this;}
-  filter(column,op,value){this.params.push(value);this.filters.push(`${column==='employee.branch_id'?'(SELECT branch_id FROM employees WHERE employees.id=employee_id)':identifier(column)} ${op} $${this.params.length}`);return this;}
+  filter(column,op,value){this.params.push(value);this.filters.push(`${column==='new_data->>request_id'?"new_data->>'request_id'":column==='employee.branch_id'?'(SELECT branch_id FROM employees WHERE employees.id=employee_id)':identifier(column)} ${op} $${this.params.length}`);return this;}
   eq(c,v){return this.filter(c,'=',v);}neq(c,v){return this.filter(c,'<>',v);}gte(c,v){return this.filter(c,'>=',v);}range(a,b){this.cap=` LIMIT ${b-a+1} OFFSET ${a}`;return this;}gt(c,v){return this.filter(c,'>',v);}lte(c,v){return this.filter(c,'<=',v);}
   in(c,values){const slots=values.map(v=>{this.params.push(v);return '$'+this.params.length;});this.filters.push(`${identifier(c)} IN (${slots.join(',')})`);return this;}
   or(value){value=value.replace(/^branch_id\.eq\.([\da-f-]+),branch_id\.is\.null$/,'branch_id.is.null,branch_id.eq.$1');const match=/^branch_id\.is\.null,branch_id\.eq\.([\da-f-]+)$/.exec(value);if(!match)throw Error('Unexpected fixture OR');this.params.push(match[1]);this.filters.push(`(branch_id IS NULL OR branch_id=$${this.params.length})`);return this;}
@@ -39,6 +39,7 @@ async function createHarness(){
  }
  sdk.from=table=>new Query(table);
  sdk.rpc=async(name,args)=>{
+  if(name==='persist_schedule_draft'){try{const r=await sql.query('SELECT persist_schedule_draft($1,$2,$3::jsonb,$4::jsonb,$5,$6,$7,$8) result',[args.p_period_id,args.p_actor_id,args.p_snapshot?JSON.stringify(args.p_snapshot):null,args.p_result?JSON.stringify(args.p_result):null,args.p_schedule_id??null,args.p_expected_version??null,args.p_request_id??null,args.p_fingerprint??null]);return{data:r.rows[0].result,error:null};}catch(e){return{data:null,error:{code:e.code,message:e.message}};}}
   if(name!=='save_employee_registration')throw Error('Only registration RPC is allowed in this fixture');
   try{const result=await sql.query('SELECT save_employee_registration($1,$2,$3::jsonb,$4) result',[args.p_user,args.p_period,JSON.stringify(args.p_preferences),args.p_submit]);return{data:result.rows[0].result,error:null};}
   catch(error){return{data:null,error:{code:error.code,message:error.message}};}

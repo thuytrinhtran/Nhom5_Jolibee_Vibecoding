@@ -1,3 +1,5 @@
+// Explicit isolated writer-test opt-in; production defaults remain locked.
+process.env.TV3_DRAFT_PERSISTENCE_ENABLED='true';
 const {test} = require('node:test');
 const assert = require('node:assert/strict');
 process.env.NODE_ENV='test';

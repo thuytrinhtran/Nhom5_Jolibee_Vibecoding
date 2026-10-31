@@ -1,3 +1,5 @@
+// Explicit opt-in for the isolated mock writer journey.
+process.env.TV3_DRAFT_PERSISTENCE_ENABLED='true';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');const path=require('node:path');const vm=require('node:vm');const ts=require('typescript');

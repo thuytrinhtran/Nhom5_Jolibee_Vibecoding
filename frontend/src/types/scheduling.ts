@@ -32,6 +32,14 @@ export interface SavedSchedule {
   assignments: ScheduleAssignment[];
   generation_snapshot: { new_employee_count_threshold?: number | null; coverage: ScheduleCoverage[]; notes: string[] } | null;
 }
+export interface SchedulePreview {
+  kind:'preview';persisted:false;source:'mock'|'supabase';input_revision:string;
+  period:SchedulingContext['period'];context:SchedulingContext;
+  result:{assignments:ScheduleAssignment[];coverage:ScheduleCoverage[];shortages:ScheduleCoverage[];required_count:number;assigned_count:number;new_employee_count_threshold:number|null;notes:string[]};
+  warnings:{code:string;work_date:string;shift_id:string;department_id:string}[];
+  edit_target?:{id:string;version:number}|null;
+  persistence:{enabled:boolean;reason:string};
+}
 
 export interface RegistrationSummaryWarning { code: string; message: string }
 export interface RegistrationSummaryRow {
