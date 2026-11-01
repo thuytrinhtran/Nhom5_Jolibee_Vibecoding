@@ -1,0 +1,415 @@
+{
+  "scope": "ARCHIVED_EVIDENCE_ONLY_NOT_LIVE_DATABASE",
+  "remote_access": false,
+  "archive_sha256": "83cede5087697efec1b4432efb78cf8058f1afc7340e18d780e3bcd191784553",
+  "exports": [
+    {
+      "file": "Supabase Snippet Untitled query (10).csv",
+      "rows": 1591,
+      "sha256": "d84fcb299d9e88571aa29008a2f337b8612467babdc45f5b9eabe770f51f1f4b",
+      "columns": [
+        "table_name",
+        "column_name",
+        "grantee",
+        "privilege_type",
+        "is_grantable"
+      ]
+    },
+    {
+      "file": "Supabase Snippet Untitled query (11).csv",
+      "rows": 7,
+      "sha256": "4a5f76c709d1c87fa3898d4e6ce7805ae5bfaf5294cce9850d9345574ccc107a",
+      "columns": [
+        "nspname",
+        "grantee",
+        "privilege_type",
+        "is_grantable"
+      ]
+    },
+    {
+      "file": "Supabase Snippet Untitled query (12).csv",
+      "rows": 37,
+      "sha256": "d306d3b43a1c41e0dac1121e853a13f9537d9a7761cb273cf10c5379839aa402",
+      "columns": [
+        "proname",
+        "arguments",
+        "grantee",
+        "privilege_type",
+        "is_grantable"
+      ]
+    },
+    {
+      "file": "Supabase Snippet Untitled query (13).csv",
+      "rows": 96,
+      "sha256": "f9b5c581a7a259016beb3cfcdfdb58a109a27b5ceddda28322a1adfc6311b673",
+      "columns": [
+        "owner",
+        "schema_name",
+        "defaclobjtype",
+        "grantee",
+        "privilege_type",
+        "is_grantable"
+      ]
+    },
+    {
+      "file": "Supabase Snippet Untitled query (14).csv",
+      "rows": 2,
+      "sha256": "a98f32f650883e2e4efb42443ddd0c00d78a46350d98deb0dacaabe02878a3a6",
+      "columns": [
+        "schema_name",
+        "view_name",
+        "reloptions",
+        "relacl",
+        "definition"
+      ]
+    },
+    {
+      "file": "Supabase Snippet Untitled query (2).csv",
+      "rows": 100,
+      "sha256": "eb046367090d8465e2549cbe40197963996eed7cde55369cbb68346b95f14d59",
+      "columns": [
+        "table_name",
+        "ordinal_position",
+        "column_name",
+        "data_type",
+        "udt_name",
+        "is_nullable",
+        "column_default",
+        "character_maximum_length"
+      ]
+    },
+    {
+      "file": "Supabase Snippet Untitled query (3).csv",
+      "rows": 146,
+      "sha256": "d7a13fc7684025502eb608ac5a20de0c59ebdeaacd7c1cef98f6b2ddae76179f",
+      "columns": [
+        "schema_name",
+        "table_name",
+        "conname",
+        "contype",
+        "convalidated",
+        "condeferrable",
+        "condeferred",
+        "referenced_schema",
+        "referenced_table",
+        "definition"
+      ]
+    },
+    {
+      "file": "Supabase Snippet Untitled query (4).csv",
+      "rows": 64,
+      "sha256": "58db85de06da7b7e5530ce2aa9a58631650d0222e7e3b189e782cf3b082d4e4f",
+      "columns": [
+        "table_name",
+        "index_name",
+        "indisunique",
+        "indisprimary",
+        "indisvalid",
+        "indisready",
+        "definition"
+      ]
+    },
+    {
+      "file": "Supabase Snippet Untitled query (5).csv",
+      "rows": 7,
+      "sha256": "e10980339a38a47d14bed777e336ef42028b327b3a776695513bcc37ccdb2a39",
+      "columns": [
+        "schema_name",
+        "table_name",
+        "tgname",
+        "tgenabled",
+        "definition",
+        "function_schema",
+        "function_name"
+      ]
+    },
+    {
+      "file": "Supabase Snippet Untitled query (6).csv",
+      "rows": 18,
+      "sha256": "cba673c7b0a63dcf499fd88387ba717561814dd62f955b754954fe04708ab023",
+      "columns": [
+        "proname",
+        "arguments",
+        "owner",
+        "security_definer",
+        "function_settings",
+        "definition"
+      ]
+    },
+    {
+      "file": "Supabase Snippet Untitled query (7).csv",
+      "rows": 22,
+      "sha256": "d60abd542d10dda8389894b8dfe88b0cbf1d555bdd0d849ad2e0af1130d7cc60",
+      "columns": [
+        "schemaname",
+        "tablename",
+        "policyname",
+        "permissive",
+        "roles",
+        "cmd",
+        "using_expression",
+        "with_check"
+      ]
+    },
+    {
+      "file": "Supabase Snippet Untitled query (8).csv",
+      "rows": 388,
+      "sha256": "0ad6ecc0a9a6883052d68b0b532a8d623d9fd6297578e1bff368fd35592111dc",
+      "columns": [
+        "table_name",
+        "grantee",
+        "grantor",
+        "privilege_type",
+        "is_grantable"
+      ]
+    },
+    {
+      "file": "Supabase Snippet Untitled query (9).csv",
+      "rows": 78,
+      "sha256": "0e72f961a2c41ed775d38b734b7698f1d3267a4d185f88a3d944d63c97e0d4f0",
+      "columns": [
+        "rolname",
+        "table_name",
+        "rolbypassrls",
+        "rolsuper",
+        "schema_usage",
+        "can_select",
+        "can_insert",
+        "can_update",
+        "can_delete"
+      ]
+    },
+    {
+      "file": "Supabase Snippet Untitled query.csv",
+      "rows": 26,
+      "sha256": "81087ac6f6a43b093332d677ac8cdf4e073bee582425538ac56b55a0a1304f8c",
+      "columns": [
+        "schema_name",
+        "table_name",
+        "owner",
+        "rls_enabled",
+        "rls_forced"
+      ]
+    }
+  ],
+  "migrations": [
+    {
+      "file": "20261029_employee_registration.sql",
+      "sha256": "b90268fb4fb859748c72daa20e8942deb5c740d505589d626bd069a7926bf74b",
+      "lines": 112,
+      "functions_declared": [
+        "save_employee_registration",
+        "run_registration_automation"
+      ],
+      "transaction_wrapped": true
+    },
+    {
+      "file": "20261029_registration_off_schedule.sql",
+      "sha256": "5ae22197a91d45db674bb45ade6eaca4af50b8b1345bdeac224a6fdc5ea21dfd",
+      "lines": 63,
+      "functions_declared": [
+        "run_registration_automation"
+      ],
+      "transaction_wrapped": true
+    },
+    {
+      "file": "20261029_require_password_change.sql",
+      "sha256": "fee1a57e7e8ff8a97ba8b93841d11ab784e2b89bfd21ceec77537db81adf9582",
+      "lines": 51,
+      "functions_declared": [
+        "guard_password_change_state",
+        "jollishift_business_access"
+      ],
+      "transaction_wrapped": true
+    },
+    {
+      "file": "20261029_tv4_schedule_workflow.sql",
+      "sha256": "1503d76e38c7bb95ec7a82f42984ec166a61e7c7d4bdf66b2e4889f1c0dffaac",
+      "lines": 249,
+      "functions_declared": [
+        "tv4_decide_schedule",
+        "tv4_publish_schedule"
+      ],
+      "transaction_wrapped": true
+    },
+    {
+      "file": "20261030_registration_effective_state.sql",
+      "sha256": "269f3714985bd7feab7aa7ccc976bfe4502e45c82646e8b8ce56f34049c54ec8",
+      "lines": 171,
+      "functions_declared": [
+        "registration_effective_status",
+        "save_employee_registration",
+        "tv2_ensure_registration_periods_at",
+        "tv2_ensure_registration_periods"
+      ],
+      "transaction_wrapped": true
+    },
+    {
+      "file": "20261031_tv3_schedule_draft.sql",
+      "sha256": "ca00abcb3253c9b549bf59a17e3f438fce96984f1a10cda9cc6be38df58dd44a",
+      "lines": 258,
+      "functions_declared": [
+        "tv3_scheduling_input",
+        "persist_schedule_draft",
+        "generate_schedule_draft"
+      ],
+      "transaction_wrapped": true
+    },
+    {
+      "file": "20261101_tv3_rule_contract_v2.sql",
+      "sha256": "cc88a1241fccb6bc3936f61611dba3f99abced0bb24247e9ef2cb4e3d09c7018",
+      "lines": 401,
+      "functions_declared": [
+        "tv3_balance_v2",
+        "tv3_existing_coverage_v2",
+        "tv3_result_v2",
+        "tv3_scheduling_input",
+        "persist_schedule_draft",
+        "generate_schedule_draft"
+      ],
+      "transaction_wrapped": true
+    },
+    {
+      "file": "20261102_tv4_workflow_v2.sql",
+      "sha256": "8d310cbbc386b2109a74faf41002c75a01d60af1d2ea518025e91c54072995aa",
+      "lines": 175,
+      "functions_declared": [
+        "tv4_assert_schedule_v2",
+        "validate_schedule_approval",
+        "tv4_transition_schedule_v2"
+      ],
+      "transaction_wrapped": true
+    },
+    {
+      "file": "20261103_employee_schedule_read.sql",
+      "sha256": "54dd64fd48ca81b48b45f0a9ee6888a6a2d654f2754e62cf919d66652f1a4a9f",
+      "lines": 64,
+      "functions_declared": [
+        "employee_schedule_week"
+      ],
+      "transaction_wrapped": true
+    },
+    {
+      "file": "20261104_tv5_shift_replacement.sql",
+      "sha256": "1da380b9649f560734fb679f5b28b273a0db510b3655b18f319664c1c976d5ef",
+      "lines": 268,
+      "functions_declared": [
+        "tv5_actor",
+        "tv5_assignment",
+        "tv5_candidates",
+        "tv5_candidates_for_actor",
+        "tv5_read",
+        "tv5_mutate"
+      ],
+      "transaction_wrapped": true
+    }
+  ],
+  "tv3_guards": [
+    {
+      "function": "tv3_scheduling_input",
+      "body_md5": "cd4e4b5440ae3f1a38567d7dd0acf8b9",
+      "expected_md5": "cd4e4b5440ae3f1a38567d7dd0acf8b9",
+      "owner": "postgres",
+      "grantees": [
+        "postgres"
+      ],
+      "matches_archived_guard": true
+    },
+    {
+      "function": "persist_schedule_draft",
+      "body_md5": "f3dfa0c40d77478ab317079fc68405e6",
+      "expected_md5": "f3dfa0c40d77478ab317079fc68405e6",
+      "owner": "postgres",
+      "grantees": [
+        "postgres",
+        "service_role"
+      ],
+      "matches_archived_guard": true
+    },
+    {
+      "function": "generate_schedule_draft",
+      "body_md5": "477fbe0785dcdbd85cd7cdf1dc600509",
+      "expected_md5": "477fbe0785dcdbd85cd7cdf1dc600509",
+      "owner": "postgres",
+      "grantees": [
+        "postgres",
+        "service_role"
+      ],
+      "matches_archived_guard": true
+    }
+  ],
+  "archived_function_names": [
+    "generate_schedule_draft",
+    "guard_password_change_state",
+    "jollishift_business_access",
+    "persist_schedule_draft",
+    "prevent_audit_log_changes",
+    "prevent_direct_published_schedule",
+    "registration_effective_status",
+    "rls_auto_enable",
+    "run_registration_automation",
+    "save_employee_registration",
+    "tv2_ensure_registration_periods",
+    "tv2_ensure_registration_periods_at",
+    "tv3_scheduling_input",
+    "validate_assignment_source",
+    "validate_crew_leader_day_off",
+    "validate_schedule_approval",
+    "validate_schedule_publish",
+    "validate_shift_registration"
+  ],
+  "archived_function_local_matches": {
+    "generate_schedule_draft": [
+      "20261031_tv3_schedule_draft.sql",
+      "20261101_tv3_rule_contract_v2.sql"
+    ],
+    "guard_password_change_state": [
+      "20261029_require_password_change.sql"
+    ],
+    "jollishift_business_access": [
+      "20261029_require_password_change.sql"
+    ],
+    "persist_schedule_draft": [
+      "20261031_tv3_schedule_draft.sql"
+    ],
+    "prevent_audit_log_changes": [],
+    "prevent_direct_published_schedule": [],
+    "registration_effective_status": [
+      "20261030_registration_effective_state.sql"
+    ],
+    "rls_auto_enable": [],
+    "run_registration_automation": [
+      "20261029_registration_off_schedule.sql"
+    ],
+    "save_employee_registration": [
+      "20261030_registration_effective_state.sql"
+    ],
+    "tv2_ensure_registration_periods": [
+      "20261030_registration_effective_state.sql"
+    ],
+    "tv2_ensure_registration_periods_at": [
+      "20261030_registration_effective_state.sql"
+    ],
+    "tv3_scheduling_input": [
+      "20261031_tv3_schedule_draft.sql"
+    ],
+    "validate_assignment_source": [],
+    "validate_crew_leader_day_off": [],
+    "validate_schedule_approval": [],
+    "validate_schedule_publish": [],
+    "validate_shift_registration": []
+  },
+  "archived_trigger_names": [
+    "guard_password_change_state",
+    "trg_prevent_audit_log_changes",
+    "trg_prevent_direct_published_schedule",
+    "trg_validate_assignment_source",
+    "trg_validate_crew_leader_day_off",
+    "trg_validate_schedule_publish",
+    "trg_validate_shift_registration"
+  ],
+  "column_export_incomplete": true,
+  "dev_import": "BLOCKER: sample excluded by ordinary TS and SQL readers; no persisted allowlist contract",
+  "seed_apply_allowed": false,
+  "migration_apply_allowed": false
+}

@@ -1,4 +1,4 @@
-﻿import type { SavedSchedule, SchedulingContext, SchedulingPeriod } from '../types/scheduling';
+import type { SavedSchedule, SchedulingContext, SchedulingPeriod } from '../types/scheduling';
 
 export const dateLabel = (date: string) => new Intl.DateTimeFormat('vi-VN', {
   weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Asia/Ho_Chi_Minh',
@@ -20,8 +20,8 @@ export function scheduleRows(context: SchedulingContext, saved: Pick<SavedSchedu
       const assignments = (saved?.assignments ?? []).filter(a => a.work_date === requirement.work_date &&
         a.shift_id === requirement.shift_id && a.department_id === requirement.department_id &&
         a.status !== 'REPLACED' && a.assignment_source !== 'CREW_LEADER');
-      return { ...requirement, assignments, assigned_count: assignments.length,
-        missing_count: Math.max(0, requirement.required_count - assignments.length) };
+      return { ...requirement, assignments, assigned_count: 'assigned_count' in requirement&&typeof requirement.assigned_count==='number'?requirement.assigned_count:assignments.length,
+        missing_count: 'missing_count' in requirement&&typeof requirement.missing_count==='number'?requirement.missing_count:Math.max(0, requirement.required_count - assignments.length) };
     });
 }
 
@@ -45,8 +45,8 @@ export function scheduleCalendarRows(context:SchedulingContext,saved:Pick<SavedS
     const assigned=assignments.filter(a=>key(a)===key(cell));
     return {key:key(cell),work_date:cell.work_date,shift_id:cell.shift_id,department_id:cell.department_id,
       requirement_id:requirement?.id??null,required_count:requirement?.required_count??null,required_skill_name:requirement?.required_skill_name??null,
-      current_required_count:current?.required_count??null,assignments:assigned,assigned_count:assigned.length,
-      missing_count:requirement?Math.max(0,requirement.required_count-assigned.length):null};
+      current_required_count:current?.required_count??null,assignments:assigned,assigned_count:requirement?.assigned_count??assigned.length,
+      missing_count:requirement?.missing_count??null};
   }).sort((a,b)=>a.work_date.localeCompare(b.work_date)||
     (context.shifts.find(s=>s.id===a.shift_id)?.start_time??'').localeCompare(context.shifts.find(s=>s.id===b.shift_id)?.start_time??'')||a.shift_id.localeCompare(b.shift_id)||a.department_id.localeCompare(b.department_id));
 }

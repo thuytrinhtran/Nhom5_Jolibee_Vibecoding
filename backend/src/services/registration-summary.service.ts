@@ -46,7 +46,6 @@ export function summarizeRegistrations(data: SummarySnapshot) {
     row.employee_ids.add(employee.id);
   }
   const threshold = Number.isInteger(data.new_employee_count_threshold) && Number(data.new_employee_count_threshold) > 0 ? data.new_employee_count_threshold : null;
-  if (threshold === null) globalCodes.add('NEW_THRESHOLD_NOT_CONFIGURED');
   if (!data.requirements.length) globalCodes.add('MISSING_REQUIREMENT');
   const rows = [...groups.values()].sort((a,b) => key(a.work_date,a.shift_id,a.department_id).localeCompare(key(b.work_date,b.shift_id,b.department_id))).map(row => {
     const codes = new Set(row.codes);

@@ -1,6 +1,7 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import path from 'node:path';
+import { devImportHeaders } from '../registrations/dev-import-policy.js';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
@@ -17,6 +18,7 @@ if (!supabaseUrl || !supabaseKey) {
 }
 
 export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey, {
+  global:{headers:devImportHeaders()},
   auth: {
     persistSession: false,
     autoRefreshToken: false,

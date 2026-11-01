@@ -629,60 +629,18 @@ test('failed QL adjustment shows an error and retains the edited fields', async 
   assert.equal(harness.state[5][schedule.shift_assignments[0].id], 'tv4-shift-evening');
 });
 
-test('API mode opens the NEEDS_REVISION editor but preserves edits and shows an error when resubmit is not configured', async () => {
-  const schedule = JSON.parse(JSON.stringify(serviceModule.createTv4MockSeed().schedules
-    .find(row => row.id === 'tv4-seed-needs-revision-01')));
-  const profile = {
-    id: 'manager-hai-chau', email: 'manager@example.invalid', username: 'QL Hải Châu', role: 'QL',
-    branch_id: 'tv4-branch-central', branch_name: 'Hải Châu', is_active: true, must_change_password: false,
-  };
-  let submitted;
-  const service = {
-    mode: 'api',
-    listSchedules: async () => [schedule],
-    resubmitSchedule: async (...args) => {
-      submitted = args;
-      throw new types.ScheduleWorkflowError('API điều chỉnh và trình lại lịch chưa được cấu hình trên backend.', 'RESUBMIT_NOT_CONFIGURED', 501);
-    },
-  };
-  const harness = createInteractiveWorkflowHarness(profile, service, [schedule]);
-  harness.render();
-  harness.runEffects();
-  await flushPromises();
-
-  let tree = harness.render();
-  harness.clickButton(tree, 'JolliShift Demo · Hải Châu · Phiên bản 1');
-  tree = harness.render();
-  harness.clickButton(tree, 'Điều chỉnh lịch');
-  tree = harness.render();
-
-  const note = harness.allNodes(tree).find(node => node.type === 'textarea');
-  const shiftSelect = harness.allNodes(tree).find(node => node.type === 'select');
-  assert.ok(note);
-  assert.ok(shiftSelect);
-  note.props.onChange({ target: { value: 'Điều chỉnh ca sau khi GS phản hồi.' } });
-  const nextShift = shiftSelect.props.children.find(option => option.props.value !== shiftSelect.props.value);
-  assert.ok(nextShift);
-  shiftSelect.props.onChange({ target: { value: nextShift.props.value } });
-
-  tree = harness.render();
-  harness.clickButton(tree, 'Điều chỉnh');
-  tree = harness.render();
-  harness.clickButton(tree, 'Xác nhận');
-  await flushPromises();
-  tree = harness.render();
-
-  assert.equal(submitted[1], schedule.id);
-  assert.equal(submitted[2], 'Điều chỉnh ca sau khi GS phản hồi.');
-  assert.equal(submitted[4], schedule.version);
-  assert.equal(submitted[5], schedule.schedule_group_id);
-  assert.equal(harness.state[2], schedule.id, 'editor remains open after the unconfigured API error');
-  assert.equal(harness.state[4], 'Điều chỉnh ca sau khi GS phản hồi.', 'note remains available for retry');
-  assert.equal(harness.allNodes(tree).some(node => node.props['aria-labelledby'] === 'workflow-success-title'), false);
-  const errorAlert = harness.allNodes(tree).find(node => node.props.role === 'alert' && node.props.className === 'workflow-alert error');
-  assert.ok(errorAlert);
-  assert.match(harness.textOf(errorAlert), /chưa được cấu hình trên backend/);
+test('API rejection links to the shared validated editor instead of demo shift choices',async()=>{
+ const schedule=JSON.parse(JSON.stringify(serviceModule.createTv4MockSeed().schedules.find(row=>row.id==='tv4-seed-needs-revision-01')));
+ const profile={id:'manager',username:'manager',role:'QL',branch_id:schedule.branch_id,is_active:true,must_change_password:false};
+ const service={mode:'api',listSchedules:async()=>[schedule],resubmitSchedule:()=>assert.fail('No legacy shift-only resubmit')};
+ const h=createInteractiveWorkflowHarness(profile,service,[schedule]);h.render();h.runEffects();await flushPromises();
+ let tree=h.render();const header=h.allNodes(tree).find(n=>n.type==='button'&&h.textOf(n).includes('1')&&h.textOf(n).includes('2026-11-02'));
+ assert.ok(header);header.props.onClick();tree=h.render();
+ const link=h.allNodes(tree).find(n=>n.type==='a'&&n.props.href?.startsWith('/manager/schedule?period_id='));
+ assert.ok(link);assert.equal(link.props.href,`/manager/schedule?period_id=${encodeURIComponent(schedule.period_id)}`);
+ assert.equal(h.allNodes(tree).some(n=>n.type==='select'),false);
 });
+
 
 test('QL initial list returns schedules in its exact fixture scope and keeps pending approval with GS', async () => {
   const service = makeService();

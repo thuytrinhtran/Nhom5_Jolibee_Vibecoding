@@ -12,6 +12,26 @@ const statusLabel: Record<string, string> = {
   APPROVED: 'Đã phê duyệt', PUBLISHED: 'Đã công bố',
 };
 
+export function WorkflowInspection({scheduleId,service}:{scheduleId:string;service:ScheduleWorkflowService}){
+  const [result,setResult]=useState<Awaited<ReturnType<NonNullable<ScheduleWorkflowService['reviewSchedule']>>>|null>(null);
+  const [error,setError]=useState('');
+  useEffect(()=>{let active=true;
+    if(service.reviewSchedule)void service.reviewSchedule(scheduleId).then(r=>{if(active)setResult(r);}).catch(e=>{if(active)setError(errorText(e));});
+    return()=>{active=false;};
+  },[scheduleId,service]);
+  if(!service.reviewSchedule)return null;
+  if(error)return <p role="alert">Không thể kiểm tra dữ liệu hiện tại: {error}</p>;
+  if(!result)return <p role="status">Đang kiểm tra coverage và cơ cấu kinh nghiệm…</p>;
+  return <section aria-label="Kiểm tra nghiệp vụ lịch">
+    <p>Ràng buộc: {result.validation.hard_constraints} · {result.ready?'Đáp ứng kiểm tra hiện tại':'Cần xử lý cảnh báo hoặc dữ liệu trước khi duyệt/công bố'}</p>
+    {!result.workflow_enabled&&<p>Backend chưa bật persistence workflow.</p>}
+    {[...result.validation.issues,...result.validation.warnings].map((w,i)=><p key={i}>{w.message}</p>)}
+    <div className="workflow-table-wrap"><table><thead><tr><th>Ngày</th><th>Ca / bộ phận</th><th>Đã xếp / nhu cầu</th><th>Kinh nghiệm / mục tiêu</th><th>Còn thiếu</th></tr></thead><tbody>
+      {result.validation.coverage.map(c=><tr key={c.id}><td>{c.work_date}</td><td>{result.labels?.shifts[c.shift_id]??c.shift_id} / {result.labels?.departments[c.department_id]??c.department_id}</td><td>{c.assigned_count}/{c.required_count}</td><td>{c.experienced_count}/{c.experienced_target}</td><td>{c.missing_count} người · {c.missing_experienced_count} kinh nghiệm</td></tr>)}
+    </tbody></table></div>
+  </section>;
+}
+
 function shiftChoices(): ScheduleAssignment['shifts'][] {
   return TV4_SHIFT_DEFINITIONS.map(({ id, name, start_time, end_time }) => ({ id, name, start_time, end_time }));
 }
@@ -130,8 +150,8 @@ export const ScheduleWorkflow = ({
     setSuccessMessage('');
     try {
       let successMessage = actionCopy[action].success;
-      if (action === 'approve') await service.decideSchedule(actor, schedule.id, 'APPROVED');
-      if (action === 'reject') await service.decideSchedule(actor, schedule.id, 'NEEDS_REVISION', reason);
+      if (action === 'approve') await service.decideSchedule(actor, schedule.id, 'APPROVED','',schedule.version);
+      if (action === 'reject') await service.decideSchedule(actor, schedule.id, 'NEEDS_REVISION', reason,schedule.version);
       if (action === 'resubmit') {
         const changedAssignments = schedule.shift_assignments.map(assignment => ({
           ...assignment,
@@ -142,7 +162,7 @@ export const ScheduleWorkflow = ({
         );
         successMessage = `Lịch đã được điều chỉnh và gửi đến GS phê duyệt. Phiên bản ${submittedVersion.version} đang chờ phê duyệt.`;
       }
-      if (action === 'publish') await service.publishSchedule(actor, schedule.id, new Date(deadline).toISOString());
+      if (action === 'publish') await service.publishSchedule(actor, schedule.id, new Date(deadline).toISOString(),schedule.version);
       setSuccessMessage(successMessage);
       setReason('');
       setAdjustmentNote('');
@@ -214,7 +234,7 @@ export const ScheduleWorkflow = ({
           const open = selected === schedule.id;
           const entries = schedule.shift_assignments || [];
           const latest = schedule.approvals?.[0];
-          const canResubmit = canManagerResubmit(canPublish, schedule);
+          const canResubmit = usesMockWorkflow && canManagerResubmit(canPublish, schedule);
           const canPublishSchedule = canPublish && schedule.status === 'APPROVED' && schedule.is_latest;
           return <article className="workflow-card" key={schedule.id}>
             <button className="workflow-card-toggle" onClick={() => {
@@ -238,7 +258,7 @@ export const ScheduleWorkflow = ({
               Đã công bố bởi {schedule.published_by_username || schedule.published_by || 'API chưa trả người công bố'} · {schedule.published_at ? new Date(schedule.published_at).toLocaleString('vi-VN') : 'Chưa có thời điểm'}
             </div>}
             {open && <div className="workflow-details">
-              <h3>Chi tiết phân công ({entries.length})</h3>
+              <WorkflowInspection scheduleId={schedule.id} service={service}/><h3>Chi tiết phân công ({entries.length})</h3>
               {entries.length ? <div className="workflow-table-wrap"><table><thead><tr><th>Ngày</th><th>Ca</th>{canResubmit && editingScheduleId === schedule.id && <th>Ca điều chỉnh</th>}<th>Nhân viên</th><th>Bộ phận</th><th>Trạng thái lịch</th></tr></thead><tbody>
                 {entries.map(entry => <tr key={entry.id}>
                   <td>{entry.work_date}</td>
@@ -251,7 +271,7 @@ export const ScheduleWorkflow = ({
                 </tr>)}
               </tbody></table></div> : <p>Phiên bản lịch này chưa có phân công.</p>}
               {schedule.resubmission_note && <p className="workflow-revision-note">Ghi chú điều chỉnh khi trình lại: {schedule.resubmission_note}</p>}
-              {!usesMockWorkflow && canPublish && schedule.status === 'NEEDS_REVISION' && <p className="workflow-revision-note">API trình lại phiên bản lịch chưa có; chức năng này cần phối hợp với TV3.</p>}
+              {!usesMockWorkflow && canPublish && schedule.status==='NEEDS_REVISION' && schedule.is_latest && <a className="workflow-button primary" href={`/manager/schedule?period_id=${encodeURIComponent(schedule.period_id)}`}>Mở editor, lưu DRAFT phiên bản mới và gửi lại</a>}
               {schedule.approvals.length > 0 && <div className="workflow-approval-history">
                 <h3>Lịch sử phiên bản</h3>
                 {schedule.approvals.map(item => <p key={item.id}>
@@ -261,9 +281,9 @@ export const ScheduleWorkflow = ({
               </div>}
               {canReview && schedule.status === 'PENDING_APPROVAL' && !schedule.is_latest && <p className="workflow-stale">Không thể xử lý phiên bản cũ.</p>}
               {canReview && schedule.status === 'PENDING_APPROVAL' && schedule.is_latest && <div className="workflow-actions">
-                <button className="workflow-button primary" disabled={busy} onClick={() => setConfirmation({ schedule, action: 'approve' })}>Phê duyệt</button>
+                <button className="workflow-button primary" disabled={busy||schedule.workflow_enabled===false} onClick={() => setConfirmation({ schedule, action: 'approve' })}>Phê duyệt</button>
                 <label className="workflow-reason">Lý do từ chối<textarea value={reason} onChange={event => setReason(event.target.value)} required maxLength={2000} placeholder="Nhập nội dung cần quản lý ca điều chỉnh" /></label>
-                <button className="workflow-button danger" disabled={busy || !reason.trim()} onClick={() => setConfirmation({ schedule, action: 'reject' })}>Từ chối</button>
+                <button className="workflow-button danger" disabled={busy || !reason.trim()||schedule.workflow_enabled===false} onClick={() => setConfirmation({ schedule, action: 'reject' })}>Từ chối</button>
               </div>}
               {canResubmit && editingScheduleId !== schedule.id && <div className="workflow-actions">
                 <button className="workflow-button primary" disabled={busy} onClick={() => setEditingScheduleId(schedule.id)}>Điều chỉnh lịch</button>
@@ -275,7 +295,7 @@ export const ScheduleWorkflow = ({
               </div>}
               {canPublishSchedule && <div className="workflow-actions">
                 <label>Thời hạn phản hồi<input type="datetime-local" value={deadline} onChange={event => setDeadline(event.target.value)} /></label>
-                <button className="workflow-button primary" disabled={busy || !deadline} onClick={() => setConfirmation({ schedule, action: 'publish' })}>Công bố lịch</button>
+                <button className="workflow-button primary" disabled={busy || !deadline||schedule.workflow_enabled===false} onClick={() => setConfirmation({ schedule, action: 'publish' })}>Công bố lịch</button>
               </div>}
             </div>}
           </article>;

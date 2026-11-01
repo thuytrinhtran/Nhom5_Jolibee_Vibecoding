@@ -1,3 +1,4 @@
+import type { ScheduleValidation } from '../../types/scheduling';
 import type { UserRole, UserProfile } from '../../types/auth';
 
 export type ScheduleStatus = 'DRAFT' | 'PENDING_APPROVAL' | 'NEEDS_REVISION' | 'APPROVED' | 'PUBLISHED';
@@ -56,6 +57,7 @@ export interface ScheduleWorkflowRecord {
   shift_assignments: ScheduleAssignment[];
   approvals: ScheduleApproval[];
   is_latest: boolean;
+  workflow_enabled?: boolean;
 }
 
 export interface ResubmitAssignmentChange {
@@ -72,10 +74,11 @@ export interface ResubmitScheduleRequest {
 export interface ScheduleWorkflowService {
   /** Identifies whether this provider uses fixtures or the authenticated backend. */
   mode?: 'mock' | 'api';
+  reviewSchedule?(scheduleId:string):Promise<{validation:ScheduleValidation;ready:boolean;workflow_enabled:boolean;labels?:{shifts:Record<string,string>;departments:Record<string,string>}}>;
   listSchedules(actor: ScheduleWorkflowActor, view: ScheduleWorkflowView): Promise<ScheduleWorkflowRecord[]>;
-  decideSchedule(actor: ScheduleWorkflowActor, scheduleId: string, decision: ScheduleDecision, reason?: string): Promise<ScheduleWorkflowRecord>;
+  decideSchedule(actor: ScheduleWorkflowActor, scheduleId: string, decision: ScheduleDecision, reason?: string, expectedVersion?:number): Promise<ScheduleWorkflowRecord>;
   resubmitSchedule(actor: ScheduleWorkflowActor, scheduleId: string, adjustmentNote: string, assignments: ScheduleAssignment[], expectedVersion: number, expectedScheduleGroupId: string): Promise<ScheduleWorkflowRecord>;
-  publishSchedule(actor: ScheduleWorkflowActor, scheduleId: string, feedbackDeadlineAt: string): Promise<ScheduleWorkflowRecord>;
+  publishSchedule(actor: ScheduleWorkflowActor, scheduleId: string, feedbackDeadlineAt: string, expectedVersion?:number): Promise<ScheduleWorkflowRecord>;
 }
 
 export class ScheduleWorkflowError extends Error {

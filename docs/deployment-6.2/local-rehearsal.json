@@ -1,0 +1,110 @@
+{
+  "scope": "ISOLATED_POSTGRESQL_ONLY",
+  "supabase_contacted": false,
+  "validation": {
+    "daily": [
+      {
+        "work_date": "2026-11-02",
+        "distinct_employees": 67
+      },
+      {
+        "work_date": "2026-11-03",
+        "distinct_employees": 66
+      },
+      {
+        "work_date": "2026-11-04",
+        "distinct_employees": 67
+      },
+      {
+        "work_date": "2026-11-05",
+        "distinct_employees": 67
+      },
+      {
+        "work_date": "2026-11-06",
+        "distinct_employees": 66
+      },
+      {
+        "work_date": "2026-11-07",
+        "distinct_employees": 67
+      },
+      {
+        "work_date": "2026-11-08",
+        "distinct_employees": 67
+      }
+    ],
+    "assigned": 308,
+    "required": 308,
+    "shortage": 0,
+    "composition_cells": 0,
+    "optimization": {
+      "method": "DETERMINISTIC_SINGLE_REPLACEMENT",
+      "objective": "WITHIN_DEPARTMENT_SQUARED_HOUR_DEVIATION",
+      "max_iterations": 200,
+      "iterations": 10,
+      "converged": true,
+      "limit_reached": false,
+      "before": {
+        "objective": 5532.61111111111,
+        "departments": [
+          {
+            "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+            "employee_count": 18,
+            "total_hours": 434,
+            "mean_hours": 24.11111111111111,
+            "squared_deviation": 3047.777777777778
+          },
+          {
+            "department_id": "22222222-2222-2222-2222-222222222222",
+            "employee_count": 28,
+            "total_hours": 490,
+            "mean_hours": 17.5,
+            "squared_deviation": 1249
+          },
+          {
+            "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+            "employee_count": 24,
+            "total_hours": 518,
+            "mean_hours": 21.583333333333332,
+            "squared_deviation": 1235.8333333333328
+          }
+        ]
+      },
+      "after": {
+        "objective": 5224.61111111111,
+        "departments": [
+          {
+            "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+            "employee_count": 18,
+            "total_hours": 434,
+            "mean_hours": 24.11111111111111,
+            "squared_deviation": 3047.777777777778
+          },
+          {
+            "department_id": "22222222-2222-2222-2222-222222222222",
+            "employee_count": 28,
+            "total_hours": 490,
+            "mean_hours": 17.5,
+            "squared_deviation": 1209
+          },
+          {
+            "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+            "employee_count": 24,
+            "total_hours": 518,
+            "mean_hours": 21.583333333333332,
+            "squared_deviation": 967.8333333333334
+          }
+        ]
+      }
+    },
+    "registration_count": 607
+  },
+  "owned_employees": 17,
+  "owned_headers": 68,
+  "owned_registrations": 591,
+  "real_rows_preserved": 16,
+  "idempotency": true,
+  "guarded_rollback": true,
+  "receipt_failure_rollback": true,
+  "workflow_and_shift_replacement": true,
+  "typescript_sql_parity": true
+}

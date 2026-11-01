@@ -1,8 +1,9 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
-test('preview review save reread edit versions and rollback on isolated PostgreSQL',{skip:!process.env.REGISTRATION_PGLITE_PATH},async()=>{
+test('preview review save reread edit versions and rollback on isolated PostgreSQL',{skip:process.env.REGISTRATION_USE_NATIVE!=='true'?'Native PostgreSQL required for lock assertions':false},async()=>{
  const h=await require('./helpers/registration-harness.cjs').createHarness();const old=process.env.TV3_DRAFT_PERSISTENCE_ENABLED;let server;
  try{
   await h.sql.exec(fs.readFileSync(path.join(__dirname,'../migrations/20261031_tv3_schedule_draft.sql'),'utf8'));
+  await h.sql.exec(fs.readFileSync(path.join(__dirname,'../migrations/20261101_tv3_rule_contract_v2.sql'),'utf8'));
   const q=(s,p=[])=>h.sql.query(s,p),actor=h.id(90),period=h.id(8),branch=h.id(1),employee=h.id(4),shift=h.id(5),department=h.id(2);
   await q('INSERT INTO auth.users VALUES($1)',[actor]);await q("INSERT INTO users(id,username,role,branch_id) VALUES($1,'manager','QL',$2)",[actor,branch]);
   await q("UPDATE registration_periods SET open_at=now()-interval '3 days',close_at=now()-interval '1 day'");
@@ -33,6 +34,11 @@ test('preview review save reread edit versions and rollback on isolated PostgreS
   await assert.rejects(persistPreview(period,branch,h.id(3),body),e=>e.status===403);
   await assert.rejects(persistPreview(period,h.id(999),actor,body),e=>e.status===404);
   await q("UPDATE users SET role='GS' WHERE id=$1",[actor]);await assert.rejects(persistPreview(period,branch,actor,body),e=>e.status===403);await q("UPDATE users SET role='QL' WHERE id=$1",[actor]);
+  const {canonicalInput}=require('../dist/services/draft-persistence.service.js');
+  const {schedulingInput}=require('../dist/services/scheduling-input.js');
+  const source=await require('../dist/repositories/registration-summary.repository.js').registrationSummaryRepository().load(branch,period);
+  const sqlSource=(await q('SELECT persist_schedule_draft($1,$2) r',[period,actor])).rows[0].r.input;
+  assert.equal(canonicalInput(schedulingInput(source)),canonicalInput(sqlSource));
   const first=await persistPreview(period,branch,actor,body);assert.equal(first.result.schedule.version,1);
   const locks=(await q('SELECT * FROM pg_temp.draft_lock_probe')).rows;
   for(const table of ['branches','users','registration_periods']){assert.ok(locks.some(l=>l.relation_name===table&&l.mode==='RowShareLock'));assert.ok(!locks.some(l=>l.relation_name===table&&['ShareLock','ShareRowExclusiveLock'].includes(l.mode)));}
@@ -48,7 +54,9 @@ test('preview review save reread edit versions and rollback on isolated PostgreS
   const retry=await persistPreview(period,branch,actor,body);assert.equal(retry.reused,true);assert.equal(retry.result.schedule.id,first.result.schedule.id);
   await assert.rejects(persistPreview(period,branch,actor,{...body,assignments:[]}),e=>e.code==='REQUEST_CONFLICT');
   const saved=await readDraft(first.result.schedule.id,branch);assert.equal(saved.assignments.length,1);assert.equal(saved.assignments[0].employee_id,replacement);assert.equal(saved.generation_snapshot.assigned_count,1);
+  assert.equal(saved.assignments[0].reason,'MANAGER_CONFIRMED;RULE_ENGINE_VALIDATED');assert.equal(saved.assignments[0].selection_history.initial.employee_id,replacement);
   const target={schedule_id:saved.schedule.id,expected_version:1};preview=await previewSchedule(period,branch,{...target,use_saved_assignments:true});assert.equal(preview.result.assignments.length,1);
+  assert.deepEqual(preview.result.assignments[0].selection_history,saved.assignments[0].selection_history);assert.equal(preview.result.assignments[0].reason,saved.assignments[0].reason);
   const edited={period_id:period,input_revision:preview.input_revision,assignments:[],expected_version:1,request_id:h.id(102)};
   const sqlSnapshot=(await q('SELECT persist_schedule_draft($1,$2,NULL,NULL,$3,1) r',[period,actor,saved.schedule.id])).rows[0].r.input;
   await q('UPDATE staffing_requirements SET required_count=2');

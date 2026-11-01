@@ -1,0 +1,2120 @@
+{
+  "period": {
+    "id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+    "branch_id": "11111111-1111-1111-1111-111111111111",
+    "work_start_date": "2026-11-02",
+    "work_end_date": "2026-11-08",
+    "status": "CLOSED",
+    "open_at": "2026-10-30T08:00:00+00:00",
+    "close_at": "2026-11-01T05:00:00+00:00",
+    "stored_status": "PLANNED"
+  },
+  "branch": {
+    "id": "11111111-1111-1111-1111-111111111111",
+    "name": "Jollibee Lê Duẩn"
+  },
+  "users": [
+    {
+      "id": "015999bd-b39f-5105-8964-90af2470e467",
+      "username": "js_ld_003",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "06aa350c-6550-5bd7-95f4-ba072a64ea3d",
+      "username": "js_ld_026",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "0acc7ff2-beb2-593c-a474-1fa5e94bb179",
+      "username": "js_ld_022",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "0c44ebba-ce1d-5ce6-aa16-0eb3aede23d0",
+      "username": "js_ld_058",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "11e905f1-f172-5aab-93db-9fdd0a99db1c",
+      "username": "js_ld_055",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "18037f7c-b358-574b-9f95-61378e613753",
+      "username": "js_ld_005",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "203391a8-35c1-5dfb-9fb3-96d71056ddab",
+      "username": "js_ld_016",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "2474b22c-f8d3-5f53-b412-e71d3a8638b5",
+      "username": "js_ld_060",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "248bf3f4-186e-5cb8-a092-49c361050137",
+      "username": "js_ld_054",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "2710df6e-b1e1-583b-97bb-65117b7e0b49",
+      "username": "js_ld_011",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "29c56a61-3bd0-5d5e-a14e-5cb38cd0fc6a",
+      "username": "js_ld_023",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "2a05de80-717c-5849-9dd2-f1c7d5632a47",
+      "username": "js_ld_038",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "2bfce0e1-eaf8-5a79-b938-6f9552a25965",
+      "username": "js_ld_033",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "307f54c1-2ed3-5209-bf5d-522d6724c1bf",
+      "username": "js_ld_046",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "3bb447b3-1fb6-56e6-8311-cd754bc2dffd",
+      "username": "js_ld_035",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "3d608dfb-fb6e-5b11-bc28-a3c2a2707880",
+      "username": "js_ld_037",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "40d2b61d-67b4-5965-af42-e9538a565693",
+      "username": "js_ld_048",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "4151760b-9ef3-5850-9329-bd2e4eb41708",
+      "username": "js_ld_012",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "4165865d-a35e-40ef-89f9-b16bfeea94a4",
+      "username": "nv_jollibee",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "41f4b391-3acd-56ce-9491-7dc70064acb4",
+      "username": "js_ld_052",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "4578b695-f72c-58df-9e5b-f47d053b0e3e",
+      "username": "js_ld_031",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "4743b641-3843-5056-bdaa-9ca87d2187f7",
+      "username": "js_ld_006",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "4c9a7cfe-53ec-5c4c-b402-02ef3ee04da0",
+      "username": "js_ld_042",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "521a77f3-2a2d-421b-b115-70cef8d78f79",
+      "username": "gs_jollibee",
+      "role": "GS",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "52d14aaf-90dd-5f34-9bf6-8e6e46848af1",
+      "username": "js_ld_021",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "58d14325-9a8d-5787-8c34-287907dcc8df",
+      "username": "js_ld_036",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "59a405c2-6819-5127-a261-ff73d3987d8b",
+      "username": "js_ld_007",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "59a4971f-f02f-5b16-8b3f-187c0cd34db3",
+      "username": "js_ld_030",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "5cb31e81-a744-5f27-b391-2f68a5d96464",
+      "username": "js_ld_029",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "62089f7b-2c3b-5b4a-a742-4a0134fd1529",
+      "username": "js_ld_024",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "625a9b45-1089-5690-a3b9-77323e43ea99",
+      "username": "js_ld_034",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "63bf53c2-38bc-5924-afc0-e8f177e821bb",
+      "username": "js_ld_053",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "username": "ql_jollibee",
+      "role": "QL",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "7109a404-8f6b-5a79-920e-c4618eae2bc7",
+      "username": "js_ld_047",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "74ac33d1-ecb3-5cc5-8765-44866780ed7c",
+      "username": "js_ld_057",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "76418f80-562c-5216-bcb1-b91f78973450",
+      "username": "js_ld_039",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "7ae79365-36ab-598b-b929-71d717f6212d",
+      "username": "js_ld_059",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "8289eea6-91d1-561a-8d20-4df47ff4096f",
+      "username": "js_ld_009",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "835bc8c7-3795-5cc9-b3a3-0d8302d1b699",
+      "username": "js_ld_017",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "8aab9c8d-de7f-591e-a043-6aec732a25b0",
+      "username": "js_ld_018",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "9456115c-9c7c-5bf7-8772-75b1fcca09d1",
+      "username": "js_ld_043",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "996522a4-eea8-5fac-bf80-83665a4eb5d1",
+      "username": "js_ld_050",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "9a8eb672-6661-50c5-b14f-af9e4582348f",
+      "username": "js_ld_051",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "9b458837-d89a-59f7-8681-5ccdf3ce2d38",
+      "username": "js_ld_049",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "a0e557b5-94ce-5264-8c79-0c8f23d6ea4b",
+      "username": "js_ld_045",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "a13155a7-e2cd-5e7c-a7ed-6b1c14c39c7a",
+      "username": "js_ld_040",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "a1f7c73c-0aa4-5029-b5fd-aa965755ebfd",
+      "username": "js_ld_015",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "a380b425-10d0-546d-b103-3e224dc1a2d8",
+      "username": "js_ld_019",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "a5566a40-f409-53d4-953f-5414497065a2",
+      "username": "js_ld_041",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "ac1f799c-1bd2-5ecb-ad77-74e7dff5c0ec",
+      "username": "js_ld_013",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "ad338fe0-c6bf-5d88-9cc4-4ce97744b77c",
+      "username": "js_ld_020",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "ae53bb74-d9a7-5bf5-8a44-2668a61bc4c8",
+      "username": "js_ld_014",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "af578dcf-d4b4-5b25-88f9-f6546b3051fe",
+      "username": "js_ld_010",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "b635d27e-2ef9-5042-aefa-b3f1763087f8",
+      "username": "js_ld_004",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": true
+    },
+    {
+      "id": "b78ae14c-1abc-5613-bc45-c6c6d511efa7",
+      "username": "js_ld_027",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "cdc992bc-39be-49ee-ad3f-2f3845690a80",
+      "username": "nv_jollibee_02",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "d861039c-f100-576e-83e1-88b577ec3014",
+      "username": "js_ld_044",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "dac32066-e982-507d-8348-f4d71052f6de",
+      "username": "js_ld_008",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "e15a83de-0a0c-51b9-b060-868ced2074ab",
+      "username": "js_ld_028",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "e1b07d30-d2db-5b8c-beae-e28c252f72cd",
+      "username": "js_ld_032",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "fba4a0f3-4f01-5f44-9dfe-3d0c19ab8e8a",
+      "username": "js_ld_056",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    },
+    {
+      "id": "ff45c107-0237-5c79-970e-1545102a62e4",
+      "username": "js_ld_025",
+      "role": "NV",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "is_active": true,
+      "must_change_password": false
+    }
+  ],
+  "employees": [
+    {
+      "id": "0054db25-6002-55f7-97ed-4ead26078b04",
+      "user_id": "835bc8c7-3795-5cc9-b3a3-0d8302d1b699",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Lý Thành Đạt",
+      "skill_level": "NEW",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "00d9bde1-e94b-5921-b1b5-5d2e222805ce",
+      "user_id": "307f54c1-2ed3-5209-bf5d-522d6724c1bf",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Hoàng Thanh Vy",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "013eb463-f15a-55d3-995c-47b50d65f8ba",
+      "user_id": "a13155a7-e2cd-5e7c-a7ed-6b1c14c39c7a",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Mai Thu Hà",
+      "skill_level": "CREW_TRAINING",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "111e8168-a353-55c3-9beb-3d331da68a52",
+      "user_id": "5cb31e81-a744-5f27-b391-2f68a5d96464",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Vũ Hoài Nam",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "149d37bb-b14c-5115-886b-67a8375df8ed",
+      "user_id": "06aa350c-6550-5bd7-95f4-ba072a64ea3d",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Hoàng Ngọc Mai",
+      "skill_level": "CREW_TRAINING",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "16b8cbdb-ee85-595b-8181-ba7b432c017d",
+      "user_id": "3d608dfb-fb6e-5b11-bc28-a3c2a2707880",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Lý Minh Quân",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "18429963-35b5-5042-ab1c-9fba6f3d2cc5",
+      "user_id": "9a8eb672-6661-50c5-b14f-af9e4582348f",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "full_name": "Đặng Thanh Phong",
+      "skill_level": "NEW",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "1cf0b51c-f9ef-524b-82b9-014a4fa1eec2",
+      "user_id": "2a05de80-717c-5849-9dd2-f1c7d5632a47",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Trịnh Phương Anh",
+      "skill_level": "NEW",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "227e6fc6-c562-572b-9a64-3381bc5b4506",
+      "user_id": "40d2b61d-67b4-5965-af42-e9538a565693",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "full_name": "Phan Tú Anh",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "29ce4e5a-18b0-582a-b721-9b7dd7a391cf",
+      "user_id": "4743b641-3843-5056-bdaa-9ca87d2187f7",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Hoàng Thùy Linh",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "3050364e-1456-53d1-bf1d-f6528114114a",
+      "user_id": "7ae79365-36ab-598b-b929-71d717f6212d",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Đinh Ngọc Quỳnh",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "3cec17db-4079-5779-a7fa-46083aac1a48",
+      "user_id": "a5566a40-f409-53d4-953f-5414497065a2",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Cao Nhật Hào",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "40818ede-58da-5ec5-aa61-389d9415ccf8",
+      "user_id": "4151760b-9ef3-5850-9329-bd2e4eb41708",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Bùi Khánh Chi",
+      "skill_level": "CREW_LEADER",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "4783961a-1272-58af-8463-c66d2f16b3a6",
+      "user_id": "41f4b391-3acd-56ce-9491-7dc70064acb4",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Bùi Bảo Trân",
+      "skill_level": "CREW_TRAINING",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "4c448d40-3eb1-53b2-b438-bc431fd6c9ca",
+      "user_id": "a1f7c73c-0aa4-5029-b5fd-aa965755ebfd",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Ngô Nhật Minh",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "58ced2db-965c-513f-94b4-1a204fcdaed5",
+      "user_id": "8aab9c8d-de7f-591e-a043-6aec732a25b0",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "full_name": "Trịnh Diệu Anh",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "592d03ce-8c18-5f82-87f3-892495522f9d",
+      "user_id": "7109a404-8f6b-5a79-920e-c4618eae2bc7",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Huỳnh Công Thành",
+      "skill_level": "CREW_TRAINING",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "598ebc25-01ed-5dac-89bf-2c302c5d6ded",
+      "user_id": "2bfce0e1-eaf8-5a79-b938-6f9552a25965",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "full_name": "Đỗ Đức Huy",
+      "skill_level": "CREW_TRAINING",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "6473897f-7193-5739-a164-d3003309e8be",
+      "user_id": "3bb447b3-1fb6-56e6-8311-cd754bc2dffd",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Ngô Trung Hiếu",
+      "skill_level": "CREW_LEADER",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "6d956315-90ca-5fae-93c1-115a4cd2a317",
+      "user_id": "e1b07d30-d2db-5b8c-beae-e28c252f72cd",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Bùi Thanh Tâm",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "6df919a5-120c-5093-b0d2-4d5e8d5ac43b",
+      "user_id": "76418f80-562c-5216-bcb1-b91f78973450",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "full_name": "Đinh Tuấn Anh",
+      "skill_level": "CREW_TRAINING",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "73216cf0-1c9c-5774-8c37-3dadcf985d8f",
+      "user_id": "11e905f1-f172-5aab-93db-9fdd0a99db1c",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Ngô Gia Phúc",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "79434183-32c6-574c-86a6-b1ead9c1a312",
+      "user_id": "fba4a0f3-4f01-5f44-9dfe-3d0c19ab8e8a",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Dương Cẩm Tú",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "7cd03ad2-3355-5d95-b204-bb10522e091a",
+      "user_id": "0c44ebba-ce1d-5ce6-aa16-0eb3aede23d0",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Trịnh Khánh Hòa",
+      "skill_level": "CREW_TRAINING",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "7d4d478e-738f-52b4-ae80-d24e0632289b",
+      "user_id": "ac1f799c-1bd2-5ecb-ad77-74e7dff5c0ec",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Đỗ Quang Huy",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "7e44c2a7-03d6-55d9-84db-a9237edc408f",
+      "user_id": "cdc992bc-39be-49ee-ad3f-2f3845690a80",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Trần Minh Anh",
+      "skill_level": "CREW_TRAINING",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "87b64360-f7c5-550f-8b2c-1fb605af48fd",
+      "user_id": "52d14aaf-90dd-5f34-9bf6-8e6e46848af1",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "full_name": "Cao Bảo Long",
+      "skill_level": "CREW_LEADER",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "899a86e0-cc8f-53dd-82e3-8c9df849addf",
+      "user_id": "ff45c107-0237-5c79-970e-1545102a62e4",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Phạm Anh Dũng",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "932a6bc2-1655-54e2-8403-d9f774348d85",
+      "user_id": "015999bd-b39f-5105-8964-90af2470e467",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Nguyễn Hoàng Nam",
+      "skill_level": "NEW",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "94562ce1-2db5-54ea-964b-65fdff8f094b",
+      "user_id": "ae53bb74-d9a7-5bf5-8a44-2668a61bc4c8",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Hồ Phương Thảo",
+      "skill_level": "CREW_LEADER",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "95d5fa40-ec03-51fa-bd83-fecc886ea93d",
+      "user_id": "62089f7b-2c3b-5b4a-a742-4a0134fd1529",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "full_name": "Lê Kim Ngân",
+      "skill_level": "NEW",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "9af868ec-6593-5a38-ab7f-5f8603e7cc50",
+      "user_id": "4578b695-f72c-58df-9e5b-f47d053b0e3e",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Đặng Gia Bảo",
+      "skill_level": "NEW",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "9ba0f909-c0b4-59a1-8e10-a607242967ad",
+      "user_id": "18037f7c-b358-574b-9f95-61378e613753",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Phạm Gia Huy",
+      "skill_level": "CREW_TRAINING",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "9dfdf162-ea6f-5e0b-be47-c3e65434c356",
+      "user_id": "4c9a7cfe-53ec-5c4c-b402-02ef3ee04da0",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "full_name": "Nguyễn Hải Yến",
+      "skill_level": "CREW_LEADER",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "a1ac8791-ed71-4eda-9b84-9aa2ddcc48c8",
+      "user_id": "4165865d-a35e-40ef-89f9-b16bfeea94a4",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Nguyễn Văn Nhân Viên",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "a464c4d5-19b2-51eb-8e46-e50bb0897678",
+      "user_id": "29c56a61-3bd0-5d5e-a14e-5cb38cd0fc6a",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Trần Quốc Bảo",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "ac1b2382-8e26-5c43-ba71-dab061de78d9",
+      "user_id": "63bf53c2-38bc-5924-afc0-e8f177e821bb",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Đỗ Văn Khải",
+      "skill_level": "CREW_TRAINING",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "b060e0b4-1883-50eb-87e5-bd146aa3d6f9",
+      "user_id": "2710df6e-b1e1-583b-97bb-65117b7e0b49",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Đặng Minh Khang",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "b0f13977-fe8b-5763-aaf9-ea09a669d6ec",
+      "user_id": "203391a8-35c1-5dfb-9fb3-96d71056ddab",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Dương Yến Nhi",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "b1577bb1-9d0e-5f4b-a717-36c8545b9b1d",
+      "user_id": "d861039c-f100-576e-83e1-88b577ec3014",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Lê Hoàng Oanh",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "b22c13db-7054-5a03-b469-70d1aff97a37",
+      "user_id": "74ac33d1-ecb3-5cc5-8765-44866780ed7c",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "full_name": "Lý Đức Minh",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "b4dc5e3e-e86b-56da-8066-e461c9377d33",
+      "user_id": "9456115c-9c7c-5bf7-8772-75b1fcca09d1",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Trần Đăng Khoa",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "b51004dd-f1f5-54bc-94e6-71ed353db804",
+      "user_id": "0acc7ff2-beb2-593c-a474-1fa5e94bb179",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Nguyễn Thảo Nguyên",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "bd921519-624f-5c6b-b145-9229bfe42de9",
+      "user_id": "8289eea6-91d1-561a-8d20-4df47ff4096f",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Vũ Tuấn Kiệt",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "c386dfa5-9d04-54a0-8263-527290b734f6",
+      "user_id": "dac32066-e982-507d-8348-f4d71052f6de",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Phan Bảo Ngọc",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "c6700c7b-d19f-5725-b7cc-9ecf512f1cbf",
+      "user_id": "9b458837-d89a-59f7-8681-5ccdf3ce2d38",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Vũ Minh Trí",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "cef941aa-178d-58c2-9b79-7d61d618d65b",
+      "user_id": "625a9b45-1089-5690-a3b9-77323e43ea99",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Hồ Khánh Linh",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "dd563121-2b1f-53c6-8ee6-f4eb6356f902",
+      "user_id": "996522a4-eea8-5fac-bf80-83665a4eb5d1",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Võ Ngọc Diệp",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "dfd795ff-43cc-5448-9aa2-68ea3f672dc0",
+      "user_id": "59a4971f-f02f-5b16-8b3f-187c0cd34db3",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "full_name": "Võ Hà My",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "e540ce10-5fcb-54f7-9311-daab142ceaf4",
+      "user_id": "af578dcf-d4b4-5b25-88f9-f6546b3051fe",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Võ Thanh Trúc",
+      "skill_level": "NEW",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "e72358cc-c6ba-575a-a6bf-8d60137f4b86",
+      "user_id": "ad338fe0-c6bf-5d88-9cc4-4ce97744b77c",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Mai Ngọc Hân",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "eca1a39f-70e5-5025-946e-2f4ebfa26193",
+      "user_id": "e15a83de-0a0c-51b9-b060-868ced2074ab",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Phan Minh Châu",
+      "skill_level": "CREW_LEADER",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "ef64fb59-e4bc-584e-9dcf-f0f0377c316b",
+      "user_id": "59a405c2-6819-5127-a261-ff73d3987d8b",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "full_name": "Huỳnh Đức Anh",
+      "skill_level": "CREW_LEADER",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "f0b7d465-a7d3-5c6b-823a-92ad917a92e0",
+      "user_id": "248bf3f4-186e-5cb8-a092-49c361050137",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "full_name": "Hồ Hồng Nhung",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "f0bb4a42-8c6c-512c-a815-e7815b4fa440",
+      "user_id": "a0e557b5-94ce-5264-8c79-0c8f23d6ea4b",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "full_name": "Phạm Quốc Hưng",
+      "skill_level": "NEW",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "f403f288-012f-535b-972f-43bf1e07dd0e",
+      "user_id": "b78ae14c-1abc-5613-bc45-c6c6d511efa7",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "full_name": "Huỳnh Quang Vinh",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "f50322e2-177a-5e3b-8d4e-78131fd7813c",
+      "user_id": "a380b425-10d0-546d-b103-3e224dc1a2d8",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Đinh Hải Đăng",
+      "skill_level": "CREW_TRAINING",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "f92a04f0-157c-5509-bd90-79b86d1dea53",
+      "user_id": "b635d27e-2ef9-5042-aefa-b3f1763087f8",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "full_name": "Lê Ngọc Hà",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "fc1e89bb-dcfc-5c3e-8638-cf3d65581049",
+      "user_id": "58d14325-9a8d-5787-8c34-287907dcc8df",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "full_name": "Dương Bích Ngọc",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    },
+    {
+      "id": "ffcc1ee3-1ba7-5628-9ce8-4837d12c5cab",
+      "user_id": "2474b22c-f8d3-5f53-b412-e71d3a8638b5",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "full_name": "Mai Hoàng Phúc",
+      "skill_level": "CREW_TRAINING",
+      "status": "ACTIVE",
+      "max_weekly_hours": null
+    }
+  ],
+  "headers": [
+    {
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "employee_id": "7e44c2a7-03d6-55d9-84db-a9237edc408f",
+      "status": "VALID",
+      "errors": [],
+      "submitted_at": "2026-10-30T15:52:18.801244+00:00",
+      "updated_at": "2026-10-30T15:52:18.801244+00:00",
+      "sample_batch_id": null
+    },
+    {
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "employee_id": "9ba0f909-c0b4-59a1-8e10-a607242967ad",
+      "status": "VALID",
+      "errors": [],
+      "submitted_at": "2026-10-30T11:51:08.970582+00:00",
+      "updated_at": "2026-10-30T11:51:08.970582+00:00",
+      "sample_batch_id": null
+    }
+  ],
+  "registrations": [
+    {
+      "id": "02c1d16a-0b4a-4172-8e7b-789e3d885fd4",
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "employee_id": "7e44c2a7-03d6-55d9-84db-a9237edc408f",
+      "work_date": "2026-11-04",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "status": "VALID",
+      "submitted_at": "2026-10-30T15:52:18.800145+00:00",
+      "updated_at": "2026-10-30T15:52:18.800145+00:00"
+    },
+    {
+      "id": "08701188-9da9-42ee-a97b-792a693bf42c",
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "employee_id": "7e44c2a7-03d6-55d9-84db-a9237edc408f",
+      "work_date": "2026-11-05",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "status": "VALID",
+      "submitted_at": "2026-10-30T15:52:18.799827+00:00",
+      "updated_at": "2026-10-30T15:52:18.799827+00:00"
+    },
+    {
+      "id": "08b4cca4-6f1f-4d36-9c52-a0404bc9e91d",
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "employee_id": "7e44c2a7-03d6-55d9-84db-a9237edc408f",
+      "work_date": "2026-11-07",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "status": "VALID",
+      "submitted_at": "2026-10-30T15:52:18.800016+00:00",
+      "updated_at": "2026-10-30T15:52:18.800016+00:00"
+    },
+    {
+      "id": "123152c6-e97b-4de3-adff-bf42e04f7019",
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "employee_id": "7e44c2a7-03d6-55d9-84db-a9237edc408f",
+      "work_date": "2026-11-03",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "status": "VALID",
+      "submitted_at": "2026-10-30T15:52:18.800078+00:00",
+      "updated_at": "2026-10-30T15:52:18.800078+00:00"
+    },
+    {
+      "id": "3bd5e9cc-2a3d-4ce1-b4a4-0571641a5315",
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "employee_id": "7e44c2a7-03d6-55d9-84db-a9237edc408f",
+      "work_date": "2026-11-02",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "status": "VALID",
+      "submitted_at": "2026-10-30T15:52:18.790652+00:00",
+      "updated_at": "2026-10-30T15:52:18.790652+00:00"
+    },
+    {
+      "id": "554418c7-d844-45f5-a729-977d18594148",
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "employee_id": "7e44c2a7-03d6-55d9-84db-a9237edc408f",
+      "work_date": "2026-11-06",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "status": "VALID",
+      "submitted_at": "2026-10-30T15:52:18.799929+00:00",
+      "updated_at": "2026-10-30T15:52:18.799929+00:00"
+    },
+    {
+      "id": "5bb4087a-fb5c-4d17-ae4c-d641bba6436a",
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "employee_id": "9ba0f909-c0b4-59a1-8e10-a607242967ad",
+      "work_date": "2026-11-02",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "status": "VALID",
+      "submitted_at": "2026-10-30T11:51:08.961107+00:00",
+      "updated_at": "2026-10-30T11:51:08.961108+00:00"
+    },
+    {
+      "id": "6851f615-9967-4d77-baa8-1d6a13fb7a6f",
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "employee_id": "7e44c2a7-03d6-55d9-84db-a9237edc408f",
+      "work_date": "2026-11-04",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "status": "VALID",
+      "submitted_at": "2026-10-30T15:52:18.800106+00:00",
+      "updated_at": "2026-10-30T15:52:18.800106+00:00"
+    },
+    {
+      "id": "88554f56-a74f-4c80-9f31-a97f5e6d4d20",
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "employee_id": "7e44c2a7-03d6-55d9-84db-a9237edc408f",
+      "work_date": "2026-11-04",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "status": "VALID",
+      "submitted_at": "2026-10-30T15:52:18.798269+00:00",
+      "updated_at": "2026-10-30T15:52:18.798269+00:00"
+    },
+    {
+      "id": "9429b6c6-62a7-4c0d-9391-56278b54d8d0",
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "employee_id": "7e44c2a7-03d6-55d9-84db-a9237edc408f",
+      "work_date": "2026-11-08",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "status": "VALID",
+      "submitted_at": "2026-10-30T15:52:18.800049+00:00",
+      "updated_at": "2026-10-30T15:52:18.800049+00:00"
+    },
+    {
+      "id": "9fef0ab2-bddc-4e85-a802-cbc42de66778",
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "employee_id": "9ba0f909-c0b4-59a1-8e10-a607242967ad",
+      "work_date": "2026-11-08",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "status": "VALID",
+      "submitted_at": "2026-10-30T11:51:08.969076+00:00",
+      "updated_at": "2026-10-30T11:51:08.969077+00:00"
+    },
+    {
+      "id": "aca8ac92-29e4-4bc0-97a2-e532ffa7d7bb",
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "employee_id": "9ba0f909-c0b4-59a1-8e10-a607242967ad",
+      "work_date": "2026-11-04",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "status": "VALID",
+      "submitted_at": "2026-10-30T11:51:08.96854+00:00",
+      "updated_at": "2026-10-30T11:51:08.96854+00:00"
+    },
+    {
+      "id": "d8f9ab38-3a38-49e6-84ea-8d4268a111b7",
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "employee_id": "9ba0f909-c0b4-59a1-8e10-a607242967ad",
+      "work_date": "2026-11-05",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "status": "VALID",
+      "submitted_at": "2026-10-30T11:51:08.96885+00:00",
+      "updated_at": "2026-10-30T11:51:08.96885+00:00"
+    },
+    {
+      "id": "df371a33-3545-401d-91d2-66252eda0ab9",
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "employee_id": "7e44c2a7-03d6-55d9-84db-a9237edc408f",
+      "work_date": "2026-11-05",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "status": "VALID",
+      "submitted_at": "2026-10-30T15:52:18.799688+00:00",
+      "updated_at": "2026-10-30T15:52:18.799688+00:00"
+    },
+    {
+      "id": "f66072cb-e8ca-4af0-9a6a-2aac71bfa614",
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "employee_id": "7e44c2a7-03d6-55d9-84db-a9237edc408f",
+      "work_date": "2026-11-03",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "status": "VALID",
+      "submitted_at": "2026-10-30T15:52:18.797378+00:00",
+      "updated_at": "2026-10-30T15:52:18.797378+00:00"
+    },
+    {
+      "id": "fc5417a8-5d9c-4fb7-b522-254f942a859a",
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "employee_id": "9ba0f909-c0b4-59a1-8e10-a607242967ad",
+      "work_date": "2026-11-07",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "status": "VALID",
+      "submitted_at": "2026-10-30T11:51:08.968955+00:00",
+      "updated_at": "2026-10-30T11:51:08.968955+00:00"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "0c0ab2ab-a8cf-404e-a265-ea63b06cc3d1",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-07",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:23.404+00:00"
+    },
+    {
+      "id": "10b27758-6865-403c-b33a-63b482123909",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-05",
+      "required_count": 3,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:37.349+00:00"
+    },
+    {
+      "id": "12284ae2-043f-43c9-bc61-37cb9e6949d8",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-03",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:08.422+00:00"
+    },
+    {
+      "id": "1387431d-3fd2-4f28-b74a-3b58023d798c",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-02",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:43:57.202+00:00"
+    },
+    {
+      "id": "16c3b03c-1d63-42e8-8857-da20219ea4ea",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-03",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:10.45+00:00"
+    },
+    {
+      "id": "2c2ca37a-8ca5-4d5c-9aca-feb1f5bb31da",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-08",
+      "required_count": 6,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:29.033+00:00"
+    },
+    {
+      "id": "2f2433f8-1cf3-488e-b9a5-d74b7562cc70",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-04",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:33.877+00:00"
+    },
+    {
+      "id": "338cda01-130d-4def-ba1c-2ccd9e24b823",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-03",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:16.874+00:00"
+    },
+    {
+      "id": "37527d63-4ae1-4e0b-9240-a31ced8ecb6a",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-03",
+      "required_count": 6,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:04.588+00:00"
+    },
+    {
+      "id": "380af314-071c-4c62-8929-640a1ff41f25",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-06",
+      "required_count": 3,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:53.806+00:00"
+    },
+    {
+      "id": "41b8efa1-b874-484e-9b6b-cb920951cdef",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-07",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:21.258+00:00"
+    },
+    {
+      "id": "446cd08d-874d-4407-af83-a939398f79e5",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-04",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:28.715+00:00"
+    },
+    {
+      "id": "454dec90-04f7-4a1a-8729-4f8dee5ff7a3",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-03",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:12.563+00:00"
+    },
+    {
+      "id": "46892367-d89a-411f-a80a-45bf637f8909",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-06",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:02.678+00:00"
+    },
+    {
+      "id": "51d738e1-e379-4ccf-a585-3a27858e9a57",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-08",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:34.298+00:00"
+    },
+    {
+      "id": "588afcef-107c-4d69-8103-7081b882483d",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-07",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:17.562+00:00"
+    },
+    {
+      "id": "5c5b9cd1-1b52-4a60-98f9-9442095887aa",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-02",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:43:51.348+00:00"
+    },
+    {
+      "id": "5e8df9c4-144c-42ab-9a4d-83e1d0706006",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-08",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:38.028+00:00"
+    },
+    {
+      "id": "5f8fe143-fe53-46dd-b887-f14fc3f2e576",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-06",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:04.744+00:00"
+    },
+    {
+      "id": "614b25a8-b862-403a-be30-4242f54b1073",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-04",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:26.514+00:00"
+    },
+    {
+      "id": "62c54fcb-8b9c-4826-bd4f-64d92e4086b6",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-06",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:51.85+00:00"
+    },
+    {
+      "id": "6a0be156-6dc7-40ae-9557-44846c1b9819",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-02",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:43:53.282+00:00"
+    },
+    {
+      "id": "6a0d26bc-bbe5-401e-b160-88f662e25fea",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-04",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:32.287+00:00"
+    },
+    {
+      "id": "6c4146f2-6b2a-4ca3-9b1a-5f07169ff721",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-08",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:32.648+00:00"
+    },
+    {
+      "id": "703fdaef-3862-4eb4-bc34-56a7df143077",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-06",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:57.376+00:00"
+    },
+    {
+      "id": "740f0f1d-b63b-4939-9dfe-7598e5342932",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-07",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:19.506+00:00"
+    },
+    {
+      "id": "7468a9d4-b5f2-4a5b-b5bc-a244b6d3e7a9",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-02",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:43:58.762+00:00"
+    },
+    {
+      "id": "75dcc68e-5f27-4d7b-85e8-61e169db46f3",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-03",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:06.411+00:00"
+    },
+    {
+      "id": "778aa6ec-f9ee-42eb-91e6-0bfad1364e84",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-07",
+      "required_count": 6,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:12.038+00:00"
+    },
+    {
+      "id": "7796df03-a7dd-4c2a-b433-ee3616abac08",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-04",
+      "required_count": 3,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:20.931+00:00"
+    },
+    {
+      "id": "7e4ca3af-02b3-4edb-bf33-282533f481c3",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-04",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:24.826+00:00"
+    },
+    {
+      "id": "806f7ed8-90aa-410d-8548-ea7df1cadd9c",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-07",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:15.669+00:00"
+    },
+    {
+      "id": "86a6c164-e8dc-4d0a-b896-99ff70f4077a",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-05",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:35.373+00:00"
+    },
+    {
+      "id": "92556837-f921-4d75-a90a-21840a8b1868",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-04",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:30.404+00:00"
+    },
+    {
+      "id": "9ea53c76-08a2-4094-8bd5-b80070003e14",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-06",
+      "required_count": 6,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:55.608+00:00"
+    },
+    {
+      "id": "a84daeb5-992b-417c-83fc-3ba14e5398ea",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-05",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:44.796+00:00"
+    },
+    {
+      "id": "a8deaa3e-1b4f-474e-afbb-fe439431b3c5",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-03",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:00.779+00:00"
+    },
+    {
+      "id": "ac7b3d3e-a836-4190-81f1-0f8f7f7aa61f",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-06",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:59.013+00:00"
+    },
+    {
+      "id": "b605a72e-5796-4531-bf9a-167cb8d17c89",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-02",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:43:43.251+00:00"
+    },
+    {
+      "id": "bbc1eba3-d1c6-4510-932e-483ae6904ac9",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-05",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:41.012+00:00"
+    },
+    {
+      "id": "bd5457a9-41f2-4e22-b384-ed0d994ca413",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-07",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:08.352+00:00"
+    },
+    {
+      "id": "be2e2d3f-f296-4c1d-8df9-8d80cf195cc3",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-02",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:43:48.966+00:00"
+    },
+    {
+      "id": "bec8465e-a2f1-4e9f-8ea1-bcbdf34a85cb",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-04",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:19.09+00:00"
+    },
+    {
+      "id": "bfc40a69-0d24-40a9-ab94-8a4c4fc48e7c",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-03",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:14.754+00:00"
+    },
+    {
+      "id": "bfea1fd8-1ef6-4772-997c-97e650c113c6",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-05",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:50.022+00:00"
+    },
+    {
+      "id": "c0befd2d-d554-4d49-89fa-d8e753690a3d",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-06",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:00.825+00:00"
+    },
+    {
+      "id": "c38f4795-d3a2-413c-9105-f3ae7e452017",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-05",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:42.778+00:00"
+    },
+    {
+      "id": "c7718cd9-04aa-425b-9bd5-7d474589f39c",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-05",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:46.505+00:00"
+    },
+    {
+      "id": "d2d4d2f7-492e-4916-81d1-6c8047740aa4",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-02",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:43:55.35+00:00"
+    },
+    {
+      "id": "da7d5f45-e2d1-4780-8345-53512f3a30d2",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-02",
+      "required_count": 3,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:43:45.45+00:00"
+    },
+    {
+      "id": "ddd8a84e-0d03-4aed-b20a-b6efeda21fb5",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-05",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:48.103+00:00"
+    },
+    {
+      "id": "de66a1ff-fa78-4d7f-9d48-5466d384c5fe",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-07",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:13.91+00:00"
+    },
+    {
+      "id": "e14fae88-6aa3-43af-9963-70d5d792e202",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-05",
+      "required_count": 6,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:39.053+00:00"
+    },
+    {
+      "id": "e3913a55-43be-4b63-9520-b9952a055fd2",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-02",
+      "required_count": 6,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:43:47.219+00:00"
+    },
+    {
+      "id": "e4348f3b-cb42-46d5-b9ed-8548bf03465d",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-07",
+      "required_count": 3,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:10.273+00:00"
+    },
+    {
+      "id": "e4694ee3-f122-412a-a8d8-272c3907d503",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-08",
+      "required_count": 3,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:27.178+00:00"
+    },
+    {
+      "id": "e63e7b40-a8c0-4261-92d3-8f5771bb5cad",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-03",
+      "required_count": 3,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:02.65+00:00"
+    },
+    {
+      "id": "e8e46006-2249-4b83-b2ca-ca7eccd5172a",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-06",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:06.486+00:00"
+    },
+    {
+      "id": "eb2d184a-e803-46ea-8ad5-eeae3aa7ef47",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-08",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:39.969+00:00"
+    },
+    {
+      "id": "ec688847-5530-4bf3-b404-85099a29f765",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "work_date": "2026-11-08",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:36.031+00:00"
+    },
+    {
+      "id": "f0c6624d-43d7-4755-81d2-ec8607ff3b67",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-08",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:25.345+00:00"
+    },
+    {
+      "id": "f5594bb6-76cc-4311-afd4-583066443985",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "work_date": "2026-11-08",
+      "required_count": 5,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:45:30.825+00:00"
+    },
+    {
+      "id": "ff678f72-5b9a-48f7-9a3f-57f71bc7d0a2",
+      "branch_id": "11111111-1111-1111-1111-111111111111",
+      "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "work_date": "2026-11-04",
+      "required_count": 6,
+      "excludes_crew_leader": true,
+      "required_skill_name": null,
+      "sales_forecast_ref": null,
+      "created_by": "65974f84-1bdc-48d1-96e7-71b53ec1472c",
+      "updated_at": "2026-10-30T11:44:22.872+00:00"
+    }
+  ],
+  "schedules": []
+}

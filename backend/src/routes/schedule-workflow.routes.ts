@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import { supabaseAdmin } from '../config/supabase.js';
+import { transitionSchedule, workflowReview, workflowEnabled } from '../services/schedule-workflow.service.js';
+import { ScheduleError } from '../services/scheduling.engine.js';
 import { authenticate, requireRole } from '../middleware/auth.middleware.js';
 
 const router = Router();
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const scheduleSelect = 'id,schedule_group_id,branch_id,period_id,version,status,created_by,created_at,published_at,feedback_deadline_at,branches(id,name),registration_periods(work_start_date,work_end_date),shift_assignments(id,work_date,status,assignment_source,shift_id,employee_id,department_id,employees(id,full_name,department_id,departments(name)),shifts(id,name,start_time,end_time),departments(id,name))';
+const scheduleSelect = 'id,schedule_group_id,branch_id,period_id,version,status,created_by,created_at,published_at,feedback_deadline_at,published_by,branches(id,name),registration_periods(work_start_date,work_end_date),shift_assignments(id,work_date,status,assignment_source,shift_id,employee_id,department_id,employees(id,full_name,department_id,departments(name)),shifts(id,name,start_time,end_time),departments(id,name))';
 
 type ResubmitAssignmentInput = { source_assignment_id: string; shift_id: string };
 type ResubmitInput = { expected_version: number; adjustment_note: string; assignments: ResubmitAssignmentInput[] };
@@ -68,7 +70,7 @@ router.get('/', async (req, res) => {
   if (!req.user || !['GS', 'QL'].includes(req.user.role)) return res.status(403).json({ message: 'Không có quyền xem lịch.' });
   const view = String(req.query.view || '');
   const statuses = view === 'pending' && req.user.role === 'GS' ? ['PENDING_APPROVAL']
-    : view === 'history' && req.user.role === 'GS' ? ['APPROVED', 'NEEDS_REVISION']
+    : view === 'history' && req.user.role === 'GS' ? ['APPROVED', 'NEEDS_REVISION', 'PUBLISHED']
     : view === 'publishable' && req.user.role === 'QL' ? ['APPROVED', 'PUBLISHED', 'NEEDS_REVISION'] : null;
   if (!statuses) return res.status(400).json({ message: 'Bộ lọc lịch không hợp lệ.' });
   try {
@@ -103,8 +105,8 @@ router.get('/', async (req, res) => {
       versions = versionResult.data || [];
     }
     const withLatest = markLatestVersions(schedules, versions);
-    return res.json({ schedules: withLatest.map(schedule => ({
-      ...schedule,
+    return res.json({ workflow_enabled:workflowEnabled(), schedules: withLatest.map(schedule => ({
+      ...schedule,workflow_enabled:workflowEnabled(),
       approvals: approvals.filter(approval => approval.schedule_id === schedule.id),
     })) });
   } catch (error: any) {
@@ -139,32 +141,35 @@ router.get('/:id/history', requireRole(['GS']), async (req, res) => {
   }
 });
 
-router.post('/:id/decision', requireRole(['GS']), async (req, res) => {
-  const decision = req.body?.decision;
-  const reason = typeof req.body?.reason === 'string' ? req.body.reason.trim() : '';
-  if (!['APPROVED', 'NEEDS_REVISION'].includes(decision)) return res.status(400).json({ message: 'Quyết định không hợp lệ.' });
-  if (decision === 'NEEDS_REVISION' && !reason) return res.status(400).json({ message: 'Vui lòng nhập lý do từ chối.' });
-  const { data, error } = await supabaseAdmin.rpc('tv4_decide_schedule', {
-    p_schedule_id: req.params.id, p_actor_id: req.user!.id, p_decision: decision, p_reason: reason || null,
-  });
-  if (error) return res.status(error.message.includes('FORBIDDEN') ? 403 : error.message.includes('NOT_FOUND') ? 404 : 409)
-    .json({ message: error.message.includes('STALE') ? 'Lịch đã có phiên bản mới hơn; hãy tải lại.' : 'Lịch đã được xử lý hoặc không còn ở trạng thái chờ duyệt.' });
-  return res.json({ schedule: data });
+const workflowError=(res:any,error:unknown)=>{const e=error instanceof ScheduleError?error:new ScheduleError(503,'WORKFLOW_UNAVAILABLE','Workflow unavailable');return res.status(e.status).json({code:e.code,message:e.message});};
+for(const [path,role,action] of [['submit','QL','SUBMIT'],['decision','GS',null],['publish','QL','PUBLISH']] as const){
+ router.post('/:id/'+path,requireRole([role]),async(req,res)=>{
+  try{
+   if(!uuid.test(req.params.id))throw new ScheduleError(400,'INVALID_SCHEDULE_ID','Invalid schedule ID');
+   const selected=action??req.body?.decision;
+   if(!selected||!['SUBMIT','APPROVED','NEEDS_REVISION','PUBLISH'].includes(selected)||(path==='decision'&&!['APPROVED','NEEDS_REVISION'].includes(selected)))throw new ScheduleError(400,'INVALID_DECISION','Invalid decision');
+   const body={...req.body};delete body.decision;
+   return res.json(await transitionSchedule(req.params.id,req.user!,body,selected));
+  }catch(e){return workflowError(res,e);}
+ });
+}
+router.get('/:id/review',requireRole(['GS','QL']),async(req,res)=>{
+ try{
+  if(!uuid.test(req.params.id))throw new ScheduleError(400,'INVALID_SCHEDULE_ID','Invalid schedule ID');
+  const {data:s,error}=await supabaseAdmin.from('schedules').select('id,branch_id,version').eq('id',req.params.id).maybeSingle();
+  if(error)throw error;if(!s)throw new ScheduleError(404,'SCHEDULE_NOT_FOUND','Schedule not found');
+  if(req.user!.role==='QL'){
+   if(req.user!.branch_id!==s.branch_id)throw new ScheduleError(403,'FORBIDDEN','Wrong branch');
+  }else{
+   const {data:b,error:e}=await supabaseAdmin.from('branches').select('id').eq('id',s.branch_id).eq('supervisor_id',req.user!.id).maybeSingle();
+   if(e)throw e;if(!b)throw new ScheduleError(403,'FORBIDDEN','Wrong branch');
+  }
+  return res.json(await workflowReview(s.id,s.branch_id,s.version));
+ }catch(e){return workflowError(res,e);}
 });
 
-router.post('/:id/publish', requireRole(['QL']), async (req, res) => {
-  const deadline = req.body?.feedback_deadline_at;
-  if (typeof deadline !== 'string' || Number.isNaN(Date.parse(deadline))) return res.status(400).json({ message: 'Vui lòng chọn thời hạn phản hồi hợp lệ.' });
-  const { data, error } = await supabaseAdmin.rpc('tv4_publish_schedule', {
-    p_schedule_id: req.params.id, p_actor_id: req.user!.id, p_feedback_deadline_at: deadline,
-  });
-  if (error) return res.status(error.message.includes('FORBIDDEN') ? 403 : error.message.includes('NOT_FOUND') ? 404 : 409)
-    .json({ message: error.message.includes('STALE') ? 'Lịch đã có phiên bản mới hơn; hãy tải lại.' : 'Chỉ lịch đã phê duyệt mới được công bố.' });
-  return res.json({ schedule: data });
-});
-
-// Resubmit is intentionally validation-only until TV3 and the database owner
-// provide the shared transactional version allocator and persistence RPC.
+// Legacy shift-only resubmit is retired. Revisions use the TV3 validated editor,
+// immutable version allocator, then the same atomic submit transition as DRAFT.
 router.post('/:id/resubmit', requireRole(['QL']), async (req, res) => {
   if (!uuid.test(req.params.id)) {
     return res.status(400).json({ status: 'error', code: 'INVALID_RESUBMIT_REQUEST', message: 'Mã lịch không hợp lệ.' });
@@ -194,11 +199,11 @@ router.post('/:id/resubmit', requireRole(['QL']), async (req, res) => {
     return res.status(503).json({ status: 'error', code: 'RESUBMIT_VALIDATION_UNAVAILABLE', message: 'Không thể xác minh phạm vi lịch. Vui lòng thử lại.' });
   }
 
-  // Do not call an unverified RPC or report a successful resubmission.
-  return res.status(501).json({
+  // Never bypass the TV3 editor/source-revision/hard-constraint contract.
+  return res.status(410).json({
     status: 'error',
-    code: 'RESUBMIT_NOT_CONFIGURED',
-    message: 'Chức năng trình lại lịch chưa được cấu hình trên backend.',
+    code: 'RESUBMIT_USE_DRAFT_EDITOR',
+    message: 'Use the schedule editor to save a new DRAFT version, then submit it for approval.',
   });
 });
 

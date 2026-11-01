@@ -1,0 +1,249 @@
+{
+  "scope": "DISPOSABLE_LOOPBACK_POSTGRESQL_ONLY",
+  "generated_at": "2026-11-01T16:46:14.908Z",
+  "fixture": "one synthetic NV + QL, VALID registration and legacy v1 DRAFT",
+  "migrations": [
+    {
+      "file": "20261029_tv4_schedule_workflow.sql",
+      "sha256": "1503d76e38c7bb95ec7a82f42984ec166a61e7c7d4bdf66b2e4889f1c0dffaac",
+      "applied_locally": true
+    },
+    {
+      "file": "20261101_tv3_rule_contract_v2.sql",
+      "sha256": "cc88a1241fccb6bc3936f61611dba3f99abced0bb24247e9ef2cb4e3d09c7018",
+      "applied_locally": true
+    },
+    {
+      "file": "20261102_tv4_workflow_v2.sql",
+      "sha256": "8d310cbbc386b2109a74faf41002c75a01d60af1d2ea518025e91c54072995aa",
+      "applied_locally": true
+    },
+    {
+      "file": "20261103_employee_schedule_read.sql",
+      "sha256": "54dd64fd48ca81b48b45f0a9ee6888a6a2d654f2754e62cf919d66652f1a4a9f",
+      "applied_locally": true
+    },
+    {
+      "file": "20261104_tv5_shift_replacement.sql",
+      "sha256": "1da380b9649f560734fb679f5b28b273a0db510b3655b18f319664c1c976d5ef",
+      "applied_locally": true
+    }
+  ],
+  "post_functions": [
+    {
+      "signature": "employee_schedule_week(uuid,date)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "07e25d501b682035cab6b5ec849cf0bb"
+    },
+    {
+      "signature": "generate_schedule_draft(uuid,uuid,jsonb,jsonb)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp",
+        "statement_timeout=5s"
+      ],
+      "body_md5": "477fbe0785dcdbd85cd7cdf1dc600509"
+    },
+    {
+      "signature": "persist_schedule_draft(uuid,uuid,jsonb,jsonb,uuid,integer,uuid,text)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp",
+        "lock_timeout=5s",
+        "statement_timeout=5s"
+      ],
+      "body_md5": "f5654bfccd235ef82403e46e65e9128c"
+    },
+    {
+      "signature": "tv3_balance_v2(jsonb,jsonb)",
+      "owner": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "4d556a65fdc630e593768dd20a17f93f"
+    },
+    {
+      "signature": "tv3_existing_coverage_v2(jsonb)",
+      "owner": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "1d0f241e820b894040b2df90bc078703"
+    },
+    {
+      "signature": "tv3_result_v2(jsonb,uuid,jsonb,jsonb)",
+      "owner": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "ed0c2976eaffd4ba32b1d59fd1db7830"
+    },
+    {
+      "signature": "tv3_scheduling_input(uuid)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "80ec1098f661c668d89acda7a2dfbb25"
+    },
+    {
+      "signature": "tv4_assert_schedule_v2(uuid)",
+      "owner": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "67c725836fb9b441d34fa56e60eead74"
+    },
+    {
+      "signature": "tv4_decide_schedule(uuid,uuid,character varying,text)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog"
+      ],
+      "body_md5": "2048315f37adc0e487c9e75ac1b0846a"
+    },
+    {
+      "signature": "tv4_publish_schedule(uuid,uuid,timestamp with time zone)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog"
+      ],
+      "body_md5": "8847443ea56b65915beaf2d760488bcb"
+    },
+    {
+      "signature": "tv4_transition_schedule_v2(uuid,uuid,integer,text,uuid,text,timestamp with time zone)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp",
+        "lock_timeout=5s",
+        "statement_timeout=5s"
+      ],
+      "body_md5": "bc324f03b0e5b1d348a20d2e3497e1b8"
+    },
+    {
+      "signature": "tv5_actor(uuid)",
+      "owner": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "ffce11690f7847a45b782757c5d8d98f"
+    },
+    {
+      "signature": "tv5_assignment(uuid)",
+      "owner": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "aea8036c99c6f3c26f2377c4dba2c241"
+    },
+    {
+      "signature": "tv5_candidates(uuid)",
+      "owner": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "270d975a2557d6845340040eb8200f39"
+    },
+    {
+      "signature": "tv5_candidates_for_actor(uuid,uuid)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "9bf344307602993530f0f6eb8be323f0"
+    },
+    {
+      "signature": "tv5_mutate(uuid,text,uuid,jsonb)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp",
+        "statement_timeout=5s",
+        "lock_timeout=5s"
+      ],
+      "body_md5": "a720c57e353693e5e1739dc8ee824a30"
+    },
+    {
+      "signature": "tv5_read(uuid)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "9a1424a78f836809c6f532e92d8165e7"
+    },
+    {
+      "signature": "tv5_result_v2(jsonb,uuid,jsonb,jsonb)",
+      "owner": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "99a1c2cf1ca54735c0f273d368c2db54"
+    },
+    {
+      "signature": "validate_schedule_approval()",
+      "owner": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "0165e41d087917c9239f2453f6aa253c"
+    }
+  ],
+  "read_only_scripts": [
+    {
+      "file": "01-catalog-preflight.sql",
+      "sha256": "f1559ff8add6bf492fb8555dd786289a0b776ea2331f8be1a16353f8b46ff535"
+    },
+    {
+      "file": "02-data-preflight.sql",
+      "sha256": "3db0fc9a0b5924a7a389b2a4c4bd21f6045f6d03c9012b13ae13ff07b63edff0"
+    },
+    {
+      "file": "03-post-migration.sql",
+      "sha256": "54315841be15f4da5f76d500e6100ab42a585a531ccdd869c59ff5ecbdbe8d9d"
+    }
+  ],
+  "pre_existing_tables_unchanged": [
+    "users",
+    "employees",
+    "registration_periods",
+    "registration_submissions",
+    "shift_registrations",
+    "staffing_requirements",
+    "schedules",
+    "shift_assignments",
+    "schedule_approvals",
+    "shift_change_requests",
+    "incidents",
+    "replacement_invitations",
+    "audit_logs",
+    "registration_schedule_config",
+    "registration_automation_config"
+  ],
+  "post_acl_checks": 54,
+  "all_pass": true,
+  "read_only_transaction_enforced": true,
+  "supabase_contacted": false,
+  "dev_import_ready": false,
+  "shared_apply_authorized": false
+}

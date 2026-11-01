@@ -4,13 +4,17 @@ export type SummaryEmployee = Omit<Employee, 'is_active' | 'role' | 'skills'> & 
   branch_id: string; full_name: string; is_active: boolean | null; role: string | null; skills: string[] | null;
 };
 export interface SummarySnapshot {
+  registration_provenance?: SchedulingInput['registration_provenance'];
   source: SummarySource; branch: { id: string; name: string }; period: SchedulingInput['period'];
   departments: { id: string; name: string }[];
   employees: SummaryEmployee[]; shifts: (Shift & { name: string })[];
   registrations: (Registration & { id: string; period_id: string })[];
   requirements: (Requirement & { sales_forecast_ref?: string | null; updated_at?: string; created_by?: string })[]; existing: (Assignment & {id?:string})[];
   registration_declarations?: {employee_id:string;work_date:string;declaration:'SHIFT'|'OFF'|'NOT_SUBMITTED'}[];
+  // Internal collision guard for test overlays, including DRAFT/sample headers.
+  registration_submission_employee_ids?: string[];
   new_employee_count_threshold: number | null;
+  holiday_dates?: string[];
   test_rules?: {max_shifts_per_day:number};
 }
 export interface SummaryPeriodOption {

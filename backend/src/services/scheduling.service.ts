@@ -52,7 +52,16 @@ export async function readDraft(scheduleId: string, branchId: string) {
   if (assignments.error) databaseError(assignments.error);
   const audit = await supabaseAdmin.from('audit_logs').select('new_data').eq('entity_type','schedules').eq('entity_id',scheduleId).eq('action','AUTO_GENERATE').order('created_at',{ascending:false}).limit(1).maybeSingle();
   if (audit.error) databaseError(audit.error);
-  return { schedule, assignments: assignments.data, generation_snapshot: audit.data?.new_data ?? null };
+  const changed=schedule.status==='PUBLISHED'?await supabaseAdmin.from('audit_logs').select('new_data').eq('entity_type','schedules').eq('entity_id',scheduleId).eq('action','SHIFT_REPLACED').order('created_at',{ascending:false}).order('id',{ascending:false}).limit(1).maybeSingle():{data:null,error:null};
+  if(changed.error)databaseError(changed.error);
+  const original=audit.data?.new_data??null;
+  const snapshot=changed.data?.new_data?.current_result?{...original,...changed.data.new_data.current_result,optimization:original?.optimization??null}:original;
+  const key=(a:Record<string,unknown>)=>JSON.stringify([a.employee_id,a.work_date,a.shift_id,a.department_id]);
+  const traces=new Map<string,Record<string,unknown>>((Array.isArray(snapshot?.assignments)?snapshot.assignments:[]).map((a:Record<string,unknown>)=>[key(a),a]));
+  return {schedule,assignments:(assignments.data??[]).map(a=>{
+    const trace=traces.get(key(a));
+    return trace?{...a,reason:trace.reason,selection_history:trace.selection_history,requirement_id:trace.requirement_id}:a;
+  }),generation_snapshot:snapshot};
 }
 
 // Read-only data for the manager's week selector. Never accept branch scope from client.
@@ -72,7 +81,7 @@ export async function readSchedulingContext(periodId: string, branchId: string) 
   const data=await repository.load(branchId,periodId);
   return {source:data.source,period:data.period,requirements:data.requirements,
     valid_registration_count:data.registrations.length,registration_declarations:data.registration_declarations,
-    employees:data.employees.map(e=>({id:e.id,full_name:e.full_name,department_id:e.department_id})),
+    employees:data.employees.map(e=>({id:e.id,full_name:e.full_name,department_id:e.department_id,employee_code:e.employee_code,skill_level:e.skill_level,skills:e.skills,max_weekly_hours:e.max_weekly_hours})),
     shifts:data.shifts,departments:data.departments};
 }
 

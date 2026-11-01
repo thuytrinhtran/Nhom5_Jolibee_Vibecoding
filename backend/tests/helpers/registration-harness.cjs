@@ -2,7 +2,10 @@
 const fs=require('node:fs'),path=require('node:path');
 async function createHarness(){
  process.env.NODE_ENV='test';process.env.SUPABASE_URL='http://127.0.0.1:9';process.env.SUPABASE_SECRET_KEY='isolated-fixture-not-a-real-key';
- const {PGlite}=require(process.env.REGISTRATION_PGLITE_PATH);const sql=new PGlite();
+ const native=process.env.REGISTRATION_USE_NATIVE==='true'?await require('./native-tv3-harness.cjs').nativeHarness({empty:true}):null;
+ let queue=Promise.resolve();
+ const nativeQuery=(...args)=>{const result=queue.then(()=>native.admin.query(...args));queue=result.catch(()=>{});return result;};
+ const sql=native?{query:nativeQuery,exec:nativeQuery,close:()=>native.close()}:new (require(process.env.REGISTRATION_PGLITE_PATH).PGlite)();
  const root=path.resolve(__dirname,'../../..');
  await sql.exec("CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role; CREATE SCHEMA auth; CREATE TABLE auth.users(id uuid PRIMARY KEY); CREATE FUNCTION auth.role() RETURNS text LANGUAGE sql AS $$ SELECT 'service_role'::text $$; CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT NULL::uuid $$;");
  await sql.exec('ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO service_role;');
@@ -29,7 +32,7 @@ async function createHarness(){
   limit(n){if(!Number.isInteger(n))throw Error('Unexpected fixture limit');this.cap=` LIMIT ${n}`;return this;}
   async run(single=false){
    try{
-    const fields=this.fields==='*'?'*':this.fields.split(/,(?![^()]*\))/).map(c=>c.trim()).map(c=>c==='schedules(id, status, version, created_at)'?"coalesce((SELECT json_agg(s) FROM schedules s WHERE s.period_id=registration_periods.id),'[]'::json) AS schedules":c==='user:user_id(is_active, role, branch_id)'?"(SELECT json_build_object('is_active',u.is_active,'role',u.role,'branch_id',u.branch_id) FROM users u WHERE u.id=employees.user_id) AS \"user\"":c==='employee:employees!inner(branch_id)'?"(SELECT json_build_object('branch_id',e.branch_id) FROM employees e WHERE e.id=employee_id) AS employee":c==='shift:shift_id(id, name, start_time, end_time, is_active, branch_id)'?"(SELECT row_to_json(s) FROM shifts s WHERE s.id=shift_id) AS shift":c==='departments:department_id(name)'?"(SELECT json_build_object('name',d.name) FROM departments d WHERE d.id=employees.department_id) AS departments":identifier(c)).join(',');
+    const fields=this.fields==='*'?'*':this.fields.split(/,(?![^()]*\))/).map(c=>c.trim()).map(c=>c==='schedules(id, status, version, created_at)'?"coalesce((SELECT json_agg(s) FROM schedules s WHERE s.period_id=registration_periods.id),'[]'::json) AS schedules":['user:user_id(is_active, role, branch_id)','user:user_id(is_active, role, branch_id, username)'].includes(c)?"(SELECT json_build_object('is_active',u.is_active,'role',u.role,'branch_id',u.branch_id,'username',u.username) FROM users u WHERE u.id=employees.user_id) AS \"user\"":c==='employee:employees!inner(branch_id)'?"(SELECT json_build_object('branch_id',e.branch_id) FROM employees e WHERE e.id=employee_id) AS employee":c==='shift:shift_id(id, name, start_time, end_time, is_active, branch_id)'?"(SELECT row_to_json(s) FROM shifts s WHERE s.id=shift_id) AS shift":c==='departments:department_id(name)'?"(SELECT json_build_object('name',d.name) FROM departments d WHERE d.id=employees.department_id) AS departments":identifier(c)).join(',');
     const rows=(await sql.query(`SELECT ${fields} FROM public.${identifier(this.table)}${this.filters.length?' WHERE '+this.filters.join(' AND '):''}${this.sort}${this.cap}`,this.params)).rows;
     for(const row of rows)for(const name of ['work_date','work_start_date','work_end_date'])if(row[name] instanceof Date)row[name]=row[name].toISOString().slice(0,10);
     return{data:single?rows[0]||null:rows,error:null};
@@ -39,6 +42,9 @@ async function createHarness(){
  }
  sdk.from=table=>new Query(table);
  sdk.rpc=async(name,args)=>{
+  if(name==='tv5_read'||name==='tv5_candidates_for_actor'||name==='tv5_mutate'){try{const query=name==='tv5_read'?['SELECT tv5_read($1) result',[args.p_actor_id]]:name==='tv5_candidates_for_actor'?['SELECT tv5_candidates_for_actor($1,$2) result',[args.p_actor_id,args.p_assignment_id]]:['SELECT tv5_mutate($1,$2,$3,$4::jsonb) result',[args.p_actor_id,args.p_action,args.p_request_id,JSON.stringify(args.p_data)]];const r=await sql.query(...query);return{data:r.rows[0].result,error:null};}catch(e){return{data:null,error:{code:e.code,message:e.message}};}}
+  if(name==='employee_schedule_week'){try{const r=await sql.query('SELECT employee_schedule_week($1,$2) result',[args.p_actor_id,args.p_week_start]);return{data:r.rows[0].result,error:null};}catch(e){return{data:null,error:{code:e.code,message:e.message}};}}
+  if(name==='tv4_transition_schedule_v2'){try{const r=await sql.query('SELECT tv4_transition_schedule_v2($1,$2,$3,$4,$5,$6,$7) result',[args.p_schedule_id,args.p_actor_id,args.p_expected_version,args.p_action,args.p_request_id,args.p_reason,args.p_feedback_deadline_at]);return{data:r.rows[0].result,error:null};}catch(e){return{data:null,error:{code:e.code,message:e.message}};}}
   if(name==='persist_schedule_draft'){try{const r=await sql.query('SELECT persist_schedule_draft($1,$2,$3::jsonb,$4::jsonb,$5,$6,$7,$8) result',[args.p_period_id,args.p_actor_id,args.p_snapshot?JSON.stringify(args.p_snapshot):null,args.p_result?JSON.stringify(args.p_result):null,args.p_schedule_id??null,args.p_expected_version??null,args.p_request_id??null,args.p_fingerprint??null]);return{data:r.rows[0].result,error:null};}catch(e){return{data:null,error:{code:e.code,message:e.message}};}}
   if(name!=='save_employee_registration')throw Error('Only registration RPC is allowed in this fixture');
   try{const result=await sql.query('SELECT save_employee_registration($1,$2,$3::jsonb,$4) result',[args.p_user,args.p_period,JSON.stringify(args.p_preferences),args.p_submit]);return{data:result.rows[0].result,error:null};}
@@ -49,6 +55,6 @@ async function createHarness(){
  config.createAuthClient=()=>({auth:{signInWithPassword:async({email,password})=>email===authUser.email&&password==='Fixture-only-Password!1'?{data:{user:authUser,session},error:null}:{data:{},error:{status:401}}}});
  sdk.auth.getUser=async token=>token===session.access_token?{data:{user:authUser},error:null}:{data:{},error:{status:401}};
  const app=require('../../dist/server.js').default;
- return{app,sql,id,async close(){await sql.close();}};
+ return{app,sql,id,connect:native?.connect,async close(){await sql.close();}};
 }
 module.exports={createHarness};

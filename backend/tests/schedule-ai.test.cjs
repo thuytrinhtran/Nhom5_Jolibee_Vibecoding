@@ -26,7 +26,7 @@ test('shortage review sends only minimal pseudonymous structured summary; persis
  const branch='00000000-0000-4000-8000-000000009003',id=await make(branch);let sent;
  const before=await readDraft(id,branch),fake=advisor(async summary=>{sent=summary;return report()});
  const result=await evaluateSchedule(id,branch,{expected_version:1},{advisor:fake});assert.equal(result.status,'AVAILABLE');assert.equal(result.evaluation.report.conclusion,'NEEDS_ADJUSTMENT');
- assert.equal(sent.coverage.reduce((n,r)=>n+r.required-r.assigned,0),1);assert.ok(sent.employees.every(e=>/^E\d+$/.test(e.code)));assert.ok(sent.employees.every(e=>Number.isFinite(e.total_weekly_hours)));assert.ok(sent.missing_criteria.some(v=>v.includes('NEW')));
+ assert.equal(sent.coverage.reduce((n,r)=>n+r.required-r.assigned,0),1);assert.ok(sent.employees.every(e=>/^E\d+$/.test(e.code)));assert.ok(sent.employees.every(e=>Number.isFinite(e.total_weekly_hours)));assert.ok(sent.missing_criteria.some(v=>v.includes('min(2,')));
  assert.equal(new Set(sent.coverage.map(r=>r.work_date)).size,1);assert.equal(new Set(sent.coverage.map(r=>r.shift_code)).size,2);assert.ok(sent.coverage.length<63,'no full-week demand prerequisite');
  const serialized=JSON.stringify(sent);for(const name of ['NV01 An','NV08 Phúc','Phúc',actor,branch,id,'sales_forecast_ref','created_by','full_name','branch_id','employee_id'])assert.ok(!serialized.includes(name),name);
  assert.ok(sent.employees.every(e=>new Set(e.registered.map(r=>`${r.work_date}/${r.shift_code}`)).size===e.registered.length));
@@ -47,7 +47,7 @@ test('mandatory Rule Engine failure/missing employee data blocks AI; composition
  const warned=structuredClone(state);warned.validation.coverage_complete=true;warned.validation.coverage[0].warning='MANY_NEW_WITHOUT_CREW_TRAINING';
  await assert.rejects(evaluateSchedule(id,branch,{expected_version:1},{advisor:fake,inspect:async()=>warned}),e=>e.code==='AI_CONTRADICTS_RULES');
  const actual=structuredClone(state);actual.rule_snapshot.employees.filter(e=>e.department_id===actual.rule_snapshot.departments[0].id).forEach(e=>e.skill_level='NEW');actual.rule_snapshot.new_employee_count_threshold=1;
- const summary=buildAISummary(actual).summary;assert.ok(summary.coverage.some(r=>r.warning==='MANY_NEW_WITHOUT_CREW_TRAINING'));assert.ok(summary.coverage.some(r=>r.levels.NEW>=1));
+ const summary=buildAISummary(actual).summary;assert.ok(summary.coverage.some(r=>r.warning==='EXPERIENCE_SHORTAGE'));assert.ok(summary.coverage.some(r=>r.levels.NEW>=1));
 }));
 test('AI proposal violating skills, department, overlap/duplicates or daily cap is REJECTED; valid proposal remains unapplied',()=>mode(async()=>{
  const branch='00000000-0000-4000-8000-000000009006',id=await make(branch),state=await inspectSchedule(id,branch,1),prepared=buildAISummary(state),assignments=prepared.summary.employees.flatMap(e=>e.assignments);

@@ -1,0 +1,81 @@
+{
+  "scope": "LOCAL_PREPARED_ONLY_NO_DEPLOYMENT_AUTHORIZATION",
+  "files": [
+    {
+      "file": "backend/migrations/20261029_employee_registration.sql",
+      "sha256": "b90268fb4fb859748c72daa20e8942deb5c740d505589d626bd069a7926bf74b"
+    },
+    {
+      "file": "backend/migrations/20261029_registration_off_schedule.sql",
+      "sha256": "5ae22197a91d45db674bb45ade6eaca4af50b8b1345bdeac224a6fdc5ea21dfd"
+    },
+    {
+      "file": "backend/migrations/20261029_require_password_change.sql",
+      "sha256": "fee1a57e7e8ff8a97ba8b93841d11ab784e2b89bfd21ceec77537db81adf9582"
+    },
+    {
+      "file": "backend/migrations/20261029_tv4_schedule_workflow.sql",
+      "sha256": "1503d76e38c7bb95ec7a82f42984ec166a61e7c7d4bdf66b2e4889f1c0dffaac"
+    },
+    {
+      "file": "backend/migrations/20261030_registration_effective_state.sql",
+      "sha256": "269f3714985bd7feab7aa7ccc976bfe4502e45c82646e8b8ce56f34049c54ec8"
+    },
+    {
+      "file": "backend/migrations/20261031_tv3_schedule_draft.sql",
+      "sha256": "ca00abcb3253c9b549bf59a17e3f438fce96984f1a10cda9cc6be38df58dd44a"
+    },
+    {
+      "file": "backend/migrations/20261101_tv3_rule_contract_v2.sql",
+      "sha256": "cc88a1241fccb6bc3936f61611dba3f99abced0bb24247e9ef2cb4e3d09c7018"
+    },
+    {
+      "file": "backend/migrations/20261102_tv4_workflow_v2.sql",
+      "sha256": "8d310cbbc386b2109a74faf41002c75a01d60af1d2ea518025e91c54072995aa"
+    },
+    {
+      "file": "backend/migrations/20261103_employee_schedule_read.sql",
+      "sha256": "54dd64fd48ca81b48b45f0a9ee6888a6a2d654f2754e62cf919d66652f1a4a9f"
+    },
+    {
+      "file": "backend/migrations/20261104_tv5_shift_replacement.sql",
+      "sha256": "1da380b9649f560734fb679f5b28b273a0db510b3655b18f319664c1c976d5ef"
+    },
+    {
+      "file": "backend/migrations/20261105_scoped_dev_import.sql",
+      "sha256": "dfd791df4e84e048ce511635160524b97a81dfa92367c5d32331f0194e76df96"
+    },
+    {
+      "file": "backend/scripts/dev-import-executor.cjs",
+      "sha256": "6e0e53d745da79dceba1c87729305a35c7763b79847fc7f051139ca045203758"
+    },
+    {
+      "file": "backend/src/config/supabase.ts",
+      "sha256": "d25c851d7755291059bc9a1821d473f668a7979b73f0769ff9ccaae366ff83ca"
+    },
+    {
+      "file": "backend/src/registrations/dev-import-policy.ts",
+      "sha256": "de03116231684438f1c639f62caae4f6b153d04edcd418c4a151aecc7b4bb9b7"
+    },
+    {
+      "file": "backend/src/registrations/tv3-source.ts",
+      "sha256": "8df6b7e0cf601e527e3f849c83aa820a9f197e5e3b47dd320aac65459eefc20c"
+    },
+    {
+      "file": "backend/src/repositories/registration-summary.supabase.ts",
+      "sha256": "aab97225139781c1d1f75c4832b56929d30f23058dcba75e13b56966951dcf4f"
+    },
+    {
+      "file": "backend/src/routes/registration-reports.routes.ts",
+      "sha256": "b460bd6b31e1d05a6cb3036753fb1380f9eb06141d3db867fa002ccc72936fe9"
+    },
+    {
+      "file": "backend/tests/dev-import.test.cjs",
+      "sha256": "d37f5a817e8052019829e2cce1c41fa660bfee06bed9fba51ac65c1b464e9e67"
+    },
+    {
+      "file": "docs/deployment-6.2/preflight.sql",
+      "sha256": "002cc02d343ed672fe2b9e090ccab05dc2536ccf72f7f7bff25c800a434d1f94"
+    }
+  ]
+}

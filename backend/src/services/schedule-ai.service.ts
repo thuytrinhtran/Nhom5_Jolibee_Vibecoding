@@ -18,6 +18,10 @@ function response(state:Inspection,advisor:SchedulingAIAdvisor):AIReviewResponse
 function blocked(state:Inspection) {
   return state.saved.schedule.status!=='DRAFT'||state.validation.hard_constraints!=='PASS'||!state.validation.input_current;
 }
+export function assertAIConclusion(report:{conclusion:string},validation:{data_complete:boolean;coverage_complete:boolean;coverage:{warning:string|null}[]}) {
+  if((!validation.data_complete&&report.conclusion!=='INSUFFICIENT_DATA')||(report.conclusion==='SUITABLE'&&(!validation.coverage_complete||validation.coverage.some(r=>r.warning))))
+    throw new ScheduleError(502,'AI_CONTRADICTS_RULES','Kết luận AI mâu thuẫn dữ liệu hoặc cảnh báo Rule Engine; không được coi là đánh giá hợp lệ.');
+}
 const storage=(state:Inspection)=>state.snapshot.source==='mock'?new MockScheduleAIRepository():new SupabaseScheduleAIRepository();
 function isCurrent(evaluation:AIEvaluation,state:Inspection) {
   return evaluation.contract_version==='tv3-ai.v1'&&evaluation.schedule_id===state.saved.schedule.id&&evaluation.version===state.saved.schedule.version&&evaluation.input_revision===revision(state)&&!blocked(state);
@@ -54,8 +58,7 @@ export async function evaluateSchedule(id:string,branchId:string,body:unknown,de
     // Verify storage is usable BEFORE an external call that may have a cost.
     await repository.latest(id);
     const prepared=buildAISummary(state),raw=await advisor.evaluate(prepared.summary),report=parseAIReport(raw);
-    if((!state.validation.data_complete&&report.conclusion!=='INSUFFICIENT_DATA')||(report.conclusion==='SUITABLE'&&(!state.validation.coverage_complete||state.validation.coverage.some(r=>r.warning))))
-      throw new ScheduleError(502,'AI_CONTRADICTS_RULES','Kết luận AI mâu thuẫn dữ liệu hoặc cảnh báo Rule Engine; không được coi là đánh giá hợp lệ.');
+    assertAIConclusion(report,state.validation);
     const checked:CheckedAIReport={...report,suggestions:report.suggestions.map(s=>{
       if(s.candidate_assignments===null)return {...s,rule_check:{status:'NOT_APPLICABLE' as const,code:null,message:'Gợi ý bằng lời; chưa có phương án phân công để kiểm tra. Không được tự áp dụng.'}};
       try {

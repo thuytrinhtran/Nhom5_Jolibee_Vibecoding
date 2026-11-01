@@ -44,11 +44,11 @@ test('weekly cap includes existing work and permits exact limit',()=>{
   assert.equal(generateSchedule(x).employee_statistics[0].total_weekly_hours,8);
   x.employees[0].max_weekly_hours=7.99;assert.equal(generateSchedule(x).assigned_count,0);
 });
-test('level priority precedes fairness; equal levels choose least shifts then stable ID',()=>{
+test('experienced levels are equal and choose least hours then stable ID',()=>{
   const x=fixture();x.requirements[0].required_count=1;
   x.existing.push({employee_id:'a',work_date:'2026-11-03',shift_id:'s',department_id:'d'});
   assert.equal(generateSchedule(x).assignments[0].employee_id,'b');
-  x.employees[0].skill_level='CREW_TRAINING';assert.equal(generateSchedule(x).assignments[0].employee_id,'a');
+  x.employees[0].skill_level='CREW_TRAINING';assert.equal(generateSchedule(x).assignments[0].employee_id,'b');
   x.existing=[];x.employees[0].skill_level='REGULAR';x.employees.reverse();x.registrations.reverse();
   assert.equal(generateSchedule(x).assignments[0].employee_id,'a');
 });
@@ -63,13 +63,10 @@ test('empty needs, invalid count, duplicate needs and open period rejected',()=>
     const x=fixture();change(x);assert.throws(()=>generateSchedule(x));
   }
 });
-test('warning requires configured threshold reached AND no Crew Training',()=>{
+test('composition warning uses confirmed experience target regardless of legacy threshold',()=>{
   const x=fixture();x.employees.forEach(e=>e.skill_level='NEW');
-  assert.equal(generateSchedule(x).coverage[0].warning,null);x.new_employee_count_threshold=1;
-  assert.equal(generateSchedule(x).coverage[0].warning,'MANY_NEW_WITHOUT_CREW_TRAINING');
-  x.new_employee_count_threshold=2;assert.equal(generateSchedule(x).coverage[0].warning,'MANY_NEW_WITHOUT_CREW_TRAINING');
-  x.new_employee_count_threshold=3;assert.equal(generateSchedule(x).coverage[0].warning,null);
-  x.new_employee_count_threshold=1;x.employees[0].skill_level='CREW_TRAINING';assert.equal(generateSchedule(x).coverage[0].warning,null);
+  for(const threshold of [null,1,2,3]){x.new_employee_count_threshold=threshold;assert.equal(generateSchedule(x).coverage[0].warning,'EXPERIENCE_SHORTAGE');}
+  x.employees.forEach(e=>e.skill_level='REGULAR');assert.equal(generateSchedule(x).coverage[0].warning,null);
 });
 test('overnight duration and target-week clipping use fixed Vietnam offset',()=>{
   assert.equal(interval('2026-11-08',{start_time:'22:00:00',end_time:'06:00:00'})[1]-interval('2026-11-08',{start_time:'22:00:00',end_time:'06:00:00'})[0],8*3600);

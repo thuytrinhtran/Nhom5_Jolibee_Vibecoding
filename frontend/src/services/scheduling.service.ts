@@ -1,6 +1,7 @@
+import type { AdjustmentIntent, AdjustmentProposal } from '../types/scheduling';
 import { authService, ApiError } from './auth.service';
 import type { ManagerCalendarData } from '../types/manager-calendar';
-import type { SchedulePreview } from '../types/scheduling';
+import type { SchedulePreview, PreviewAIReviewResponse, PreviewAIConfiguration } from '../types/scheduling';
 import type { AIReviewResponse, ApprovalHandoff, ScheduleValidation, DemandContext, DemandInput, DemandRequirement, ScheduleAssignment, RegistrationSummary, SavedSchedule, SchedulingContext, SchedulingPeriod } from '../types/scheduling';
 
 const API_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
@@ -31,6 +32,25 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
 }
 export const schedulingService = {
+  async previewAIConfiguration():Promise<PreviewAIConfiguration> {
+    return(await request<{result:PreviewAIConfiguration}>('/preview/ai-evaluation')).result;
+  },
+  async applyAdjustment(preview:SchedulePreview,proposal:AdjustmentProposal):Promise<SchedulePreview> {
+    const plain=({employee_id,work_date,shift_id,department_id}:ScheduleAssignment)=>({employee_id,work_date,shift_id,department_id});
+    return(await request<{result:SchedulePreview}>('/preview/apply-adjustment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({period_id:preview.period.id,input_revision:preview.input_revision,assignments:preview.result.assignments.map(plain),proposal_assignments:proposal.result.assignments.map(plain),proposal_token:proposal.proposal_token,...(preview.edit_target?{schedule_id:preview.edit_target.id,expected_version:preview.edit_target.version}:{})})})).result;
+  },
+  async proposeAdjustment(preview:SchedulePreview,analysis_token:string):Promise<AdjustmentProposal> {
+    const assignments=preview.result.assignments.map(({employee_id,work_date,shift_id,department_id})=>({employee_id,work_date,shift_id,department_id}));
+    return(await request<{result:AdjustmentProposal}>('/preview/adjustment-proposal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({period_id:preview.period.id,input_revision:preview.input_revision,assignments,analysis_token,...(preview.edit_target?{schedule_id:preview.edit_target.id,expected_version:preview.edit_target.version}:{})})})).result;
+  },
+  async analyzeAdjustment(preview:SchedulePreview,wish:string):Promise<AdjustmentIntent> {
+    const assignments=preview.result.assignments.map(({employee_id,work_date,shift_id,department_id})=>({employee_id,work_date,shift_id,department_id}));
+    return(await request<{result:AdjustmentIntent}>('/preview/adjustment-intent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({period_id:preview.period.id,input_revision:preview.input_revision,assignments,wish,...(preview.edit_target?{schedule_id:preview.edit_target.id,expected_version:preview.edit_target.version}:{})})})).result;
+  },
+  async evaluatePreviewAI(preview:SchedulePreview):Promise<PreviewAIReviewResponse> {
+    const assignments=preview.result.assignments.map(({employee_id,work_date,shift_id,department_id})=>({employee_id,work_date,shift_id,department_id}));
+    return(await request<{result:PreviewAIReviewResponse}>('/preview/ai-evaluation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({period_id:preview.period.id,input_revision:preview.input_revision,assignments,...(preview.edit_target?{schedule_id:preview.edit_target.id,expected_version:preview.edit_target.version}:{})})})).result;
+  },
   async preview(period_id:string,edit?:{input_revision?:string;assignments?:ScheduleAssignment[];schedule_id?:string;expected_version?:number;use_saved_assignments?:true}):Promise<SchedulePreview> {
     return(await request<{result:SchedulePreview}>('/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({period_id,...edit})})).result;
   },
@@ -56,6 +76,9 @@ export const schedulingService = {
   },
   async prepareHandoff(id:string,expected_version:number,note:string):Promise<ApprovalHandoff>{
     return(await request<{result:ApprovalHandoff}>(`/${encodeURIComponent(id)}/approval-handoff`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({expected_version,note})})).result;
+  },
+  async submitApproval(id:string,expected_version:number,note:string,request_id:string):Promise<{schedule:SavedSchedule['schedule'];reused:boolean}>{
+    return request(`/workflow/${encodeURIComponent(id)}/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({expected_version,note,request_id})});
   },
   async demand(periodId: string): Promise<DemandContext> {
     return (await request<{result:DemandContext}>(`/periods/${encodeURIComponent(periodId)}/requirements`)).result;

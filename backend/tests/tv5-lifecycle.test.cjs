@@ -1,0 +1,80 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+test('TV5 disposable PostgreSQL: ownership, consent, competing approvals, rollback, rejection and live employee view',{skip:process.env.REGISTRATION_USE_NATIVE!=='true'?'Requires isolated native PostgreSQL':false},async()=>{
+ const h=await require('./helpers/registration-harness.cjs').createHarness();
+ try{
+  for(const name of ['20261031_tv3_schedule_draft.sql','20261101_tv3_rule_contract_v2.sql','20261103_employee_schedule_read.sql','20261104_tv5_shift_replacement.sql'])await h.sql.exec(fs.readFileSync(path.join(__dirname,'../migrations',name),'utf8'));
+  const q=(s,p=[])=>h.sql.query(s,p),branch=h.id(1),dept=h.id(2),nv=h.id(3),employee=h.id(4),shift=h.id(5),period=h.id(8),gs=h.id(90),ql=h.id(91),schedule=h.id(100);
+  await q('INSERT INTO auth.users VALUES($1),($2)',[gs,ql]);await q("INSERT INTO users(id,username,role,branch_id) VALUES($1,'gs','GS',NULL),($2,'ql','QL',$3)",[gs,ql,branch]);await q('UPDATE branches SET supervisor_id=$1 WHERE id=$2',[gs,branch]);await q("UPDATE registration_periods SET open_at=now()-interval '3 days',close_at=now()-interval '1 day'");
+  const day=(await q('SELECT work_start_date::text d FROM registration_periods')).rows[0].d;
+  const candidates=[];
+  for(let n=0;n<2;n++){const user=h.id(120+n*2),id=h.id(121+n*2);candidates.push({user,id});await q('INSERT INTO auth.users VALUES($1)',[user]);await q("INSERT INTO users(id,username,role,branch_id) VALUES($1,$2,'NV',$3)",[user,'candidate'+n,branch]);await q("INSERT INTO employees(id,user_id,full_name,branch_id,department_id,skill_level) VALUES($1,$2,$3,$4,$5,'REGULAR')",[id,user,'Candidate '+n,branch,dept]);}
+  for(const id of [employee,...candidates.map(c=>c.id)]){await q("INSERT INTO registration_submissions(period_id,employee_id,status,submitted_at) VALUES($1,$2,'VALID',now())",[period,id]);await q("INSERT INTO shift_registrations(period_id,employee_id,work_date,shift_id,status,submitted_at) VALUES($1,$2,$3,$4,'VALID',now())",[period,id,day,shift]);}
+  await q('INSERT INTO staffing_requirements(branch_id,department_id,shift_id,work_date,required_count,created_by) VALUES($1,$2,$3,$4,1,$5)',[branch,dept,shift,day,ql]);
+  await q("INSERT INTO schedules(id,branch_id,period_id,version,status,created_by) VALUES($1,$2,$3,1,'PENDING_APPROVAL',$4)",[schedule,branch,period,ql]);await q("INSERT INTO schedule_approvals(schedule_id,supervisor_id,decision) VALUES($1,$2,'APPROVED')",[schedule,gs]);await q("UPDATE schedules SET status='APPROVED' WHERE id=$1",[schedule]);await q("UPDATE schedules SET status='PUBLISHED',published_at=now(),feedback_deadline_at=now()+interval '30 minutes' WHERE id=$1",[schedule]);
+  const assignment=(await q("INSERT INTO shift_assignments(schedule_id,employee_id,work_date,shift_id,department_id,actual_branch_id,status) VALUES($1,$2,$3,$4,$5,$6,'ACTIVE') RETURNING id",[schedule,employee,day,shift,dept,branch])).rows[0].id;
+  let sequence=300;const mutate=async(actor,action,data,id=h.id(++sequence))=>(await q('SELECT tv5_mutate($1,$2,$3,$4::jsonb) r',[actor,action,id,JSON.stringify(data)])).rows[0].r;
+  const list=async(actor)=>(await q('SELECT tv5_read($1) r',[actor])).rows[0].r;
+  const people=async()=>(await q('SELECT tv5_candidates_for_actor($1,$2) r',[ql,assignment])).rows[0].r;
+  assert.equal((await people()).length,2);
+  await q('UPDATE employees SET max_weekly_hours=3 WHERE id=$1',[candidates[0].id]);assert.equal((await people()).some(e=>e.id===candidates[0].id),false);await q('UPDATE employees SET max_weekly_hours=NULL WHERE id=$1',[candidates[0].id]);
+  await q("UPDATE staffing_requirements SET required_skill_name='cook'");assert.equal((await people()).length,0);await q('UPDATE staffing_requirements SET required_skill_name=NULL');
+  await q("UPDATE shifts SET start_time='09:00',end_time='13:00' WHERE id=$1",[h.id(6)]);
+  const overlap=(await q("INSERT INTO shift_assignments(schedule_id,employee_id,work_date,shift_id,department_id,actual_branch_id,status) VALUES($1,$2,$3,$4,$5,$6,'ACTIVE') RETURNING id",[schedule,candidates[0].id,day,h.id(6),dept,branch])).rows[0].id;
+  assert.equal((await people()).some(e=>e.id===candidates[0].id),false);await q('DELETE FROM shift_assignments WHERE id=$1',[overlap]);
+  await assert.rejects(mutate(candidates[0].user,'CREATE_REQUEST',{assignment_id:assignment,reason:'forged'}),e=>e.code==='42501');
+  const body={assignment_id:assignment,reason:'Need replacement',proposed_employee_id:candidates[0].id},key=h.id(++sequence);
+  const request=await mutate(nv,'CREATE_REQUEST',body,key);assert.equal((await mutate(nv,'CREATE_REQUEST',body,key)).id,request.id);
+  await assert.rejects(mutate(nv,'CREATE_REQUEST',body),/DUPLICATE_OPEN_REQUEST/);
+  const source={kind:'REQUEST',source_id:request.id};
+  // Attribute drift must be detected even while the original row is ACTIVE.
+  await q('UPDATE shift_assignments SET work_date=work_date+1 WHERE id=$1',[assignment]);
+  await assert.rejects(mutate(ql,'INVITE',{...source,target_employee_id:candidates[0].id,expires_at:new Date(Date.now()+3600000).toISOString()}),/ASSIGNMENT_STALE/);
+  await q('UPDATE shift_assignments SET work_date=$1 WHERE id=$2',[day,assignment]);
+  assert.equal((await q('SELECT status FROM shift_assignments WHERE id=$1',[assignment])).rows[0].status,'ACTIVE');
+  const invites=[],inviteBodies=[],inviteKeys=[];for(const person of candidates){const data={...source,target_employee_id:person.id,expires_at:new Date(Date.now()+3600000).toISOString()},key=h.id(++sequence);inviteBodies.push(data);inviteKeys.push(key);invites.push(await mutate(ql,'INVITE',data,key));}
+  const outside=h.id(2100);await q("INSERT INTO branches(id,name) VALUES($1,'Outside scope')",[outside]);await q('UPDATE users SET branch_id=$1 WHERE id=$2',[outside,ql]);
+  await assert.rejects(mutate(ql,'INVITE',inviteBodies[0],inviteKeys[0]),e=>e.code==='42501');await q('UPDATE users SET branch_id=$1 WHERE id=$2',[branch,ql]);
+  await assert.rejects(mutate(candidates[1].user,'ACCEPT',{invitation_id:invites[0].id}),e=>e.code==='42501');
+  await assert.rejects(mutate(ql,'APPROVE',{...source,invitation_id:invites[0].id}),/CONFIRMATION_REQUIRED/);
+  for(let i=0;i<2;i++)await mutate(candidates[i].user,'ACCEPT',{invitation_id:invites[i].id});
+  assert.equal((await list(nv)).invitations.length,0,'requester cannot inspect other employee inbox');
+  // Source data can change after consent; eligibility must be checked again.
+  await q("UPDATE shift_registrations SET status='INVALID' WHERE employee_id=$1",[candidates[0].id]);
+  await assert.rejects(mutate(ql,'APPROVE',{...source,invitation_id:invites[0].id}),/INELIGIBLE_REPLACEMENT/);await q("UPDATE shift_registrations SET status='VALID' WHERE employee_id=$1",[candidates[0].id]);
+  await h.sql.exec("CREATE FUNCTION fail_tv5_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.entity_type='tv5_operations' AND NEW.action='APPROVE' THEN RAISE EXCEPTION 'rollback tv5'; END IF; RETURN NEW; END $$; CREATE TRIGGER fail_tv5_audit BEFORE INSERT ON audit_logs FOR EACH ROW EXECUTE FUNCTION fail_tv5_audit();");
+  await assert.rejects(mutate(ql,'APPROVE',{...source,invitation_id:invites[0].id}),/rollback tv5/);
+  assert.equal((await q('SELECT status FROM shift_assignments WHERE id=$1',[assignment])).rows[0].status,'ACTIVE');assert.equal((await q('SELECT count(*)::int n FROM shift_assignments')).rows[0].n,1);
+  await h.sql.exec('DROP TRIGGER fail_tv5_audit ON audit_logs');
+  const clients=await Promise.all([h.connect(),h.connect()]);
+  const competing=await Promise.allSettled(clients.map((client,i)=>client.query('SELECT tv5_mutate($1,$2,$3,$4::jsonb) r',[ql,'APPROVE',h.id(++sequence),JSON.stringify({...source,invitation_id:invites[i].id})])));
+  assert.equal(competing.filter(x=>x.status==='fulfilled').length,1);for(const client of clients)await client.end();
+  assert.equal((await q("SELECT count(*)::int n FROM shift_assignments WHERE status='ACTIVE'")).rows[0].n,1);
+  assert.equal((await q('SELECT status FROM shift_assignments WHERE id=$1',[assignment])).rows[0].status,'REPLACED');
+  const final=(await q("SELECT * FROM shift_assignments WHERE status='ACTIVE'")).rows[0];assert.equal(final.replaces_assignment_id,assignment);
+  assert.equal((await q('SELECT employee_schedule_week($1,$2) r',[nv,day])).rows[0].r.assignments.length,0);
+  const receiver=candidates.find(c=>c.id===final.employee_id);assert.equal((await q('SELECT employee_schedule_week($1,$2) r',[receiver.user,day])).rows[0].r.assignments.length,1);
+  const saved=await require('../dist/services/scheduling.service.js').readDraft(schedule,branch);assert.equal(saved.generation_snapshot.coverage[0].assigned_count,1);assert.equal(saved.generation_snapshot.employee_statistics.find(e=>e.employee_id===employee).shift_count,0);assert.equal(saved.generation_snapshot.employee_statistics.find(e=>e.employee_id===receiver.id).total_weekly_hours,4);
+  await assert.rejects(mutate(nv,'REPORT',{assignment_id:assignment,reason:'stale'}),/ASSIGNMENT_STALE/);
+  const incident=await mutate(receiver.user,'REPORT',{assignment_id:final.id,reason:'Unable to work'});
+  await mutate(ql,'REJECT',{kind:'INCIDENT',source_id:incident.id,reason:'Keep original allocation'});assert.equal((await list(receiver.user)).sources.find(s=>s.id===incident.id).status,'UNRESOLVED');
+  const retryRequest=await mutate(receiver.user,'CREATE_REQUEST',{assignment_id:final.id,reason:'Try again'}),secondSource={kind:'REQUEST',source_id:retryRequest.id};
+  const declined=await mutate(ql,'INVITE',{...secondSource,target_employee_id:employee,expires_at:new Date(Date.now()+3600000).toISOString()});
+  assert.equal((await mutate(nv,'DECLINE',{invitation_id:declined.id})).status,'DECLINED');
+  const expired=await mutate(ql,'INVITE',{...secondSource,target_employee_id:employee,expires_at:new Date(Date.now()+3600000).toISOString()});
+  await q("UPDATE replacement_invitations SET sent_at=now()-interval '2 minutes',expires_at=now()-interval '1 minute' WHERE id=$1",[expired.id]);
+  assert.equal((await mutate(nv,'ACCEPT',{invitation_id:expired.id})).status,'EXPIRED');
+  await assert.rejects(mutate(ql,'APPROVE',{...secondSource,invitation_id:expired.id}),/CONFIRMATION_REQUIRED/);
+  const pendingExpired=await mutate(ql,'INVITE',{...secondSource,target_employee_id:employee,expires_at:new Date(Date.now()+3600000).toISOString()});
+  await q("UPDATE replacement_invitations SET sent_at=now()-interval '2 minutes',expires_at=now()-interval '1 minute' WHERE id=$1",[pendingExpired.id]);
+  await mutate(ql,'EXPIRE',secondSource);assert.equal((await q('SELECT count(*)::int n FROM notifications')).rows[0].n,1);
+  await mutate(ql,'REJECT',{...secondSource,reason:'No available confirmed replacement'});assert.equal((await list(receiver.user)).sources.find(s=>s.id===retryRequest.id).status,'REJECTED');
+  await q('UPDATE schedules SET feedback_deadline_at=now() WHERE id=$1',[schedule]);
+  await assert.rejects(mutate(receiver.user,'CREATE_REQUEST',{assignment_id:final.id,reason:'Late'}),/FEEDBACK_CLOSED/);
+  const report=await mutate(receiver.user,'REPORT',{assignment_id:final.id,reason:'Return to original employee'}),returnSource={kind:'INCIDENT',source_id:report.id};
+  const returnInvite=await mutate(ql,'INVITE',{...returnSource,target_employee_id:employee,expires_at:new Date(Date.now()+3600000).toISOString()});
+  await mutate(nv,'ACCEPT',{invitation_id:returnInvite.id});const returned=await mutate(ql,'APPROVE',{...returnSource,invitation_id:returnInvite.id});
+  assert.equal(returned.new_assignment.employee_id,employee);assert.notEqual(returned.new_assignment.id,assignment);assert.equal(returned.new_assignment.replaces_assignment_id,final.id);
+  assert.equal((await q('SELECT employee_schedule_week($1,$2) r',[nv,day])).rows[0].r.assignments.length,1);
+  for(const role of ['anon','authenticated'])assert.equal((await q("SELECT has_function_privilege($1,'tv5_mutate(uuid,text,uuid,jsonb)','EXECUTE') v",[role])).rows[0].v,false);
+ }finally{await h.close();}
+});

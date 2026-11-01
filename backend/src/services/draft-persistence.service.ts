@@ -1,3 +1,4 @@
+import { SCHEDULING_RULE_VERSION } from './scheduling-contract.js';
 import { createHash } from 'node:crypto';
 import { supabaseAdmin } from '../config/supabase.js';
 import { registrationSummaryRepository, requireRealSchedulingData } from '../repositories/registration-summary.repository.js';
@@ -10,14 +11,26 @@ import { generateSchedule, reviewAssignments, ScheduleError, type Assignment, ty
 // Compare rule inputs, not UI labels/DB timestamps or query ordering. SQL repeats
 // this check against its own snapshot under write-conflicting transaction locks.
 export function canonicalInput(input:SchedulingInput):string {
+  // Normalize offsets without dropping PostgreSQL's microsecond revision precision.
+  const instant=(value:string)=>{
+    const raw=String(value),fraction=/\.(\d+)/.exec(raw)?.[1]??'';
+    return `${new Date(value).toISOString().slice(0,19)}.${fraction.padEnd(6,'0')}Z`;
+  };
   const project=(rows:unknown[],keys:string[])=>rows.map(row=>Object.fromEntries(keys.map(k=>[k,(row as Record<string,unknown>)[k]??null])))
     .sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)));
-  return JSON.stringify({period:Object.fromEntries(['id','branch_id','work_start_date','work_end_date','status'].map(k=>[k,(input.period as unknown as Record<string,unknown>)[k]])),
-    employees:project(input.employees.map(e=>({...e,skills:[...e.skills].sort()})),['id','department_id','skill_level','status','is_active','role','max_weekly_hours','skills']),
+  return JSON.stringify({rule_version:input.rule_version??SCHEDULING_RULE_VERSION,holiday_dates:[...new Set(input.holiday_dates??[])].sort(),registration_provenance:project((input.registration_provenance??[]).map(p=>({...p,submitted_at:instant(p.submitted_at),updated_at:instant(p.updated_at)})),['employee_id','batch_id','submitted_at','updated_at']),period:Object.fromEntries(['id','branch_id','work_start_date','work_end_date','status'].map(k=>[k,(input.period as unknown as Record<string,unknown>)[k]])),
+    employees:project(input.employees.map(e=>({...e,max_weekly_hours:e.max_weekly_hours===null?null:Number(e.max_weekly_hours),skills:[...e.skills].sort()})),['id','employee_code','department_id','skill_level','status','is_active','role','max_weekly_hours','skills']),
     shifts:project(input.shifts,['id','start_time','end_time','is_active','branch_id']),
     registrations:project(input.registrations,['employee_id','work_date','shift_id','status']),
     requirements:project(input.requirements,['id','department_id','work_date','shift_id','required_count','required_skill_name']),
     existing:project(input.existing,['employee_id','work_date','shift_id','department_id']),new_employee_count_threshold:input.new_employee_count_threshold});
+}
+// Never accept reasons, optimizer scores or histories from the browser.
+export function serverVerifiedPlan(input:SchedulingInput,assignments:Assignment[]) {
+  const checked=reviewAssignments(input,assignments),generated=generateSchedule(input);
+  const keys=(rows:Assignment[])=>rows.map(a=>JSON.stringify([a.employee_id,a.work_date,a.shift_id,a.department_id])).sort();
+  if(JSON.stringify(keys(assignments))===JSON.stringify(keys(generated.assignments)))return {...generated,plan_origin:'ENGINE_GENERATED' as const};
+  return {...checked,plan_origin:'MANAGER_REVIEWED' as const,optimization:null,assignments:checked.assignments.map(a=>({...a,selection_history:{initial:{employee_id:a.employee_id,reason:a.reason},replacements:[]}}))};
 }
 export async function persistPreview(periodId:string,branchId:string,actorId:string,body:Record<string,unknown>,scheduleId?:string) {
   requireDraftPersistenceEnabled();
@@ -42,9 +55,10 @@ export async function persistPreview(periodId:string,branchId:string,actorId:str
   const sourceInput=schedulingInput(snapshot);generateSchedule(sourceInput);reviewAssignments(sourceInput,body.assignments as Assignment[]);
   const args={p_period_id:periodId,p_actor_id:actorId,p_schedule_id:scheduleId??null,p_expected_version:body.expected_version??null};
   const loaded=await supabaseAdmin.rpc('persist_schedule_draft',args);if(loaded.error)databaseError(loaded.error);
+  if(loaded.data?.input?.rule_version!==SCHEDULING_RULE_VERSION)throw new ScheduleError(503,'PERSISTENCE_CONTRACT_MISMATCH','Chưa đồng bộ phiên bản lưu DRAFT. Cần cập nhật database theo migration đã duyệt.');
   if(!loaded.data?.input||canonicalInput(sourceInput)!==canonicalInput(loaded.data.input))throw new ScheduleError(409,'INPUT_CHANGED','Dữ liệu nguồn đã thay đổi hoặc chưa đồng nhất. Hãy tải lại tuần.');
   generateSchedule(loaded.data.input);
-  const result=reviewAssignments(loaded.data.input,body.assignments as Assignment[]);
+  const result=serverVerifiedPlan(loaded.data.input,body.assignments as Assignment[]);
   requireDraftPersistenceEnabled();
   const saved=await supabaseAdmin.rpc('persist_schedule_draft',{...args,p_snapshot:loaded.data.input,p_result:result,p_request_id:body.request_id,p_fingerprint:fingerprint});
   if(saved.error)databaseError(saved.error);

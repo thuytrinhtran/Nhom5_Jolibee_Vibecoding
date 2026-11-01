@@ -15,7 +15,7 @@ const scheduleId = '00000000-0000-4000-8000-000000000004';
 const assignmentId = '00000000-0000-4000-8000-000000000005';
 const shiftId = '00000000-0000-4000-8000-000000000006';
 
-test('TV4 resubmit validates request and scope, then returns not configured without writes', async () => {
+test('TV4 resubmit validates request and scope, then retires shift-only resubmit in favor of the validated DRAFT editor', async () => {
   const original = { getUser: db.auth.getUser, from: db.from, rpc: db.rpc };
   let role = 'QL';
   let actorBranchId = branchId;
@@ -97,8 +97,8 @@ test('TV4 resubmit validates request and scope, then returns not configured with
 
     scheduleBranchId = branchId;
     const configured = await post(validBody);
-    assert.equal(configured.status, 501);
-    assert.equal((await configured.json()).code, 'RESUBMIT_NOT_CONFIGURED');
+    assert.equal(configured.status, 410);
+    assert.equal((await configured.json()).code, 'RESUBMIT_USE_DRAFT_EDITOR');
     assert.ok(queries.some(query => query.table === 'schedules'
       && query.filters.some(([column, value]) => column === 'id' && value === scheduleId)));
     assert.ok(queries.some(query => query.table === 'users'

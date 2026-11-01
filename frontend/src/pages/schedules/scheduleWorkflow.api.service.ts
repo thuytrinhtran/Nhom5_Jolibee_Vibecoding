@@ -133,10 +133,13 @@ function normalizeSchedule(row: ApiRow): ScheduleWorkflowRecord {
     approvals: (Array.isArray(row.approvals) ? row.approvals : []).map(normalizeApproval),
     resubmission_note: row.resubmission_note ?? null,
     is_latest: row.is_latest,
+    workflow_enabled:row.workflow_enabled===true,
   };
 }
 
 export function createScheduleWorkflowApiService(dependencies: ApiDependencies = {}): ScheduleWorkflowService {
+  const attempts=new Map<string,string>();
+  const requestKey=(body:unknown)=>{const key=JSON.stringify(body);if(!attempts.has(key))attempts.set(key,globalThis.crypto.randomUUID());return attempts.get(key)!;};
   const fetcher = dependencies.fetcher || fetch;
   const getToken = dependencies.getToken || (() => authService.getStoredToken());
   const refreshSession = dependencies.refreshSession || (() => authService.getMe());
@@ -181,6 +184,7 @@ export function createScheduleWorkflowApiService(dependencies: ApiDependencies =
 
   return {
     mode: 'api',
+    async reviewSchedule(id){return request(`/${encodeURIComponent(id)}/review`);},
     async listSchedules(actor, view: ScheduleWorkflowView) {
       const isSupervisorView = view === 'pending' || view === 'history';
       requireRole(actor, isSupervisorView ? 'GS' : 'QL');
@@ -190,13 +194,13 @@ export function createScheduleWorkflowApiService(dependencies: ApiDependencies =
       const schedules: ScheduleWorkflowRecord[] = result.schedules.map(normalizeSchedule);
       return view === 'publicationHistory' ? schedules.filter(schedule => schedule.status === 'PUBLISHED') : schedules;
     },
-    async decideSchedule(actor, scheduleId, decision: ScheduleDecision, reason = '') {
+    async decideSchedule(actor, scheduleId, decision: ScheduleDecision, reason = '', expectedVersion?:number) {
       requireRole(actor, 'GS');
       if (decision === 'NEEDS_REVISION' && !reason.trim()) {
         throw apiError(400, 'Vui lòng nhập lý do từ chối.', 'REASON_REQUIRED');
       }
       const result = await request(`/${encodeURIComponent(scheduleId)}/decision`, {
-        method: 'POST', body: JSON.stringify({ decision, reason: reason.trim() || undefined }),
+        method: 'POST', body: JSON.stringify({ decision, reason: reason.trim() || undefined,expected_version:expectedVersion,request_id:requestKey([scheduleId,expectedVersion,decision,reason.trim()]) }),
       });
       if (!result?.schedule) throw apiError(502, 'Backend không trả kết quả quyết định lịch hợp lệ.');
       return result.schedule as ScheduleWorkflowRecord;
@@ -218,10 +222,10 @@ export function createScheduleWorkflowApiService(dependencies: ApiDependencies =
       }
       return schedule;
     },
-    async publishSchedule(actor, scheduleId, feedbackDeadlineAt) {
+    async publishSchedule(actor, scheduleId, feedbackDeadlineAt,expectedVersion?:number) {
       requireRole(actor, 'QL');
       const result = await request(`/${encodeURIComponent(scheduleId)}/publish`, {
-        method: 'POST', body: JSON.stringify({ feedback_deadline_at: feedbackDeadlineAt }),
+        method: 'POST', body: JSON.stringify({ feedback_deadline_at: feedbackDeadlineAt,expected_version:expectedVersion,request_id:requestKey([scheduleId,expectedVersion,feedbackDeadlineAt]) }),
       });
       if (!result?.schedule) throw apiError(502, 'Backend không trả kết quả công bố lịch hợp lệ.');
       return result.schedule as ScheduleWorkflowRecord;

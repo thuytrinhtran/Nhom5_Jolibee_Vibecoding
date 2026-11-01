@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { Loader2, Sparkles } from 'lucide-react';
 import { schedulingService } from '../../services/scheduling.service';
-import type { AIEvaluation, AIReviewResponse, SavedSchedule } from '../../types/scheduling';
+import type { AIEvaluation, AIReviewResponse, SavedSchedule, SchedulePreview, PreviewAIEvaluation, PreviewAIReviewResponse, PreviewAIConfiguration } from '../../types/scheduling';
 import './ScheduleAIPanel.css';
 
-export function AIReportView({evaluation,stale,employees=[]}:{evaluation:AIEvaluation;stale:boolean;employees?:{id:string;full_name:string}[]}) {
+export function AIReportView({evaluation,stale,employees=[]}:{evaluation:AIEvaluation|PreviewAIEvaluation;stale:boolean;employees?:{id:string;full_name:string}[]}) {
   const report=evaluation.report;
   const label=(code:string)=>evaluation.labels.find(l=>l.code===code)?.label||code;
   const employee=(code:string)=>{const alias=evaluation.employee_aliases.find(a=>a.code===code),name=employees.find(e=>e.id===alias?.employee_id)?.full_name;return name?`${code} · ${name}`:code;};
   return <div className={`ai-report ${stale?'ai-report-stale':''}`}>
-    <div className="schedule-heading"><strong>{({SUITABLE:'Phù hợp',NEEDS_ADJUSTMENT:'Cần điều chỉnh',INSUFFICIENT_DATA:'Chưa đủ dữ liệu'})[report.conclusion]}</strong><span className={`badge ${stale?'badge-yellow':'badge-slate'}`}>{stale?'Hết hiệu lực':'Tư vấn'} · Phiên bản {evaluation.version}</span></div>
+    <div className="schedule-heading"><strong>{({SUITABLE:'Phù hợp',NEEDS_ADJUSTMENT:'Cần điều chỉnh',INSUFFICIENT_DATA:'Chưa đủ dữ liệu'})[report.conclusion]}</strong><span className={`badge ${stale?'badge-yellow':'badge-slate'}`}>{stale?'Hết hiệu lực':'Tư vấn'} · {'scope' in evaluation?'Lịch dự kiến — chưa lưu':`Phiên bản ${evaluation.version}`}</span></div>
     {stale&&<p className="schedule-alert" role="status">Kết quả AI cũ đã hết hiệu lực. Không dùng để quyết định cho lịch hiện hành; hãy tải lại và đánh giá phiên bản mới.</p>}
     <div className="ai-report-columns">{[['Điểm tốt của lịch',report.good_points],['Những điểm chưa phù hợp',report.concerns],['Dữ liệu hoặc tiêu chí chưa thể đánh giá',report.limitations]].map(([title,values])=><section key={title as string}><h4>{title}</h4>{(values as string[]).length?<ul>{(values as string[]).map((v,i)=><li key={i}>{v}</li>)}</ul>:<p>AI không nêu nội dung.</p>}</section>)}</div>
     <section><h4>Gợi ý điều chỉnh và lý do</h4>{!report.suggestions.length&&<p>AI không đề xuất thay đổi.</p>}{report.suggestions.map((s,i)=><article className="ai-proposal" key={i}><strong>{s.description}</strong><p>{s.reason}</p><p className={s.rule_check.status==='REJECTED'?'ai-rule-rejected':'schedule-muted'}>{s.rule_check.status==='REJECTED'?'Rule Engine từ chối: ':s.rule_check.status==='PASS'?'Rule Engine: ':''}{s.rule_check.message}{s.rule_check.code?` (${s.rule_check.code})`:''}</p>
@@ -19,7 +19,53 @@ export function AIReportView({evaluation,stale,employees=[]}:{evaluation:AIEvalu
   </div>;
 }
 
-export function ScheduleAIPanel({saved,employees=[]}:{saved:SavedSchedule;employees?:{id:string;full_name:string}[]}) {
+type PanelProps=({saved:SavedSchedule;preview?:never}|{preview:SchedulePreview;saved?:never;previewDirty?:boolean})&{employees?:{id:string;full_name:string}[]};
+export function PreviewScheduleAIPanel({preview,dirty=false,employees=[]}:{preview:SchedulePreview;dirty?:boolean;employees?:{id:string;full_name:string}[]}) {
+  const [configuration,setConfiguration]=useState<PreviewAIConfiguration|null>(null);
+  const [last,setLast]=useState<{key:string;evaluation:PreviewAIEvaluation}|null>(null);
+  const [current,setCurrent]=useState<PreviewAIReviewResponse|null>(null);
+  const [loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState('');
+  const sequence=useRef(0),submitting=useRef(false);
+  const key=JSON.stringify({period:preview.period.id,revision:preview.input_revision,target:preview.edit_target??null,
+    assignments:preview.result.assignments.map(({employee_id,work_date,shift_id,department_id})=>({employee_id,work_date,shift_id,department_id}))});
+  useEffect(()=>{
+    let active=true;const request=++sequence.current;submitting.current=false;setBusy(false);setCurrent(null);setError('');setConfiguration(null);setLoading(true);
+    void schedulingService.previewAIConfiguration().then(value=>{if(active&&sequence.current===request)setConfiguration(value);})
+      .catch(err=>{if(active&&sequence.current===request)setError(err instanceof Error?err.message:'Không thể kiểm tra cấu hình AI.');})
+      .finally(()=>{if(active&&sequence.current===request)setLoading(false);});
+    return()=>{active=false;sequence.current++;};
+  },[key,dirty]);
+  const evaluate=async()=>{
+    if(dirty||loading||busy||submitting.current||!configuration?.configured)return;
+    submitting.current=true;setBusy(true);setError('');setCurrent(null);const request=++sequence.current;
+    try{
+      const result=await schedulingService.evaluatePreviewAI(preview);
+      if(request!==sequence.current)return;
+      if(result.scope!=='preview'||result.persisted!==false||result.input_revision!==preview.input_revision||(result.status==='AVAILABLE'&&(!result.evaluation||result.evaluation.scope!=='preview'||result.evaluation.input_revision!==result.plan_revision)))throw new Error('Phản hồi đánh giá không khớp phương án đang xem.');
+      setCurrent(result);
+      if(result.status==='AVAILABLE'&&result.evaluation)setLast({key,evaluation:result.evaluation});
+      if(!result.configured)setConfiguration({configured:false,model:result.model,message:result.message});
+    }catch(err){if(request===sequence.current)setError(err instanceof Error?err.message:'Không thể đánh giá preview. Phương án không thay đổi.');}
+    finally{if(request===sequence.current){submitting.current=false;setBusy(false);}}
+  };
+  const stale=!!last&&(dirty||last.key!==key||current?.status!=='AVAILABLE'||current.evaluation?.input_revision!==last.evaluation.input_revision);
+  return <section className="card summary-panel schedule-ai" aria-labelledby="preview-ai-heading" aria-busy={busy||loading}>
+    <div className="schedule-heading"><h3 id="preview-ai-heading">AI đánh giá lịch dự kiến</h3><button type="button" className="btn btn-outline" disabled={dirty||loading||busy||!configuration?.configured} onClick={()=>void evaluate()}>{busy?<Loader2 className="spin" size={16} aria-hidden="true"/>:<Sparkles size={16} aria-hidden="true"/>}{busy?'AI đang đánh giá…':'Đánh giá bằng AI'}</button></div>
+    <p className="schedule-muted">AI chỉ tư vấn về phương án chưa lưu. Báo cáo không lưu vào database và không tự thay đổi phân công.</p>
+    {loading&&<p role="status">Đang kiểm tra cấu hình AI…</p>}
+    {dirty&&<p role="status">Cần kiểm tra lại phương án trước khi đánh giá AI. Báo cáo cũ đã hết hiệu lực.</p>}
+    {configuration&&!current&&<p role="status">{configuration.message}</p>}
+    {busy&&<p role="status">Đang đánh giá coverage, giờ làm và phân bổ nhân sự. Phương án vẫn giữ nguyên.</p>}
+    {current&&<p role="status">{current.message}</p>}
+    {error&&<p className="schedule-alert schedule-alert-error" role="alert">{error}</p>}
+    {last&&<AIReportView evaluation={last.evaluation} stale={stale} employees={employees}/>}
+  </section>;
+}
+export function ScheduleAIPanel(props:PanelProps) {
+  return props.preview?<PreviewScheduleAIPanel preview={props.preview} dirty={props.previewDirty} employees={props.employees}/>:<SavedScheduleAIPanel saved={props.saved} employees={props.employees}/>;
+}
+
+export function SavedScheduleAIPanel({saved,employees=[]}:{saved:SavedSchedule;employees?:{id:string;full_name:string}[]}) {
   const [current,setCurrent]=useState<AIReviewResponse|null>(null),[last,setLast]=useState<AIEvaluation|null>(null);
   const [loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState('');
   const sequence=useRef(0),submitting=useRef(false);

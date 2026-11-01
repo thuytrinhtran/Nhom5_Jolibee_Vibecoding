@@ -12,6 +12,7 @@ export interface SchedulingAIAdvisor {
   readonly configured:boolean;
   readonly model:string|null;
   evaluate(summary:AISummary):Promise<unknown>;
+  analyzeAdjustment?(payload:unknown,schema:unknown):Promise<unknown>;
 }
 // No provider, credentials, network calls, confidence scores or database write access.
 export class UnconfiguredSchedulingAIAdvisor implements SchedulingAIAdvisor {

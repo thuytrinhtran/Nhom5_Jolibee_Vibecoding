@@ -9,6 +9,9 @@ import schedulingRoutes from './routes/scheduling.routes.js';
 import { registrationRoutes } from './routes/registration.routes.js';
 import { automationRoutes } from './routes/registration-automation.routes.js';
 import scheduleWorkflowRoutes from './routes/schedule-workflow.routes.js';
+import { employeeScheduleRoutes } from './routes/employee-schedule.routes.js';
+import { shiftChangeRoutes } from './routes/shift-change.routes.js';
+import { testPreviewWriteGuard } from './services/test-preview-policy.js';
 
 dotenv.config();
 
@@ -31,7 +34,10 @@ app.use('/api/employee-competencies', employeeCompetencyRoutes);
 app.use('/api/registrations', registrationRoutes);
 app.use('/api/registration-reports', registrationReports);
 app.use('/api/internal/registration-automation', automationRoutes);
+app.use('/api/schedules', testPreviewWriteGuard);
 app.use('/api/schedules/workflow', scheduleWorkflowRoutes);
+app.use('/api/employee-schedule', employeeScheduleRoutes);
+app.use('/api/shift-changes', shiftChangeRoutes);
 // Match TV4 before TV3's broad /:id routes and QL-only router middleware.
 app.use('/api/schedules', schedulingRoutes);
 

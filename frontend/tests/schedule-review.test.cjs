@@ -3,12 +3,12 @@ function load(file,overrides={},globals={}){const source=fs.readFileSync(file,'u
 const validation={schedule_id:'saved',version:2,scope:'DECLARED_REQUIREMENTS_AND_VALID_REGISTRATIONS',hard_constraints:'PASS',data_complete:true,coverage_complete:false,input_current:true,can_submit:false,issues:[{code:'STAFFING_SHORTAGE',message:'Lịch còn thiếu 1 lượt phân công.'}],warnings:[],coverage:[],checked_at:'2026-10-29T00:00:00Z',input_revision:'revision'};
 const handoff={validation,payload:null,current_status:'DRAFT',target_status:'PENDING_APPROVAL',delivery:{configured:false,sent:false,message:'Chưa kết nối API tiếp nhận TV4. Lịch chưa được gửi.'}};
 const saved={schedule:{id:'saved',version:2,status:'DRAFT'},assignments:[],generation_snapshot:null};
-function component(react=React,service={}){return load('src/pages/manager/ScheduleReviewPanel.tsx',{react,'../../services/scheduling.service':{schedulingService:service}});}
+function component(react=React,service={},globals={}){return load('src/pages/manager/ScheduleReviewPanel.tsx',{react,'../../services/scheduling.service':{schedulingService:service}},globals);}
 test('panel offers TV3 validation/preparation, disables sending and never claims approval',()=>{
  const states=[validation,handoff,'',false,''];let index=0;
  const hooks={...React,useState:()=>[states[index++],()=>{}],useRef:()=>({current:false}),useEffect:()=>{}};
  const {ScheduleReviewPanel}=component(hooks);const html=renderToStaticMarkup(React.createElement(ScheduleReviewPanel,{saved}));
- for(const text of ['Kiểm tra lịch','Chuẩn bị dữ liệu gửi phê duyệt','Gửi Giám sát khu vực phê duyệt','PENDING_APPROVAL','DRAFT','Lịch còn thiếu 1','Chưa thể bàn giao','Chưa kết nối API tiếp nhận TV4'])assert.ok(html.includes(text),text);
+ for(const text of ['Kiểm tra lịch','Chuẩn bị dữ liệu gửi phê duyệt','Gửi Giám sát khu vực phê duyệt','DRAFT','Lịch còn thiếu 1','Chưa thể bàn giao','Chưa kết nối API tiếp nhận TV4'])assert.ok(html.includes(text),text);
  assert.match(html,/<button[^>]*disabled=""[^>]*>Gửi Giám sát khu vực phê duyệt<\/button>/);assert.ok(!html.includes('đã được gửi thành công'));
 });
 test('ready handoff preview is labelled unsent and respects target/current status',()=>{
@@ -32,4 +32,16 @@ test('preparation errors are displayed and no payload is fabricated',async()=>{
  const render=()=>{i=r=0;return ScheduleReviewPanel({saved})};
  const find=node=>{if(!React.isValidElement(node))return null;if(node.type==='button'&&React.Children.toArray(node.props.children).includes('Chuẩn bị dữ liệu gửi phê duyệt'))return node;for(const child of React.Children.toArray(node.props.children)){const found=find(child);if(found)return found;}return null;};
  find(render()).props.onClick();await new Promise(resolve=>setImmediate(resolve));const html=renderToStaticMarkup(render());assert.ok(html.includes('Phiên bản lịch đã đổi'));assert.ok(!html.includes('Xem dữ liệu bàn giao TV4 (chưa gửi)'));
+});
+
+test('send requires enabled validated DRAFT, explicit confirmation and preserves request ID on retry',async()=>{
+ const ready={...validation,coverage_complete:true,can_submit:true,issues:[]};
+ const states=[ready,{...handoff,validation:ready,delivery:{configured:true,sent:false,message:'Ready'}},'checked',false,''],refs=[];let i=0,r=0,confirm=false,calls=[],notified=0;
+ const hooks={...React,useState(initial){const n=i++;if(!(n in states))states[n]=initial;return[states[n],v=>states[n]=v]},useRef(initial){return refs[r++]||=( {current:initial})},useEffect:()=>{}};
+ const {ScheduleReviewPanel}=component(hooks,{submitApproval:async(...args)=>{calls.push(args);if(calls.length===1)throw Error('Retry');return{schedule:{status:'PENDING_APPROVAL'}}}},{window:{confirm:()=>confirm},crypto:require('node:crypto').webcrypto});
+ const render=()=>{i=r=0;return ScheduleReviewPanel({saved,onSubmitted:()=>notified++})};
+ const find=node=>{if(!React.isValidElement(node))return null;if(node.type==='button'&&React.Children.toArray(node.props.children).includes('Gửi Giám sát khu vực phê duyệt'))return node;for(const child of React.Children.toArray(node.props.children)){const found=find(child);if(found)return found;}return null;};
+ find(render()).props.onClick();await new Promise(setImmediate);assert.equal(calls.length,0);
+ confirm=true;find(render()).props.onClick();await new Promise(setImmediate);assert.equal(states[4],'Retry');assert.equal(notified,0);
+ find(render()).props.onClick();await new Promise(setImmediate);assert.equal(calls[0][3],calls[1][3]);assert.equal(calls[0][1],2);assert.equal(notified,1);assert.equal(find(render()).props.disabled,true);
 });

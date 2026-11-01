@@ -32,6 +32,7 @@ function loadApiService(authService = { getStoredToken: () => 'test-session', ge
     exports: loaded.exports,
     module: loaded,
     AbortSignal,
+    crypto:require('node:crypto').webcrypto,
     fetch: global.fetch,
     __TV4_TEST_ENV__: {},
     require: id => {
@@ -147,6 +148,18 @@ test('API list enforces the actor role before making a request', async () => {
   await assert.rejects(service.listSchedules(ql, 'pending'), error => error.status === 403);
   await assert.rejects(service.listSchedules(gs, 'manager'), error => error.status === 403);
   assert.equal(fetchCalls, 0);
+});
+
+test('decision and publication bind the selected version and reuse request ID after lost response',async()=>{
+ const api=loadApiService(),calls=[];let fail=true;
+ const service=api.createScheduleWorkflowApiService({getToken:()=> 'session',fetcher:async(url,options)=>{
+  calls.push({url,body:JSON.parse(options.body)});if(fail){fail=false;throw Error('lost response');}return response(200,{schedule:{id:'s',status:'APPROVED'}});
+ }});
+ await assert.rejects(service.decideSchedule(gs,'s','APPROVED','',3),e=>e.code==='NETWORK_ERROR');
+ await service.decideSchedule(gs,'s','APPROVED','',3);
+ assert.equal(calls[0].body.expected_version,3);assert.equal(calls[0].body.request_id,calls[1].body.request_id);assert.ok(calls[0].url.endsWith('/s/decision'));
+ await service.publishSchedule(ql,'s','2026-11-03T01:00:00Z',3);assert.equal(calls[2].body.expected_version,3);assert.ok(calls[2].url.endsWith('/s/publish'));
+ let count=calls.length;await assert.rejects(service.decideSchedule(gs,'s','NEEDS_REVISION',' ',3),e=>e.code==='REASON_REQUIRED');assert.equal(calls.length,count);
 });
 
 test('API mode UI shows exact loading, empty, error and retry states', async () => {

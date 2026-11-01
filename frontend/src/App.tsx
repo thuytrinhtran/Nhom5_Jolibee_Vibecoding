@@ -8,6 +8,8 @@ import { ChangePassword } from './pages/ChangePassword';
 import { Login } from './pages/Login';
 import { ShiftRegistration } from './pages/employee/ShiftRegistration';
 import { EmployeeDashboard } from './pages/employee/EmployeeDashboard';
+import { EmployeeSchedule } from './pages/employee/EmployeeSchedule';
+import { ShiftChanges } from './pages/employee/ShiftChanges';
 import { ManagerDashboard } from './pages/manager/ManagerDashboard';
 import { ManagerSchedule } from './pages/manager/ManagerSchedule';
 import { ManagerCalendar } from './pages/manager/ManagerCalendar';
@@ -97,6 +99,10 @@ export const App: React.FC = () => {
 
           <Route path="/manager/registrations" element={<ProtectedRoute allowedRoles={['QL']}><AppLayout><ManagerCalendar /></AppLayout></ProtectedRoute>} />
           <Route path="/employee/register" element={<ProtectedRoute allowedRoles={['NV']}><AppLayout><ShiftRegistration /></AppLayout></ProtectedRoute>} />
+          <Route path="/employee/schedule" element={<ProtectedRoute allowedRoles={['NV']}><AppLayout><EmployeeSchedule /></AppLayout></ProtectedRoute>} />
+          <Route path="/employee/shift-requests" element={<ProtectedRoute allowedRoles={['NV']}><AppLayout><ShiftChanges /></AppLayout></ProtectedRoute>} />
+          <Route path="/employee/incidents" element={<ProtectedRoute allowedRoles={['NV']}><AppLayout><ShiftChanges initialAction="REPORT" /></AppLayout></ProtectedRoute>} />
+          <Route path="/manager/shift-requests" element={<ProtectedRoute allowedRoles={['QL']}><AppLayout><ShiftChanges /></AppLayout></ProtectedRoute>} />
           <Route path="/employee/*" element={
             <ProtectedRoute allowedRoles={['NV']}>
               <AppLayout><PlaceholderPage /></AppLayout>

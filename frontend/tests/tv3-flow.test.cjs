@@ -1,5 +1,5 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const vm=require('node:vm');const ts=require('typescript');const React=require('react');const {renderToStaticMarkup}=require('react-dom/server');
-function load(file,overrides={},globals={}){const source=fs.readFileSync(file,'utf8').replace('import.meta.env',"{VITE_API_URL:'/api'}");const code=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022}}).outputText;const ctx={exports:{},Intl,Date,AbortSignal,Error,...globals,require(id){if(id in overrides)return overrides[id];if(id.endsWith('.css'))return{};return require(id)}};vm.runInNewContext(code,ctx);return ctx.exports;}
+function load(file,overrides={},globals={}){const source=fs.readFileSync(file,'utf8').replace('import.meta.env',"{VITE_API_URL:'/api'}");const code=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022}}).outputText;const ctx={exports:{},Intl,Date,AbortSignal,Error,...globals,require(id){if(id==='../../services/staffing-demand.guard')return{useUnsavedDemandGuard:()=>{}};if(id==='./ScheduleAdjustmentIntent')return{ScheduleAdjustmentIntent:()=>null};if(id in overrides)return overrides[id];if(id.endsWith('.css'))return{};return require(id)}};vm.runInNewContext(code,ctx);return ctx.exports;}
 const views=load('src/services/scheduling.view.ts');
 const period={id:'period',work_start_date:'2026-11-02',work_end_date:'2026-11-08',status:'CLOSED',branch_id:'branch',schedules:[]};
 const context={source:'mock',can_generate_mock:true,test_rules:{max_shifts_per_day:1},period,requirements:[{id:'need',work_date:'2026-11-02',shift_id:'pm',department_id:'service',required_count:2,required_skill_name:'Phục vụ'}],valid_registration_count:10,
@@ -13,8 +13,8 @@ test('flow mode enables create/regenerate, labels test data, shows employee shor
  const states=[[period],'period',context,saved,false,false,false,'','',0];let index=0;
  const hooks={...React,useState:()=>[states[index++],()=>{}],useEffect:()=>{},useRef:()=>({current:0})};const {ManagerSchedule}=page(hooks);
  const html=renderToStaticMarkup(React.createElement(ManagerSchedule));
- for(const text of ['Dữ liệu thử nghiệm','1 ca/ngày','NV08 Phúc','Thiếu 1','Tạo lại lịch dự kiến','AI đánh giá và đề xuất lịch làm việc','Mock draft editor'])assert.ok(html.includes(text),text);
- assert.ok(!/<button[^>]*disabled=""[^>]*>[^<]*Tạo lại lịch dự kiến/.test(html));
+ for(const text of ['Dữ liệu thử nghiệm','1 ca/ngày','NV08 Phúc','Thiếu 1','Tạo lịch dự kiến','AI đánh giá và đề xuất lịch làm việc','Mock draft editor'])assert.ok(html.includes(text),text);
+ assert.ok(!/<button[^>]*disabled=""[^>]*>[^<]*Tạo lịch dự kiến/.test(html));
 });
 test('client sends explicit regenerate revision and PATCH only plain assignment fields',async()=>{
  class ApiError extends Error{};const calls=[];

@@ -1,15 +1,26 @@
+import { SCHEDULING_RULE_VERSION } from './scheduling-contract.js';
 export interface Employee {
-  id: string; department_id: string; skill_level: string; status: string;
+  id: string; employee_code?: string; department_id: string; skill_level: string; status: string;
   is_active: boolean; role: string; max_weekly_hours: number | null; skills: string[];
 }
 export interface Shift { id: string; start_time: string; end_time: string; is_active: boolean; branch_id?: string | null }
 export interface Registration { employee_id: string; work_date: string; shift_id: string; status: string }
 export interface Requirement { id: string; department_id: string; work_date: string; shift_id: string; required_count: number; required_skill_name: string | null }
 export interface Assignment { employee_id: string; work_date: string; shift_id: string; department_id: string }
+export interface ExplainedAssignment extends Assignment {
+  requirement_id:string; reason:string; fixed?:boolean;
+  selection_history?:{
+    initial:{employee_id:string;reason:string};
+    replacements:{iteration:number;from_employee_id:string;to_employee_id:string;from_hours_before:number;to_hours_before:number;shift_hours:number;objective_before:number;objective_after:number}[];
+  };
+}
 export interface SchedulingInput {
+  rule_version?:string;
+  registration_provenance?:{employee_id:string;batch_id:string|null;submitted_at:string;updated_at:string}[];
   period: { id: string; branch_id: string; work_start_date: string; work_end_date: string; status: string };
   employees: Employee[]; shifts: Shift[]; registrations: Registration[];
   requirements: Requirement[]; existing: Assignment[]; new_employee_count_threshold: number | null;
+  holiday_dates?: string[]; // Explicit business calendar only; never infer holidays.
   test_rules?: { max_shifts_per_day: number };
 }
 export class ScheduleError extends Error {
@@ -56,10 +67,29 @@ export function assignmentIssue(input:SchedulingInput,employee:Employee,need:Req
   return null;
 }
 
-export function generateSchedule(input: SchedulingInput) {
+const experienced = (e: Employee) => e.skill_level === 'REGULAR' || e.skill_level === 'CREW_TRAINING';
+const sameCell = (a: Assignment, r: Requirement) => a.work_date === r.work_date && a.shift_id === r.shift_id && a.department_id === r.department_id;
+const assignmentKey = (a: Assignment) => JSON.stringify([a.employee_id,a.work_date,a.shift_id,a.department_id]);
+const uniqueAssignments = (rows: Assignment[]) => [...new Map(rows.map(a=>[assignmentKey(a),a])).values()]
+  .sort((a,b)=>order(assignmentKey(a),assignmentKey(b)));
+// Existing bookings remain blockers, including adjacent dates, but only valid bookings
+// in this period and a declared demand cell contribute to coverage. Duplicate rows count once.
+export function existingCoverage(input: SchedulingInput) {
+  const booked = uniqueAssignments(input.existing);
+  return booked.filter(a=>{
+    if(a.work_date<input.period.work_start_date||a.work_date>input.period.work_end_date)return false;
+    const need=input.requirements.find(r=>sameCell(a,r));
+    const employee=input.employees.find(e=>e.id===a.employee_id);
+    return !!need && !!employee && !assignmentIssue(input,employee,need,booked.filter(b=>assignmentKey(b)!==assignmentKey(a)));
+  });
+}
+
+export function generateSchedule(input: SchedulingInput, options:{optimize?:boolean}={}) {
+  input={...input,existing:uniqueAssignments(input.existing)};
   const { period, employees, shifts, registrations, requirements, existing } = input;
   if (period.status !== 'CLOSED') throw new ScheduleError(409, 'PERIOD_NOT_CLOSED', 'Đợt đăng ký phải được đóng trước khi xếp lịch.');
   if (input.test_rules && (!Number.isSafeInteger(input.test_rules.max_shifts_per_day) || input.test_rules.max_shifts_per_day < 1)) throw new ScheduleError(422,'INVALID_TEST_RULE','Giới hạn ca thử nghiệm không hợp lệ.');
+  if(input.holiday_dates?.some(d=>!/^\d{4}-\d{2}-\d{2}$/.test(d)||!Number.isFinite(Date.parse(d))||new Date(d).toISOString().slice(0,10)!==d))throw new ScheduleError(422,'INVALID_HOLIDAY_CALENDAR','Ngày lễ phải là ngày hợp lệ được khai báo rõ ràng.');
   if (!requirements.length) throw new ScheduleError(422, 'NO_REQUIREMENTS', 'Chưa khai báo nhu cầu nhân sự.');
   const byShift = new Map(shifts.map(s => [s.id, s]));
   const windowStart = Date.parse(`${period.work_start_date}T00:00:00+07:00`) / 1000;
@@ -72,12 +102,14 @@ export function generateSchedule(input: SchedulingInput) {
     const [start, end] = getInterval(a);
     return Math.max(0, Math.min(end, windowStart + 7 * 86400) - Math.max(start, windowStart));
   };
-  const assigned: (Assignment & { requirement_id: string; reason: string })[] = [];
+  const assigned: ExplainedAssignment[] = [];
   const eligibleEmployees = employees.filter(e => e.status === 'ACTIVE' && e.is_active && e.role === 'NV' && rank[e.skill_level] !== undefined);
   for (const e of eligibleEmployees) if (e.max_weekly_hours !== null && (!Number.isFinite(Number(e.max_weekly_hours)) || Number(e.max_weekly_hours) <= 0)) {
     throw new ScheduleError(422, 'INVALID_LIMIT', 'Giới hạn giờ làm không hợp lệ.');
   }
   const counts = new Map(employees.map(e => [e.id, existing.filter(a => a.employee_id === e.id && weeklySeconds(a) > 0).length]));
+  const hours = new Map(employees.map(e=>[e.id,existing.filter(a=>a.employee_id===e.id).reduce((n,a)=>n+weeklySeconds(a),0)]));
+  const holidayCounts = new Map(employees.map(e=>[e.id,existing.filter(a=>a.employee_id===e.id && a.work_date>=period.work_start_date && a.work_date<=period.work_end_date && input.holiday_dates?.includes(a.work_date)).length]));
   const available = new Set(registrations.filter(r => r.status === 'VALID').map(r => `${r.employee_id}/${r.work_date}/${r.shift_id}`));
   const candidates = (r: Requirement) => eligibleEmployees.filter(e => e.department_id === r.department_id &&
     (!r.required_skill_name || e.skills.includes(r.required_skill_name)) && available.has(`${e.id}/${r.work_date}/${r.shift_id}`));
@@ -89,30 +121,128 @@ export function generateSchedule(input: SchedulingInput) {
     }
     seen.add(key); getInterval(r);
   }
+  const covered=existingCoverage(input);
+  const remaining=(r:Requirement)=>Math.max(0,r.required_count-covered.filter(a=>sameCell(a,r)).length);
   // Scarce requirements first; stable order prevents database row ordering changing the result.
   // Registrations alone overstate supply when existing bookings or configured
   // hour limits already exclude someone. Count actual initial eligibility.
   const eligibleCounts = new Map(requirements.map(r => [r.id,
     candidates(r).filter(e => !assignmentIssue(input,e,r,existing)).length]));
   const sorted = [...requirements].sort((a, b) =>
-    (eligibleCounts.get(a.id)! - a.required_count) - (eligibleCounts.get(b.id)! - b.required_count) ||
+    (eligibleCounts.get(a.id)! - remaining(a)) - (eligibleCounts.get(b.id)! - remaining(b)) ||
     order(a.work_date, b.work_date) || order(a.shift_id, b.shift_id) || order(a.department_id, b.department_id));
   for (const r of sorted) {
-    for (let slot = 0; slot < r.required_count; slot++) {
-      const eligible = candidates(r).filter(e => !assignmentIssue(input,e,r,[...existing,...assigned])).sort((a, b) => rank[a.skill_level] - rank[b.skill_level] ||
-        (counts.get(a.id) || 0) - (counts.get(b.id) || 0) || order(a.id, b.id));
+    for (let slot = 0; slot < remaining(r); slot++) {
+      const experiencedCount=[...covered.filter(a=>sameCell(a,r)),...assigned.filter(a=>sameCell(a,r))]
+        .filter(a=>experienced(employees.find(e=>e.id===a.employee_id)!)).length;
+      const target=Math.min(2,r.required_count), needsExperience=experiencedCount<target;
+      const holiday=input.holiday_dates?.includes(r.work_date)===true;
+      const eligible = candidates(r).filter(e => !assignmentIssue(input,e,r,[...existing,...assigned])).sort((a,b)=>
+        (needsExperience ? Number(experienced(b))-Number(experienced(a)) : 0) ||
+        hours.get(a.id)!-hours.get(b.id)! ||
+        (holiday ? holidayCounts.get(a.id)!-holidayCounts.get(b.id)! : 0) ||
+        counts.get(a.id)!-counts.get(b.id)! || order(a.employee_code??a.id,b.employee_code??b.id) || order(a.id,b.id));
       const e = eligible[0]; if (!e) break;
-      assigned.push({ employee_id: e.id, work_date: r.work_date, shift_id: r.shift_id, department_id: r.department_id,
-        requirement_id: r.id, reason: `VALID_REGISTRATION;DEPARTMENT_AND_SKILL_MATCH;NO_OVERLAP;WITHIN_WEEKLY_HOURS;LEVEL_PRIORITY=${e.skill_level};PRIOR_SHIFTS=${counts.get(e.id) || 0};STABLE_ID_TIEBREAK` });
-      counts.set(e.id, (counts.get(e.id) || 0) + 1);
+      assigned.push({ employee_id:e.id,work_date:r.work_date,shift_id:r.shift_id,department_id:r.department_id,requirement_id:r.id,
+        reason:`VALID_REGISTRATION;DEPARTMENT_AND_SKILL_MATCH;NO_OVERLAP;${e.max_weekly_hours===null?'WEEKLY_LIMIT_NOT_CONFIGURED':'WITHIN_WEEKLY_HOURS'};EXPERIENCE_TARGET=${target};EXPERIENCED_BEFORE=${experiencedCount};EXPERIENCE_PRIORITY=${needsExperience};PRIOR_HOURS=${hours.get(e.id)!/3600};HOLIDAY=${holiday};PRIOR_HOLIDAY_SHIFTS=${holidayCounts.get(e.id)};PRIOR_SHIFTS=${counts.get(e.id)};EMPLOYEE_CODE_TIEBREAK=${e.employee_code??e.id}` });
+      counts.set(e.id,counts.get(e.id)!+1);
+      hours.set(e.id,hours.get(e.id)!+weeklySeconds(assigned[assigned.length-1]));
+      if(holiday)holidayCounts.set(e.id,holidayCounts.get(e.id)!+1);
     }
   }
   assigned.sort((a,b) => order(a.work_date,b.work_date) || order(a.shift_id,b.shift_id) || order(a.employee_id,b.employee_id));
-  return buildScheduleResult(input,assigned);
+  if(options.optimize===false)return buildScheduleResult(input,assigned);
+  const optimized=optimizeScheduleAssignments(input,assigned);
+  return {...buildScheduleResult(input,optimized.assignments),optimization:optimized.optimization};
 }
 
-export function buildScheduleResult(input:SchedulingInput, assigned:(Assignment & {requirement_id:string;reason:string})[]) {
+/** Sum of squared deviations in hours, using the SAME active employee set throughout. */
+export function scheduleBalance(input:SchedulingInput, assignments:Assignment[]) {
+  const start=Date.parse(`${input.period.work_start_date}T00:00:00+07:00`)/1000;
+  const employees=input.employees.filter(e=>e.status==='ACTIVE'&&e.is_active===true&&e.role==='NV'&&rank[e.skill_level]!==undefined)
+    .sort((a,b)=>order(a.id,b.id));
+  const hours=new Map(employees.map(e=>[e.id,0]));
+  for(const a of uniqueAssignments([...input.existing,...assignments])) {
+    const shift=input.shifts.find(s=>s.id===a.shift_id);
+    if(!shift)throw new ScheduleError(422,'MISSING_SHIFT','Thiếu giờ ca đã phân công.');
+    const [s,t]=interval(a.work_date,shift);
+    if(hours.has(a.employee_id))hours.set(a.employee_id,hours.get(a.employee_id)!+Math.max(0,Math.min(t,start+7*86400)-Math.max(s,start))/3600);
+  }
+  const departments=[...new Set(employees.map(e=>e.department_id))].sort().map(department_id=>{
+    const ids=employees.filter(e=>e.department_id===department_id).map(e=>e.id);
+    const total=ids.reduce((n,id)=>n+hours.get(id)!,0),mean=total/ids.length;
+    return {department_id,employee_count:ids.length,total_hours:total,mean_hours:mean,
+      squared_deviation:ids.reduce((n,id)=>n+(hours.get(id)!-mean)**2,0)};
+  });
+  return {hours,departments,objective:departments.reduce((n,d)=>n+d.squared_deviation,0)};
+}
+
+/** Best-improvement single replacements; no timer/randomness, no changes to existing work.
+ * The caller supplies an already validated generated plan. Strict descent prevents cycles.
+ */
+export function optimizeScheduleAssignments(input:SchedulingInput, initial:ExplainedAssignment[],maxIterations=200) {
+  if(!Number.isSafeInteger(maxIterations)||maxIterations<0||maxIterations>10000)
+    throw new ScheduleError(422,'INVALID_SEARCH_LIMIT','Giới hạn vòng tìm kiếm không hợp lệ.');
+  input={...input,existing:uniqueAssignments(input.existing)};
+  const assignments=structuredClone(initial).sort((a,b)=>order(a.work_date,b.work_date)||order(a.shift_id,b.shift_id)||order(a.department_id,b.department_id)||order(a.employee_id,b.employee_id));
+  const employees=new Map(input.employees.map(e=>[e.id,e]));
+  const covered=existingCoverage(input);
+  const before=scheduleBalance(input,assignments);
+  let balance=before,iterations=0,converged=false;
+  const epsilon=1e-9;
+  const pools=new Map(input.requirements.map(r=>[r.id,input.employees.filter(e=>
+    e.status==='ACTIVE'&&e.is_active===true&&e.role==='NV'&&rank[e.skill_level]!==undefined&&e.department_id===r.department_id&&
+    (!r.required_skill_name||e.skills.includes(r.required_skill_name))&&input.registrations.some(a=>a.status==='VALID'&&a.employee_id===e.id&&a.work_date===r.work_date&&a.shift_id===r.shift_id))
+    .sort((a,b)=>order(a.employee_code??a.id,b.employee_code??b.id)||order(a.id,b.id))]));
+  for(const a of assignments)if(!a.fixed&&!a.selection_history)a.selection_history={initial:{employee_id:a.employee_id,reason:a.reason},replacements:[]};
+  while(iterations<maxIterations) {
+    let best:{index:number;employee:Employee;gain:number;duration:number}|null=null;
+    for(let index=0;index<assignments.length;index++) {
+      const a=assignments[index];
+      if(a.fixed)continue;
+      const donor=employees.get(a.employee_id)!;
+      const need=input.requirements.find(r=>r.id===a.requirement_id)!;
+      const shift=input.shifts.find(s=>s.id===a.shift_id)!;
+      const [s,t]=interval(a.work_date,shift),start=Date.parse(`${input.period.work_start_date}T00:00:00+07:00`)/1000;
+      const duration=Math.max(0,Math.min(t,start+7*86400)-Math.max(s,start))/3600;
+      const others=assignments.filter((_,i)=>i!==index);
+      for(const employee of pools.get(need.id)!) {
+        if(employee.id===donor.id||Number(experienced(employee))<Number(experienced(donor)))continue;
+        // A move stays within the same department, so its total and mean are fixed.
+        const gain=2*duration*(balance.hours.get(donor.id)!-balance.hours.get(employee.id)!-duration);
+        if(gain<=epsilon||(best&&gain<=best.gain+epsilon))continue;
+        if(assignmentIssue(input,employee,need,[...input.existing,...others]))continue;
+        // Existing coverage must also remain unchanged, even on malformed old inputs.
+        if(covered.some(c=>c.employee_id===employee.id&&sameCell(c,need)))continue;
+        best={index,employee,gain,duration};
+      }
+    }
+    if(!best){converged=true;break;}
+    const original=assignments[best.index],from=original.employee_id;
+    const candidate={...original,employee_id:best.employee.id};
+    const proposed=assignments.map((a,i)=>i===best!.index?candidate:a);
+    const next=scheduleBalance(input,proposed);
+    if(!(next.objective<balance.objective-epsilon))break;
+    iterations++;
+    const event={iteration:iterations,from_employee_id:from,to_employee_id:best.employee.id,
+      from_hours_before:balance.hours.get(from)!,to_hours_before:balance.hours.get(best.employee.id)!,shift_hours:best.duration,
+      objective_before:balance.objective,objective_after:next.objective};
+    candidate.selection_history={initial:original.selection_history!.initial,replacements:[...original.selection_history!.replacements,event]};
+    candidate.reason=`LOCAL_SEARCH_REPLACEMENT;VALID_REGISTRATION;DEPARTMENT_AND_SKILL_MATCH;NO_OVERLAP;${best.employee.max_weekly_hours===null?'WEEKLY_LIMIT_NOT_CONFIGURED':'WITHIN_WEEKLY_HOURS'};COVERAGE_UNCHANGED;EXPERIENCED_COUNT_NOT_DECREASED;FROM_EMPLOYEE=${from};TO_EMPLOYEE=${best.employee.id};FROM_HOURS_BEFORE=${event.from_hours_before};TO_HOURS_BEFORE=${event.to_hours_before};SHIFT_HOURS=${best.duration};OBJECTIVE_BEFORE=${event.objective_before};OBJECTIVE_AFTER=${event.objective_after};ITERATION=${iterations}`;
+    assignments[best.index]=candidate;
+    balance=next;
+  }
+  for(const a of assignments)if(!a.fixed&&!a.selection_history!.replacements.length&&!a.reason.startsWith('INITIAL_SELECTION;'))a.reason=`INITIAL_SELECTION;${a.reason}`;
+  assignments.sort((a,b)=>order(a.work_date,b.work_date)||order(a.shift_id,b.shift_id)||order(a.employee_id,b.employee_id));
+  return {assignments,optimization:{method:'DETERMINISTIC_SINGLE_REPLACEMENT' as const,objective:'WITHIN_DEPARTMENT_SQUARED_HOUR_DEVIATION' as const,
+    max_iterations:maxIterations,iterations,converged,limit_reached:iterations===maxIterations,
+    before:{objective:before.objective,departments:before.departments},after:{objective:balance.objective,departments:balance.departments}}};
+}
+
+export function buildScheduleResult(input:SchedulingInput, assigned:ExplainedAssignment[]) {
+  input={...input,existing:uniqueAssignments(input.existing)};
   const {employees,requirements,existing}=input;
+  const covered=existingCoverage(input);
   const start=Date.parse(`${input.period.work_start_date}T00:00:00+07:00`)/1000,end=start+7*86400;
   const eligibleEmployees=employees.filter(e=>e.status==='ACTIVE'&&e.is_active&&e.role==='NV'&&rank[e.skill_level]!==undefined);
   const hours=new Map(employees.map(e=>[e.id,[...existing,...assigned].filter(a=>a.employee_id===e.id).reduce((sum,a)=>{
@@ -121,34 +251,50 @@ export function buildScheduleResult(input:SchedulingInput, assigned:(Assignment 
     const [s,t]=interval(a.work_date,shift);return sum+Math.max(0,Math.min(t,end)-Math.max(s,start));
   },0)]));
   const coverage = [...requirements].sort((a,b) => order(a.work_date,b.work_date) || order(a.shift_id,b.shift_id) || order(a.department_id,b.department_id)).map(r => {
-    const rows = assigned.filter(a => a.requirement_id === r.id);
+    const newRows = assigned.filter(a => a.requirement_id === r.id);
+    const existingRows=covered.filter(a=>sameCell(a,r));
+    const rows=uniqueAssignments([...existingRows,...newRows]);
     const levels = rows.map(a => employees.find(e => e.id === a.employee_id)!.skill_level);
-    const threshold = input.new_employee_count_threshold;
-    return { ...r, assigned_count: rows.length, missing_count: r.required_count - rows.length,
-      warning: threshold !== null && levels.filter(l => l === 'NEW').length >= threshold && !levels.includes('CREW_TRAINING') ? 'MANY_NEW_WITHOUT_CREW_TRAINING' : null };
+    const experiencedTarget=Math.min(2,r.required_count),experiencedCount=levels.filter(l=>l==='REGULAR'||l==='CREW_TRAINING').length;
+    const missingExperience=Math.max(0,experiencedTarget-experiencedCount);
+    const warnings=[...(rows.length<r.required_count?['STAFFING_SHORTAGE']:[]),...(missingExperience?['EXPERIENCE_SHORTAGE']:[])];
+    return {...r,assigned_count:rows.length,new_assigned_count:newRows.length,existing_count:existingRows.length,
+      missing_count:Math.max(0,r.required_count-rows.length),excess_count:Math.max(0,rows.length-r.required_count),
+      experienced_target:experiencedTarget,experienced_count:experiencedCount,missing_experienced_count:missingExperience,
+      composition_status:missingExperience?'SHORTAGE' as const:'PASS' as const,warnings,
+      warning:missingExperience?'EXPERIENCE_SHORTAGE':null};
   });
-  return { new_employee_count_threshold: input.new_employee_count_threshold, assignments: assigned, coverage, shortages: coverage.filter(r => r.missing_count > 0),
+  return { rule_version:SCHEDULING_RULE_VERSION,new_employee_count_threshold: input.new_employee_count_threshold, assignments: assigned, coverage, shortages: coverage.filter(r => r.missing_count > 0),
+    existing_count:covered.length,covered_count:coverage.reduce((n,r)=>n+r.assigned_count,0),
+    composition_shortages:coverage.filter(r=>r.missing_experienced_count>0),
     required_count: coverage.reduce((n,r) => n + r.required_count,0), assigned_count: assigned.length,
     employee_statistics: [...eligibleEmployees].sort((a,b) => order(a.id,b.id)).map(e => ({ employee_id: e.id,
-      shift_count: assigned.filter(a => a.employee_id === e.id).length, total_weekly_hours: (hours.get(e.id) || 0) / 3600 })),
-    notes: ['Crew Leader do quản lý thiết lập riêng; không được tính vào nhu cầu nhân viên thường.',
+      shift_count: assigned.filter(a => a.employee_id === e.id).length,
+      existing_shift_count:existing.filter(a=>a.employee_id===e.id&&a.work_date>=input.period.work_start_date&&a.work_date<=input.period.work_end_date).length,
+      holiday_shift_count:[...existing,...assigned].filter(a=>a.employee_id===e.id&&a.work_date>=input.period.work_start_date&&a.work_date<=input.period.work_end_date&&input.holiday_dates?.includes(a.work_date)).length,
+      total_weekly_hours: (hours.get(e.id) || 0) / 3600 })),
+    notes: ['assignments/assigned_count chỉ gồm phân công mới; covered_count và coverage gồm cả phân công có sẵn hợp lệ, đã gộp trùng.',
+      ...(input.holiday_dates===undefined?['Chưa có lịch ngày lễ được xác nhận; không áp dụng ưu tiên ca lễ.']:[]),
+      'Crew Leader do quản lý thiết lập riêng; không được tính vào nhu cầu nhân viên thường.',
       'Thuật toán tham lam ưu tiên ca ít ứng viên; không bảo đảm tối ưu toàn cục.'] };
 }
 
 export function reviewAssignments(input:SchedulingInput, assignments:Assignment[]) {
+  input={...input,existing:uniqueAssignments(input.existing)};
+  // Apply the same input validation even for an empty manual proposal.
+  generateSchedule(input,{optimize:false});
+  const covered=existingCoverage(input);
   const checked:(Assignment & {requirement_id:string;reason:string})[]=[];
   const seen=new Set<string>();
   for(const assignment of assignments){
     const key=`${assignment.employee_id}/${assignment.work_date}/${assignment.shift_id}`;
     if(seen.has(key))throw new ScheduleError(422,'DUPLICATE_ASSIGNMENT','Phân công bị trùng.');seen.add(key);
     const need=input.requirements.find(r=>r.work_date===assignment.work_date&&r.shift_id===assignment.shift_id&&r.department_id===assignment.department_id);
-    if(!need||checked.filter(a=>a.requirement_id===need.id).length>=need.required_count)throw new ScheduleError(422,'DEMAND_EXCEEDED','Phân công không có nhu cầu hoặc vượt số người cần.');
+    if(!need||checked.filter(a=>a.requirement_id===need.id).length+covered.filter(a=>sameCell(a,need)).length>=need.required_count)throw new ScheduleError(422,'DEMAND_EXCEEDED','Phân công không có nhu cầu hoặc vượt số người cần.');
     const employee=input.employees.find(e=>e.id===assignment.employee_id);
     if(!employee)throw new ScheduleError(422,'UNKNOWN_EMPLOYEE','Nhân viên không thuộc dữ liệu lịch.');
     const issue=assignmentIssue(input,employee,need,[...input.existing,...checked]);
     if(issue)throw new ScheduleError(422,issue.code,issue.message);
-    const check=generateSchedule({...input,employees:[employee],requirements:[{...need,required_count:1}],existing:[...input.existing,...checked]});
-    if(check.assigned_count!==1)throw new ScheduleError(422,'ASSIGNMENT_CONSTRAINT_FAILED','Phân công vi phạm đăng ký, bộ phận/kỹ năng, trùng giờ hoặc giới hạn ca/giờ đã cấu hình.');
     checked.push({...assignment,requirement_id:need.id,reason:'MANAGER_CONFIRMED;RULE_ENGINE_VALIDATED'});
   }
   return buildScheduleResult(input,checked);

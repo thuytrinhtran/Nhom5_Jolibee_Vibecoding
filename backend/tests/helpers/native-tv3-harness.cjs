@@ -3,24 +3,26 @@
 const fs=require('node:fs'),path=require('node:path'),net=require('node:net');
 const {spawnSync,spawn}=require('node:child_process');
 const freePort=()=>new Promise((resolve,reject)=>{const s=net.createServer();s.once('error',reject);s.listen(0,'127.0.0.1',()=>{const port=s.address().port;s.close(()=>resolve(port));});});
-async function nativeHarness(){
+async function nativeHarness(options={}){
  const root=process.env.TV3_NATIVE_PG_ROOT,bin=process.env.TV3_NATIVE_PG_BIN;
  if(!root||!bin||!path.isAbsolute(root)||!path.isAbsolute(bin))throw Error('Absolute private tool paths required');
- const {Client}=require(process.env.TV3_NATIVE_PG_CLIENT);fs.mkdirSync(root,{recursive:true});const dir=fs.mkdtempSync(path.join(root,'run-'));
+ const {Client,types}=require(process.env.TV3_NATIVE_PG_CLIENT);fs.mkdirSync(root,{recursive:true});const dir=fs.mkdtempSync(path.join(root,'run-'));
  const data=path.join(dir,'data'),port=await freePort(),clients=new Set(),children=[];
  const exe=name=>path.join(bin,name+(process.platform==='win32'?'.exe':''));
  const command=(name,args)=>{const r=spawnSync(exe(name),args,{windowsHide:true,encoding:'utf8',timeout:30000});if(r.status!==0)throw Error(`${name} failed: ${r.error?.message||r.stderr?.slice(-600)}`);};
  command('initdb',['-D',data,'-U','postgres','--auth=trust','--no-locale','-E','UTF8']);
  command('pg_ctl',['start','-D',data,'-l',path.join(dir,'postgres.log'),'-o',`-h 127.0.0.1 -p ${port}`,'-w','-t','20']);
- const connect=async()=>{const c=new Client({host:'127.0.0.1',port,user:'postgres',database:'postgres',connectionTimeoutMillis:3000,application_name:'jollishift-isolated-tv3'});await c.connect();clients.add(c);return c;};
+ const connect=async()=>{const c=new Client({host:'127.0.0.1',port,user:'postgres',database:'postgres',connectionTimeoutMillis:3000,application_name:'jollishift-isolated-tv3',types:{getTypeParser:(oid,format)=>[1082,1184].includes(oid)?(value=>value):types.getTypeParser(oid,format)}});await c.connect();clients.add(c);return c;};
  const admin=await connect();
  const close=async()=>{for(const child of children){child.kill();await new Promise(r=>{if(child.exitCode!==null)return r();child.once('exit',r);});}await Promise.allSettled([...clients].map(c=>c.end()));command('pg_ctl',['stop','-D',data,'-m','fast','-w','-t','15']);};
  try{
+  if(!options.empty){
   await admin.query("CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role BYPASSRLS; CREATE SCHEMA auth; CREATE TABLE auth.users(id uuid PRIMARY KEY); CREATE FUNCTION auth.role() RETURNS text LANGUAGE sql AS $$ SELECT 'service_role'::text $$; CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT NULL::uuid $$;");
   await admin.query('ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO service_role;');
   const repo=path.resolve(__dirname,'../../..');
   for(const file of ['docs/Jollishift.sql','backend/migrations/20261029_require_password_change.sql','backend/migrations/20261029_employee_registration.sql','backend/migrations/20261029_registration_off_schedule.sql','backend/migrations/20261030_registration_effective_state.sql','backend/migrations/20261031_tv3_schedule_draft.sql']){
    await admin.query(fs.readFileSync(path.join(repo,file),'utf8').replace('CREATE INDEX idx_schedule_approvals_schedule ON','CREATE INDEX IF NOT EXISTS idx_schedule_approvals_schedule ON'));
+  }
   }
  }catch(e){await close();throw e;}
  let sequence=0;

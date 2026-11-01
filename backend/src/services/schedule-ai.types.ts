@@ -6,10 +6,11 @@ export interface AIReport {
 }
 export interface AISummary {
   contract_version:'tv3-ai.v1';version:number;
+  scope?:'preview'; // version=0 is an unsaved plan, never a database version.
   dates:{start:string;end:string};
   rules:{hard_constraints:string;data_complete:boolean;coverage_complete:boolean;codes:string[];new_employee_count_threshold:number|null;test_rules:{max_shifts_per_day:number}|null};
   shifts:{code:string;start:string;end:string}[];
-  coverage:{work_date:string;shift_code:string;department_code:string;required:number;assigned:number;registered:number;eligible:number|null;skill_code:string|null;levels:Record<string,number>;warning:string|null}[];
+  coverage:{work_date:string;shift_code:string;department_code:string;required:number;assigned:number;registered:number;eligible:number|null;skill_code:string|null;levels:Record<string,number>;experienced_target:number;experienced_count:number;missing_experienced_count:number;warning:string|null}[];
   employees:{code:string;department_code:string;level:string;skill_codes:string[];registered:{work_date:string;shift_code:string}[];assignments:AIAssignment[];shift_count:number;total_weekly_hours:number;max_weekly_hours:number|null}[];
   missing_criteria:string[];
 }
@@ -28,4 +29,10 @@ export interface AIReviewResponse {
   status:'NOT_CONFIGURED'|'NOT_EVALUATED'|'AVAILABLE'|'STALE'|'BLOCKED'|'FAILED';message:string;
   schedule_id:string;version:number;configured:boolean;model:string|null;
   evaluation:AIEvaluation|null;rule_check:{hard_constraints:string;codes:string[]};
+}
+export type PreviewAIEvaluation=Omit<AIEvaluation,'schedule_id'|'version'>&{scope:'preview'};
+export interface PreviewAIReviewResponse {
+  scope:'preview';persisted:false;input_revision:string;plan_revision:string;
+  status:'NOT_CONFIGURED'|'AVAILABLE';message:string;configured:boolean;model:string|null;
+  evaluation:PreviewAIEvaluation|null;
 }

@@ -1,5 +1,5 @@
 import { effectivePeriodStatus } from '../registrations/period-status.js';
-import { readTv2Source, tv2Availability, RegistrationSourceError } from '../registrations/tv3-source.js';
+import { readTv2Source, tv2Availability, acceptedDevHeader, RegistrationSourceError } from '../registrations/tv3-source.js';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { ScheduleError } from '../services/scheduling.engine.js';
 import type { DemandInput, DemandRequirement, RegistrationSummaryRepository, SummaryEmployee, SummaryPeriodOption, SummarySnapshot } from './registration-summary.types.js';
@@ -38,8 +38,8 @@ export class SupabaseRegistrationSummaryRepository implements RegistrationSummar
     const [branch, departments, employees, source, requirements, shifts, skills, existing, warning] = await Promise.all([
       this.db.from('branches').select('id, name').eq('id', branchId).single(),
       all<SummarySnapshot['departments'][number]>((a,b) => this.db.from('departments').select('id, name').order('id').range(a,b)),
-      all<Omit<SummaryEmployee, 'is_active' | 'role' | 'skills'> & { user: { is_active: boolean; role: string; branch_id: string } | null }>((a,b) => this.db.from('employees')
-        .select('id, branch_id, full_name, department_id, skill_level, status, max_weekly_hours, user:user_id(is_active, role, branch_id)')
+      all<Omit<SummaryEmployee, 'is_active' | 'role' | 'skills'> & { user: { is_active: boolean; role: string; branch_id: string; username?: string } | null }>((a,b) => this.db.from('employees')
+        .select('id, branch_id, full_name, department_id, skill_level, status, max_weekly_hours, user:user_id(is_active, role, branch_id, username)')
         .eq('branch_id', branchId).order('id').range(a,b)),
       readTv2Source(this.db,periodId).catch(error=>{throw new ScheduleError(error instanceof RegistrationSourceError&&error.code==='REGISTRATION_CHANGED'?409:503,error instanceof RegistrationSourceError?error.code:'REGISTRATION_UNAVAILABLE','Nguồn đăng ký TV2 chưa sẵn sàng hoặc vừa thay đổi. Vui lòng tải lại.');}),
       all<SummarySnapshot['requirements'][number]>((a,b) => this.db.from('staffing_requirements')
@@ -58,11 +58,13 @@ export class SupabaseRegistrationSummaryRepository implements RegistrationSummar
     check(branch.error); check(warning.error);
     const shiftMap = new Map(shifts.map(s => [s.id,s]));
     for (const assignment of existing) if (assignment.shift) shiftMap.set(assignment.shift.id, assignment.shift);
-    const people=employees.map(({user,...employee}) => ({ ...employee, is_active: user?.branch_id === branchId ? user.is_active : null,
+    const people=employees.map(({user,...employee}) => ({ ...employee, employee_code:user?.username, is_active: user?.branch_id === branchId ? user.is_active : null,
       role: user?.branch_id === branchId ? user.role : null, skills: skills.filter(s=>s.employee_id===employee.id).map(s=>s.skill_name) }));
     const availability=tv2Availability(source,selectedPeriod,people,shifts);
     return { source:this.source, branch:branch.data!,period:selectedPeriod,departments,
       registrations:availability.registrations,registration_declarations:availability.declarations,
+      registration_submission_employee_ids:source.headers.map(h=>h.employee_id),
+      registration_provenance:source.headers.filter(h=>h.status==='VALID'&&h.submitted_at&&(!h.sample_batch_id||acceptedDevHeader(h,selectedPeriod))&&availability.declarations.some(d=>d.employee_id===h.employee_id&&d.declaration!=='NOT_SUBMITTED')).map(h=>({employee_id:h.employee_id,batch_id:h.sample_batch_id,submitted_at:h.submitted_at!,updated_at:h.updated_at})),
       requirements,shifts:[...shiftMap.values()],existing,employees:people,
       new_employee_count_threshold:warning.data?.new_employee_count_threshold??null };
   }
