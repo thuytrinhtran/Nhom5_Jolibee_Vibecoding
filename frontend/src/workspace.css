@@ -1,0 +1,150 @@
+.workspace-page{
+  display:grid;
+  gap:20px;
+  max-width:1440px;
+  margin:auto}
+.workspace-heading{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px}
+.workspace-heading h2{
+  margin:0 0 6px}
+.workspace-heading p{
+  margin:0;
+  color:var(--text-secondary,#64748b)}
+.workspace-week,.workspace-filters label{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  font-size:13px;
+  font-weight:600}
+.workspace-week{
+  max-width:380px}
+.workspace-week select,.workspace-filters select{
+  padding:9px 12px;
+  border:1px solid var(--border-subtle,#ddd);
+  border-radius:8px;
+  background:white;
+  min-width:140px;
+  max-width:100%}
+.workspace-filters{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  align-items:end;
+  margin:12px 0}
+.workspace-kpi{
+  font-size:26px;
+  font-weight:700;
+  margin:12px 0 0}
+.workspace-links{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap}
+.workspace-table{
+  overflow-x:auto;
+  border:1px solid var(--border-subtle,#ddd);
+  border-radius:10px;
+  background:white}
+.workspace-table table{
+  width:100%;
+  border-collapse:collapse}
+.workspace-table th,.workspace-table td{
+  text-align:left;
+  padding:12px 16px;
+  border-bottom:1px solid var(--border-subtle,#eee)}
+.workspace-table th{
+  background:#f8fafc;
+  font-size:13px;
+  color:#475569}
+.workspace-pagination{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:16px;
+  padding:12px 0;
+  font-size:13px}
+.workspace-pagination button{
+  border:1px solid #cbd5e1;
+  background:white;
+  padding:7px 14px;
+  border-radius:6px;
+  cursor:pointer}
+.workspace-pagination button:disabled{
+  opacity:.4;
+  cursor:default}
+.app-nav-group{
+  display:grid;
+  gap:3px}
+.app-nav-group-toggle{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  width:100%;
+  border:0;
+  background:none;
+  color:inherit;
+  font-size:11px;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  opacity:.7;
+  text-align:left;
+  padding:12px 14px 5px;
+  cursor:pointer}
+.app-navigation{
+  gap:8px}
+.workspace-page .dashboard-metric{
+  min-height:100px;
+  padding:18px}
+.workspace-page .dashboard-metric h3{
+  font-size:13px;
+  font-weight:500;
+  margin:0;
+  color:var(--text-secondary,#64748b)}
+.workflow-table-wrap{
+  max-height:none!important;
+  overflow-y:visible!important}
+.workflow-mock-banner{
+  padding:10px 14px;
+  margin-bottom:12px}
+.workflow-details{
+  padding:16px}
+.workflow-details>h3{
+  margin-top:12px}
+.workspace-page button:focus-visible,.app-nav-group-toggle:focus-visible{
+  outline:3px solid #f59e0b;
+  outline-offset:2px}
+@media(min-width:1024px){
+  .workspace-page .dashboard-metrics{
+  grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:700px){
+  .workspace-heading{
+  align-items:flex-start}
+.workspace-filters>label{
+  flex:1;
+  min-width:130px}
+.workspace-page .dashboard-metrics{
+  grid-template-columns:repeat(2,minmax(0,1fr))}
+.workspace-table td,.workspace-table th{
+  padding:9px}
+.workspace-kpi{
+  font-size:21px}
+}
+
+
+.workspace-disclosure { border: 1px solid #e2e8f0; border-radius: 10px; background: white; padding: 12px 16px; margin: 12px 0; }
+.workspace-disclosure > summary, .workflow-details summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+.workspace-disclosure[open] > summary { margin-bottom: 12px; }
+.app-nav-group-toggle.is-selected { opacity: 1; font-weight: 700; }
+.preview-editor .workspace-week { margin: 12px 0; }
+
+:root [data-schedule-status] { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+:root [data-schedule-status="DRAFT"],:root [data-schedule-status="PREVIEW"] { background: #f1f5f9; color: #475569; }
+:root [data-schedule-status="PENDING_APPROVAL"] { background: #fef3c7; color: #92400e; }
+:root [data-schedule-status="APPROVED"] { background: #dbeafe; color: #1e40af; }
+:root [data-schedule-status="PUBLISHED"] { background: #dcfce7; color: #166534; }
+:root [data-schedule-status="NEEDS_REVISION"] { background: #fee2e2; color: #991b1b; }
+
+@media (min-width: 769px) { .app-shell-manager:not(.app-shell-collapsed) .app-sidebar { width: 216px; flex-basis: 216px; } .app-shell-manager .app-content { padding: 20px 24px; } .app-shell-manager .app-brand { padding: 0 16px; } .app-shell-manager .app-navigation { padding: 12px 10px; gap: 2px; } .app-shell-manager .app-nav-link { min-height: 36px; padding: 8px 10px; gap: 9px; font-size: 13px; } .app-shell-manager .app-nav-group-toggle { padding: 8px 10px; margin-top: 3px; font-size: 10px; } .app-shell-manager .app-sidebar-footer { padding: 9px 16px; } }
