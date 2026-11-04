@@ -8,12 +8,22 @@ const API_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
 export class ApiError extends Error {
   constructor(message: string, public status: number, public code?: string) { super(message); }
 }
+const pendingReads=new Map<string,Promise<Response>>();let readGeneration=0;
+export function invalidateReadRequests(){readGeneration++;pendingReads.clear();}
+export async function fetchWithReadDedupe(url:string,options:RequestInit={}):Promise<Response>{
+ const method=(options.method??'GET').toUpperCase();
+ if(method!=='GET'){invalidateReadRequests();try{return await fetch(url,options);}finally{invalidateReadRequests();}}
+ const key=JSON.stringify([sessionVersion,readGeneration,localStorage.getItem(TOKEN_KEY),url,options.headers??{},options.credentials]);
+ let pending=pendingReads.get(key);
+ if(!pending){pending=fetch(url,options);pendingReads.set(key,pending);const own=pending;void pending.then(()=>{if(pendingReads.get(key)===own)pendingReads.delete(key);},()=>{if(pendingReads.get(key)===own)pendingReads.delete(key);});}
+ const response=await pending;return typeof response.clone==='function'?response.clone():response;
+}
 
 async function request(path: string, options: RequestInit = {}, prefix = '/auth'): Promise<any> {
   let response: Response;
   let text: string;
   try {
-    response = await fetch(`${API_URL}${prefix}${path}`, { ...options, signal: AbortSignal.timeout(20000) });
+    response = await fetchWithReadDedupe(`${API_URL}${prefix}${path}`, { ...options, signal: AbortSignal.timeout(20000) });
     text = await response.text();
   } catch {
     throw new ApiError('Không thể kết nối dịch vụ hoặc yêu cầu đã hết thời gian. Vui lòng thử lại.', 0);
@@ -78,8 +88,14 @@ export async function authorized(path: string, options: RequestInit = {}, prefix
   }
 }
 export const authService = {
+  async ensureSession():Promise<void>{
+    if(!this.getStoredToken())throw new ApiError('Vui lòng đăng nhập.',401);
+    const expiry=Number(localStorage.getItem(EXPIRY_KEY));
+    if(localStorage.getItem(REFRESH_KEY)&&expiry&&expiry*1000<=Date.now()+60000)await refreshSession();
+  },
   getStoredToken(): string | null { return localStorage.getItem(TOKEN_KEY); },
   clearStoredToken(): void {
+    invalidateReadRequests();
     sessionVersion++;
     refreshPromise = null;
     for (const key of [TOKEN_KEY, REFRESH_KEY, EXPIRY_KEY]) localStorage.removeItem(key);

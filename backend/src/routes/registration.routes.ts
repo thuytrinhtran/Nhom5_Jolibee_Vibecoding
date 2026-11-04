@@ -4,6 +4,7 @@ import { Router } from 'express';
 import { supabaseAdmin as db } from '../config/supabase.js';
 import { authenticate, requireRole } from '../middleware/auth.middleware.js';
 import { parsePreferences, validatePreferences, RegistrationError } from '../registrations/validation.js';
+import { devTestWindowEnabled, usesDevTestWindow, DEV_TEST_REGISTRATION_SCOPE, persistDevTestRegistration } from '../registrations/dev-test-window.js';
 
 export const registrationRoutes = Router();
 registrationRoutes.use(authenticate, requireRole(['NV']));
@@ -24,7 +25,11 @@ registrationRoutes.get('/current', async (req, res) => {
   try {
     const employee = res.locals.employee;
     const now = new Date().toISOString();
-    const active = await db.from('registration_periods').select('*').eq('branch_id', employee.branch_id).lte('open_at', now).gt('close_at', now).order('work_start_date').limit(1);
+    const testPeriod=devTestWindowEnabled()&&employee.branch_id===DEV_TEST_REGISTRATION_SCOPE.branch
+      ?await db.from('registration_periods').select('*').eq('id',DEV_TEST_REGISTRATION_SCOPE.period).eq('branch_id',employee.branch_id).maybeSingle():{data:null,error:null};
+    if(testPeriod.error)throw testPeriod.error;
+    const overridePeriod=testPeriod.data&&usesDevTestWindow(testPeriod.data,employee.branch_id)?testPeriod.data:null;
+    const active = overridePeriod?{data:[overridePeriod],error:null}:await db.from('registration_periods').select('*').eq('branch_id', employee.branch_id).lte('open_at', now).gt('close_at', now).order('work_start_date').limit(1);
     if (active.error) throw active.error;
     let period = active.data?.[0] || null;
     if (!period) {
@@ -53,7 +58,7 @@ registrationRoutes.get('/current', async (req, res) => {
       // Administrative TV3 fixtures must never look like this employee submitted them.
       registrations = hasSampleData ? [] : r.data || []; submission = hasSampleData ? null : s.data;
     }
-    res.json({ status: 'ok', employee: { ...employee, branch_name: req.user!.branch_name, department_name: req.user!.employee?.department_name }, period, shifts: shiftResult.data, registrations, submission, has_sample_data: hasSampleData, schedule: config.data, server_now: new Date().toISOString() });
+    res.json({ status: 'ok', employee: { ...employee, branch_name: req.user!.branch_name, department_name: req.user!.employee?.department_name }, period, shifts: shiftResult.data, registrations, submission, has_sample_data: hasSampleData, registration_window:{dev_test_override:!!period&&usesDevTestWindow(period,employee.branch_id)}, schedule: config.data, server_now: new Date().toISOString() });
   } catch (error) {
     // Log only a bounded error code, never tokens, request bodies or database details.
     const rawCode = (error as { code?: unknown })?.code;
@@ -72,12 +77,13 @@ registrationRoutes.put('/:periodId/me', async (req, res) => {
     if (p.error) throw p.error;
     if (!p.data) throw new RegistrationError('Không có quyền truy cập đợt đăng ký.', 403);
     const now = Date.now();
-    if (effectivePeriodStatus(p.data, now) !== 'OPEN') throw new RegistrationError('Đợt chưa mở hoặc đã đóng; không thể chỉnh sửa.', 409);
+    const testWindow=usesDevTestWindow(p.data,employee.branch_id);
+    if (!testWindow&&effectivePeriodStatus(p.data, now) !== 'OPEN') throw new RegistrationError('Đợt chưa mở hoặc đã đóng; không thể chỉnh sửa.', 409);
     const s = await db.from('shifts').select('id,start_time,end_time').eq('is_active', true).or(`branch_id.is.null,branch_id.eq.${employee.branch_id}`);
     if (s.error) throw s.error;
     const errors = validatePreferences(preferences, s.data || [], p.data.work_start_date, p.data.work_end_date);
     if (errors.length) return res.status(400).json({ status: 'error', message: errors.join(' '), errors });
-    const result = await db.rpc('save_employee_registration', { p_user: req.user!.id, p_period: p.data.id, p_preferences: preferences, p_submit: mode === 'submit' });
+    const result = testWindow?{data:await persistDevTestRegistration(req.user!.id,p.data.id,preferences,mode==='submit'),error:null}:await db.rpc('save_employee_registration', { p_user: req.user!.id, p_period: p.data.id, p_preferences: preferences, p_submit: mode === 'submit' });
     if (result.error) {
       if (result.error.code === 'P0001') throw new RegistrationError(result.error.message, 409);
       throw result.error;

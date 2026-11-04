@@ -1,11 +1,11 @@
 import {
-  LayoutDashboard, Calendar, Clock, ArrowLeftRight, AlertTriangle,
+  LayoutDashboard, Calendar, Clock, ArrowLeftRight,
   Users, CalendarDays, CheckSquare, Building2, Handshake, History, ClipboardList,
   type LucideIcon,
 } from 'lucide-react';
 import type { UserRole } from './types/auth';
 
-export interface DashboardLink { label: string; path: string; icon: LucideIcon; }
+export interface DashboardLink { label: string; path: string; icon: LucideIcon; group?:string; }
 interface DashboardConfig {
   roleLabel: string;
   navigation: DashboardLink[];
@@ -21,9 +21,7 @@ export const dashboardConfig: Record<UserRole, DashboardConfig> = {
     navigation: [
       { label: 'Tổng quan', path: '/employee', icon: LayoutDashboard },
       { label: 'Đăng ký ca làm', path: '/employee/register', icon: Calendar },
-      { label: 'Lịch làm của tôi', path: '/employee/schedule', icon: Clock },
-      { label: 'Đổi ca và lời mời', path: '/employee/shift-requests', icon: ArrowLeftRight },
-      { label: 'Báo sự cố', path: '/employee/incidents', icon: AlertTriangle },
+      { label: 'Yêu cầu & hỗ trợ', path: '/employee/support', icon: ArrowLeftRight },
     ],
     metrics: [
       { label: 'Ca làm sắp tới', icon: CalendarDays },
@@ -31,25 +29,25 @@ export const dashboardConfig: Record<UserRole, DashboardConfig> = {
       { label: 'Yêu cầu đổi ca', icon: ArrowLeftRight },
     ],
     actions: [
-      { label: 'Đăng ký ca tuần tới', description: 'Chọn thời gian bạn có thể làm.', path: '/employee/register', icon: Calendar },
-      { label: 'Lịch làm của tôi', description: 'Xem các ca làm của bạn.', path: '/employee/schedule', icon: Clock },
-      { label: 'Đổi ca và lời mời', description: 'Xem yêu cầu và lời mời nhận ca.', path: '/employee/shift-requests', icon: ArrowLeftRight },
-      { label: 'Báo sự cố', description: 'Gửi thông tin cần hỗ trợ.', path: '/employee/incidents', icon: AlertTriangle },
+      { label: 'Đăng ký ca làm', description: 'Chọn thời gian bạn có thể làm.', path: '/employee/register', icon: Calendar },
+      { label: 'Lịch làm của tôi', description: 'Xem lịch chính thức trong Tổng quan.', path: '/employee', icon: Clock },
+      { label: 'Yêu cầu & hỗ trợ', description: 'Đổi ca, báo sự cố và theo dõi yêu cầu.', path: '/employee/support', icon: ArrowLeftRight },
     ],
     emptyTitle: 'Lịch làm của bạn',
     emptyDescription: 'Chưa có dữ liệu lịch làm để hiển thị.',
   },
   QL: {
-    roleLabel: 'Quản lý ca',
+    roleLabel: 'Quản lý cửa hàng',
     navigation: [
-      { label: 'Tổng quan', path: '/manager', icon: LayoutDashboard },
-      { label: 'Quản lý lịch', path: '/manager/registrations', icon: ClipboardList },
-      { label: 'Nhu cầu nhân sự', path: '/manager/demand', icon: Users },
-      { label: 'Lập lịch làm', path: '/manager/schedule', icon: CalendarDays },
-      { label: 'Công bố lịch', path: '/manager/publish', icon: CheckSquare },
-      { label: 'Lịch sử công bố', path: '/manager/publish-history', icon: History },
-      { label: 'Yêu cầu đổi ca', path: '/manager/shift-requests', icon: ArrowLeftRight },
-      { label: 'Quản lý nhân viên', path: '/manager/staff/competency', icon: Users },
+      { label: 'Tổng quan', path: '/manager', icon: LayoutDashboard,group:'Tổng quan' },
+      { label: 'Đăng ký ca', path: '/manager/registrations', icon: ClipboardList,group:'Lập lịch làm việc' },
+      { label: 'Nhu cầu nhân sự', path: '/manager/demand', icon: Users,group:'Lập lịch làm việc' },
+      { label: 'Xếp lịch & AI', path: '/manager/schedule', icon: CalendarDays,group:'Lập lịch làm việc' },
+      { label: 'Phê duyệt & công bố', path: '/manager/publish', icon: CheckSquare,group:'Lập lịch làm việc' },
+      { label: 'Lịch làm việc chính thức', path: '/manager/official-schedule', icon: Calendar,group:'Vận hành' },
+      { label: 'Xử lý đổi ca', path: '/manager/shift-requests', icon: ArrowLeftRight,group:'Vận hành' },
+      { label: 'Nhân viên', path: '/manager/staff/competency', icon: Users,group:'Quản trị' },
+      { label: 'Lịch sử', path: '/manager/publish-history', icon: History,group:'Quản trị' },
     ],
     metrics: [
       { label: 'Đăng ký ca cần xem', icon: ClipboardList },

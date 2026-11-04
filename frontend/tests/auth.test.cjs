@@ -17,6 +17,27 @@ function service(fetch, env = {}) {
 }
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 
+test('ensureSession avoids redundant profile requests but still refreshes expired tokens', async () => {
+  const paths=[];
+  const {authService,memory}=service(async path=>{paths.push(path);return json(session);});
+  await assert.rejects(authService.ensureSession(),e=>e.status===401);
+  memory.set('jollishift_access_token','fixture');
+  memory.set('jollishift_expires_at','9999999999');
+  await authService.ensureSession();assert.equal(paths.length,0);
+  memory.set('jollishift_refresh_token','fixture-refresh');memory.set('jollishift_expires_at','1');
+  await Promise.all([authService.ensureSession(),authService.ensureSession()]);
+  assert.equal(paths.length,1);assert.ok(paths[0].endsWith('/refresh'));
+  assert.equal(memory.get('jollishift_access_token'),session.access_token);
+});
+test('pending GET dedupe is session-scoped, returns independent bodies and never caches after writes',async()=>{
+ let complete,calls=0;const loaded=service(async()=>{calls++;return new Promise(r=>complete=r);});
+ loaded.memory.set('jollishift_access_token','first');const a=loaded.fetchWithReadDedupe('/data'),b=loaded.fetchWithReadDedupe('/data');assert.equal(calls,1);complete(json({value:'old'}));const [ra,rb]=await Promise.all([a,b]);assert.deepEqual(await ra.json(),{value:'old'});assert.deepEqual(await rb.json(),{value:'old'});
+ const next=loaded.fetchWithReadDedupe('/data');assert.equal(calls,2);complete(json({value:'new'}));assert.equal((await(await next).json()).value,'new');
+ const old=loaded.fetchWithReadDedupe('/data');const finishOld=complete;const write=loaded.fetchWithReadDedupe('/write',{method:'POST'});complete(json({ok:true}));await write;
+ const after=loaded.fetchWithReadDedupe('/data');complete(json({value:'after write'}));finishOld(json({value:'before write'}));assert.equal((await(await after).json()).value,'after write');await old;
+ const first=loaded.fetchWithReadDedupe('/data');const finishFirst=complete;loaded.memory.set('jollishift_access_token','second');const second=loaded.fetchWithReadDedupe('/data');complete(json({owner:'second'}));finishFirst(json({owner:'first'}));assert.equal((await(await second).json()).owner,'second');await first;
+});
+
 test('empty/HTML responses and network failure produce actionable errors', async () => {
   for (const body of ['', '<html>proxy error</html>']) {
     const { authService } = service(async () => new Response(body, { status: 502 }));

@@ -19,24 +19,28 @@ export function AIReportView({evaluation,stale,employees=[]}:{evaluation:AIEvalu
   </div>;
 }
 
-type PanelProps=({saved:SavedSchedule;preview?:never}|{preview:SchedulePreview;saved?:never;previewDirty?:boolean})&{employees?:{id:string;full_name:string}[]};
-export function PreviewScheduleAIPanel({preview,dirty=false,employees=[]}:{preview:SchedulePreview;dirty?:boolean;employees?:{id:string;full_name:string}[]}) {
+type PanelProps=({saved:SavedSchedule;preview?:never}|{preview:SchedulePreview;saved?:never;previewDirty?:boolean;autoEvaluate?:boolean})&{employees?:{id:string;full_name:string}[]};
+export function PreviewScheduleAIPanel({preview,dirty=false,employees=[],autoEvaluate=false}:{preview:SchedulePreview;dirty?:boolean;employees?:{id:string;full_name:string}[];autoEvaluate?:boolean}) {
   const [configuration,setConfiguration]=useState<PreviewAIConfiguration|null>(null);
   const [last,setLast]=useState<{key:string;evaluation:PreviewAIEvaluation}|null>(null);
   const [current,setCurrent]=useState<PreviewAIReviewResponse|null>(null);
   const [loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState('');
   const sequence=useRef(0),submitting=useRef(false);
+  const [configurationReload,setConfigurationReload]=useState(0);
+  const autoKey=useRef<string|null>(null),configurationKey=useRef<string|null>(null);
   const key=JSON.stringify({period:preview.period.id,revision:preview.input_revision,target:preview.edit_target??null,
     assignments:preview.result.assignments.map(({employee_id,work_date,shift_id,department_id})=>({employee_id,work_date,shift_id,department_id}))});
   useEffect(()=>{
+    if(dirty)autoKey.current=null;
+    configurationKey.current=null;
     let active=true;const request=++sequence.current;submitting.current=false;setBusy(false);setCurrent(null);setError('');setConfiguration(null);setLoading(true);
-    void schedulingService.previewAIConfiguration().then(value=>{if(active&&sequence.current===request)setConfiguration(value);})
+    void schedulingService.previewAIConfiguration().then(value=>{if(active&&sequence.current===request){configurationKey.current=key;setConfiguration({...value});}})
       .catch(err=>{if(active&&sequence.current===request)setError(err instanceof Error?err.message:'Không thể kiểm tra cấu hình AI.');})
       .finally(()=>{if(active&&sequence.current===request)setLoading(false);});
     return()=>{active=false;sequence.current++;};
-  },[key,dirty]);
+  },[key,dirty,configurationReload]);
   const evaluate=async()=>{
-    if(dirty||loading||busy||submitting.current||!configuration?.configured)return;
+    if(dirty||loading||busy||submitting.current||!configuration?.configured||configurationKey.current!==key)return;
     submitting.current=true;setBusy(true);setError('');setCurrent(null);const request=++sequence.current;
     try{
       const result=await schedulingService.evaluatePreviewAI(preview);
@@ -48,21 +52,25 @@ export function PreviewScheduleAIPanel({preview,dirty=false,employees=[]}:{previ
     }catch(err){if(request===sequence.current)setError(err instanceof Error?err.message:'Không thể đánh giá preview. Phương án không thay đổi.');}
     finally{if(request===sequence.current){submitting.current=false;setBusy(false);}}
   };
+  useEffect(()=>{
+    if(!autoEvaluate||dirty||loading||busy||!configuration?.configured||configurationKey.current!==key||autoKey.current===key)return;
+    autoKey.current=key;void evaluate();
+  },[autoEvaluate,key,dirty,loading,busy,configuration]);
   const stale=!!last&&(dirty||last.key!==key||current?.status!=='AVAILABLE'||current.evaluation?.input_revision!==last.evaluation.input_revision);
   return <section className="card summary-panel schedule-ai" aria-labelledby="preview-ai-heading" aria-busy={busy||loading}>
-    <div className="schedule-heading"><h3 id="preview-ai-heading">AI đánh giá lịch dự kiến</h3><button type="button" className="btn btn-outline" disabled={dirty||loading||busy||!configuration?.configured} onClick={()=>void evaluate()}>{busy?<Loader2 className="spin" size={16} aria-hidden="true"/>:<Sparkles size={16} aria-hidden="true"/>}{busy?'AI đang đánh giá…':'Đánh giá bằng AI'}</button></div>
-    <p className="schedule-muted">AI chỉ tư vấn về phương án chưa lưu. Báo cáo không lưu vào database và không tự thay đổi phân công.</p>
+    <div className="schedule-heading"><h3 id="preview-ai-heading">AI đánh giá lịch dự kiến</h3><button type="button" className="btn btn-outline" disabled={dirty||loading||busy||configuration?.configured===false} onClick={()=>configuration?.configured?void evaluate():setConfigurationReload(n=>n+1)}>{busy?<Loader2 className="spin" size={16} aria-hidden="true"/>:<Sparkles size={16} aria-hidden="true"/>}{busy?'AI đang đánh giá…':error?'Thử lại AI':autoEvaluate?'Đánh giá lại':'Đánh giá bằng AI'}</button></div>
+    <p className="schedule-muted">AI tư vấn trên phương án chưa lưu, không tự sửa phân công hoặc lưu lịch.</p>
     {loading&&<p role="status">Đang kiểm tra cấu hình AI…</p>}
     {dirty&&<p role="status">Cần kiểm tra lại phương án trước khi đánh giá AI. Báo cáo cũ đã hết hiệu lực.</p>}
     {configuration&&!current&&<p role="status">{configuration.message}</p>}
-    {busy&&<p role="status">Đang đánh giá coverage, giờ làm và phân bổ nhân sự. Phương án vẫn giữ nguyên.</p>}
+    {busy&&<p role="status">AI đang đánh giá. Phương án Rule Engine vẫn giữ nguyên; bạn có thể tiếp tục xem, chỉnh sửa hoặc chủ động lưu phương án.</p>}
     {current&&<p role="status">{current.message}</p>}
     {error&&<p className="schedule-alert schedule-alert-error" role="alert">{error}</p>}
-    {last&&<AIReportView evaluation={last.evaluation} stale={stale} employees={employees}/>}
+    {last&&(autoEvaluate?<><p className={`badge ${stale?'badge-yellow':'badge-green'}`}>{stale?'Hết hiệu lực — cần đánh giá lại':'Đã đánh giá phương án đang xem'}</p><div className="preview-ai-overview">{[['Nhận xét',last.evaluation.report.good_points],['Vấn đề cần lưu ý',last.evaluation.report.concerns],['Đề xuất',last.evaluation.report.suggestions.map(s=>s.description)]].map(([title,items])=><section key={title as string}><h4>{title as string}</h4>{(items as string[]).length?<ul>{(items as string[]).slice(0,2).map((item,i)=><li key={i}>{item}</li>)}</ul>:<p>Không có nội dung được nêu.</p>}</section>)}</div><details><summary>Xem đầy đủ đánh giá và giới hạn</summary><AIReportView evaluation={last.evaluation} stale={stale} employees={employees}/></details></>:<AIReportView evaluation={last.evaluation} stale={stale} employees={employees}/>)}
   </section>;
 }
 export function ScheduleAIPanel(props:PanelProps) {
-  return props.preview?<PreviewScheduleAIPanel preview={props.preview} dirty={props.previewDirty} employees={props.employees}/>:<SavedScheduleAIPanel saved={props.saved} employees={props.employees}/>;
+  return props.preview?<PreviewScheduleAIPanel preview={props.preview} dirty={props.previewDirty} employees={props.employees} autoEvaluate={props.autoEvaluate}/>:<SavedScheduleAIPanel saved={props.saved} employees={props.employees}/>;
 }
 
 export function SavedScheduleAIPanel({saved,employees=[]}:{saved:SavedSchedule;employees?:{id:string;full_name:string}[]}) {

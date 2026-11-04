@@ -62,3 +62,27 @@ test('registration HTTP ownership, role, save response, deadline and automation 
  if(prev===undefined)delete process.env.REGISTRATION_AUTOMATION_TOKEN;else process.env.REGISTRATION_AUTOMATION_TOKEN=prev;
  }finally{db.from=original.from;db.rpc=original.rpc;db.auth.getUser=original.getUser;await new Promise(r=>server.close(r));}
 });
+
+test('server advertises the scoped time exception and uses token identity on its real save route',async()=>{
+ const dev=require('../dist/registrations/dev-test-window.js'),s=dev.DEV_TEST_REGISTRATION_SCOPE;
+ const saved={...process.env},original={from:db.from,rpc:db.rpc,getUser:db.auth.getUser,persist:dev.persistDevTestRegistration};
+ const uid='00000000-0000-4000-8000-000000000101',shift='00000000-0000-4000-8000-000000000102';let calls=[];
+ const period={id:s.period,branch_id:s.branch,work_start_date:s.start,work_end_date:s.end,open_at:'2099-01-01T00:00:00Z',close_at:'2099-01-02T00:00:00Z',status:'PLANNED'};
+ Object.assign(process.env,{REGISTRATION_DEV_TEST_MODE:'true',NODE_ENV:'development',SUPABASE_URL:`https://${s.project}.supabase.co`});
+ db.auth.getUser=async()=>({data:{user:{id:uid}},error:null});
+ db.from=table=>{const filters=[];const query={select(){return this},eq(k,v){filters.push([k,v]);return this},lte(){return this},gt(){return this},or(){return this},order(){return this},limit(){return this},single:async()=>result(),maybeSingle:async()=>result(),then(resolve){return Promise.resolve(result()).then(resolve)}};
+  function result(){const data=table==='users'?{id:uid,username:'fixture',role:'NV',branch_id:s.branch,is_active:true,must_change_password:false}:table==='employees'?{id:'own-employee',user_id:uid,branch_id:s.branch,status:'ACTIVE',skill_level:'REGULAR'}:table==='branches'?{name:'Fixture'}:table==='registration_periods'?(filters.some(([k])=>k==='id')?(filters.some(([k,v])=>k==='id'&&v===s.period)?period:null):[period]):table==='shifts'?[{id:shift,start_time:'08:00:00',end_time:'12:00:00'}]:table==='registration_schedule_config'?{timezone:'Asia/Ho_Chi_Minh'}:table==='registration_submissions_sourced'?null:[];return{data,error:null};}return query;};
+ db.rpc=async()=>{throw Error('No ordinary RPC expected while bypassing its clock gate');};
+ dev.persistDevTestRegistration=async(...args)=>{calls.push(args);return{registration_status:'VALID',errors:[]}};
+ const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));const base=`http://127.0.0.1:${server.address().port}/api/registrations`,headers={Authorization:'Bearer isolated-fixture','Content-Type':'application/json'};
+ try{
+  const current=await(await fetch(base+'/current',{headers})).json();assert.equal(current.period.id,s.period);assert.equal(current.registration_window.dev_test_override,true);assert.equal(current.period.status,'PLANNED');
+  const body={mode:'submit',preferences:[{work_date:s.start,shift_id:shift}]};
+  const send=(periodId,value)=>fetch(`${base}/${periodId}/me`,{method:'PUT',headers,body:JSON.stringify(value)});
+  assert.equal((await send(s.period,body)).status,200);assert.equal(calls[0][0],uid);assert.equal(calls[0][1],s.period);
+  assert.equal((await send(s.period,{...body,employee_id:'other'})).status,400);
+  assert.equal((await send(s.period,{...body,preferences:[...body.preferences,...body.preferences]})).status,400);
+  assert.equal((await send('79a979cc-8347-48b5-a411-f03bd8aceb92',body)).status,403);assert.equal(calls.length,1);
+  process.env.REGISTRATION_DEV_TEST_MODE='false';assert.equal((await send(s.period,body)).status,409);assert.equal(calls.length,1);
+ }finally{db.from=original.from;db.rpc=original.rpc;db.auth.getUser=original.getUser;dev.persistDevTestRegistration=original.persist;for(const k of Object.keys(process.env))if(!(k in saved))delete process.env[k];Object.assign(process.env,saved);await new Promise(r=>server.close(r));}
+});

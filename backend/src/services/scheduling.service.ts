@@ -4,6 +4,8 @@ import { summarizeRegistrations } from './registration-summary.service.js';
 import { supabaseAdmin } from '../config/supabase.js';
 import { generateSchedule, ScheduleError, SchedulingInput } from './scheduling.engine.js';
 import { requireDraftPersistenceEnabled } from './draft-write-policy.js';
+import { readSummarySnapshot } from '../repositories/read-summary.js';
+import { requireDraftWriteScope } from './draft-write-scope.js';
 
 export function databaseError(error: { code?: string; message?: string }): never {
   if (error.code === 'PGRST202') throw new ScheduleError(503, 'SCHEDULING_NOT_CONFIGURED', 'Chức năng tạo lịch chưa được cấu hình trên hệ thống. Vui lòng liên hệ quản trị viên.');
@@ -21,6 +23,7 @@ export function databaseError(error: { code?: string; message?: string }): never
 }
 export async function createDraft(periodId: string, actorId: string, branchId?:string, options:{regenerate?:boolean;expectedVersion?:number}={}) {
   requireDraftPersistenceEnabled();
+  requireDraftWriteScope(periodId,branchId);
   if(isMockSchedulingFlow()){
     if(!branchId)throw new ScheduleError(403,'BRANCH_REQUIRED','Quản lý chưa được phân công chi nhánh.');
     return createMockDraft(periodId,branchId,actorId,options);
@@ -78,7 +81,7 @@ export async function readSchedulingContext(periodId: string, branchId: string) 
       employees: data.employees.map(e => ({ id: e.id, full_name: e.full_name, department_id: e.department_id })),
       shifts: data.shifts, departments: data.departments };
   }
-  const data=await repository.load(branchId,periodId);
+  const data=await readSummarySnapshot(repository,branchId,periodId);
   return {source:data.source,period:data.period,requirements:data.requirements,
     valid_registration_count:data.registrations.length,registration_declarations:data.registration_declarations,
     employees:data.employees.map(e=>({id:e.id,full_name:e.full_name,department_id:e.department_id,employee_code:e.employee_code,skill_level:e.skill_level,skills:e.skills,max_weekly_hours:e.max_weekly_hours})),
@@ -87,7 +90,7 @@ export async function readSchedulingContext(periodId: string, branchId: string) 
 
 
 export async function readRegistrationSummary(periodId: string, branchId: string, filters: { work_date?: string; shift_id?: string; department_id?: string } = {}) {
-  const snapshot = await registrationSummaryRepository().load(branchId, periodId);
+  const snapshot = await readSummarySnapshot(registrationSummaryRepository(),branchId, periodId);
   const summary = summarizeRegistrations(snapshot);
   return { ...summary, registration_declarations:snapshot.registration_declarations, rows: summary.rows.filter(row =>
     (!filters.work_date || row.work_date === filters.work_date) &&

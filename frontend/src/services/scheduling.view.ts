@@ -5,7 +5,7 @@ export const dateLabel = (date: string) => new Intl.DateTimeFormat('vi-VN', {
 }).format(new Date(`${date}T12:00:00+07:00`));
 export const weekLabel = (period: Pick<SchedulingPeriod, 'work_start_date' | 'work_end_date'>) =>
   `${dateLabel(period.work_start_date)} – ${dateLabel(period.work_end_date)}`;
-export const statusLabel = (status: string) => ({ DRAFT: 'Dự kiến', PENDING_APPROVAL: 'Chờ phê duyệt',
+export const statusLabel = (status: string) => ({ DRAFT: 'Bản nháp', PENDING: 'Chờ phê duyệt', PENDING_APPROVAL: 'Chờ phê duyệt',
   NEEDS_REVISION: 'Cần điều chỉnh', APPROVED: 'Đã phê duyệt', PUBLISHED: 'Đã công bố',
   CLOSED: 'Đã đóng đăng ký', OPEN: 'Đang mở đăng ký', PLANNED: 'Chưa mở đăng ký' }[status] || status);
 export function latestSchedule(period: SchedulingPeriod) {

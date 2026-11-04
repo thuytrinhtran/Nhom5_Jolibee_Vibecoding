@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Profiler,Suspense,useEffect, useRef, useState, type ReactNode } from 'react';
+import { notePerformanceRoute,recordPerformanceRender } from '../../services/performance-diagnostics';
 import { NavLink, useLocation } from 'react-router-dom';
 import { Bell, Building2, ChevronLeft, ChevronRight, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -8,7 +9,9 @@ import logoImg from '../../assets/jollibee-logo.jpg';
 export const AppLayout = ({ children }: { children: ReactNode }) => {
   const { user, logout } = useAuth();
   const { pathname } = useLocation();
+  notePerformanceRoute(pathname);
   const [collapsed, setCollapsed] = useState(false);
+  const [closedGroups,setClosedGroups]=useState<Record<string,boolean>>({});
   const [mobileOpen, setMobileOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
@@ -46,10 +49,11 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
 
   if (!user) return null;
   const config = dashboardConfig[user.role];
-  const current = config.navigation.find(item => item.path === pathname);
+  const activePath=user.role==='NV'?pathname==='/employee/schedule'?'/employee':['/employee/shift-requests','/employee/incidents'].includes(pathname)?'/employee/support':pathname:pathname;
+  const current = config.navigation.find(item => item.path === activePath);
   const name = user.employee?.full_name || user.username;
   return (
-    <div className={`app-shell${collapsed ? ' app-shell-collapsed' : ''}`}>
+    <div className={`app-shell${user.role==='NV'?' app-shell-employee':user.role==='QL'?' app-shell-manager':''}${collapsed ? ' app-shell-collapsed' : ''}`}>
       <a className="app-skip-link" href="#app-content">Đến nội dung chính</a>
       {mobileOpen && <button className="app-sidebar-overlay" aria-label="Đóng menu điều hướng" onClick={() => setMobileOpen(false)} />}
       <aside ref={sidebar} id="app-sidebar" className={`app-sidebar${mobileOpen ? ' is-open' : ''}`} aria-label="Thanh điều hướng" role={mobileOpen ? 'dialog' : undefined} aria-modal={mobileOpen || undefined}>
@@ -59,11 +63,13 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
           <button className="app-icon-button app-mobile-close" aria-label="Đóng menu" onClick={() => setMobileOpen(false)}><X size={20} /></button>
         </div>
         <nav className="app-navigation" aria-label={config.roleLabel}>
-          {config.navigation.map(({ label, path, icon: Icon }, index) => (
-            <NavLink key={path} to={path} end={index === 0} title={label} aria-label={label} onClick={() => setMobileOpen(false)} className={({ isActive }) => `app-nav-link${isActive ? ' is-active' : ''}`}>
+          {[...new Set(config.navigation.map(item=>item.group??''))].map(group=><div className="app-nav-group" key={group}>
+          {group&&!collapsed&&!(user.role==='QL'&&group==='Tổng quan')&&<button className={`app-nav-group-toggle${config.navigation.some(i=>i.group===group&&i.path===pathname)?' is-selected':''}`} aria-expanded={!closedGroups[group]} onClick={()=>setClosedGroups(old=>({...old,[group]:!old[group]}))}>{group}<span aria-hidden="true">{closedGroups[group]?'+':'−'}</span></button>}
+          {(!closedGroups[group]||collapsed||(user.role==='QL'&&group==='Tổng quan'))&&config.navigation.filter(item=>(item.group??'')===group).map(({ label, path, icon: Icon }) => (
+            <NavLink key={path} to={path} end={path===config.navigation[0].path} title={label} aria-label={label} onClick={() => setMobileOpen(false)} className={({ isActive }) => `app-nav-link${(isActive||activePath===path) ? ' is-active' : ''}`}>
               <Icon size={20} aria-hidden="true" /><span className="app-nav-label">{label}</span>
             </NavLink>
-          ))}
+          ))}</div>)}
         </nav>
         <div className="app-sidebar-footer"><button className="app-collapse-button" onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? 'Mở rộng menu' : 'Thu gọn menu'} aria-expanded={!collapsed}>{collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}<span className="app-nav-label">Thu gọn menu</span></button></div>
       </aside>
@@ -83,7 +89,7 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
             <button className="app-logout" onClick={() => void logout()} aria-label="Đăng xuất"><LogOut size={18} aria-hidden="true" /><span>Đăng xuất</span></button>
           </div>
         </header>
-        <main id="app-content" className="app-content" tabIndex={-1}>{children}</main>
+        <main id="app-content" className="app-content" tabIndex={-1}><Profiler id={pathname} onRender={recordPerformanceRender}><Suspense fallback={<p role="status">Đang tải trang…</p>}>{children}</Suspense></Profiler></main>
       </div>
     </div>
   );

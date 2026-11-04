@@ -6,6 +6,7 @@ import { schedulingInput } from './scheduling-input.js';
 import { generateSchedule, reviewAssignments, ScheduleError, type Assignment } from './scheduling.engine.js';
 import { readDraft } from './scheduling.service.js';
 import { isDraftPersistenceEnabled } from './draft-write-policy.js';
+import { draftWriteScopeAllowed } from './draft-write-scope.js';
 
 export async function previewSnapshot(periodId:string,branchId:string,body:Record<string,unknown>,repository:RegistrationSummaryRepository) {
   const snapshot=await repository.load(branchId,periodId);
@@ -61,5 +62,5 @@ export async function previewSchedule(periodId:string,branchId:string,body:Recor
     result,context:{source:snapshot.source,period:snapshot.period,requirements:snapshot.requirements,valid_registration_count:snapshot.registrations.length,
       employees:snapshot.employees.map(e=>({id:e.id,full_name:e.full_name,department_id:e.department_id,employee_code:e.employee_code,skill_level:e.skill_level,skills:e.skills,max_weekly_hours:e.max_weekly_hours})),shifts:snapshot.shifts,departments:snapshot.departments},
     warnings:result.coverage.filter(c=>c.warning).map(c=>({code:c.warning!,work_date:c.work_date,shift_id:c.shift_id,department_id:c.department_id})),
-    persistence:{enabled:snapshot.source==='supabase'&&isDraftPersistenceEnabled(),reason:isDraftPersistenceEnabled()?'Lưu thành phiên bản DRAFT; dữ liệu sẽ được kiểm tra lại trước khi ghi.':'Chưa bật lưu DRAFT. Cần triển khai và xác minh migration trước.'}};
+    persistence:{enabled:snapshot.source==='supabase'&&isDraftPersistenceEnabled()&&draftWriteScopeAllowed(periodId,branchId),reason:!draftWriteScopeAllowed(periodId,branchId)?'Chỉ cho phép lưu DRAFT tại Lê Duẩn, kỳ 02–08/11/2026.':isDraftPersistenceEnabled()?'Lưu thành phiên bản DRAFT; dữ liệu sẽ được kiểm tra lại trước khi ghi.':'Chưa bật lưu DRAFT. Cần triển khai và xác minh migration trước.'}};
 }

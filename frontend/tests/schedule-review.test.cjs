@@ -4,11 +4,21 @@ const validation={schedule_id:'saved',version:2,scope:'DECLARED_REQUIREMENTS_AND
 const handoff={validation,payload:null,current_status:'DRAFT',target_status:'PENDING_APPROVAL',delivery:{configured:false,sent:false,message:'Chưa kết nối API tiếp nhận TV4. Lịch chưa được gửi.'}};
 const saved={schedule:{id:'saved',version:2,status:'DRAFT'},assignments:[],generation_snapshot:null};
 function component(react=React,service={},globals={}){return load('src/pages/manager/ScheduleReviewPanel.tsx',{react,'../../services/scheduling.service':{schedulingService:service}},globals);}
+
+test('saved DRAFT explains how to enable sending before handoff has been checked',()=>{
+ const states=[null,null,'',false,''];let n=0;
+ const hooks={...React,useState:()=>[states[n++],()=>{}],useRef:()=>({current:false}),useEffect:()=>{}};
+ const {ScheduleReviewPanel}=component(hooks);const html=renderToStaticMarkup(React.createElement(ScheduleReviewPanel,{saved}));
+ assert.ok(html.includes('Gửi lịch phê duyệt'));
+ assert.ok(html.includes('Kiểm tra lịch đã lưu trước khi gửi'));
+ assert.ok(!html.includes('Chưa kết nối API tiếp nhận TV4'));
+ assert.match(html,/<button[^>]*disabled=""[^>]*>Gửi Giám sát khu vực phê duyệt<\/button>/);
+});
 test('panel offers TV3 validation/preparation, disables sending and never claims approval',()=>{
  const states=[validation,handoff,'',false,''];let index=0;
  const hooks={...React,useState:()=>[states[index++],()=>{}],useRef:()=>({current:false}),useEffect:()=>{}};
  const {ScheduleReviewPanel}=component(hooks);const html=renderToStaticMarkup(React.createElement(ScheduleReviewPanel,{saved}));
- for(const text of ['Kiểm tra lịch','Chuẩn bị dữ liệu gửi phê duyệt','Gửi Giám sát khu vực phê duyệt','DRAFT','Lịch còn thiếu 1','Chưa thể bàn giao','Chưa kết nối API tiếp nhận TV4'])assert.ok(html.includes(text),text);
+ for(const text of ['Kiểm tra lịch','Chuẩn bị dữ liệu gửi phê duyệt','Gửi Giám sát khu vực phê duyệt','Bản nháp','Lịch còn thiếu 1','Chưa thể bàn giao','Chưa thể gửi lịch trong tuần này'])assert.ok(html.includes(text),text);
  assert.match(html,/<button[^>]*disabled=""[^>]*>Gửi Giám sát khu vực phê duyệt<\/button>/);assert.ok(!html.includes('đã được gửi thành công'));
 });
 test('ready handoff preview is labelled unsent and respects target/current status',()=>{
@@ -16,7 +26,7 @@ test('ready handoff preview is labelled unsent and respects target/current statu
  const states=[ready,{...handoff,validation:ready,payload:{schedule_id:'saved',current_status:'DRAFT',requested_status:'PENDING_APPROVAL',is_mock:true}},'',false,''];let index=0;
  const hooks={...React,useState:()=>[states[index++],()=>{}],useRef:()=>({current:false}),useEffect:()=>{}};
  const {ScheduleReviewPanel}=component(hooks);const html=renderToStaticMarkup(React.createElement(ScheduleReviewPanel,{saved}));
- assert.ok(html.includes('Xem dữ liệu bàn giao TV4 (chưa gửi)'));assert.ok(html.includes('Dữ liệu đáp ứng kiểm tra'));assert.ok(html.includes('PENDING_APPROVAL'));assert.ok(html.includes('Chưa kết nối API tiếp nhận TV4'));
+ assert.ok(!html.includes('<pre'));assert.ok(html.includes('Dữ liệu đáp ứng kiểm tra'));assert.ok(html.includes('Bản nháp'));assert.ok(html.includes('Chưa thể gửi lịch trong tuần này'));
 });
 test('validation client uses POST endpoints and expected version, without a submit or approval request',async()=>{
  class ApiError extends Error{};const calls=[];

@@ -6,6 +6,7 @@ import { previewSnapshot, previewRevision } from './schedule-preview.service.js'
 import { databaseError } from './scheduling.service.js';
 import { schedulingInput } from './scheduling-input.js';
 import { requireDraftPersistenceEnabled } from './draft-write-policy.js';
+import { requireDraftWriteScope } from './draft-write-scope.js';
 import { generateSchedule, reviewAssignments, ScheduleError, type Assignment, type SchedulingInput } from './scheduling.engine.js';
 
 // Compare rule inputs, not UI labels/DB timestamps or query ordering. SQL repeats
@@ -34,6 +35,7 @@ export function serverVerifiedPlan(input:SchedulingInput,assignments:Assignment[
 }
 export async function persistPreview(periodId:string,branchId:string,actorId:string,body:Record<string,unknown>,scheduleId?:string) {
   requireDraftPersistenceEnabled();
+  requireDraftWriteScope(periodId,branchId);
   requireRealSchedulingData();
   const allowed=['period_id','assignments','input_revision','request_id',...(scheduleId?['expected_version']:[])];
   const fields=['employee_id','work_date','shift_id','department_id'];

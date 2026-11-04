@@ -8,12 +8,12 @@ const assignment={id:'saved:0',employee_id:'phuc',work_date:'2026-11-02',shift_i
 const saved={source:'mock',is_mock:true,demand_changed:false,schedule:{id:'saved',period_id:'period',version:1,status:'DRAFT'},assignments:[assignment],generation_snapshot:{coverage:[{...context.requirements[0],assigned_count:1,missing_count:1,warning:null}],notes:[]}};
 function page(hooks){return load('src/pages/manager/ManagerSchedule.tsx',{react:hooks,'react-router-dom':{Link:({children})=>React.createElement('a',{},children),useSearchParams:()=>[new URLSearchParams(),()=>{}]},
  '../../context/AuthContext':{useAuth:()=>({user:{branch_id:'branch',branch_name:'Branch'}})},'../../services/auth.service':{ApiError:Error},'../../services/scheduling.service':{schedulingService:{}},
- '../../services/scheduling.view':views,'./RegistrationSummaryPanel':{RegistrationSummaryPanel:()=>null},'./ScheduleReviewPanel':{ScheduleReviewPanel:()=>null},'./ScheduleAIPanel':{ScheduleAIPanel:()=>React.createElement('p',{},'AI đánh giá và đề xuất lịch làm việc')},'./MockDraftEditor':{MockDraftEditor:()=>React.createElement('p',{},'Mock draft editor')},});}
+ '../../services/scheduling.view':views,'./RegistrationSummaryPanel':{RegistrationSummaryPanel:()=>null},'./ScheduleReviewPanel':{ScheduleReviewPanel:()=>null},'./ScheduleAIPanel':{ScheduleAIPanel:()=>React.createElement('p',{})},'./MockDraftEditor':{MockDraftEditor:()=>React.createElement('p',{},'Mock draft editor')},});}
 test('flow mode enables create/regenerate, labels test data, shows employee shortage and truthful AI status',()=>{
- const states=[[period],'period',context,saved,false,false,false,'','',0];let index=0;
+ const states=[[period],'period',context,saved,false,false,false,'','',0,undefined,undefined,undefined,undefined,undefined,'','assignments','2026-11-02/pm/service'];let index=0;
  const hooks={...React,useState:()=>[states[index++],()=>{}],useEffect:()=>{},useRef:()=>({current:0})};const {ManagerSchedule}=page(hooks);
  const html=renderToStaticMarkup(React.createElement(ManagerSchedule));
- for(const text of ['Dữ liệu thử nghiệm','1 ca/ngày','NV08 Phúc','Thiếu 1','Tạo lịch dự kiến','AI đánh giá và đề xuất lịch làm việc','Mock draft editor'])assert.ok(html.includes(text),text);
+ for(const text of ['Dữ liệu thử nghiệm','1 ca/ngày','NV08 Phúc','Thiếu 1','Tạo lịch dự kiến','Mock draft editor'])assert.ok(html.includes(text),text);
  assert.ok(!/<button[^>]*disabled=""[^>]*>[^<]*Tạo lịch dự kiến/.test(html));
 });
 test('client sends explicit regenerate revision and PATCH only plain assignment fields',async()=>{

@@ -1,7 +1,7 @@
 // No automatic invocation, no Auth creation, no dotenv or arbitrary SQL input.
 // CLI default: inspect only. Apply/rollback require an explicit approval digest.
 const fs=require('node:fs'),crypto=require('node:crypto');
-const SCOPE={project_ref:'wimikwyuzhltpjciafod',batch_id:'6e1d2026-1102-4000-8000-000000000017',branch_id:'11111111-1111-1111-1111-111111111111',period_id:'79a979cc-8347-48b5-a411-f03bd8aceb92'};
+const SCOPE={project_ref:'wlbpprpiieonjrqglicv',batch_id:'6e1d2026-1102-4000-8000-000000000017',branch_id:'11111111-1111-1111-1111-111111111111',period_id:'79a979cc-8347-48b5-a411-f03bd8aceb92'};
 const canonical=v=>JSON.stringify(normalize(v));
 function normalize(v){if(Array.isArray(v))return v.map(normalize);if(v&&typeof v==='object')return Object.fromEntries(Object.keys(v).sort().map(k=>[k,normalize(v[k])]));return v;}
 const hash=v=>crypto.createHash('sha256').update(canonical(v)).digest('hex');
@@ -25,17 +25,19 @@ async function baseline(c,profiles=[]){
 }
 function assertScope(plan){if(!['development','test'].includes(plan.environment)||Object.entries(SCOPE).some(([k,v])=>plan[k]!==v))fail('SCOPE_MISMATCH');}
 function seal(plan){const {plan_sha256,...rest}=plan;return hash(rest);}
-function authorizeConnection(c){const host=c.connectionParameters?.host;if(host===`db.${SCOPE.project_ref}.supabase.co`){if(c.connectionParameters.ssl?.rejectUnauthorized!==true)fail('VERIFIED_TLS_REQUIRED');}else if(!(process.env.NODE_ENV==='test'&&process.env.DEV_IMPORT_LOCAL_REHEARSAL==='true'&&host==='127.0.0.1'))fail('PROJECT_CONNECTION_NOT_APPROVED');}
+function authorizeConnection(c){const host=c.connectionParameters?.host;if(process.env.NODE_ENV==='test'&&process.env.DEV_IMPORT_LOCAL_REHEARSAL==='true'&&host==='127.0.0.1')return;require('./project-connection.cjs').projectConnectionKind(c.connectionParameters??{});}
 async function transaction(c,work,readonly=false){await c.query(readonly?'BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY':'BEGIN');try{await c.query("SET LOCAL timezone='UTC'; SET LOCAL lock_timeout='5s'; SET LOCAL statement_timeout='30s'");const v=await work();await c.query('COMMIT');return v;}catch(e){await c.query('ROLLBACK');throw e;}}
 function payload(seed){
  const extra=seed.optional_positive_scenario?.additional_shift_registrations;
  if(!Array.isArray(extra))fail('POSITIVE_SCENARIO_REQUIRED');
- return{profiles:seed.auth_profiles_to_provision,employees:seed.employees_to_insert,
+ return{fixture_policy:seed.fixture_policy??'expanded-70-v1',profiles:seed.auth_profiles_to_provision,employees:seed.employees_to_insert,
   headers:seed.submission_headers_to_insert.map(h=>({period_id:h.period_id,employee_id:h.employee_id})),
   registrations:[...seed.shift_registrations_to_insert,...extra].map(r=>Object.fromEntries(['id','period_id','employee_id','work_date','shift_id'].map(k=>[k,r[k]])))};
 }
 function validatePayload(p){
  for(const group of [p.profiles,p.employees,p.headers,p.registrations])if(!Array.isArray(group))fail('INVALID_MANIFEST');
+ if(!['expanded-70-v1','existing-employees-v1'].includes(p.fixture_policy??'expanded-70-v1'))fail('UNKNOWN_FIXTURE_POLICY');
+ if(p.fixture_policy==='existing-employees-v1'&&(p.profiles.length||p.employees.length))fail('EXISTING_EMPLOYEES_ONLY');
  for(const list of [p.profiles,p.employees,p.registrations])if(new Set(list.map(r=>r.id)).size!==list.length)fail('DUPLICATE_MANIFEST_ID');
  if(new Set(p.headers.map(h=>h.employee_id)).size!==p.headers.length)fail('DUPLICATE_HEADER');
  if(p.headers.some(h=>h.period_id!==SCOPE.period_id)||p.registrations.some(r=>r.period_id!==SCOPE.period_id||r.work_date<'2026-11-02'||r.work_date>'2026-11-08'||!p.headers.some(h=>h.employee_id===r.employee_id)))fail('INVALID_ROW_SCOPE');
@@ -49,7 +51,8 @@ function evaluate(input,p){
  if(input.registrations.length!==16||input.requirements.reduce((s,r)=>s+r.required_count,0)!==308)fail('EXPECTED_REAL_SOURCE_CHANGED');
  const keys=new Set();for(const r of registrations){const key=[r.employee_id,r.work_date,r.shift_id].join('/');if(keys.has(key))fail('DUPLICATE_REGISTRATION');keys.add(key);}
  for(let i=0;i<registrations.length;i++){const a=registrations[i],s=input.shifts.find(s=>s.id===a.shift_id);if(!s)fail('MISSING_SHIFT');const [x,y]=interval(a.work_date,s);for(let j=i+1;j<registrations.length;j++){const b=registrations[j];if(a.employee_id!==b.employee_id)continue;const [v,w]=interval(b.work_date,input.shifts.find(s=>s.id===b.shift_id));if(x<w&&v<y)fail('REGISTRATION_OVERLAP');}}
- const daily=Array.from({length:7},(_,i)=>{const work_date=`2026-11-0${i+2}`,people=new Set(registrations.filter(r=>r.work_date===work_date).map(r=>r.employee_id)).size;if(people<60||people>70)fail('DAILY_SCALE_CHANGED');return{work_date,distinct_employees:people};});
+ const eligibleCount=input.employees.filter(e=>e.is_active&&e.role==='NV'&&e.status==='ACTIVE'&&e.skill_level!=='CREW_LEADER').length;
+ const daily=Array.from({length:7},(_,i)=>{const work_date=`2026-11-0${i+2}`,people=new Set(registrations.filter(r=>r.work_date===work_date).map(r=>r.employee_id)).size;if(p.fixture_policy==='existing-employees-v1'?(people<1||people>eligibleCount):(people<60||people>70))fail('DAILY_SCALE_CHANGED');return{work_date,distinct_employees:people};});
  const result=generateSchedule({...input,employees,registrations});
  if(result.assigned_count!==308||result.shortages.length||result.composition_shortages.length)fail('POSITIVE_SCENARIO_FAILED');
  return{daily,assigned:result.assigned_count,required:result.required_count,shortage:0,composition_cells:0,optimization:result.optimization,registration_count:registrations.length};
@@ -132,7 +135,7 @@ if(require.main===module)(async()=>{
  if(!outFile||path.resolve(outFile).startsWith(workspace+path.sep)||fs.existsSync(outFile))fail('NEW_PRIVATE_OUTPUT_PATH_REQUIRED');
  if(!connectionFile||path.resolve(connectionFile).startsWith(workspace+path.sep))fail('PRIVATE_CONNECTION_FILE_REQUIRED');
  const config=JSON.parse(fs.readFileSync(connectionFile,'utf8'));
- if(config.host!==`db.${SCOPE.project_ref}.supabase.co`||config.database!=='postgres'||config.ssl?.rejectUnauthorized!==true)fail('DIRECT_PROJECT_HOST_TLS_REQUIRED');
+ require('./project-connection.cjs').projectConnectionKind(config);
  const modulePath=process.env.DEV_IMPORT_PG_CLIENT;if(!modulePath||!require('node:path').isAbsolute(modulePath))fail('PRIVATE_PG_CLIENT_PATH_REQUIRED');
  const {Client}=require(modulePath),c=new Client(config);await c.connect();
  try{const input=JSON.parse(fs.readFileSync(inputFile,'utf8'));const result=mode==='prepare'?await prepare(c,input,process.env.NODE_ENV):mode==='apply'?await apply(c,input,process.env.DEV_IMPORT_APPROVAL_SHA256):await rollback(c,input,process.env.DEV_IMPORT_APPROVAL_SHA256);if(!outFile)fail('PRIVATE_OUTPUT_PATH_REQUIRED');fs.writeFileSync(outFile,JSON.stringify(result,null,2),{flag:'wx'});console.log(JSON.stringify({mode,output_written:true}));}finally{await c.end();}

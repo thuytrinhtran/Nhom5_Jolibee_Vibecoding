@@ -39,7 +39,7 @@ export function ManagerCalendar(){
   const days=data?calendarDays(data.period.work_start_date):[];
   const shiftName=(id:string)=>{const s=data?.shifts.find(s=>s.id===id)||assignments.find(a=>a.shift_id===id)?.shift;return s?`${s.name} · ${s.start_time.slice(0,5)}–${s.end_time.slice(0,5)}`:'Ca không còn trong danh mục';};
   return <section className="manager-calendar">
-    <header className="calendar-heading"><div><h2>Quản lý lịch</h2><p>{user?.branch_name||'Chi nhánh được phân công'}</p></div><Link className="btn btn-primary" to="/manager/schedule">AI hỗ trợ / Lập lịch làm</Link></header>
+    <header className="calendar-heading"><div><h2>Đăng ký ca của nhân viên</h2><p>{user?.branch_name||'Chi nhánh được phân công'}</p></div><Link className="btn btn-primary" to="/manager/official-schedule">Lịch chính thức</Link></header>
     <div className="calendar-tabs" role="tablist" aria-label="Loại lịch">
       <button id="calendar-registration-tab" role="tab" aria-selected={tab==='registrations'} aria-controls="manager-calendar-panel" onClick={()=>{setTab('registrations');setPerson('');}}>Lịch đăng ký</button>
       <button id="calendar-assignment-tab" role="tab" aria-selected={tab==='assignments'} aria-controls="manager-calendar-panel" onClick={()=>{setTab('assignments');setPerson('');}}>Lịch phân công</button>
@@ -48,7 +48,7 @@ export function ManagerCalendar(){
       <label>Tuần<select value={periodId} onChange={e=>setPeriodId(e.target.value)} disabled={!periods.length}><option value="" disabled>Chọn tuần</option>{periods.map(p=><option key={p.id} value={p.id}>{weekLabel(p)}</option>)}</select></label>
       <label>Bộ phận<select value={department} onChange={e=>{setDepartment(e.target.value);setPerson('');}} disabled={!data}><option value="">Tất cả bộ phận</option>{data?.departments.map(d=><option key={d.id} value={d.id}>{d.name}</option>)}</select></label>
       <label>Nhân viên<select value={person} onChange={e=>setPerson(e.target.value)} disabled={!data}><option value="">Tất cả nhân viên</option>{candidates.filter(e=>!department||e.department_id===department).map(e=><option key={e.id} value={e.id}>{e.full_name}</option>)}</select></label>
-      {tab==='assignments'&&<label>Phiên bản lịch<select value={scheduleId} onChange={e=>{setScheduleId(e.target.value);setPerson('');}} disabled={!data?.schedules.length}><option value="" disabled>Chưa có lịch</option>{data?.schedules.map(s=><option key={s.id} value={s.id}>V{s.version} · {statusLabel(s.status)} · {s.id.slice(0,8)}</option>)}</select></label>}
+      {tab==='assignments'&&<label>Lịch đã lưu<select value={scheduleId} onChange={e=>{setScheduleId(e.target.value);setPerson('');}} disabled={!data?.schedules.length}><option value="" disabled>Chưa có lịch</option>{data?.schedules.map(s=><option key={s.id} value={s.id}>{statusLabel(s.status)} · {new Date(s.created_at).toLocaleDateString('vi-VN')}</option>)}</select></label>}
       <button className="btn btn-outline" onClick={()=>setRetry(x=>x+1)} disabled={loading}>Tải lại</button>
     </div>
     <div id="manager-calendar-panel" role="tabpanel" aria-labelledby={tab==='registrations'?'calendar-registration-tab':'calendar-assignment-tab'}>

@@ -4,6 +4,8 @@ import { authenticate,requireRole } from '../middleware/auth.middleware.js';
 import { requireNonTestScheduleWrites,isTestPreviewRequested } from '../services/test-preview-policy.js';
 import { ScheduleError } from '../services/scheduling.engine.js';
 import { requireRealSchedulingData } from '../repositories/registration-summary.repository.js';
+import { requireShiftChangeWriteScope } from '../services/shift-change-write-scope.js';
+import { localTv5Rpc } from '../services/tv5-local-rpc.js';
 
 export const shiftChangeRoutes=Router();
 const uuid=(v:unknown)=>typeof v==='string'&&/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(v);
@@ -12,7 +14,7 @@ const fields:Record<string,string[]>={CREATE_REQUEST:['assignment_id','reason','
 shiftChangeRoutes.use(authenticate,requireRole(['NV','QL']));
 shiftChangeRoutes.use((_req,res,next)=>{res.setHeader('Cache-Control','no-store');next();});
 async function rpc(name:string,args:Record<string,unknown>){
- const {data,error}=await supabaseAdmin.rpc(name,args);
+ const {data,error}=await(process.env.TV5_LOCAL_PG_RPC_ENABLED==='true'?localTv5Rpc(name,args):supabaseAdmin.rpc(name,args));
  if(error){const message=String(error.message??'');const code=['FORBIDDEN','ASSIGNMENT_STALE','FEEDBACK_CLOSED','DUPLICATE_OPEN_REQUEST','REASON_REQUIRED','INVALID_EXPIRY','INELIGIBLE_REPLACEMENT','CONFIRMATION_REQUIRED','INVITATION_CLOSED','SOURCE_CLOSED','DUPLICATE_INVITATION','REQUEST_CONFLICT','NOT_FOUND'].find(c=>message.includes(c));
   throw new ScheduleError(error.code==='42501'?403:code==='NOT_FOUND'?404:code?409:503,code??'SHIFT_CHANGE_UNAVAILABLE',code?`Không thể xử lý: ${code}. Hãy tải lại và kiểm tra.`:'Chức năng chưa sẵn sàng hoặc đang bận. Thử lại cùng yêu cầu.');}
  return data;
@@ -46,6 +48,7 @@ shiftChangeRoutes.post('/actions',async(req,res)=>{try{
  }))throw new ScheduleError(400,'INVALID_REQUEST','Thiếu thông tin hoặc có trường không được phép.');
  const requiredRole=['CREATE_REQUEST','REPORT','ACCEPT','DECLINE'].includes(action)?'NV':'QL';
  if(req.user!.role!==requiredRole)throw new ScheduleError(403,'FORBIDDEN','Không có quyền thao tác này.');
+ await requireShiftChangeWriteScope(action,data,req.user!.branch_id);
  const result=await rpc('tv5_mutate',{p_actor_id:req.user!.id,p_action:action,p_request_id:body.request_id,p_data:data});
  if(!result||typeof result!=='object')throw new ScheduleError(503,'INVALID_TV5_RESPONSE','Chưa xác nhận được kết quả. Thử lại cùng yêu cầu.');
  return res.json({status:'ok',result});

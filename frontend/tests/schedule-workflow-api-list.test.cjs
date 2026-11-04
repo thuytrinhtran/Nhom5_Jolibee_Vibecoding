@@ -166,7 +166,7 @@ test('API mode UI shows exact loading, empty, error and retry states', async () 
   const source = fs.readFileSync(path.join(schedulesDir, 'ScheduleWorkflow.tsx'), 'utf8');
   assert.match(source, /'Đang tải lịch làm việc\.\.\.'/);
   assert.match(source, /'Chưa có lịch làm việc phù hợp\.'/);
-  assert.match(source, /Khi có lịch được duyệt thuộc chi nhánh của bạn, lịch sẽ xuất hiện tại đây\. Nhấn “Làm mới” để kiểm tra dữ liệu mới\./);
+  assert.match(source, /Lịch của cửa hàng sẽ xuất hiện sau khi lưu bản nháp\. Nhấn “Làm mới” để kiểm tra\./);
   assert.match(source, />Làm mới<\/button>/);
   assert.match(source, />Thử lại<\/button>/);
   assert.match(source, /: error \? null/);

@@ -3,6 +3,7 @@ import { ScheduleError } from './scheduling.engine.js';
 import { requireNonTestScheduleWrites } from './test-preview-policy.js';
 import { inspectSchedule } from './schedule-review.service.js';
 import { requireRealSchedulingData } from '../repositories/registration-summary.repository.js';
+import { draftWriteScopeAllowed } from './draft-write-scope.js';
 
 export const workflowEnabled=()=>process.env.TV4_WORKFLOW_PERSISTENCE_ENABLED==='true'&&process.env.TV3_TEST_PREVIEW_ENABLED!=='true';
 export function requireWorkflowWrites(){
@@ -20,7 +21,14 @@ export async function transitionSchedule(id:string,actor:{id:string;role:string;
  const reason=body.reason??body.note;
  if(reason!==undefined&&reason!==null&&typeof reason!=='string')throw new ScheduleError(400,'INVALID_REASON','Lý do không hợp lệ.');
  if(action==='NEEDS_REVISION'&&!(typeof reason==='string'&&reason.trim()))throw new ScheduleError(422,'REASON_REQUIRED','Cần lý do từ chối.');
- if(action==='PUBLISH'&&(typeof body.feedback_deadline_at!=='string'||!Number.isFinite(Date.parse(body.feedback_deadline_at))))throw new ScheduleError(400,'INVALID_FEEDBACK_DEADLINE','Thời hạn phản hồi không hợp lệ.');
+ if(action==='PUBLISH'&&(typeof body.feedback_deadline_at!=='string'||!Number.isFinite(Date.parse(body.feedback_deadline_at))||Date.parse(body.feedback_deadline_at)<=Date.now()))throw new ScheduleError(400,'INVALID_FEEDBACK_DEADLINE','Thời hạn phản hồi phải là thời điểm hợp lệ trong tương lai.');
+ // Resolve scope from storage, never from a period/branch supplied by the browser.
+ if(process.env.TV3_WRITE_SCOPE_ENABLED!==undefined&&process.env.TV3_WRITE_SCOPE_ENABLED!=='false'){
+  const {data:target,error:scopeError}=await supabaseAdmin.from('schedules').select('id,period_id,branch_id').eq('id',id).maybeSingle();
+  if(scopeError)throw new ScheduleError(503,'WORKFLOW_SCOPE_UNAVAILABLE','Chưa thể xác minh phạm vi lịch.');
+  if(!target)throw new ScheduleError(404,'SCHEDULE_NOT_FOUND','Không tìm thấy lịch.');
+  if(!draftWriteScopeAllowed(target.period_id,target.branch_id))throw new ScheduleError(403,'WORKFLOW_SCOPE_FORBIDDEN','Chỉ được thao tác lịch Lê Duẩn, kỳ 02–08/11/2026 trong đợt kiểm thử này.');
+ }
  // Authorization and all current constraints are repeated atomically in SQL.
  // Do not pre-check status here: an exact retry must recover its audit response.
  const {data,error}=await supabaseAdmin.rpc('tv4_transition_schedule_v2',{
@@ -38,6 +46,6 @@ export async function workflowReview(id:string,branchId:string,version:number){
  const checked=await inspectSchedule(id,branchId,version);
  const validation={...checked.validation,issues:checked.validation.issues.filter(i=>i.code!=='INVALID_HANDOFF_STATUS')};
  const ready=validation.hard_constraints==='PASS'&&validation.data_complete&&validation.coverage_complete&&validation.input_current&&validation.issues.length===0;
- return {validation,ready,workflow_enabled:workflowEnabled(),generation_snapshot:checked.saved.generation_snapshot,
+ return {validation,ready,workflow_enabled:workflowEnabled()&&draftWriteScopeAllowed(checked.saved.schedule.period_id,branchId),generation_snapshot:checked.saved.generation_snapshot,
   labels:{shifts:Object.fromEntries(checked.snapshot.shifts.map(s=>[s.id,s.name])),departments:Object.fromEntries(checked.snapshot.departments.map(d=>[d.id,d.name]))}};
 }

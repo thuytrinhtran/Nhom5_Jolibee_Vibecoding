@@ -1,4 +1,4 @@
-import { authService } from '../../services/auth.service';
+import { authService,fetchWithReadDedupe } from '../../services/auth.service';
 import type {
   ScheduleApproval, ScheduleAssignment, ScheduleDecision, ScheduleWorkflowActor,
   ResubmitScheduleRequest, ScheduleWorkflowRecord, ScheduleWorkflowService, ScheduleWorkflowView,
@@ -140,7 +140,7 @@ function normalizeSchedule(row: ApiRow): ScheduleWorkflowRecord {
 export function createScheduleWorkflowApiService(dependencies: ApiDependencies = {}): ScheduleWorkflowService {
   const attempts=new Map<string,string>();
   const requestKey=(body:unknown)=>{const key=JSON.stringify(body);if(!attempts.has(key))attempts.set(key,globalThis.crypto.randomUUID());return attempts.get(key)!;};
-  const fetcher = dependencies.fetcher || fetch;
+  const fetcher = dependencies.fetcher || fetchWithReadDedupe || fetch;
   const getToken = dependencies.getToken || (() => authService.getStoredToken());
   const refreshSession = dependencies.refreshSession || (() => authService.getMe());
 

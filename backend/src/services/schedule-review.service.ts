@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { draftWriteScopeAllowed } from './draft-write-scope.js';
 import { registrationSummaryRepository } from '../repositories/registration-summary.repository.js';
 import { readDraft } from './scheduling.service.js';
 import { schedulingInput } from './scheduling-input.js';
@@ -76,5 +77,5 @@ export async function prepareApprovalHandoff(id:string,branchId:string,actorId:s
     note:typeof request.note==='string'?request.note.trim()||null:('note' in saved&&typeof saved.note==='string'?saved.note:null),
   }:null;
   return {validation,payload,current_status:saved.schedule.status,target_status:'PENDING_APPROVAL' as const,
-    delivery:{configured:process.env.TV4_WORKFLOW_PERSISTENCE_ENABLED==='true'&&process.env.TV3_TEST_PREVIEW_ENABLED!=='true'&&snapshot.source==='supabase',sent:false,message:'Prepared only; use the authenticated workflow submit endpoint to persist the transition.'}};
+    delivery:{configured:process.env.TV4_WORKFLOW_PERSISTENCE_ENABLED==='true'&&process.env.TV3_TEST_PREVIEW_ENABLED!=='true'&&snapshot.source==='supabase'&&draftWriteScopeAllowed(snapshot.period.id,branchId),sent:false,message:'Chưa gửi lịch. Sau khi kiểm tra đạt, bấm Gửi Giám sát khu vực phê duyệt để lưu trạng thái chờ duyệt.'}};
 }

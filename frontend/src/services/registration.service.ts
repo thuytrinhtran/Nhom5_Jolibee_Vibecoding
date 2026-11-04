@@ -8,6 +8,7 @@ export interface RegistrationData {
   schedule?: { timezone: string; open_iso_day: number; open_local_time: string; close_iso_day: number; close_local_time: string; reminder_minutes: number };
   submission: null | { status: string; errors: string[]; submitted_at?: string | null };
   has_sample_data?: boolean;
+  registration_window?: { dev_test_override: boolean };
   server_now: string;
 }
 export const registrationService = {

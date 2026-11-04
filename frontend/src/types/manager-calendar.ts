@@ -1,5 +1,6 @@
 export interface CalendarPerson { id:string;full_name:string;department_id:string }
 export interface CalendarShift { id:string;name:string;start_time:string;end_time:string }
+export type OfficialCalendarData=Omit<ManagerCalendarData,'registrations'|'declarations'>&{total?:number;page?:number;page_size?:number;metadata_included?:boolean};
 export interface ManagerCalendarData {
   source:'supabase';period:{id:string;branch_id:string;work_start_date:string;work_end_date:string};
   employees:CalendarPerson[];departments:{id:string;name:string}[];shifts:CalendarShift[];

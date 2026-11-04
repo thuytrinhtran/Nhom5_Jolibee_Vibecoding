@@ -32,7 +32,7 @@ export const ShiftRegistration: React.FC = () => {
     window.addEventListener('beforeunload', warn); return () => window.removeEventListener('beforeunload', warn);
   }, [dirty]);
   const period = data?.period;
-  const editable = !!period && now >= Date.parse(period.open_at) && now < Date.parse(period.close_at);
+  const editable = !!period && (data?.registration_window?.dev_test_override===true || now >= Date.parse(period.open_at) && now < Date.parse(period.close_at));
   const unavailable = preferences.filter(p => !data?.shifts.some(s => s.id === p.shift_id));
   const toggle = (work_date: string, shift_id: string) => {
     setPreferences(toggleShift(preferences, work_date, shift_id));
@@ -55,6 +55,7 @@ export const ShiftRegistration: React.FC = () => {
     <div className="reg-profile"><strong>{data?.employee.full_name || user?.employee?.full_name || user?.username}</strong><span>Chi nhánh: {data?.employee.branch_name || user?.branch_name || 'Chưa có thông tin'}</span><span>Bộ phận: {data?.employee.department_name || user?.employee?.department_name || 'Chưa có thông tin'}</span></div>
     {error && <div role="alert" className="reg-alert">{error} {!data && <button className="btn" onClick={() => void load()}>Thử lại</button>}</div>}
     {message && <p role="status" className="reg-success">{message}</p>}
+    {data?.registration_window?.dev_test_override&&<p className="reg-note" role="status">Kiểm thử local: đăng ký tuần 09–15/11/2026 không giới hạn giờ mở/đóng. Nguyện vọng vẫn được kiểm tra và lưu thật; hạn đăng ký gốc không thay đổi.</p>}
     {data?.has_sample_data && <p className="reg-note">Nhóm đang có dữ liệu mẫu TV3 cho hồ sơ này. Dữ liệu mẫu không phải đăng ký của bạn; hãy chọn và gửi các ca bạn thực sự có thể làm.</p>}
     {loading ? <p role="status" className="reg-card">Đang tải đợt đăng ký…</p> : !data ? null : !period ? <p className="reg-card">Chưa có đợt đăng ký cho chi nhánh của bạn.</p> : <>
       <div className="reg-card reg-period"><div><small>Tuần làm việc</small><h2>{new Date(period.work_start_date+'T00:00:00+07:00').toLocaleDateString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh'})} – {new Date(period.work_end_date+'T00:00:00+07:00').toLocaleDateString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh'})}</h2></div><div><small>Mở · giờ Việt Nam</small><span>{timestamp(period.open_at)}</span></div><div><small>Hạn gửi · giờ Việt Nam</small><span>{timestamp(period.close_at)}</span></div><div><small>Đợt đăng ký</small><strong>{editable ? 'Đang mở đăng ký' : now < Date.parse(period.open_at) ? 'Đợt chưa mở' : 'Đợt đã đóng'}</strong></div><div><small>Đăng ký của bạn</small><span className="reg-badge">{dirty ? 'Chưa lưu thay đổi' : labels[data?.submission?.status || data?.registrations[0]?.status || ''] || 'Chưa đăng ký'}</span></div></div>

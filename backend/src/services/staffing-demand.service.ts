@@ -1,5 +1,6 @@
 ﻿import { registrationSummaryRepository } from '../repositories/registration-summary.repository.js';
 import type { DemandInput, RegistrationSummaryRepository, SummarySnapshot } from '../repositories/registration-summary.types.js';
+import { readSummarySnapshot } from '../repositories/read-summary.js';
 import { summarizeRegistrations } from './registration-summary.service.js';
 import { interval, ScheduleError } from './scheduling.engine.js';
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -33,7 +34,7 @@ function demandView(snapshot: SummarySnapshot) {
     forecast_mode:'REFERENCE_ONLY' as const,staffing_formula_status:'NOT_CONFIGURED' as const,summary:summarizeRegistrations(snapshot) };
 }
 export async function readDemand(periodId: string, branchId: string, repository: RegistrationSummaryRepository = registrationSummaryRepository()) {
-  return demandView(await repository.load(branchId,periodId));
+  return demandView(await readSummarySnapshot(repository,branchId,periodId));
 }
 // Unknown demand is absence of a row, never a numeric zero or a nullable count.
 export async function clearDemand(periodId:string,branchId:string,body:unknown,repository:RegistrationSummaryRepository=registrationSummaryRepository()) {

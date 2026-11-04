@@ -4,7 +4,7 @@ SET LOCAL lock_timeout='5s';
 SET LOCAL statement_timeout='30s';
 CREATE TABLE public.dev_import_batches (
  batch_id uuid PRIMARY KEY REFERENCES public.audit_logs(id),
- project_ref text NOT NULL CHECK(project_ref='wimikwyuzhltpjciafod'),
+ project_ref text NOT NULL CHECK(project_ref='wlbpprpiieonjrqglicv'),
  environment text NOT NULL CHECK(environment IN('development','test')),
  branch_id uuid NOT NULL REFERENCES public.branches(id) CHECK(branch_id='11111111-1111-1111-1111-111111111111'),
  period_id uuid NOT NULL REFERENCES public.registration_periods(id) CHECK(period_id='79a979cc-8347-48b5-a411-f03bd8aceb92'),

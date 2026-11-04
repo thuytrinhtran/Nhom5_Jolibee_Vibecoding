@@ -1,3 +1,3 @@
-import { DashboardOverview } from '../../components/DashboardOverview';
+import { RoleOverview } from '../../components/RoleOverview';
 
-export const SupervisorDashboard = () => <DashboardOverview role="GS" />;
+export const SupervisorDashboard = () => <RoleOverview role="GS" />;

@@ -18,3 +18,19 @@ export function weekMonday(now=new Date()):string{
  date.setUTCDate(date.getUTCDate()-(date.getUTCDay()+6)%7);return date.toISOString().slice(0,10);
 }
 export function addDays(day:string,n:number){const d=new Date(day+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);}
+export function employeeDate(day:string){return day.slice(0,10).split('-').reverse().join('/');}
+export function employeeDateTime(value:string){return new Intl.DateTimeFormat('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(value));}
+export function requestWindowOpen(shift:Pick<EmployeeShift,'feedback_deadline_at'>,now=Date.now()){
+ return !!shift.feedback_deadline_at&&Date.parse(shift.feedback_deadline_at)>=now;
+}
+export function vietnamToday(now=new Date()){
+ const p=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now);
+ return ['year','month','day'].map(k=>p.find(v=>v.type===k)!.value).join('-');
+}
+export function shiftPeriod(time:string,name=''){
+ const label=name.toLocaleLowerCase('vi-VN');
+ if(label.includes('tối')||label.includes('đêm')||label.includes('night'))return 'evening';
+ if(label.includes('chiều')||label.includes('afternoon'))return 'afternoon';
+ if(label.includes('sáng')||label.includes('morning'))return 'morning';
+ const h=Number(time.slice(0,2));return h<12?'morning':h<18?'afternoon':'evening';
+}

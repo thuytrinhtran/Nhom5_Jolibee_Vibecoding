@@ -423,7 +423,7 @@ test('TV4 publish empty API response shows the friendly message and refresh acti
   const emptyState = nodes.find(node => node.props.className === 'workflow-empty' && node.props.role === 'status');
   assert.ok(emptyState);
   assert.match(harness.textOf(emptyState), /Chưa có lịch làm việc phù hợp\./);
-  assert.match(harness.textOf(emptyState), /Khi có lịch được duyệt thuộc chi nhánh của bạn, lịch sẽ xuất hiện tại đây\. Nhấn “Làm mới” để kiểm tra dữ liệu mới\./);
+  assert.match(harness.textOf(emptyState), /Lịch của cửa hàng sẽ xuất hiện sau khi lưu bản nháp\. Nhấn “Làm mới” để kiểm tra\./);
   assert.doesNotMatch(harness.textOf(emptyState), new RegExp(branchUuid));
   assert.equal(nodes.some(node => node.props.role === 'alert'), false);
   assert.equal(apiCalls, 1);
@@ -484,7 +484,7 @@ test('TV4 shows a success modal only after an action succeeds and keeps failures
     };
     const harness = createInteractiveWorkflowHarness(profile, service, [currentSchedule]);
     let tree = harness.render();
-    harness.clickButton(tree, 'JolliShift Demo · Hải Châu · Phiên bản 1');
+    harness.clickButton(tree, 'JolliShift Demo · Hải Châu');
     tree = harness.render();
     const deadlineInput = harness.allNodes(tree).find(node => node.type === 'input' && node.props.type === 'datetime-local');
     assert.ok(deadlineInput);
@@ -545,16 +545,16 @@ test('QL confirms adjustment, sends the edited shifts to the service, and keeps 
   };
   const harness = createInteractiveWorkflowHarness(qlProfile, service, [original]);
   let tree = harness.render();
-  harness.clickButton(tree, 'JolliShift Demo · Hải Châu · Phiên bản 1');
+  harness.clickButton(tree, 'JolliShift Demo · Hải Châu');
   tree = harness.render();
   harness.clickButton(tree, 'Điều chỉnh lịch');
   tree = harness.render();
 
-  const selects = harness.allNodes(tree).filter(node => node.type === 'select');
-  assert.equal(selects.length, original.shift_assignments.length);
+  const selects = harness.allNodes(tree).filter(node => node.type === 'select' && node.props['aria-label']?.startsWith('Ca điều chỉnh'));
+  assert.equal(selects.length, Math.min(20,original.shift_assignments.length));
   selects[0].props.onChange({ target: { value: 'tv4-shift-evening' } });
   tree = harness.render();
-  const changedSelects = harness.allNodes(tree).filter(node => node.type === 'select');
+  const changedSelects = harness.allNodes(tree).filter(node => node.type === 'select' && node.props['aria-label']?.startsWith('Ca điều chỉnh'));
   assert.equal(changedSelects[0].props.value, 'tv4-shift-evening');
   assert.equal(changedSelects[2].props.value, 'tv4-shift-morning', 'the existing evening slot is swapped to preserve all three shifts');
 
@@ -602,11 +602,11 @@ test('failed QL adjustment shows an error and retains the edited fields', async 
   };
   const harness = createInteractiveWorkflowHarness(profile, service, [schedule]);
   let tree = harness.render();
-  harness.clickButton(tree, 'JolliShift Demo · Hải Châu · Phiên bản 1');
+  harness.clickButton(tree, 'JolliShift Demo · Hải Châu');
   tree = harness.render();
   harness.clickButton(tree, 'Điều chỉnh lịch');
   tree = harness.render();
-  const selects = harness.allNodes(tree).filter(node => node.type === 'select');
+  const selects = harness.allNodes(tree).filter(node => node.type === 'select' && node.props['aria-label']?.startsWith('Ca điều chỉnh'));
   selects[0].props.onChange({ target: { value: 'tv4-shift-evening' } });
   tree = harness.render();
   const note = harness.allNodes(tree).find(node => node.type === 'textarea');
@@ -638,7 +638,7 @@ test('API rejection links to the shared validated editor instead of demo shift c
  assert.ok(header);header.props.onClick();tree=h.render();
  const link=h.allNodes(tree).find(n=>n.type==='a'&&n.props.href?.startsWith('/manager/schedule?period_id='));
  assert.ok(link);assert.equal(link.props.href,`/manager/schedule?period_id=${encodeURIComponent(schedule.period_id)}`);
- assert.equal(h.allNodes(tree).some(n=>n.type==='select'),false);
+ assert.equal(h.allNodes(tree).some(n=>n.type==='select'&&n.props['aria-label']?.startsWith('Ca điều chỉnh')),false);
 });
 
 
@@ -739,7 +739,7 @@ test('TV4 adjustment choices show all three configured shifts in the schedule de
   harness.state[1] = schedule.id;
   harness.state[2] = schedule.id;
   const tree = harness.render();
-  const firstSelect = harness.allNodes(tree).find(node => node.type === 'select');
+  const firstSelect = harness.allNodes(tree).find(node => node.type === 'select' && node.props['aria-label']?.startsWith('Ca điều chỉnh'));
   assert.ok(firstSelect);
   const optionRows = harness.allNodes(firstSelect).filter(node => node.type === 'option');
   assert.deepEqual(optionRows.map(option => option.props.value), [

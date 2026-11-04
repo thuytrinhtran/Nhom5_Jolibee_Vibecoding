@@ -18,6 +18,6 @@ test('TV4 routes stay inside the existing authenticated AppLayout and role guard
 test('Supervisor and manager menus link to their TV4 work queues and histories', () => {
   assert.match(menu, /label: 'Phê duyệt lịch', path: '\/supervisor\/approvals'/);
   assert.match(menu, /label: 'Lịch sử phê duyệt', path: '\/supervisor\/reports'/);
-  assert.match(menu, /label: 'Công bố lịch', path: '\/manager\/publish'/);
-  assert.match(menu, /label: 'Lịch sử công bố', path: '\/manager\/publish-history'/);
+  assert.match(menu, /label: 'Phê duyệt & công bố', path: '\/manager\/publish'/);
+  assert.match(menu, /label: 'Lịch sử', path: '\/manager\/publish-history'/);
 });

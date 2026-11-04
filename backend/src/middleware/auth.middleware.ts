@@ -3,6 +3,7 @@ import { authFailure } from '../utils/auth-error.js';
 import { Request, Response, NextFunction } from 'express';
 import { supabaseAdmin } from '../config/supabase.js';
 import { AuthenticatedUser, UserRole } from '../types/auth.types.js';
+import { coalesceRead } from '../services/read-coalescing.js';
 
 export function passwordLoginAfter(token: string, cutoff: number): boolean {
   try {
@@ -30,7 +31,7 @@ export async function authenticateSession(req: Request, res: Response, next: Nex
     }
 
     // Verify token with Supabase Auth
-    const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(token);
+    const { data: authData, error: authError } = await coalesceRead('auth:'+token,()=>supabaseAdmin.auth.getUser(token));
     if (authError || !authData.user) {
       const failure = authFailure(authError);
       return res.status(failure.status).json({ status: 'error', message: failure.message });

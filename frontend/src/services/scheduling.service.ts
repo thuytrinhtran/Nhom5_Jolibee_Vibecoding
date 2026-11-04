@@ -1,17 +1,17 @@
 import type { AdjustmentIntent, AdjustmentProposal } from '../types/scheduling';
-import { authService, ApiError } from './auth.service';
-import type { ManagerCalendarData } from '../types/manager-calendar';
+import { authService, ApiError,fetchWithReadDedupe } from './auth.service';
+import type { ManagerCalendarData,OfficialCalendarData } from '../types/manager-calendar';
 import type { SchedulePreview, PreviewAIReviewResponse, PreviewAIConfiguration } from '../types/scheduling';
 import type { AIReviewResponse, ApprovalHandoff, ScheduleValidation, DemandContext, DemandInput, DemandRequirement, ScheduleAssignment, RegistrationSummary, SavedSchedule, SchedulingContext, SchedulingPeriod } from '../types/scheduling';
 
 const API_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   // Reuse existing session validation/refresh; keep login and token storage unchanged.
-  await authService.getMe();
+  if(authService.ensureSession)await authService.ensureSession();else await authService.getMe();
   const send = async () => {
     let response: Response;
     try {
-      response = await fetch(`${API_URL}/schedules${path}`, { ...options,
+      response = await (fetchWithReadDedupe??fetch)(`${API_URL}/schedules${path}`, { ...options,
         headers: { ...options.headers, Authorization: `Bearer ${authService.getStoredToken() || ''}` },
         signal: AbortSignal.timeout(60000), cache: 'no-store' });
     } catch {
@@ -32,6 +32,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
 }
 export const schedulingService = {
+  async officialCalendar(period:string,filters:Record<string,string|number|boolean>={}):Promise<OfficialCalendarData>{
+    const query=Object.entries(filters).filter(([,v])=>v!=='').map(([k,v])=>`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`).join('&');
+    return(await request<{result:OfficialCalendarData}>(`/periods/${encodeURIComponent(period)}/official-calendar?${query}`)).result;
+  },
   async previewAIConfiguration():Promise<PreviewAIConfiguration> {
     return(await request<{result:PreviewAIConfiguration}>('/preview/ai-evaluation')).result;
   },

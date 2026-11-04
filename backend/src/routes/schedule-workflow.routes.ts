@@ -3,6 +3,7 @@ import { supabaseAdmin } from '../config/supabase.js';
 import { transitionSchedule, workflowReview, workflowEnabled } from '../services/schedule-workflow.service.js';
 import { ScheduleError } from '../services/scheduling.engine.js';
 import { authenticate, requireRole } from '../middleware/auth.middleware.js';
+import { draftWriteScopeAllowed } from '../services/draft-write-scope.js';
 
 const router = Router();
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -71,7 +72,7 @@ router.get('/', async (req, res) => {
   const view = String(req.query.view || '');
   const statuses = view === 'pending' && req.user.role === 'GS' ? ['PENDING_APPROVAL']
     : view === 'history' && req.user.role === 'GS' ? ['APPROVED', 'NEEDS_REVISION', 'PUBLISHED']
-    : view === 'publishable' && req.user.role === 'QL' ? ['APPROVED', 'PUBLISHED', 'NEEDS_REVISION'] : null;
+    : view === 'publishable' && req.user.role === 'QL' ? ['DRAFT', 'PENDING_APPROVAL', 'APPROVED', 'PUBLISHED', 'NEEDS_REVISION'] : null;
   if (!statuses) return res.status(400).json({ message: 'Bộ lọc lịch không hợp lệ.' });
   try {
     let query = supabaseAdmin.from('schedules').select(scheduleSelect).in('status', statuses).order('created_at', { ascending: false });
@@ -106,7 +107,7 @@ router.get('/', async (req, res) => {
     }
     const withLatest = markLatestVersions(schedules, versions);
     return res.json({ workflow_enabled:workflowEnabled(), schedules: withLatest.map(schedule => ({
-      ...schedule,workflow_enabled:workflowEnabled(),
+      ...schedule,workflow_enabled:workflowEnabled()&&draftWriteScopeAllowed(schedule.period_id,schedule.branch_id),
       approvals: approvals.filter(approval => approval.schedule_id === schedule.id),
     })) });
   } catch (error: any) {

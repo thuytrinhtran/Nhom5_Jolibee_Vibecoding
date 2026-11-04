@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { devImportContext,DEV_IMPORT_BATCH,DEV_IMPORT_BRANCH,DEV_IMPORT_PERIOD } from './dev-import-policy.js';
+import { localSourceReadEnabled,readLocalSource } from './local-source-read.js';
 
 export interface RegistrationHeader {
   employee_id: string; status: string; submitted_at: string | null; updated_at: string;
@@ -20,6 +21,10 @@ async function pages<T>(make: (a:number,b:number)=>PromiseLike<{data:unknown[]|n
 }
 /** Read only, no cache. A header revision check prevents mixing two concurrent submissions. */
 export async function readTv2Source(db:SupabaseClient,periodId:string) {
+  if(localSourceReadEnabled(periodId)){
+    try{return await readLocalSource(periodId) as {headers:RegistrationHeader[];rows:RegistrationRow[]};}
+    catch(e){const raw=(e as {code?:string;message?:string}).code??(e as Error).message;const code=/^[A-Z0-9_]{2,50}$/.test(raw??'')?raw:'UNAVAILABLE';console.warn('[Registration source] Fast read unavailable; verified API fallback:',code);}
+  }
   const imported=!!devImportContext();
   const headers=()=>pages<RegistrationHeader>((a,b)=>db.from('registration_submissions_sourced')
     .select('employee_id,status,submitted_at,updated_at,sample_batch_id'+(imported?',dev_import_allowed':'')).eq('period_id',periodId).order('employee_id').range(a,b));

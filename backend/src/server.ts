@@ -12,6 +12,7 @@ import scheduleWorkflowRoutes from './routes/schedule-workflow.routes.js';
 import { employeeScheduleRoutes } from './routes/employee-schedule.routes.js';
 import { shiftChangeRoutes } from './routes/shift-change.routes.js';
 import { testPreviewWriteGuard } from './services/test-preview-policy.js';
+import { invalidatePendingReads } from './services/read-coalescing.js';
 
 dotenv.config();
 
@@ -26,6 +27,10 @@ app.use(cors({
 }));
 app.use('/api/auth', (_req, res, next) => { res.setHeader('Cache-Control', 'no-store'); next(); });
 app.use(express.json());
+app.use((req,res,next)=>{
+ if(!['GET','HEAD','OPTIONS'].includes(req.method)){invalidatePendingReads();res.once('finish',invalidatePendingReads);res.once('close',invalidatePendingReads);}
+ next();
+});
 
 
 // Auth & RBAC Routes

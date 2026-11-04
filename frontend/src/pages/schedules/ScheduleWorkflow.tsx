@@ -12,6 +12,12 @@ const statusLabel: Record<string, string> = {
   APPROVED: 'Đã phê duyệt', PUBLISHED: 'Đã công bố',
 };
 
+export function publicationDeadlineError(value:string,now=Date.now()):string|null {
+  if(!value)return 'Nhập thời hạn phản hồi trong tương lai để bật nút Công bố lịch.';
+  const instant=Date.parse(value);
+  return !Number.isFinite(instant)||instant<=now?'Thời hạn phản hồi phải là thời điểm hợp lệ trong tương lai.':null;
+}
+
 export function WorkflowInspection({scheduleId,service}:{scheduleId:string;service:ScheduleWorkflowService}){
   const [result,setResult]=useState<Awaited<ReturnType<NonNullable<ScheduleWorkflowService['reviewSchedule']>>>|null>(null);
   const [error,setError]=useState('');
@@ -21,14 +27,14 @@ export function WorkflowInspection({scheduleId,service}:{scheduleId:string;servi
   },[scheduleId,service]);
   if(!service.reviewSchedule)return null;
   if(error)return <p role="alert">Không thể kiểm tra dữ liệu hiện tại: {error}</p>;
-  if(!result)return <p role="status">Đang kiểm tra coverage và cơ cấu kinh nghiệm…</p>;
+  if(!result)return <p role="status">Đang kiểm tra định biên và cơ cấu kinh nghiệm…</p>;
   return <section aria-label="Kiểm tra nghiệp vụ lịch">
-    <p>Ràng buộc: {result.validation.hard_constraints} · {result.ready?'Đáp ứng kiểm tra hiện tại':'Cần xử lý cảnh báo hoặc dữ liệu trước khi duyệt/công bố'}</p>
-    {!result.workflow_enabled&&<p>Backend chưa bật persistence workflow.</p>}
+    <p>Kiểm tra lịch: {result.validation.hard_constraints==='PASS'?'Đạt':'Cần kiểm tra'} · {result.ready?'Đủ điều kiện xử lý':'Cần xử lý cảnh báo trước khi tiếp tục'}</p>
+    {!result.workflow_enabled&&<p>Chức năng xử lý lịch chưa được bật cho tuần này.</p>}
     {[...result.validation.issues,...result.validation.warnings].map((w,i)=><p key={i}>{w.message}</p>)}
-    <div className="workflow-table-wrap"><table><thead><tr><th>Ngày</th><th>Ca / bộ phận</th><th>Đã xếp / nhu cầu</th><th>Kinh nghiệm / mục tiêu</th><th>Còn thiếu</th></tr></thead><tbody>
+    <details><summary>Xem định biên và cơ cấu từng ca ({result.validation.coverage.length} ô)</summary><div className="workflow-table-wrap"><table><thead><tr><th>Ngày</th><th>Ca / bộ phận</th><th>Đã xếp / nhu cầu</th><th>Kinh nghiệm / mục tiêu</th><th>Còn thiếu</th></tr></thead><tbody>
       {result.validation.coverage.map(c=><tr key={c.id}><td>{c.work_date}</td><td>{result.labels?.shifts[c.shift_id]??c.shift_id} / {result.labels?.departments[c.department_id]??c.department_id}</td><td>{c.assigned_count}/{c.required_count}</td><td>{c.experienced_count}/{c.experienced_target}</td><td>{c.missing_count} người · {c.missing_experienced_count} kinh nghiệm</td></tr>)}
-    </tbody></table></div>
+    </tbody></table></div></details>
   </section>;
 }
 
@@ -107,6 +113,8 @@ export const ScheduleWorkflow = ({
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [confirmation, setConfirmation] = useState<{ schedule: ScheduleWorkflowRecord; action: WorkflowAction } | null>(null);
+  const [weekFilter,setWeekFilter]=useState(''),[stateFilter,setStateFilter]=useState(''),[dayFilter,setDayFilter]=useState(''),[departmentFilter,setDepartmentFilter]=useState(''),[assignmentPage,setAssignmentPage]=useState(0);
+  useEffect(()=>{setAssignmentPage(0);},[selected,dayFilter,departmentFilter]);
   const canReview = actor?.role === 'GS' && mode === 'approvals';
   const canPublish = actor?.role === 'QL' && mode === 'publish';
   const view: ScheduleWorkflowView = mode === 'approvals' ? 'pending'
@@ -145,6 +153,10 @@ export const ScheduleWorkflow = ({
     action: WorkflowAction,
   ) => {
     if (!actor) return;
+    if(action==='publish'){
+      const invalid=publicationDeadlineError(deadline);
+      if(invalid){setError(invalid);return;}
+    }
     setBusy(true);
     setError('');
     setSuccessMessage('');
@@ -192,7 +204,7 @@ export const ScheduleWorkflow = ({
     : usesMockWorkflow ? 'Chưa có lịch trong danh sách này' : 'Chưa có lịch làm việc phù hợp.';
   const emptyDescription = !usesMockWorkflow
     ? mode === 'publish'
-      ? 'Khi có lịch được duyệt thuộc chi nhánh của bạn, lịch sẽ xuất hiện tại đây. Nhấn “Làm mới” để kiểm tra dữ liệu mới.'
+      ? 'Lịch của cửa hàng sẽ xuất hiện sau khi lưu bản nháp. Nhấn “Làm mới” để kiểm tra.'
       : mode === 'approvals'
         ? 'Hiện chưa có lịch chờ phê duyệt phù hợp.'
         : mode === 'history'
@@ -207,8 +219,9 @@ export const ScheduleWorkflow = ({
     <div className="workflow-mock-banner" role="note">
       {usesMockWorkflow
         ? 'Chế độ TV4 giả lập · Quyền dùng vai trò đăng nhập và phạm vi chi nhánh demo. Dữ liệu chỉ nằm trong bộ nhớ phiên trình duyệt; tải lại trang sẽ khôi phục bộ mẫu. Không lưu vào Supabase.'
-        : 'Dữ liệu TV4 được tải qua Backend. Backend xác minh phiên đăng nhập, vai trò và phạm vi chi nhánh; thao tác ghi phụ thuộc migration TV4 đã được triển khai.'}
+        : 'Phê duyệt và công bố là hai bước riêng. Nhân viên chỉ xem lịch sau khi cửa hàng công bố.'}
     </div>
+    <div className="workspace-filters"><label>Tuần làm việc<select value={weekFilter} onChange={e=>setWeekFilter(e.target.value)}><option value="">Tất cả tuần</option>{[...new Set(schedules.map(s=>s.registration_periods.work_start_date))].sort().map(d=><option key={d} value={d}>{d}</option>)}</select></label><label>Trạng thái<select value={stateFilter} onChange={e=>setStateFilter(e.target.value)}><option value="">Tất cả trạng thái</option>{[...new Set(schedules.map(s=>s.status))].map(s=><option key={s} value={s}>{statusLabel[s]??s}</option>)}</select></label></div>
     {usesMockWorkflow && actor?.role === 'QL' && branchResolution && !branchResolution.fixtureBranchId && <div className="workflow-alert error" role="alert">
       Không thể xác định chi nhánh dữ liệu thử nghiệm cho tài khoản này. Vui lòng kiểm tra cấu hình demo.
     </div>}
@@ -230,23 +243,25 @@ export const ScheduleWorkflow = ({
           <strong>{emptyTitle}</strong>
           <p>{!usesMockWorkflow && mode === 'publish' ? <em>{emptyDescription}</em> : emptyDescription}</p>
         </div>
-        : <div className="workflow-list">{schedules.map(schedule => {
+        : <div className="workflow-list">{schedules.filter(s=>(!weekFilter||s.registration_periods.work_start_date===weekFilter)&&(!stateFilter||s.status===stateFilter)).map(schedule => {
           const open = selected === schedule.id;
           const entries = schedule.shift_assignments || [];
+          const filteredEntries=entries.filter(e=>(!dayFilter||e.work_date===dayFilter)&&(!departmentFilter||e.departments.name===departmentFilter));
           const latest = schedule.approvals?.[0];
           const canResubmit = usesMockWorkflow && canManagerResubmit(canPublish, schedule);
           const canPublishSchedule = canPublish && schedule.status === 'APPROVED' && schedule.is_latest;
           return <article className="workflow-card" key={schedule.id}>
             <button className="workflow-card-toggle" onClick={() => {
               setSelected(open ? null : schedule.id);
+              setDayFilter('');setDepartmentFilter('');setAssignmentPage(0);
               setReason(''); setAdjustmentNote(''); setAdjustmentShifts({}); setDeadline('');
               setEditingScheduleId(null);
             }} aria-expanded={open}>
               <span>
-                <strong>{schedule.branches.name} · Phiên bản {schedule.version}</strong>
+                <strong>{schedule.branches.name}</strong>
                 <small>{schedule.registration_periods.work_start_date} – {schedule.registration_periods.work_end_date}</small>
               </span>
-              <span className={`workflow-status ${schedule.status.toLowerCase()}`}>{statusLabel[schedule.status] || schedule.status}</span>
+              <span data-schedule-status={schedule.status} className={`workflow-status ${schedule.status.toLowerCase()}`}>{statusLabel[schedule.status] || schedule.status}</span>
             </button>
             {!schedule.is_latest && <div className="workflow-stale" role="status">Phiên bản cũ · Đã có phiên bản mới hơn; không thể duyệt hoặc công bố bản này.</div>}
             {latest && <div className="workflow-decision">
@@ -255,12 +270,27 @@ export const ScheduleWorkflow = ({
               {latest.reason && <p>Lý do: {latest.reason}</p>}
             </div>}
             {schedule.status === 'PUBLISHED' && <div className="workflow-decision">
-              Đã công bố bởi {schedule.published_by_username || schedule.published_by || 'API chưa trả người công bố'} · {schedule.published_at ? new Date(schedule.published_at).toLocaleString('vi-VN') : 'Chưa có thời điểm'}
+              Đã công bố bởi {schedule.published_by_username || 'Quản lý cửa hàng'} · {schedule.published_at ? new Date(schedule.published_at).toLocaleString('vi-VN') : 'Chưa có thời điểm'}
             </div>}
             {open && <div className="workflow-details">
-              <WorkflowInspection scheduleId={schedule.id} service={service}/><h3>Chi tiết phân công ({entries.length})</h3>
+              <WorkflowInspection scheduleId={schedule.id} service={service}/>
+              {!usesMockWorkflow&&canPublish&&schedule.is_latest&&schedule.status==='DRAFT'&&<a className="workflow-button primary" href={`/manager/schedule?period_id=${encodeURIComponent(schedule.period_id)}`}>Mở bản nháp và gửi phê duyệt</a>}
+              {schedule.status==='PENDING_APPROVAL'&&<p>Đang chờ giám sát phê duyệt. Nhân viên chưa nhìn thấy lịch này.</p>}
+              {canReview && schedule.status === 'PENDING_APPROVAL' && schedule.is_latest && <div className="workflow-actions">
+                <button className="workflow-button primary" disabled={busy||schedule.workflow_enabled===false} onClick={() => setConfirmation({ schedule, action: 'approve' })}>Phê duyệt</button>
+                <label className="workflow-reason">Lý do từ chối<textarea value={reason} onChange={event => setReason(event.target.value)} required maxLength={2000} placeholder="Nhập nội dung cần quản lý ca điều chỉnh" /></label>
+                <button className="workflow-button danger" disabled={busy || !reason.trim()||schedule.workflow_enabled===false} onClick={() => setConfirmation({ schedule, action: 'reject' })}>Từ chối</button>
+              </div>}
+              {canPublishSchedule && <div className="workflow-actions">
+                <label>Thời hạn phản hồi<input type="datetime-local" value={deadline} onChange={event => setDeadline(event.target.value)} /></label>
+                {publicationDeadlineError(deadline)&&<p role="status">{publicationDeadlineError(deadline)}</p>}
+                <p>Lịch đã phê duyệt chưa hiển thị cho nhân viên. Nhập thời hạn phản hồi, bấm Công bố lịch rồi Xác nhận.</p>
+                <button className="workflow-button primary" disabled={busy || !!publicationDeadlineError(deadline)||schedule.workflow_enabled===false} onClick={() => setConfirmation({ schedule, action: 'publish' })}>Công bố lịch</button>
+              </div>}
+              <h3>Chi tiết phân công ({entries.length})</h3>
+              <div className="workspace-filters"><label>Ngày<select value={dayFilter} onChange={e=>setDayFilter(e.target.value)}><option value="">Tất cả ngày</option>{[...new Set(entries.map(e=>e.work_date))].sort().map(d=><option key={d} value={d}>{d}</option>)}</select></label><label>Bộ phận<select value={departmentFilter} onChange={e=>setDepartmentFilter(e.target.value)}><option value="">Tất cả bộ phận</option>{[...new Set(entries.map(e=>e.departments.name))].map(d=><option key={d} value={d}>{d}</option>)}</select></label></div>
               {entries.length ? <div className="workflow-table-wrap"><table><thead><tr><th>Ngày</th><th>Ca</th>{canResubmit && editingScheduleId === schedule.id && <th>Ca điều chỉnh</th>}<th>Nhân viên</th><th>Bộ phận</th><th>Trạng thái lịch</th></tr></thead><tbody>
-                {entries.map(entry => <tr key={entry.id}>
+                {filteredEntries.slice(assignmentPage*20,(assignmentPage+1)*20).map(entry => <tr key={entry.id}>
                   <td>{entry.work_date}</td>
                   <td>{entry.shifts.name} ({entry.shifts.start_time.slice(0, 5)}–{entry.shifts.end_time.slice(0, 5)})</td>
                   {canResubmit && editingScheduleId === schedule.id && <td><select aria-label={`Ca điều chỉnh cho ${entry.employees.full_name}`} value={adjustmentShifts[entry.id] || entry.shifts.id} onChange={event => setAdjustmentShifts(current => chooseShiftForAssignment(schedule.shift_assignments, current, entry.id, event.target.value))}>
@@ -270,8 +300,9 @@ export const ScheduleWorkflow = ({
                   <td>{statusLabel[schedule.status] || schedule.status}</td>
                 </tr>)}
               </tbody></table></div> : <p>Phiên bản lịch này chưa có phân công.</p>}
+              {entries.length>0&&<nav className="workspace-pagination" aria-label="Phân trang chi tiết"><button disabled={!assignmentPage} onClick={()=>setAssignmentPage(p=>p-1)}>Trước</button><span>{filteredEntries.length} phân công · Trang {assignmentPage+1}/{Math.max(1,Math.ceil(filteredEntries.length/20))}</span><button disabled={(assignmentPage+1)*20>=filteredEntries.length} onClick={()=>setAssignmentPage(p=>p+1)}>Sau</button></nav>}
               {schedule.resubmission_note && <p className="workflow-revision-note">Ghi chú điều chỉnh khi trình lại: {schedule.resubmission_note}</p>}
-              {!usesMockWorkflow && canPublish && schedule.status==='NEEDS_REVISION' && schedule.is_latest && <a className="workflow-button primary" href={`/manager/schedule?period_id=${encodeURIComponent(schedule.period_id)}`}>Mở editor, lưu DRAFT phiên bản mới và gửi lại</a>}
+              {!usesMockWorkflow && canPublish && schedule.status==='NEEDS_REVISION' && schedule.is_latest && <a className="workflow-button primary" href={`/manager/schedule?period_id=${encodeURIComponent(schedule.period_id)}`}>Chỉnh sửa, lưu bản nháp và gửi lại</a>}
               {schedule.approvals.length > 0 && <div className="workflow-approval-history">
                 <h3>Lịch sử phiên bản</h3>
                 {schedule.approvals.map(item => <p key={item.id}>
@@ -280,11 +311,7 @@ export const ScheduleWorkflow = ({
                 </p>)}
               </div>}
               {canReview && schedule.status === 'PENDING_APPROVAL' && !schedule.is_latest && <p className="workflow-stale">Không thể xử lý phiên bản cũ.</p>}
-              {canReview && schedule.status === 'PENDING_APPROVAL' && schedule.is_latest && <div className="workflow-actions">
-                <button className="workflow-button primary" disabled={busy||schedule.workflow_enabled===false} onClick={() => setConfirmation({ schedule, action: 'approve' })}>Phê duyệt</button>
-                <label className="workflow-reason">Lý do từ chối<textarea value={reason} onChange={event => setReason(event.target.value)} required maxLength={2000} placeholder="Nhập nội dung cần quản lý ca điều chỉnh" /></label>
-                <button className="workflow-button danger" disabled={busy || !reason.trim()||schedule.workflow_enabled===false} onClick={() => setConfirmation({ schedule, action: 'reject' })}>Từ chối</button>
-              </div>}
+              
               {canResubmit && editingScheduleId !== schedule.id && <div className="workflow-actions">
                 <button className="workflow-button primary" disabled={busy} onClick={() => setEditingScheduleId(schedule.id)}>Điều chỉnh lịch</button>
               </div>}
@@ -293,10 +320,7 @@ export const ScheduleWorkflow = ({
                 <button className="workflow-button primary" disabled={busy || !adjustmentNote.trim() || !schedule.shift_assignments.some(entry => adjustmentShifts[entry.id] && adjustmentShifts[entry.id] !== entry.shifts.id)} onClick={() => setConfirmation({ schedule, action: 'resubmit' })}>Điều chỉnh</button>
                 <button className="workflow-button secondary" disabled={busy} onClick={() => { setEditingScheduleId(null); setAdjustmentNote(''); setAdjustmentShifts({}); }}>H&#7911;y &#273;i&#7873;u ch&#7881;nh</button>
               </div>}
-              {canPublishSchedule && <div className="workflow-actions">
-                <label>Thời hạn phản hồi<input type="datetime-local" value={deadline} onChange={event => setDeadline(event.target.value)} /></label>
-                <button className="workflow-button primary" disabled={busy || !deadline||schedule.workflow_enabled===false} onClick={() => setConfirmation({ schedule, action: 'publish' })}>Công bố lịch</button>
-              </div>}
+              
             </div>}
           </article>;
         })}</div>}
@@ -313,6 +337,7 @@ export const ScheduleWorkflow = ({
         <h2 id="workflow-confirm-title">Xác nhận thao tác</h2>
         <p id="workflow-confirm-message">{actionCopy[confirmation.action].confirmation}</p>
         {confirmation.action === 'reject' && <p className="workflow-modal-detail">Lý do: {reason.trim()}</p>}
+        {confirmation.action === 'publish'&&<p className="workflow-modal-detail">Thời hạn phản hồi: {new Date(deadline).toLocaleString('vi-VN')}</p>}
         {confirmation.action === 'resubmit' && <p className="workflow-modal-detail">Ghi chú: {adjustmentNote.trim()}</p>}
         <div className="workflow-modal-actions">
           <button className="workflow-button secondary" disabled={busy} onClick={() => setConfirmation(null)}>Hủy</button>

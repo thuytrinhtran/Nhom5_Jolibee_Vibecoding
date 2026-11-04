@@ -8,6 +8,12 @@ function render(data,user={username:'fixture'},now=Date.parse('2026-10-31T00:00:
 const data={employee:{full_name:'Nguyen Fixture',branch_name:'Branch fixture',department_name:'Kitchen fixture'},period:{id:'fixture',work_start_date:'2026-11-02',work_end_date:'2026-11-08',open_at:'2026-10-30T08:00:00Z',close_at:'2026-11-01T05:00:00Z',status:'OPEN'},shifts:[{id:'s',name:'Configured shift',start_time:'08:00:00',end_time:'12:00:00'}],registrations:[],submission:null};
 test('weekly registration renders seven configured days with employee identity and controls',()=>{const html=render(data);for(const text of ['Nguyen Fixture','Branch fixture','Kitchen fixture','Thứ Hai','Chủ nhật','Lưu nháp','Gửi đăng ký','08:00','12:00'])assert.ok(html.includes(text),text);assert.equal((html.match(/type="checkbox"/g)||[]).length,7*data.shifts.length);assert.ok(!html.includes('disabled=""'));});
 test('deadline locks every day and both save controls',()=>{const html=render(data,{},Date.parse('2026-11-01T05:00:00Z'));assert.ok(html.includes('Đợt đã đóng'));assert.equal((html.match(/disabled=""/g)||[]).length,9);});
+test('only a server-confirmed dev exception unlocks the form outside its ordinary time window',()=>{
+ const at=Date.parse('2026-11-20T05:00:00Z');
+ const html=render({...data,registration_window:{dev_test_override:true}}, {},at);
+ assert.ok(!html.includes('disabled=""'));assert.ok(html.includes('Kiểm thử local'));
+ assert.ok(render({...data,registration_window:{dev_test_override:false}},{},at).includes('disabled=""'));
+});
 test('no period and Crew Leader render clear empty states',()=>{assert.ok(render({...data,period:null}).includes('Chưa có đợt đăng ký'));const html=render(data,{employee:{skill_level:'CREW_LEADER'}});assert.ok(html.includes('Crew Leader'));assert.ok(!html.includes('type="checkbox"'));});
 
 test('DEMO banner and controls are explicit and production remains unlabeled',()=>{const html=render(data,{employee:{skill_level:'CREW_LEADER'}},Date.parse('2026-10-31T00:00:00Z'),true);for(const text of ['DEMO – dữ liệu giả lập','Đặt lại DEMO','Mô phỏng đóng đợt'])assert.ok(html.includes(text));assert.equal((html.match(/type="checkbox"/g)||[]).length,7*data.shifts.length);assert.ok(!render(data).includes('DEMO – dữ liệu giả lập'));});

@@ -3,6 +3,8 @@ import { proposeAdjustment } from '../services/schedule-adjustment-proposal.serv
 import { analyzeAdjustment } from '../services/schedule-adjustment.service.js';
 import { prepareApprovalHandoff, validateSchedule } from '../services/schedule-review.service.js';
 import { readManagerCalendar } from '../services/manager-calendar.service.js';
+import { readManagerOverview } from '../services/manager-overview.service.js';
+import { readOfficialCalendar } from '../services/official-calendar.service.js';
 import { previewSchedule } from '../services/schedule-preview.service.js';
 import { previewTestSchedule } from '../services/test-preview.service.js';
 import { persistPreview } from '../services/draft-persistence.service.js';
@@ -20,6 +22,24 @@ const router = Router();
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 router.use((_req,res,next) => { res.setHeader('Cache-Control','no-store'); next(); });
 router.use(authenticate, requireRole(['QL']));
+router.get('/periods/:id/official-calendar',async(req,res)=>{
+ try{
+  if(!req.user?.branch_id)throw new ScheduleError(403,'BRANCH_REQUIRED','Chưa có chi nhánh.');
+  if(!uuid.test(req.params.id)||Object.keys(req.query).some(k=>!['page','page_size','work_date','shift_id','department_id','employee_id','metadata'].includes(k)))throw new ScheduleError(400,'INVALID_FILTER','Bộ lọc không hợp lệ.');
+  const page=Number(req.query.page??0),size=Number(req.query.page_size??20);
+  if(!Number.isSafeInteger(page)||page<0||!Number.isInteger(size)||size<1||size>100||page>Math.floor(Number.MAX_SAFE_INTEGER/size)||req.query.metadata!==undefined&&!['true','false'].includes(String(req.query.metadata)))throw new ScheduleError(400,'INVALID_FILTER','Phân trang không hợp lệ.');
+  const filters:any={page,page_size:size,metadata:req.query.metadata!=='false'};
+  for(const k of ['work_date','shift_id','department_id','employee_id'])if(req.query[k]!==undefined){const v=req.query[k];if(typeof v!=='string'||(k==='work_date'?!/^\d{4}-\d{2}-\d{2}$/.test(v)||!Number.isFinite(Date.parse(v))||new Date(v).toISOString().slice(0,10)!==v:!uuid.test(v)))throw new ScheduleError(400,'INVALID_FILTER','Bộ lọc không hợp lệ.');filters[k]=v;}
+  return res.json({status:'ok',result:await readOfficialCalendar(req.params.id,req.user.branch_id,filters)});
+ }catch(e){const issue=e instanceof ScheduleError?e:new ScheduleError(503,'CALENDAR_UNAVAILABLE','Không tải được lịch.');return res.status(issue.status).json({status:'error',code:issue.code,message:issue.message});}
+});
+router.get('/periods/:id/overview',async(req,res)=>{
+ try{
+  if(!req.user?.branch_id)throw new ScheduleError(403,'BRANCH_REQUIRED','Chưa có chi nhánh được phân công.');
+  if(!uuid.test(req.params.id))throw new ScheduleError(400,'INVALID_PERIOD_ID','Tuần không hợp lệ.');
+  return res.json({status:'ok',result:await readManagerOverview(req.params.id,req.user.branch_id,req.user.id)});
+ }catch(e){const issue=e instanceof ScheduleError?e:new ScheduleError(503,'OVERVIEW_UNAVAILABLE','Không tải được tổng quan.');return res.status(issue.status).json({status:'error',message:issue.message});}
+});
 router.post('/test-preview',async(req,res)=>{
   try {
     if(!req.user?.branch_id)throw new ScheduleError(403,'BRANCH_REQUIRED','Quản lý chưa được phân công chi nhánh.');
