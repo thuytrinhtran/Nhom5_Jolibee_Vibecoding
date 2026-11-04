@@ -1,11 +1,11 @@
-import type { AdjustmentIntent, AdjustmentProposal } from '../types/scheduling';
+import type { AdjustmentIntent, AdjustmentProposal, ScheduleRevisionRecord } from '../types/scheduling';
 import { authService, ApiError,fetchWithReadDedupe } from './auth.service';
 import type { ManagerCalendarData,OfficialCalendarData } from '../types/manager-calendar';
 import type { SchedulePreview, PreviewAIReviewResponse, PreviewAIConfiguration } from '../types/scheduling';
 import type { AIReviewResponse, ApprovalHandoff, ScheduleValidation, DemandContext, DemandInput, DemandRequirement, ScheduleAssignment, RegistrationSummary, SavedSchedule, SchedulingContext, SchedulingPeriod } from '../types/scheduling';
 
 const API_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+async function request<T>(path: string, options: RequestInit = {}, workflowList = false): Promise<T> {
   // Reuse existing session validation/refresh; keep login and token storage unchanged.
   if(authService.ensureSession)await authService.ensureSession();else await authService.getMe();
   const send = async () => {
@@ -22,7 +22,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       throw new ApiError(`API xếp lịch trả về dữ liệu không hợp lệ (HTTP ${response.status}).`, response.status);
     }
     if (!response.ok) throw new ApiError(data?.message || 'Không thể xử lý yêu cầu xếp lịch.', response.status, data?.code);
-    if (data?.status !== 'ok') throw new ApiError('Phản hồi xếp lịch không hợp lệ.', 502);
+    if (!workflowList && data?.status !== 'ok') throw new ApiError('Phản hồi xếp lịch không hợp lệ.', 502);
     return data as T;
   };
   try { return await send(); } catch (error) {
@@ -32,6 +32,12 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
 }
 export const schedulingService = {
+  async revisionHistory():Promise<ScheduleRevisionRecord[]> {
+    // TV4 list returns {schedules}, unlike TV3's {status:'ok',result} envelope.
+    const data=await request<{schedules:ScheduleRevisionRecord[]}>('/workflow?view=publishable',{},true);
+    if(!Array.isArray(data?.schedules))throw new ApiError('Không tải được lịch sử yêu cầu chỉnh sửa.',502);
+    return data.schedules;
+  },
   async officialCalendar(period:string,filters:Record<string,string|number|boolean>={}):Promise<OfficialCalendarData>{
     const query=Object.entries(filters).filter(([,v])=>v!=='').map(([k,v])=>`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`).join('&');
     return(await request<{result:OfficialCalendarData}>(`/periods/${encodeURIComponent(period)}/official-calendar?${query}`)).result;

@@ -11,7 +11,7 @@ test('deadline locks every day and both save controls',()=>{const html=render(da
 test('only a server-confirmed dev exception unlocks the form outside its ordinary time window',()=>{
  const at=Date.parse('2026-11-20T05:00:00Z');
  const html=render({...data,registration_window:{dev_test_override:true}}, {},at);
- assert.ok(!html.includes('disabled=""'));assert.ok(html.includes('Kiểm thử local'));
+ assert.ok(!html.includes('disabled=""'));assert.ok(html.includes('Chế độ development'));assert.ok(html.includes('lưu thật'));assert.ok(html.includes('Không mở lại lịch đã gửi duyệt hoặc công bố'));
  assert.ok(render({...data,registration_window:{dev_test_override:false}},{},at).includes('disabled=""'));
 });
 test('no period and Crew Leader render clear empty states',()=>{assert.ok(render({...data,period:null}).includes('Chưa có đợt đăng ký'));const html=render(data,{employee:{skill_level:'CREW_LEADER'}});assert.ok(html.includes('Crew Leader'));assert.ok(!html.includes('type="checkbox"'));});

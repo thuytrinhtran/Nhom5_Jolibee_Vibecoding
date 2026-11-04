@@ -22,6 +22,16 @@ test('AI disabled even with key unless provider, model AND explicit external opt
  const branch='00000000-0000-4000-8000-000000009002',id=await make(branch);const result=await evaluateSchedule(id,branch,{expected_version:1},{repository:{latest:()=>assert.fail('unconfigured AI must not access AI tables')}});assert.equal(result.status,'NOT_CONFIGURED');assert.equal(result.evaluation,null);
  assert.equal((await readDraft(id,branch)).schedule.status,'DRAFT');
 }));
+
+test('Flash-Lite development override never changes production or test selection and can be rolled back',()=>{
+ const base={TV3_AI_EXTERNAL_ENABLED:'true',TV3_AI_PROVIDER:'gemini',GEMINI_API_KEY:'isolated-test-key',TV3_AI_MODEL:'gemini-3.6-flash',TV3_AI_DEVELOPMENT_MODEL:'gemini-3.5-flash-lite'};
+ assert.equal(schedulingAIAdvisor({...base,NODE_ENV:'development'}).model,'gemini-3.5-flash-lite');
+ for(const NODE_ENV of ['production','test',undefined])assert.equal(schedulingAIAdvisor({...base,NODE_ENV}).model,'gemini-3.6-flash');
+ assert.equal(schedulingAIAdvisor({...base,NODE_ENV:'development',TV3_AI_DEVELOPMENT_MODEL:''}).model,'gemini-3.6-flash');
+ assert.equal(schedulingAIAdvisor({...base,NODE_ENV:'development',TV3_AI_DEVELOPMENT_MODEL:'invalid/model'}).configured,false);
+ assert.equal(schedulingAIAdvisor({...base,NODE_ENV:'production',TV3_AI_DEVELOPMENT_MODEL:'invalid/model'}).model,'gemini-3.6-flash');
+ assert.equal(schedulingAIAdvisor({...base,NODE_ENV:'development',TV3_AI_EXTERNAL_ENABLED:'false'}).configured,false);
+});
 test('shortage review sends only minimal pseudonymous structured summary; persists and reads evaluation without editing draft',()=>mode(async()=>{
  const branch='00000000-0000-4000-8000-000000009003',id=await make(branch);let sent;
  const before=await readDraft(id,branch),fake=advisor(async summary=>{sent=summary;return report()});
@@ -87,7 +97,7 @@ test('same-version data mutation while AI runs is rejected; duplicate concurrent
 }));
 test('Gemini adapter performs real HTTP protocol through injected transport, handles schema and safe failures without live network',async()=>{
  let captured;const transport=async(url,options)=>{captured={url,options};return new Response(JSON.stringify({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify(report())}]}}]}))};
- const adapter=new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-test',transport);const result=await adapter.evaluate({employees:[],coverage:[],contract_version:'tv3-ai.v1'});assert.equal(result.conclusion,'NEEDS_ADJUSTMENT');assert.ok(captured.url.endsWith('/gemini-test:generateContent'));assert.ok(!captured.url.includes('isolated-test-key'));assert.equal(captured.options.headers['x-goog-api-key'],'isolated-test-key');assert.equal(captured.options.redirect,'error');const body=JSON.parse(captured.options.body);assert.equal(body.generationConfig.responseFormat.text.mimeType,'APPLICATION_JSON');assert.ok(body.generationConfig.responseFormat.text.schema.required.includes('conclusion'));assert.equal(body.tools,undefined);
+ const adapter=new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-test',transport);const result=await adapter.evaluate({employees:[],coverage:[],contract_version:'tv3-ai.v1'});assert.equal(result.conclusion,'NEEDS_ADJUSTMENT');assert.ok(captured.url.endsWith('/gemini-test:generateContent'));assert.ok(!captured.url.includes('isolated-test-key'));assert.equal(captured.options.headers['x-goog-api-key'],'isolated-test-key');assert.equal(captured.options.redirect,'error');const body=JSON.parse(captured.options.body);assert.equal(body.generationConfig.responseMimeType,'application/json');assert.ok(body.generationConfig.responseJsonSchema.required.includes('conclusion'));assert.equal(body.tools,undefined);
  for(const [reply,code,status] of [[new Response('private-provider-error',{status:429}),'AI_PROVIDER_UNAVAILABLE',503],[new Response('bad json'),'AI_INVALID_RESPONSE',502],[new Response(JSON.stringify({candidates:[{finishReason:'MAX_TOKENS'}]})),'AI_INVALID_RESPONSE',502]])await assert.rejects(new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-test',async()=>reply).evaluate({}),e=>!e.message.includes('private-provider-error')&&e.code===code&&e.status===status);
 });
 test('Gemini outbound subset keeps supported constraints while strict parser rejects oversized/extra fields',()=>{
@@ -125,6 +135,26 @@ test('safe diagnostics classify provider evidence and never echo raw message, de
   assert.equal(calls,1);
  }
  for(const body of ['not JSON',JSON.stringify({error:{message:'x'.repeat(17000),status:'INVALID_ARGUMENT'}}),JSON.stringify({error:{status:'INVALID_ARGUMENT'}})])await assert.rejects(new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-test',async()=>new Response(body,{status:400})).evaluate({}),e=>e.message.includes('[UNKNOWN]'));
+});
+
+test('503 capacity, 429 quota and provider deadline remain distinct with one request and no raw provider text',async()=>{
+ const cases=[
+  [503,'UNAVAILABLE','Model is overloaded with high demand','PROVIDER_OVERLOADED'],
+  [503,'UNAVAILABLE','Service temporarily unavailable','PROVIDER_UNAVAILABLE'],
+  [429,'RESOURCE_EXHAUSTED','Quota exceeded','QUOTA_OR_RATE_LIMIT'],
+  [504,'DEADLINE_EXCEEDED','Deadline exceeded','PROVIDER_DEADLINE_EXCEEDED'],
+  [503,'INTERNAL','Unknown failure','UNKNOWN'],
+ ];
+ for(const [http,status,message,label] of cases){let calls=0;
+  await assert.rejects(new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-test',async()=>{calls++;return new Response(JSON.stringify({error:{status,message:message+' private-person isolated-test-key',details:[{credential:'private-secret'}]}}),{status:http});}).evaluate({}),e=>e.code==='AI_PROVIDER_UNAVAILABLE'&&e.message.includes(`HTTP ${http}`)&&e.message.includes(`[${label}]`)&&!e.message.includes('private-')&&!e.message.includes('isolated-test-key'));
+  assert.equal(calls,1,'no adapter retry or implicit model fallback');
+ }
+});
+
+test('oversized summaries fail before transport instead of silently dropping staffing or constraint data',async()=>{
+ let calls=0;const advisor=new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-test',async()=>{calls++;assert.fail('Oversized input must never reach Gemini');});
+ await assert.rejects(advisor.evaluate({missing_criteria:['x'.repeat(100001)]}),e=>e.code==='AI_SUMMARY_TOO_LARGE'&&e.status===422);
+ assert.equal(calls,0);
 });
 
 test('Gemini evaluation accepts text advice but rejects unexpected assignment proposals and invalid report fields',async()=>{

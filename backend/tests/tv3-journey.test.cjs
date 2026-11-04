@@ -18,9 +18,9 @@ function frontend(file,overrides={},globals={}){
 const plain=a=>({employee_id:a.employee_id,work_date:a.work_date,shift_id:a.shift_id,department_id:a.department_id});
 
 test('complete TV3 journey uses real frontend client/grid and Express with isolated auth, storage and Gemini transport',async()=>{
- const envKeys=['NODE_ENV','SCHEDULING_DATA_SOURCE','SCHEDULING_MOCK_SCENARIO','TV3_AI_EXTERNAL_ENABLED','TV3_AI_PROVIDER','TV3_AI_MODEL','GEMINI_API_KEY'];
+ const envKeys=['NODE_ENV','SCHEDULING_DATA_SOURCE','SCHEDULING_MOCK_SCENARIO','TV3_AI_EXTERNAL_ENABLED','TV3_AI_PROVIDER','TV3_AI_MODEL','TV3_AI_DEVELOPMENT_MODEL','GEMINI_API_KEY'];
  const oldEnv=envKeys.map(k=>process.env[k]),old={from:db.from,rpc:db.rpc,getUser:db.auth.getUser,fetch:global.fetch};
- Object.assign(process.env,{NODE_ENV:'development',SCHEDULING_DATA_SOURCE:'mock',SCHEDULING_MOCK_SCENARIO:'tv3-flow',TV3_AI_EXTERNAL_ENABLED:'true',TV3_AI_PROVIDER:'gemini',TV3_AI_MODEL:'gemini-test',GEMINI_API_KEY:'isolated-journey-key'});
+ Object.assign(process.env,{NODE_ENV:'development',SCHEDULING_DATA_SOURCE:'mock',SCHEDULING_MOCK_SCENARIO:'tv3-flow',TV3_AI_EXTERNAL_ENABLED:'true',TV3_AI_PROVIDER:'gemini',TV3_AI_MODEL:'gemini-test',TV3_AI_DEVELOPMENT_MODEL:'gemini-test',GEMINI_API_KEY:'isolated-journey-key'});
  const branch='00000000-0000-4000-8000-000000008901',actor='00000000-0000-4000-8000-000000008902';
  const authTables=[];let providerCalls=0,requests=0,lastSummary;
  db.auth.getUser=async()=>({data:{user:{id:actor}}});db.rpc=()=>assert.fail('No RPC allowed in mock journey');
@@ -34,7 +34,7 @@ test('complete TV3 journey uses real frontend client/grid and Express with isola
   if(url.startsWith(origin+'/')){requests++;return old.fetch(input,options);}
   if(url==='https://generativelanguage.googleapis.com/v1beta/models/gemini-test:generateContent'){
    providerCalls++;const request=JSON.parse(options.body);lastSummary=JSON.parse(request.contents[0].parts[0].text);
-   const schema=request.generationConfig.responseFormat.text.schema;
+   const schema=request.generationConfig.responseJsonSchema;
    assert.equal(schema.properties.suggestions.items.properties.candidate_assignments.type,'null');
    const missing=lastSummary.coverage.reduce((n,r)=>n+Math.max(0,r.required-r.assigned),0);
    // Explicit test double derived from request data; never exposed by the product.

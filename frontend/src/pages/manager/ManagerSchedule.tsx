@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { ApiError } from '../../services/auth.service';
 import { schedulingService } from '../../services/scheduling.service';
 import { dateLabel, latestSchedule, scheduleCalendarRows, scheduleRows, statusLabel, weekLabel } from '../../services/scheduling.view';
-import type { RegistrationSummary, SavedSchedule, SchedulingContext, SchedulingPeriod, SchedulePreview, ScheduleAssignment } from '../../types/scheduling';
+import type { RegistrationSummary, SavedSchedule, SchedulingContext, SchedulingPeriod, SchedulePreview, ScheduleAssignment, ScheduleRevisionRecord } from '../../types/scheduling';
 import './ManagerSchedule.css';
 import './ManagerPlanner.css';
 import { MockDraftEditor } from './MockDraftEditor';
@@ -16,6 +16,40 @@ import { RegistrationSummaryPanel } from './RegistrationSummaryPanel';
 import { ScheduleAIPanel } from './ScheduleAIPanel';
 
 export const scheduleCellKey=(a:{work_date:string;shift_id:string;department_id:string})=>`${a.work_date}/${a.shift_id}/${a.department_id}`;
+
+// Match the server's group, never infer a predecessor from a version number alone.
+export function revisionDetails(records:ScheduleRevisionRecord[],id:string,periodId:string,branchId:string) {
+  const current=records.find(r=>r.id===id&&r.period_id===periodId&&r.branch_id===branchId);
+  if(!current)return null;
+  const predecessors=records.filter(r=>r.schedule_group_id===current.schedule_group_id&&r.period_id===periodId&&r.branch_id===branchId&&r.version<current.version).sort((a,b)=>b.version-a.version);
+  const rejected=current.status==='NEEDS_REVISION'?current:predecessors.find(r=>r.status==='NEEDS_REVISION');
+  const decision=rejected?.approvals.filter(a=>a.decision==='NEEDS_REVISION').sort((a,b)=>b.decided_at.localeCompare(a.decided_at))[0];
+  return {current,previous:predecessors[0]??null,rejected,decision};
+}
+
+export function ScheduleRevisionContext({saved,periodId,branchId,preview}:{saved:SavedSchedule;periodId:string;branchId:string;preview:SchedulePreview|null}) {
+  const [records,setRecords]=useState<ScheduleRevisionRecord[]|null>(null),[error,setError]=useState(''),[reload,setReload]=useState(0);
+  const key=[saved.schedule.id,saved.schedule.version,periodId,branchId].join('/');
+  const [loadedKey,setLoadedKey]=useState('');
+  useEffect(()=>{
+    let active=true;setRecords(null);setError('');setLoadedKey('');
+    if(saved.source==='mock')return()=>{active=false;};
+    schedulingService.revisionHistory().then(value=>{if(active){setRecords(value);setLoadedKey(key);}}).catch(e=>{if(active)setError(e instanceof Error?e.message:'Không tải được yêu cầu chỉnh sửa.');});
+    return()=>{active=false;};
+  },[key,reload,saved.source]);
+  const details=loadedKey===key&&records?revisionDetails(records,saved.schedule.id,periodId,branchId):null;
+  return <section className="card summary-panel" aria-label="Phiên bản và yêu cầu chỉnh sửa">
+    <h3>{saved.schedule.status==='NEEDS_REVISION'?'Giám sát yêu cầu chỉnh sửa':'Phiên bản lịch'}</h3>
+    <p>Phiên bản đã lưu: <strong>{saved.schedule.version}</strong> · {statusLabel(saved.schedule.status)}</p>
+    {preview?<p>Đang chỉnh sửa phương án chưa lưu từ phiên bản {preview.edit_target?.version??saved.schedule.version}. Số phiên bản DRAFT mới được xác nhận sau khi lưu.</p>:saved.schedule.status==='DRAFT'&&<p>Đang chỉnh sửa DRAFT phiên bản {saved.schedule.version}.</p>}
+    {saved.source!=='mock'&&!records&&!error&&<p role="status">Đang tải yêu cầu chỉnh sửa…</p>}
+    {error&&<div role="alert">Không tải được lý do yêu cầu chỉnh sửa: {error} <button type="button" className="btn btn-outline" onClick={()=>setReload(n=>n+1)}>Thử lại</button></div>}
+    {details?.previous&&<p>Phiên bản trước: {details.previous.version} · {statusLabel(details.previous.status)}</p>}
+    {details?.rejected&&<div className="schedule-alert" role="note"><div><strong>Yêu cầu chỉnh sửa phiên bản {details.rejected.version}</strong><p style={{whiteSpace:'pre-wrap'}}>Lý do của giám sát: {details.decision?.reason?.trim()||'API chưa trả lý do yêu cầu chỉnh sửa.'}</p></div></div>}
+    {((records&&loadedKey===key&&!details)||(saved.schedule.status==='NEEDS_REVISION'&&details&&!details.rejected))&&<p role="status">API chưa trả thông tin yêu cầu chỉnh sửa của phiên bản này.</p>}
+    {(saved.schedule.status==='NEEDS_REVISION'||details?.rejected)&&<p>Chỉnh sửa phân công → Kiểm tra lại phương án → Lưu DRAFT mới → Chuẩn bị dữ liệu gửi phê duyệt → Gửi giám sát duyệt lại. Phiên bản cũ và quyết định trước được giữ nguyên.</p>}
+  </section>;
+}
 export function PlannerProgress({periodStatus,scheduleStatus,hasPreview}:{periodStatus?:string;scheduleStatus?:string;hasPreview:boolean}){
  const states=[periodStatus==='CLOSED'?'Đã đóng':periodStatus==='OPEN'?'Đang nhận':'Chưa xác nhận',hasPreview?'Đang dự kiến':scheduleStatus?'Đã có lịch':'Chưa xếp',scheduleStatus==='NEEDS_REVISION'?'Cần điều chỉnh':['APPROVED','PUBLISHED'].includes(scheduleStatus??'')?'Đã duyệt':scheduleStatus==='PENDING_APPROVAL'?'Chờ duyệt':'Chưa gửi',scheduleStatus==='PUBLISHED'?'Đã công bố':'Chưa công bố'];
  return <ol className="planner-progress" aria-label="Tiến trình lập lịch">{['Đăng ký ca','Xếp lịch','Phê duyệt','Công bố'].map((label,i)=><li key={label} className={(i===0&&periodStatus==='CLOSED')||(i===1&&!!scheduleStatus)||(i===2&&['APPROVED','PUBLISHED'].includes(scheduleStatus??''))||(i===3&&scheduleStatus==='PUBLISHED')?'is-complete':''}><span>{i+1}</span><div><strong>{label}</strong><small>{states[i]}</small></div></li>)}</ol>;
@@ -153,6 +187,7 @@ export function ManagerSchedule() {
   const [previewDay,setPreviewDay]=useState('');
   const [tab,setTab]=useState<'create'|'assignments'>('create');
   const [selectedCell,setSelectedCell]=useState('');
+  const [prepareAfterSave,setPrepareAfterSave]=useState(false);
   const activeTab=tab??'create';
   const sequence = useRef(0);
   const submitting = useRef(false);
@@ -170,7 +205,13 @@ export function ManagerSchedule() {
     schedulingService.periods().then(data => {
       if (!active) return;
       setPeriods(data);
-      setPeriodId(current => data.some(p => p.id === current) ? current : (data.find(p => p.status === 'CLOSED') || data[0])?.id || '');
+      setPeriodId(current => {
+        if(current&&!data.some(p=>p.id===current)){
+          setError('Không tìm thấy tuần được yêu cầu trong chi nhánh của bạn. Hãy chọn tuần khác.');
+          return current;
+        }
+        return current||(data.find(p=>p.status==='CLOSED')||data[0])?.id||'';
+      });
     }).catch(err => { if (active) setError(fail(err)); })
       .finally(() => { if (active) setLoadingPeriods(false); });
     return () => { active = false; };
@@ -210,7 +251,7 @@ export function ManagerSchedule() {
     }catch(err){if(sequence.current===request){setError(err instanceof ApiError&&err.code==='DEMAND_EXCEEDED'?'Phân công vượt nhu cầu. Vui lòng giảm số nhân viên ở ca được đánh dấu.':fail(err));if(err instanceof ApiError&&['PREVIEW_STALE','SCHEDULE_VERSION_CHANGED'].includes(err.code??'')){setEditDirty(true);}}}
     finally{submitting.current=false;if(sequence.current===request)setGenerating(false);}
   };
-  const savePreview=async()=>{
+  const savePreview=async(prepareApproval=false)=>{
     if(!selected||!preview||editDirty||busy||submitting.current||!preview.persistence.enabled)return;
     submitting.current=true;setSaving(true);setError('');setNotice('');const request=++sequence.current;let written=false;
     try{
@@ -221,7 +262,7 @@ export function ManagerSchedule() {
       const persisted=await schedulingService.read(result.id);
       if(sequence.current!==request)return;
       if(persisted.schedule.id!==result.id||persisted.schedule.period_id!==selected.id)throw new Error('Phản hồi lịch không khớp tuần đang chọn.');
-      setSaved(persisted);setPreview(null);setEdited([]);setEditDirty(false);saveAttempt.current=null;setNotice('Đã lưu bản nháp.');
+      setSaved(persisted);setPreview(null);setEdited([]);setEditDirty(false);setTab('create');setPrepareAfterSave(prepareApproval);saveAttempt.current=null;setNotice(`Đã lưu DRAFT phiên bản ${persisted.schedule.version}. Kiểm tra và chuẩn bị dữ liệu để gửi giám sát phê duyệt.`);
       setPeriods(old=>old.map(p=>p.id===selected.id?{...p,schedules:[...p.schedules.filter(s=>s.id!==persisted.schedule.id),persisted.schedule]}:p));
     }catch(err){if(sequence.current===request)setError(`${written?'Đã lưu DRAFT nhưng chưa đọc lại được. Hãy tải lại tuần hoặc thử lại cùng yêu cầu. ':''}${fail(err)}`);}
     finally{submitting.current=false;if(sequence.current===request)setSaving(false);}
@@ -232,7 +273,7 @@ export function ManagerSchedule() {
   const assigned = rows.reduce((sum, row) => sum + row.assigned_count, 0);
   const missing = rows.reduce((sum, row) => sum + row.missing_count, 0);
   const existing = !!saved || !!selected?.schedules.length;
-  const canGenerate = (!saved||['DRAFT','NEEDS_REVISION'].includes(saved.schedule.status)) && !!context && selected?.status === 'CLOSED' && !!context.requirements.length  && !busy;
+  const canGenerate = (!saved||['DRAFT','NEEDS_REVISION'].includes(saved.schedule.status)) && !!context && (selected?.status === 'CLOSED'||context.open_registration_preview_enabled===true) && !!context.requirements.length  && !busy;
 
   return <section className="manager-schedule manager-planner" aria-busy={busy}>
     <PlannerProgress periodStatus={selected?.status} scheduleStatus={saved?.schedule.status} hasPreview={!!preview}/>
@@ -249,8 +290,9 @@ export function ManagerSchedule() {
       {context&&!loadingWeek&&<span data-schedule-status={preview?'PREVIEW':saved?.schedule.status} className={`badge ${saved?.schedule.status==='DRAFT'?'badge-yellow':'badge-slate'}`}>{preview?'Lịch dự kiến — chưa lưu':statusLabel(saved?.schedule.status||context.period.status)}</span>}
       <button hidden={activeTab!=='create'} type="button" className="btn btn-primary" disabled={!canGenerate} onClick={() => void generate()}>{generating ? <Loader2 className="spin" size={17} aria-hidden="true" /> : <Wand2 size={17} aria-hidden="true" />}{generating ? 'Đang kiểm tra phương án…' : preview?'Tạo lại phương án':'Tạo lịch dự kiến'}</button>
     </div>
+    {saved&&selected&&user?.branch_id&&!loadingPeriods&&!loadingWeek&&<ScheduleRevisionContext key={`${saved.schedule.id}/${saved.schedule.version}`} saved={saved} periodId={selected.id} branchId={user.branch_id} preview={preview}/>}
     <div hidden={activeTab!=='create'} className="planner-pane">
-    {saved&&!preview&&!loadingPeriods&&!loadingWeek&&saved.schedule.status==='DRAFT'&&<ScheduleReviewPanel key={`${saved.schedule.id}/${saved.schedule.version}`} saved={saved} onSubmitted={()=>setReload(n=>n+1)}/>}
+    {saved&&!preview&&!loadingPeriods&&!loadingWeek&&saved.schedule.status==='DRAFT'&&<ScheduleReviewPanel key={`${saved.schedule.id}/${saved.schedule.version}`} saved={saved} prepareOnMount={prepareAfterSave} onSubmitted={()=>{setPrepareAfterSave(false);setReload(n=>n+1);}}/>}
     {context?.source === 'mock' && <div className="schedule-info" role="status">Dữ liệu thử nghiệm — lịch chỉ lưu trong bộ nhớ backend, không gửi lên Supabase. {context.test_rules?.max_shifts_per_day?`Giới hạn ${context.test_rules.max_shifts_per_day} ca/ngày là cấu hình kiểm thử.`:'Không áp đặt giới hạn ca/ngày khi chưa cấu hình.'}</div>}
     {!loadingPeriods && <details className="workspace-disclosure"><summary>Đăng ký và khả năng đáp ứng nhân sự</summary><RegistrationSummaryPanel periodId={selected?.id || ''} refreshKey={reload} context={context} onSummary={setRegistrationSummary}/></details>}
     </div>
@@ -262,8 +304,17 @@ export function ManagerSchedule() {
     {context && !loadingWeek && <>
       {saved&&!preview&&saved.schedule.status==='PENDING_APPROVAL'&&<div className="schedule-info" role="status">Lịch đã gửi và đang chờ Giám sát phê duyệt. Chưa công bố cho nhân viên.</div>}
       {preview&&<div className="planner-actions"><div className="preview-review-actions"><button type="button" className="btn btn-primary" disabled={busy||!editDirty} onClick={()=>void generate(true)}>{generating?<><Loader2 className="spin" size={16} aria-hidden="true"/>Đang kiểm tra…</>:'Kiểm tra lại phương án'}</button><button type="button" className="btn btn-outline" disabled={busy||editDirty||!preview.persistence.enabled} onClick={()=>void savePreview()}>{saving?'Đang lưu phương án…':'Lưu phương án'}</button></div><span className="schedule-muted">{editDirty?'Có thay đổi chưa kiểm tra':'Phương án đã kiểm tra · Chưa lưu'}</span></div>}
+      {preview&&<>
+        <ScheduleAIPanel preview={preview} previewDirty={editDirty||busy} employees={context.employees} autoEvaluate/>
+        <div className="planner-actions" aria-label="Tiếp tục với phương án">
+          <button type="button" className="btn btn-primary" disabled={busy||editDirty||!preview.persistence.enabled} onClick={()=>void savePreview(true)}>Gửi giám sát duyệt</button>
+          <button type="button" className="btn btn-outline" disabled={busy} onClick={()=>setTab('assignments')}>Cân đối lịch</button>
+          <button type="button" className="btn btn-outline" disabled={busy} onClick={()=>void generate()}>Đề xuất lịch</button>
+        </div>
+        <p className="schedule-muted">Gửi giám sát duyệt sẽ lưu DRAFT và chuẩn bị kiểm tra; bạn cần xác nhận gửi ở bước tiếp theo. Cân đối thủ công cần Kiểm tra lại phương án; AI tự đánh giá phương án đã kiểm tra. Đề xuất lịch tạo lại bằng Rule Engine, có thể giữ nguyên nếu dữ liệu không đổi.</p>
+      </>}
       <div hidden={activeTab!=='assignments'} className="planner-pane">
-      {preview&&<div className="planner-inline-ai"><ScheduleAIPanel preview={preview} previewDirty={editDirty||busy} employees={context.employees} autoEvaluate/>
+      {preview&&<div className="planner-inline-ai">
       <details className="card planner-ai-adjustment"><summary>Yêu cầu đề xuất điều chỉnh</summary>
       {preview&&<ScheduleAdjustmentIntent preview={preview} dirty={editDirty||busy} onApplied={value=>{
         if(value.kind!=='preview'||value.persisted!==false||value.input_revision!==preview.input_revision||JSON.stringify(value.edit_target??null)!==JSON.stringify(preview.edit_target??null)||value.period.id!==selected?.id||value.period.branch_id!==user?.branch_id||editDirty||busy)throw new Error('Lịch đang chỉnh sửa đã thay đổi. Hãy tạo lại đề xuất.');
@@ -315,7 +366,8 @@ export function ManagerSchedule() {
       </PlannerBoard>
       </div>
       <div hidden={activeTab!=='create'} className="planner-pane">
-      {!existing && selected?.status !== 'CLOSED' && <div className="schedule-alert">Cần đóng đợt đăng ký trước khi tạo lịch dự kiến.</div>}
+      {context?.open_registration_preview_enabled&&<div className="schedule-info" role="status">Development: cho phép tạo lại phương án khi đăng ký còn mở, chỉ trong kỳ kiểm thử này. Lưu/gửi duyệt vẫn chịu kiểm tra backend và RPC.</div>}
+      {!existing && selected?.status !== 'CLOSED' && !context?.open_registration_preview_enabled && <div className="schedule-alert">Cần đóng đợt đăng ký trước khi tạo lịch dự kiến.</div>}
       {!context.requirements.length && !saved && <div className="schedule-alert"><AlertTriangle size={18} aria-hidden="true" /><span>Chưa khai báo nhu cầu nhân sự cho tuần này. Cần bổ sung nhu cầu trước khi tạo lịch.</span></div>}
       {context.valid_registration_count === 0 && !saved && <div className="schedule-alert"><AlertTriangle size={18} aria-hidden="true" /><span>Chưa có đăng ký ca hợp lệ. Nếu tạo lịch, các vị trí cần người sẽ được ghi nhận còn thiếu.</span></div>}
       {editDirty&&<p className="schedule-muted">Các chỉ số dưới đây là phương án đã kiểm tra gần nhất.</p>}

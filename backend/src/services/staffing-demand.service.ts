@@ -1,4 +1,5 @@
 ﻿import { registrationSummaryRepository } from '../repositories/registration-summary.repository.js';
+import { requireIntegrationTestWriteScope } from './draft-write-scope.js';
 import type { DemandInput, RegistrationSummaryRepository, SummarySnapshot } from '../repositories/registration-summary.types.js';
 import { readSummarySnapshot } from '../repositories/read-summary.js';
 import { summarizeRegistrations } from './registration-summary.service.js';
@@ -38,6 +39,7 @@ export async function readDemand(periodId: string, branchId: string, repository:
 }
 // Unknown demand is absence of a row, never a numeric zero or a nullable count.
 export async function clearDemand(periodId:string,branchId:string,body:unknown,repository:RegistrationSummaryRepository=registrationSummaryRepository()) {
+  requireIntegrationTestWriteScope(periodId,branchId);
   if (!body||typeof body!=='object'||Array.isArray(body)||Object.keys(body).some(k=>!['work_date','shift_id','department_id','expected_updated_at'].includes(k)))
     throw new ScheduleError(400,'INVALID_DEMAND_FIELDS','Chỉ gửi ngày, ca, bộ phận và phiên bản cần xóa.');
   const input=validateDemandInput({...body,required_count:0,required_skill_name:null,sales_forecast_ref:null});
@@ -51,6 +53,7 @@ export async function clearDemand(periodId:string,branchId:string,body:unknown,r
   return {source:repository.source,is_mock:repository.source==='mock',cleared_id:rows[0].id};
 }
 export async function saveDemand(periodId: string, branchId: string, actorId: string, body: unknown, repository: RegistrationSummaryRepository = registrationSummaryRepository()) {
+  requireIntegrationTestWriteScope(periodId,branchId);
   const input = validateDemandInput(body);
   const snapshot = await repository.load(branchId,periodId);
   if (input.work_date < snapshot.period.work_start_date || input.work_date > snapshot.period.work_end_date)

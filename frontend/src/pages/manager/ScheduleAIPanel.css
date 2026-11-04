@@ -1,5 +1,9 @@
 .schedule-ai { display: flex; flex-direction: column; gap: 14px; }
 .schedule-ai h3 { font-size: 17px; }
+.ai-rule-summary { padding: 14px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--bg-subtle, #f8fafc); }
+.ai-rule-totals { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin: 12px 0; }
+.ai-rule-totals dt { font-size: 13px; color: var(--text-secondary); }
+.ai-rule-totals dd { margin: 4px 0; font-size: 24px; font-weight: 700; }
 .ai-report { display: flex; flex-direction: column; gap: 18px; border-top: 1px solid var(--border-subtle); padding-top: 18px; font-size: 14px; line-height: 1.7; }
 .ai-report h4 { font-size: 14px; margin-bottom: 8px; }
 .ai-report ul { padding-left: 20px; }

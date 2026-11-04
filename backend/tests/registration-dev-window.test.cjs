@@ -14,6 +14,29 @@ test('wrong registration period is rejected before any transaction/query',async(
  try{await assert.rejects(api.saveDevTestRegistration({query:async()=>{calls++;}},'u','79a979cc-8347-48b5-a411-f03bd8aceb92',[],true),e=>e.status===403);assert.equal(calls,0);}
  finally{for(const k of Object.keys(process.env))if(!(k in old))delete process.env[k];Object.assign(process.env,old);}
 });
+
+test('development override refuses a submitted or published schedule before any registration write',async()=>{
+ const before={...process.env};Object.assign(process.env,env);const calls=[];
+ const connection={query:async(sql)=>{calls.push(sql);return{rows:sql.startsWith('SELECT id FROM public.schedules')?[{id:'protected-schedule'}]:[]};}};
+ try{
+  await assert.rejects(api.saveDevTestRegistration(connection,'u',scope.period,[],true),e=>e.status===409);
+  assert.ok(calls.includes('LOCK TABLE public.schedules IN SHARE MODE'));
+  assert.ok(calls.some(sql=>sql.includes("'PENDING_APPROVAL','APPROVED','PUBLISHED'")));
+  assert.equal(calls.at(-1),'ROLLBACK');assert.ok(!calls.some(sql=>/^(INSERT|DELETE|UPDATE)/.test(sql)));
+ }finally{for(const k of Object.keys(process.env))if(!(k in before))delete process.env[k];Object.assign(process.env,before);}
+});
+
+test('production never opens the development writer, even with the opt-in flag',async()=>{
+ const before={...process.env};Object.assign(process.env,env,{NODE_ENV:'production'});let calls=0;
+ try{await assert.rejects(api.saveDevTestRegistration({query:async()=>{calls++;return{rows:[]};}},'u',scope.period,[],true),e=>e.status===503);assert.equal(calls,0);}
+ finally{for(const k of Object.keys(process.env))if(!(k in before))delete process.env[k];Object.assign(process.env,before);}
+});
+
+test('missing old-machine credentials produce actionable error before any connection',async()=>{
+ const before={...process.env};Object.assign(process.env,env,{REGISTRATION_DEV_PG_CONNECTION_FILE:require('node:path').resolve('tests/nonexistent-dev-connection.json'),REGISTRATION_DEV_PG_CLIENT:require('node:path').resolve('tests/nonexistent-pg-client')});
+ try{await assert.rejects(api.persistDevTestRegistration('u',scope.period,[],true),e=>e.status===503&&e.message.includes('RPC Supabase thông thường vẫn kiểm tra thời hạn'));}
+ finally{for(const k of Object.keys(process.env))if(!(k in before))delete process.env[k];Object.assign(process.env,before);}
+});
 test('isolated PostgreSQL dev registration: closed period, validation, ownership, rollback, and untouched other periods',{skip:process.env.REGISTRATION_DEV_NATIVE_TESTS!=='true'?'Requires disposable loopback-only PostgreSQL':false},async()=>{
  const h=await require('./helpers/native-tv3-harness.cjs').nativeHarness(),q=(s,p=[])=>h.admin.query(s,p),old={...process.env};
  try{

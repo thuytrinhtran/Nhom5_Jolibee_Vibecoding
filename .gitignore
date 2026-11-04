@@ -47,3 +47,15 @@ lerna-debug.log*
 
 # Local test packages and backup inventories
 .tmp/
+
+# Machine-transfer copies, nested checkout and local diagnostics
+/JolliShift-transfer/
+/frontend/Nhom5_Jolibee_Vibecoding/
+/frontend/errors.txt
+
+# Private database-derived fixtures and local acceptance records
+/docs/demo-datasets/
+/docs/manual-web-november-acceptance.md
+/docs/supabase-integration-acceptance.md
+*.bak
+*.bkp

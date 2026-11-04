@@ -1,6 +1,11 @@
 export interface ScheduleSummary {
   id: string; status: string; version: number; created_at: string; period_id?: string;
 }
+export interface ScheduleRevisionRecord {
+  id:string; period_id:string; branch_id:string; schedule_group_id:string;
+  version:number; status:string;
+  approvals:{decision:string;reason:string|null;decided_at:string}[];
+}
 export interface SchedulingPeriod {
   id: string; branch_id: string; work_start_date: string; work_end_date: string;
   status: string; schedules: ScheduleSummary[];
@@ -27,6 +32,7 @@ export interface ScheduleOptimization {
   after:ScheduleOptimization['before'];
 }
 export interface SchedulingContext {
+  open_registration_preview_enabled?:boolean;
   source?: 'mock' | 'supabase';
   can_generate_mock?:boolean;test_rules?:{max_shifts_per_day:number};
   period: Omit<SchedulingPeriod, 'schedules'>; requirements: StaffingRequirement[];

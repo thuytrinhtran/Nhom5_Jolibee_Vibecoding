@@ -18,6 +18,13 @@ test('automatic preview evaluation runs once without saving and re-evaluates the
  p.preview={...preview(),result:{assignments:[]}};p.dirty=false;await p.settle();assert.equal(posts,2);assert.equal(p.button.props.disabled,false);await p.settle();assert.equal(posts,2);
 });
 
+test('a new saved edit target triggers fresh automatic review even with identical source and assignments',async()=>{
+ let calls=0;const p=page({previewAIConfiguration:config,evaluatePreviewAI:async()=>{calls++;return response();}},{autoEvaluate:true});
+ await p.settle();assert.equal(calls,1);
+ p.preview={...preview(),edit_target:{id:'new-draft',version:3}};await p.settle();assert.equal(calls,2);
+ await p.settle();assert.equal(calls,2);
+});
+
 test('automatic failure preserves Rule Engine plan, does not loop and allows explicit retry',async()=>{
  let posts=0;const p=page({previewAIConfiguration:config,evaluatePreviewAI:async()=>{if(++posts===1)throw Error('Provider timeout');return response();}},{autoEvaluate:true});
  const original=p.value;await p.settle();assert.equal(posts,1);assert.ok(p.html().includes('Provider timeout'));assert.equal(p.value,original);await p.settle();assert.equal(posts,1);
@@ -36,5 +43,38 @@ test('configuration read failure can retry without discarding preview; disabled 
  let checks=0,posts=0;const p=page({previewAIConfiguration:async()=>{if(++checks===1)throw Error('Config network unavailable');return config();},evaluatePreviewAI:async()=>{posts++;return response();}},{autoEvaluate:true});
  await p.settle();assert.equal(posts,0);assert.equal(p.button.props.disabled,false);p.click();await p.settle();assert.equal(posts,1);
  const off=page({previewAIConfiguration:async()=>({configured:false,model:null,message:'AI disabled'}),evaluatePreviewAI:()=>assert.fail('No provider calls')},{autoEvaluate:true});await off.settle();assert.ok(off.html().includes('AI disabled'));assert.ok(off.button.props.disabled);
+});
+
+test('503 after balancing hides old remarks, retains the new plan and retries only on click',async()=>{
+ let posts=0;const p=page({previewAIConfiguration:config,evaluatePreviewAI:async()=>{posts++;if(posts===2)throw Error('Gemini HTTP 503: tạm thời quá tải');return response();}},{autoEvaluate:true});
+ await p.settle();assert.ok(p.html().includes('Coverage checked'));
+ p.dirty=true;await p.settle();assert.ok(!p.html().includes('Coverage checked'));assert.ok(p.html().includes('Hết hiệu lực'));
+ const balanced={...preview(),result:{assignments:[]}};p.preview=balanced;p.dirty=false;await p.settle();
+ assert.equal(posts,2);assert.equal(p.value,balanced);assert.ok(p.html().includes('503'));assert.ok(!p.html().includes('Coverage checked'));
+ await p.settle();await p.settle();assert.equal(posts,2);p.click();await p.settle();assert.equal(posts,3);assert.equal(p.value,balanced);assert.ok(p.html().includes('Coverage checked'));
+});
+
+test('a complete validated report renders overview and every remark in full details',async()=>{
+ const result=response();result.evaluation.report.good_points=['Coverage verified','Experience verified','Hours verified'];result.evaluation.report.concerns=['Shortage in S001','Check new staff'];result.evaluation.report.limitations=['Synthetic availability only'];
+ result.evaluation.report.suggestions=[{description:'Review staffing at S001',reason:'Declared demand exceeds available staff',candidate_assignments:null,rule_check:{status:'NOT_APPLICABLE',message:'Advisory only',code:null}}];
+ const p=page({previewAIConfiguration:config,evaluatePreviewAI:async()=>result},{autoEvaluate:true});await p.settle();
+ for(const text of ['Đã đánh giá phương án đang xem','Xem đầy đủ đánh giá và giới hạn',...result.evaluation.report.good_points,...result.evaluation.report.concerns,...result.evaluation.report.limitations,'Review staffing at S001','Declared demand exceeds available staff'])assert.ok(p.html().includes(text),text);
+});
+
+test('Rule Engine totals include existing coverage and sum cell shortages independently of AI',()=>{
+ const {RuleEngineCoverage}=load('src/pages/manager/ScheduleAIPanel.tsx',{'../../services/scheduling.service':{}});
+ const value={...preview(),result:{...preview().result,required_count:9,assigned_count:3,covered_count:8,coverage:[{required_count:5,assigned_count:6,missing_count:0},{required_count:4,assigned_count:2,missing_count:2}]}};
+ const before=JSON.stringify(value),html=renderToStaticMarkup(React.createElement(RuleEngineCoverage,{preview:value,dirty:false}));
+ for(const pair of [['Nhu cầu',9],['Đã đáp ứng',8],['Còn thiếu',2]])assert.ok(html.includes(`<dt>${pair[0]}</dt><dd>${pair[1]}</dd>`));
+ assert.ok(html.includes('không lấy từ nhận xét AI'));assert.equal(JSON.stringify(value),before);
+ const dirty=renderToStaticMarkup(React.createElement(RuleEngineCoverage,{preview:value,dirty:true}));assert.ok(dirty.includes('Có thay đổi chưa kiểm tra'));assert.ok(dirty.includes('data-current="false"'));
+});
+
+test('deterministic staffing counts remain visible while AI fails and update after validated balancing',async()=>{
+ const p=page({previewAIConfiguration:config,evaluatePreviewAI:async()=>{throw Error('Gemini HTTP 503');}},{autoEvaluate:true});
+ const plan=(assigned,missing)=>({...preview(),result:{...preview().result,required_count:9,assigned_count:assigned,coverage:[{required_count:9,assigned_count:assigned,missing_count:missing}]}});
+ p.preview=plan(8,1);await p.settle();assert.ok(p.html().includes('<dt>Đã đáp ứng</dt><dd>8</dd>'));assert.ok(p.html().includes('<dt>Còn thiếu</dt><dd>1</dd>'));assert.ok(p.html().includes('503'));
+ p.dirty=true;await p.settle();assert.ok(p.html().includes('phương án đã kiểm tra gần nhất'));
+ p.preview=plan(9,0);p.dirty=false;await p.settle();assert.ok(p.html().includes('<dt>Đã đáp ứng</dt><dd>9</dd>'));assert.ok(p.html().includes('<dt>Còn thiếu</dt><dd>0</dd>'));
 });
 

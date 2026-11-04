@@ -70,7 +70,7 @@ test('server advertises the scoped time exception and uses token identity on its
  const period={id:s.period,branch_id:s.branch,work_start_date:s.start,work_end_date:s.end,open_at:'2099-01-01T00:00:00Z',close_at:'2099-01-02T00:00:00Z',status:'PLANNED'};
  Object.assign(process.env,{REGISTRATION_DEV_TEST_MODE:'true',NODE_ENV:'development',SUPABASE_URL:`https://${s.project}.supabase.co`});
  db.auth.getUser=async()=>({data:{user:{id:uid}},error:null});
- db.from=table=>{const filters=[];const query={select(){return this},eq(k,v){filters.push([k,v]);return this},lte(){return this},gt(){return this},or(){return this},order(){return this},limit(){return this},single:async()=>result(),maybeSingle:async()=>result(),then(resolve){return Promise.resolve(result()).then(resolve)}};
+ db.from=table=>{const filters=[];const query={select(){return this},eq(k,v){filters.push([k,v]);return this},lte(){return this},in(){return this},gt(){return this},or(){return this},order(){return this},limit(){return this},single:async()=>result(),maybeSingle:async()=>result(),then(resolve){return Promise.resolve(result()).then(resolve)}};
   function result(){const data=table==='users'?{id:uid,username:'fixture',role:'NV',branch_id:s.branch,is_active:true,must_change_password:false}:table==='employees'?{id:'own-employee',user_id:uid,branch_id:s.branch,status:'ACTIVE',skill_level:'REGULAR'}:table==='branches'?{name:'Fixture'}:table==='registration_periods'?(filters.some(([k])=>k==='id')?(filters.some(([k,v])=>k==='id'&&v===s.period)?period:null):[period]):table==='shifts'?[{id:shift,start_time:'08:00:00',end_time:'12:00:00'}]:table==='registration_schedule_config'?{timezone:'Asia/Ho_Chi_Minh'}:table==='registration_submissions_sourced'?null:[];return{data,error:null};}return query;};
  db.rpc=async()=>{throw Error('No ordinary RPC expected while bypassing its clock gate');};
  dev.persistDevTestRegistration=async(...args)=>{calls.push(args);return{registration_status:'VALID',errors:[]}};
@@ -84,5 +84,7 @@ test('server advertises the scoped time exception and uses token identity on its
   assert.equal((await send(s.period,{...body,preferences:[...body.preferences,...body.preferences]})).status,400);
   assert.equal((await send('79a979cc-8347-48b5-a411-f03bd8aceb92',body)).status,403);assert.equal(calls.length,1);
   process.env.REGISTRATION_DEV_TEST_MODE='false';assert.equal((await send(s.period,body)).status,409);assert.equal(calls.length,1);
+  Object.assign(process.env,{TV3_WRITE_SCOPE_MODE:'integration-test',TV3_WRITE_SCOPE_ENABLED:'true',TV3_WRITE_PROJECT_REF:s.project,TV3_WRITE_BRANCH_ID:s.branch,TV3_WRITE_PERIOD_ID:'0f38b6da-4552-4885-9c0b-dbb295e8ef8c'});
+  assert.equal((await send(s.period,body)).status,403,'integration session must not save another period');assert.equal(calls.length,1);
  }finally{db.from=original.from;db.rpc=original.rpc;db.auth.getUser=original.getUser;dev.persistDevTestRegistration=original.persist;for(const k of Object.keys(process.env))if(!(k in saved))delete process.env[k];Object.assign(process.env,saved);await new Promise(r=>server.close(r));}
 });

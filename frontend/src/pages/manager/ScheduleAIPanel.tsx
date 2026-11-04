@@ -20,6 +20,21 @@ export function AIReportView({evaluation,stale,employees=[]}:{evaluation:AIEvalu
 }
 
 type PanelProps=({saved:SavedSchedule;preview?:never}|{preview:SchedulePreview;saved?:never;previewDirty?:boolean;autoEvaluate?:boolean})&{employees?:{id:string;full_name:string}[]};
+export function RuleEngineCoverage({preview,dirty}:{preview:SchedulePreview;dirty:boolean}) {
+  const result=preview.result,cells=Array.isArray(result.coverage)?result.coverage:null;
+  const required=cells?cells.reduce((n,c)=>n+c.required_count,0):result.required_count;
+  // coverage includes existing valid assignments; assigned_count alone only
+  // counts newly generated assignments and would understate demand coverage.
+  const assigned=cells?cells.reduce((n,c)=>n+c.assigned_count,0):result.covered_count??result.assigned_count;
+  // Sum shortages per cell: overstaffing elsewhere cannot cancel a shortage.
+  const missing=cells?cells.reduce((n,c)=>n+Math.max(0,c.missing_count),0):undefined;
+  return <section className="ai-rule-summary" aria-label="Số liệu Rule Engine" data-current={!dirty}>
+    <h4>Số liệu Rule Engine</h4>
+    <dl className="ai-rule-totals">{[['Nhu cầu',required],['Đã đáp ứng',assigned],['Còn thiếu',missing]].map(([label,value])=><div key={label}><dt>{label}</dt><dd>{typeof value==='number'&&Number.isFinite(value)?value:'—'}</dd></div>)}</dl>
+    <p className="schedule-muted">Lượt phân công theo các ô nhu cầu đã khai báo, gồm phân công có sẵn hợp lệ. Số liệu do Rule Engine tính, không lấy từ nhận xét AI.</p>
+    {dirty&&<p role="status">Có thay đổi chưa kiểm tra. Số liệu trên thuộc phương án đã kiểm tra gần nhất; hãy Kiểm tra lại phương án để cập nhật.</p>}
+  </section>;
+}
 export function PreviewScheduleAIPanel({preview,dirty=false,employees=[],autoEvaluate=false}:{preview:SchedulePreview;dirty?:boolean;employees?:{id:string;full_name:string}[];autoEvaluate?:boolean}) {
   const [configuration,setConfiguration]=useState<PreviewAIConfiguration|null>(null);
   const [last,setLast]=useState<{key:string;evaluation:PreviewAIEvaluation}|null>(null);
@@ -60,13 +75,16 @@ export function PreviewScheduleAIPanel({preview,dirty=false,employees=[],autoEva
   return <section className="card summary-panel schedule-ai" aria-labelledby="preview-ai-heading" aria-busy={busy||loading}>
     <div className="schedule-heading"><h3 id="preview-ai-heading">AI đánh giá lịch dự kiến</h3><button type="button" className="btn btn-outline" disabled={dirty||loading||busy||configuration?.configured===false} onClick={()=>configuration?.configured?void evaluate():setConfigurationReload(n=>n+1)}>{busy?<Loader2 className="spin" size={16} aria-hidden="true"/>:<Sparkles size={16} aria-hidden="true"/>}{busy?'AI đang đánh giá…':error?'Thử lại AI':autoEvaluate?'Đánh giá lại':'Đánh giá bằng AI'}</button></div>
     <p className="schedule-muted">AI tư vấn trên phương án chưa lưu, không tự sửa phân công hoặc lưu lịch.</p>
+    <RuleEngineCoverage preview={preview} dirty={dirty}/>
+    {configuration?.model&&<p className="schedule-muted">Model đánh giá: {configuration.model}</p>}
     {loading&&<p role="status">Đang kiểm tra cấu hình AI…</p>}
     {dirty&&<p role="status">Cần kiểm tra lại phương án trước khi đánh giá AI. Báo cáo cũ đã hết hiệu lực.</p>}
     {configuration&&!current&&<p role="status">{configuration.message}</p>}
     {busy&&<p role="status">AI đang đánh giá. Phương án Rule Engine vẫn giữ nguyên; bạn có thể tiếp tục xem, chỉnh sửa hoặc chủ động lưu phương án.</p>}
     {current&&<p role="status">{current.message}</p>}
     {error&&<p className="schedule-alert schedule-alert-error" role="alert">{error}</p>}
-    {last&&(autoEvaluate?<><p className={`badge ${stale?'badge-yellow':'badge-green'}`}>{stale?'Hết hiệu lực — cần đánh giá lại':'Đã đánh giá phương án đang xem'}</p><div className="preview-ai-overview">{[['Nhận xét',last.evaluation.report.good_points],['Vấn đề cần lưu ý',last.evaluation.report.concerns],['Đề xuất',last.evaluation.report.suggestions.map(s=>s.description)]].map(([title,items])=><section key={title as string}><h4>{title as string}</h4>{(items as string[]).length?<ul>{(items as string[]).slice(0,2).map((item,i)=><li key={i}>{item}</li>)}</ul>:<p>Không có nội dung được nêu.</p>}</section>)}</div><details><summary>Xem đầy đủ đánh giá và giới hạn</summary><AIReportView evaluation={last.evaluation} stale={stale} employees={employees}/></details></>:<AIReportView evaluation={last.evaluation} stale={stale} employees={employees}/>)}
+    {last&&autoEvaluate&&stale&&<p className="badge badge-yellow" role="status">Hết hiệu lực — nhận xét cũ đã được ẩn. Chưa có đánh giá hợp lệ cho phương án hiện tại.</p>}
+    {last&&(!autoEvaluate||!stale)&&(autoEvaluate?<><p className="badge badge-green">Đã đánh giá phương án đang xem</p><div className="preview-ai-overview">{[['Nhận xét',last.evaluation.report.good_points],['Vấn đề cần lưu ý',last.evaluation.report.concerns],['Đề xuất',last.evaluation.report.suggestions.map(s=>s.description)]].map(([title,items])=><section key={title as string}><h4>{title as string}</h4>{(items as string[]).length?<ul>{(items as string[]).slice(0,2).map((item,i)=><li key={i}>{item}</li>)}</ul>:<p>Không có nội dung được nêu.</p>}</section>)}</div><details><summary>Xem đầy đủ đánh giá và giới hạn</summary><AIReportView evaluation={last.evaluation} stale={stale} employees={employees}/></details></>:<AIReportView evaluation={last.evaluation} stale={stale} employees={employees}/>)}
   </section>;
 }
 export function ScheduleAIPanel(props:PanelProps) {

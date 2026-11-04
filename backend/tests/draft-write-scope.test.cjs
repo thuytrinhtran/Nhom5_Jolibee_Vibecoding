@@ -8,6 +8,33 @@ test('operator draft scope accepts only the approved project/branch/period',()=>
  for(const override of [{SUPABASE_URL:'https://other.supabase.co'},{TV3_WRITE_PERIOD_ID:'other'},{TV3_WRITE_BRANCH_ID:'other'},{TV3_WRITE_PROJECT_REF:'other'},{NODE_ENV:'production'},{TV3_WRITE_SCOPE_ENABLED:'yes'}])assert.equal(draftWriteScopeAllowed(period,branch,{...env,...override}),false);
  assert.equal(draftWriteScopeAllowed('other','other',{}),true);
 });
+
+test('approved integration mode allows only the new period and rejects the published period even if scope is disabled',()=>{
+ const {INTEGRATION_TEST_PERIOD:testPeriod}=require('../dist/services/draft-write-scope.js');
+ const integration={...env,TV3_WRITE_SCOPE_MODE:'integration-test',TV3_WRITE_PERIOD_ID:testPeriod};
+ assert.equal(draftWriteScopeAllowed(testPeriod,branch,integration),true);
+ assert.equal(draftWriteScopeAllowed(period,branch,integration),false);
+ assert.equal(draftWriteScopeAllowed(testPeriod,branch,{...integration,TV3_WRITE_SCOPE_ENABLED:'false'}),false);
+ assert.equal(draftWriteScopeAllowed(testPeriod,branch,{...integration,NODE_ENV:'production'}),false);
+ assert.equal(draftWriteScopeAllowed(testPeriod,branch,{...integration,TV3_WRITE_PERIOD_ID:period}),false);
+});
+
+test('integration demand writes reject other periods before loading any data',async()=>{
+ const old={...process.env};Object.assign(process.env,env,{TV3_WRITE_SCOPE_MODE:'integration-test',TV3_WRITE_PERIOD_ID:'0f38b6da-4552-4885-9c0b-dbb295e8ef8c'});
+ const repository={load:()=>assert.fail('No outside-scope read or write')};
+ try{const {saveDemand,clearDemand}=require('../dist/services/staffing-demand.service.js');await assert.rejects(saveDemand(period,branch,'actor',{},repository),e=>e.code==='DRAFT_WRITE_SCOPE_FORBIDDEN');await assert.rejects(clearDemand(period,branch,{},repository),e=>e.code==='DRAFT_WRITE_SCOPE_FORBIDDEN');}
+ finally{for(const k of Object.keys(process.env))if(!(k in old))delete process.env[k];Object.assign(process.env,old);}
+});
+
+test('integration mode cannot bypass workflow and shift-change guards by disabling scope',async()=>{
+ const old={...process.env};Object.assign(process.env,{TV3_WRITE_SCOPE_MODE:'integration-test',TV3_WRITE_SCOPE_ENABLED:'false',TV3_TEST_PREVIEW_ENABLED:'false'});
+ try{
+  const {requireWorkflowWrites}=require('../dist/services/schedule-workflow.service.js');
+  const {requireShiftChangeWriteScope}=require('../dist/services/shift-change-write-scope.js');
+  assert.throws(()=>requireWorkflowWrites(),e=>e.code==='WORKFLOW_SCOPE_FORBIDDEN');
+  await assert.rejects(requireShiftChangeWriteScope('CREATE_REQUEST',{},branch),e=>e.code==='TV5_SCOPE_FORBIDDEN');
+ }finally{for(const k of Object.keys(process.env))if(!(k in old))delete process.env[k];Object.assign(process.env,old);}
+});
 test('both draft writer entry points reject outside scope before database access',async()=>{
  const saved={...process.env};Object.assign(process.env,env,{TV3_DRAFT_PERSISTENCE_ENABLED:'true',TV3_TEST_PREVIEW_ENABLED:'false'});
  try{
@@ -17,3 +44,5 @@ test('both draft writer entry points reject outside scope before database access
   await assert.rejects(createDraft('other','actor',branch),e=>e.code==='DRAFT_WRITE_SCOPE_FORBIDDEN');
  }finally{for(const k of Object.keys(process.env))if(!(k in saved))delete process.env[k];Object.assign(process.env,saved);}
 });
+
+test('manual scope excludes published periods and cannot be disabled',()=>{const {MANUAL_TEST_PERIOD:p,INTEGRATION_TEST_PERIOD:dec}=require('../dist/services/draft-write-scope.js');const manual={...env,TV3_WRITE_SCOPE_MODE:'manual-test',TV3_WRITE_PERIOD_ID:p};assert.equal(draftWriteScopeAllowed(p,branch,manual),true);for(const id of [period,dec])assert.equal(draftWriteScopeAllowed(id,branch,manual),false);assert.equal(draftWriteScopeAllowed(p,branch,{...manual,TV3_WRITE_SCOPE_ENABLED:'false'}),false);});

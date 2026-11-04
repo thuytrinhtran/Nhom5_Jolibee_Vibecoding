@@ -1,3 +1,4 @@
+import { openRegistrationPreviewAllowed } from './manual-preview-policy.js';
 import { SCHEDULING_RULE_VERSION } from './scheduling-contract.js';
 import { createHash } from 'node:crypto';
 import { registrationSummaryRepository } from '../repositories/registration-summary.repository.js';
@@ -30,8 +31,9 @@ export async function inspectPreview(periodId:string,branchId:string,body:Record
   if(Object.keys(body).some(k=>!['period_id','assignments','input_revision','schedule_id','expected_version','use_saved_assignments'].includes(k)))throw new ScheduleError(400,'INVALID_PREVIEW','Chỉ gửi tuần và phương án cần kiểm tra.');
   const {snapshot,target}=await previewSnapshot(periodId,branchId,body,repository);
   const input=schedulingInput(snapshot);
+  if(openRegistrationPreviewAllowed(snapshot))input.period={...input.period,status:'CLOSED'};
   const revision=previewRevision(snapshot);
-  // Always apply the existing engine's common input/CLOSED validation.
+  // All engine constraints remain enforced; the scoped development preview alone may normalize OPEN.
   const generated=generateSchedule(input);
   let result=generated;
   if(body.assignments!==undefined){
@@ -59,7 +61,7 @@ export async function inspectPreview(periodId:string,branchId:string,body:Record
 export async function previewSchedule(periodId:string,branchId:string,body:Record<string,unknown>,repository:RegistrationSummaryRepository=registrationSummaryRepository()) {
   const {snapshot,target,revision,result}=await inspectPreview(periodId,branchId,body,repository);
   return {kind:'preview' as const,persisted:false as const,source:snapshot.source,period:snapshot.period,input_revision:revision,edit_target:target,
-    result,context:{source:snapshot.source,period:snapshot.period,requirements:snapshot.requirements,valid_registration_count:snapshot.registrations.length,
+    result,context:{source:snapshot.source,open_registration_preview_enabled:openRegistrationPreviewAllowed(snapshot),period:snapshot.period,requirements:snapshot.requirements,valid_registration_count:snapshot.registrations.length,
       employees:snapshot.employees.map(e=>({id:e.id,full_name:e.full_name,department_id:e.department_id,employee_code:e.employee_code,skill_level:e.skill_level,skills:e.skills,max_weekly_hours:e.max_weekly_hours})),shifts:snapshot.shifts,departments:snapshot.departments},
     warnings:result.coverage.filter(c=>c.warning).map(c=>({code:c.warning!,work_date:c.work_date,shift_id:c.shift_id,department_id:c.department_id})),
     persistence:{enabled:snapshot.source==='supabase'&&isDraftPersistenceEnabled()&&draftWriteScopeAllowed(periodId,branchId),reason:!draftWriteScopeAllowed(periodId,branchId)?'Chỉ cho phép lưu DRAFT tại Lê Duẩn, kỳ 02–08/11/2026.':isDraftPersistenceEnabled()?'Lưu thành phiên bản DRAFT; dữ liệu sẽ được kiểm tra lại trước khi ghi.':'Chưa bật lưu DRAFT. Cần triển khai và xác minh migration trước.'}};

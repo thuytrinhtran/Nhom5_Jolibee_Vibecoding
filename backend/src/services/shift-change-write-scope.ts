@@ -1,8 +1,9 @@
 import { supabaseAdmin } from '../config/supabase.js';
-import { draftWriteScopeAllowed } from './draft-write-scope.js';
+import { draftWriteScopeAllowed, isTestWriteScope } from './draft-write-scope.js';
 import { ScheduleError } from './scheduling.engine.js';
 
 export async function requireShiftChangeWriteScope(action:string,data:Record<string,unknown>,actorBranch?:string|null){
+ if(isTestWriteScope()&&process.env.TV3_WRITE_SCOPE_ENABLED!=='true')throw new ScheduleError(403,'TV5_SCOPE_FORBIDDEN','Chế độ nghiệm thu yêu cầu giới hạn ghi đúng kỳ test.');
  if(process.env.TV3_WRITE_SCOPE_ENABLED===undefined||process.env.TV3_WRITE_SCOPE_ENABLED==='false')return;
  const get=async(table:string,id:unknown,fields:string)=>{
   const {data:row,error}=await supabaseAdmin.from(table).select(fields).eq('id',String(id)).maybeSingle();
@@ -22,6 +23,6 @@ export async function requireShiftChangeWriteScope(action:string,data:Record<str
  const assignment=await get('shift_assignments',assignmentId,'schedule_id');
  const schedule=await get('schedules',assignment.schedule_id,'period_id,branch_id');
  if(typeof schedule.period_id!=='string'||typeof schedule.branch_id!=='string')throw new ScheduleError(503,'TV5_SCOPE_UNAVAILABLE','Thiếu phạm vi lịch làm việc.');
- if(actorBranch!==schedule.branch_id||!draftWriteScopeAllowed(schedule.period_id,schedule.branch_id))throw new ScheduleError(403,'TV5_SCOPE_FORBIDDEN','Đợt kiểm thử chỉ cho phép đổi ca Lê Duẩn, kỳ 02–08/11/2026.');
+ if(actorBranch!==schedule.branch_id||!draftWriteScopeAllowed(schedule.period_id,schedule.branch_id))throw new ScheduleError(403,'TV5_SCOPE_FORBIDDEN','Ngoài chi nhánh hoặc kỳ kiểm thử đã được cấu hình.');
  // SQL rechecks ownership, recipient, eligibility and races atomically.
 }

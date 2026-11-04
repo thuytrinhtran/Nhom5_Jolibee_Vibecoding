@@ -50,3 +50,16 @@ test('preview HTTP requires manager and own branch; no database mutation or RPC'
  const accepted=await post({period_id:id,input_revision:preview.input_revision,assignments:[{...assignment,employee_id:'b'}]});assert.equal(accepted.status,200);assert.equal((await accepted.json()).result.result.assignments[0].employee_id,'b');
  }finally{db.auth.getUser=original.getUser;db.from=original.from;db.rpc=original.rpc;repositories.registrationSummaryRepository=original.repository;await new Promise(r=>server.close(r));}
 });
+
+test('manual OPEN preview is development-only, scoped, non-persisting and revision-aware',async()=>{
+ const old={...process.env},p='7f48f53e-d707-4a32-9f15-eb32aeb0095a',b='11111111-1111-1111-1111-111111111111';const data=fixture();Object.assign(data.period,{id:p,branch_id:b,status:'OPEN'});data.employees[0].branch_id=b;data.registrations[0].period_id=p;
+ Object.assign(process.env,{NODE_ENV:'development',TV3_OPEN_REGISTRATION_PREVIEW_ENABLED:'true',TV3_WRITE_SCOPE_MODE:'manual-test',TV3_WRITE_SCOPE_ENABLED:'true',TV3_WRITE_PROJECT_REF:'wlbpprpiieonjrqglicv',SUPABASE_URL:'https://wlbpprpiieonjrqglicv.supabase.co',TV3_WRITE_BRANCH_ID:b,TV3_WRITE_PERIOD_ID:p});const repo={load:async()=>data};
+ try{const v=await previewSchedule(p,b,{},repo);assert.equal(v.period.status,'OPEN');assert.equal(v.persisted,false);assert.equal(data.period.status,'OPEN');
+ const assignments=v.result.assignments.map(({employee_id,work_date,shift_id,department_id})=>({employee_id,work_date,shift_id,department_id}));
+ await assert.rejects(previewSchedule(p,b,{assignments:[{...assignments[0],employee_id:'missing'}],input_revision:v.input_revision},repo));
+ data.registrations.push({...data.registrations[0],id:'new'});assert.notEqual((await previewSchedule(p,b,{},repo)).input_revision,v.input_revision);
+ await assert.rejects(previewSchedule(p,b,{assignments,input_revision:v.input_revision},repo),e=>e.code==='PREVIEW_STALE');
+ for(const [k,val] of [['NODE_ENV','production'],['TV3_OPEN_REGISTRATION_PREVIEW_ENABLED','false'],['TV3_WRITE_SCOPE_ENABLED','false'],['TV3_WRITE_PERIOD_ID','other']]){const prev=process.env[k];process.env[k]=val;await assert.rejects(previewSchedule(p,b,{},repo),e=>e.code==='PERIOD_NOT_CLOSED');process.env[k]=prev;}
+ data.period.id='0f38b6da-4552-4885-9c0b-dbb295e8ef8c';await assert.rejects(previewSchedule(data.period.id,b,{},repo),e=>e.code==='PERIOD_NOT_CLOSED');
+ }finally{for(const k of Object.keys(process.env))if(!(k in old))delete process.env[k];Object.assign(process.env,old);}
+});

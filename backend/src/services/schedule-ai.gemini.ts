@@ -27,6 +27,12 @@ async function providerDiagnostic(response:Response):Promise<string> {
     const error=JSON.parse(Buffer.concat(chunks).toString('utf8'))?.error;
     if(!error||typeof error.message!=='string')return 'UNKNOWN';
     const message=error.message;
+    if(response.status===503&&error.status==='UNAVAILABLE'){
+      if(/overload|high demand|capacity|temporarily exhausted/i.test(message))return 'PROVIDER_OVERLOADED';
+      return 'PROVIDER_UNAVAILABLE';
+    }
+    if(response.status===429&&error.status==='RESOURCE_EXHAUSTED')return 'QUOTA_OR_RATE_LIMIT';
+    if(response.status===504&&error.status==='DEADLINE_EXCEEDED')return 'PROVIDER_DEADLINE_EXCEEDED';
     if(response.status===400&&error.status==='INVALID_ARGUMENT'){
       if(/(?:schema|constraint).*(?:too (?:many|much|complex|large)|complexity|branching|states)|(?:too many states|too much branching)/is.test(message))return 'SCHEMA_TOO_COMPLEX';
       if(/unknown name|unknown field|unrecognized field|unsupported (?:field|parameter)|cannot find field/i.test(message))return 'UNSUPPORTED_REQUEST_FIELD';
@@ -38,6 +44,10 @@ async function providerDiagnostic(response:Response):Promise<string> {
   finally{await reader.cancel().catch(()=>{});reader.releaseLock();}
 }
 const diagnosticGuidance:Record<string,string>={
+  PROVIDER_OVERLOADED:'Gemini xác nhận model đang quá tải/thiếu công suất. Đây là lỗi khả dụng của provider; chờ rồi bấm Thử lại AI. Không tự đổi model hoặc gửi lại liên tục.',
+  PROVIDER_UNAVAILABLE:'Gemini xác nhận dịch vụ tạm thời không khả dụng. Chưa có bằng chứng do JSON, quota hoặc timeout phía ứng dụng. Chờ rồi bấm Thử lại AI.',
+  QUOTA_OR_RATE_LIMIT:'Gemini xác nhận giới hạn tài nguyên/quota hoặc tốc độ gọi. Kiểm tra quota trong Google AI Studio; mã này chưa phân biệt hết quota ngày với giới hạn tốc độ. Không tự gọi lại.',
+  PROVIDER_DEADLINE_EXCEEDED:'Gemini xác nhận quá hạn xử lý phía provider. Đây không phải bằng chứng timeout 30 giây phía ứng dụng. Thử lại bằng nút khi sẵn sàng.',
   SCHEMA_TOO_COMPLEX:'Gemini báo schema tạo quá nhiều trạng thái/nhánh hoặc quá phức tạp. Cần đơn giản hóa schema đánh giá, đặc biệt candidate_assignments và maxItems lồng nhau.',
   UNSUPPORTED_REQUEST_FIELD:'Gemini báo có trường request không được hỗ trợ. Đối chiếu generationConfig với API v1beta; chưa tự đổi model hoặc API version.',
   MODEL_API_INCOMPATIBLE:'Gemini báo model/API không tương thích. Kiểm tra supportedGenerationMethods của model và phiên bản API.',
@@ -62,7 +72,7 @@ export class GeminiSchedulingAIAdvisor implements SchedulingAIAdvisor {
     try {
       response=await this.send(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(this.model)}:generateContent`,{
         method:'POST',redirect:'error',signal:AbortSignal.timeout(30000),headers:{'Content-Type':'application/json','x-goog-api-key':this.key},
-        body:JSON.stringify({systemInstruction:{parts:[{text:instructions}]},contents:[{role:'user',parts:[{text:JSON.stringify(summary)}]}],generationConfig:{maxOutputTokens:8192,responseFormat:{text:{mimeType:'APPLICATION_JSON',schema:schema}}}}),
+        body:JSON.stringify({systemInstruction:{parts:[{text:instructions}]},contents:[{role:'user',parts:[{text:JSON.stringify(summary)}]}],generationConfig:{maxOutputTokens:8192,responseMimeType:'application/json',responseJsonSchema:schema}}),
       });
     }catch(error){
       if(error instanceof Error&&['TimeoutError','AbortError'].includes(error.name))throw new ScheduleError(503,'AI_PROVIDER_UNAVAILABLE','Gemini hết thời gian chờ (30 giây). Không có đánh giá mới; hãy thử lại bằng nút đánh giá.');
@@ -76,6 +86,7 @@ export class GeminiSchedulingAIAdvisor implements SchedulingAIAdvisor {
         403:'Không có quyền sử dụng API/model. Kiểm tra giới hạn key, dự án và quyền truy cập.',
         404:'Không tìm thấy model hoặc endpoint cho v1beta. Kiểm tra tên model và supportedGenerationMethods trong models.list.',
         429:'Đã vượt hạn mức hoặc tốc độ gọi. Kiểm tra quota và thử lại sau; hệ thống không tự gọi lại.',
+        503:'Dịch vụ Gemini tạm thời không khả dụng (HTTP 503). Chưa đủ bằng chứng kết luận do model quá tải, quota hay request JSON. Chờ rồi bấm Thử lại AI; hệ thống không tự gọi lại.',
       };
       const diagnostic=await providerDiagnostic(response);
       throw new ScheduleError(503,'AI_PROVIDER_UNAVAILABLE',`Gemini trả lỗi HTTP ${response.status}. [${diagnostic}] ${diagnosticGuidance[diagnostic]??guidance[response.status]??'Nhà cung cấp tạm thời không khả dụng.'} Không có đánh giá mới; lịch không thay đổi.`);
@@ -102,7 +113,11 @@ export class GeminiSchedulingAIAdvisor implements SchedulingAIAdvisor {
   }
 }
 export function schedulingAIAdvisor(env:NodeJS.ProcessEnv=process.env):SchedulingAIAdvisor {
+  // Development override never changes production selection. Empty/unset restores
+  // the baseline model; an invalid explicit override remains fail-closed.
+  const model=env.NODE_ENV==='development'&&env.TV3_AI_DEVELOPMENT_MODEL?.trim()
+    ?env.TV3_AI_DEVELOPMENT_MODEL.trim():env.TV3_AI_MODEL;
   // A key alone never enables sending. Consent/configuration must explicitly opt in on Backend.
-  if(env.TV3_AI_EXTERNAL_ENABLED!=='true'||env.TV3_AI_PROVIDER!=='gemini'||!env.GEMINI_API_KEY?.trim()||!env.TV3_AI_MODEL||!/^gemini-[a-zA-Z0-9.-]{1,90}$/.test(env.TV3_AI_MODEL))return new UnconfiguredSchedulingAIAdvisor();
-  return new GeminiSchedulingAIAdvisor(env.GEMINI_API_KEY.trim(),env.TV3_AI_MODEL);
+  if(env.TV3_AI_EXTERNAL_ENABLED!=='true'||env.TV3_AI_PROVIDER!=='gemini'||!env.GEMINI_API_KEY?.trim()||!model||!/^gemini-[a-zA-Z0-9.-]{1,90}$/.test(model))return new UnconfiguredSchedulingAIAdvisor();
+  return new GeminiSchedulingAIAdvisor(env.GEMINI_API_KEY.trim(),model);
 }

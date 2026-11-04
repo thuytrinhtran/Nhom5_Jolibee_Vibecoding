@@ -9,7 +9,7 @@ export function ScheduleValidationView({validation}:{validation:ScheduleValidati
     {validation.warnings.map((warning,index)=><p className="schedule-muted" key={`${warning.code}/${index}`}>{warning.message}</p>)}
   </div>;
 }
-export function ScheduleReviewPanel({saved,onSubmitted}:{saved:SavedSchedule;onSubmitted?:()=>void}){
+export function ScheduleReviewPanel({saved,onSubmitted,prepareOnMount=false}:{saved:SavedSchedule;onSubmitted?:()=>void;prepareOnMount?:boolean}){
   const [validation,setValidation]=useState<ScheduleValidation|null>(null);
   const [handoff,setHandoff]=useState<ApprovalHandoff|null>(null);
   const [note,setNote]=useState(saved.note??'');const [busy,setBusy]=useState(false);const [error,setError]=useState('');
@@ -24,6 +24,7 @@ export function ScheduleReviewPanel({saved,onSubmitted}:{saved:SavedSchedule;onS
     }catch(err){if(active.current)setError(err instanceof Error?err.message:'Không thể kiểm tra hoặc chuẩn bị bàn giao.');}
     finally{working.current=false;if(active.current)setBusy(false);}
   };
+  useEffect(()=>{if(prepareOnMount)void check(true);},[saved.schedule.id,saved.schedule.version,prepareOnMount]);
   const submit=async()=>{
     if(working.current||!handoff?.delivery.configured||!handoff.validation.can_submit||saved.schedule.status!=='DRAFT')return;
     if(!window.confirm('Gửi lịch đã lưu cho giám sát phê duyệt?'))return;

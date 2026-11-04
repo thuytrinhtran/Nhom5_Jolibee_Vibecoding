@@ -22,6 +22,11 @@ export async function saveDevTestRegistration(c:Connection,userId:string,periodI
  await c.query('BEGIN');
  try{
   await c.query("SET LOCAL timezone='UTC'; SET LOCAL lock_timeout='5s'; SET LOCAL statement_timeout='15s'");
+  // Serialize with schedule insert/transition writers before checking the period.
+  // Never reopen registration underneath approval or an already published roster.
+  await c.query('LOCK TABLE public.schedules IN SHARE MODE');
+  const locked=(await c.query("SELECT id FROM public.schedules WHERE period_id=$1 AND status IN ('PENDING_APPROVAL','APPROVED','PUBLISHED') LIMIT 1",[periodId])).rows;
+  if(locked.length)throw new RegistrationError('Lịch đã gửi duyệt hoặc công bố; không thể thay đổi nguyện vọng.',409);
   const p=(await c.query('SELECT to_jsonb(p) v FROM public.registration_periods p WHERE id=$1 FOR UPDATE',[periodId])).rows[0]?.v;
   const e=(await c.query('SELECT * FROM public.employees WHERE user_id=$1 FOR UPDATE',[userId])).rows[0];
   const u=(await c.query('SELECT role,branch_id,is_active FROM public.users WHERE id=$1 FOR SHARE',[userId])).rows[0];
@@ -44,6 +49,7 @@ export async function persistDevTestRegistration(userId:string,periodId:string,p
  if(!devTestWindowEnabled())throw new RegistrationError('Chế độ kiểm thử đang tắt.',409);
  const file=process.env.REGISTRATION_DEV_PG_CONNECTION_FILE,lib=process.env.REGISTRATION_DEV_PG_CLIENT;
  if(!file||!lib||!path.isAbsolute(file)||!path.isAbsolute(lib))throw new RegistrationError('Chưa cấu hình kết nối kiểm thử backend.',503);
+ if(!fs.existsSync(file)||!fs.existsSync(lib))throw new RegistrationError('Kết nối đăng ký development chưa sẵn sàng trên máy này. RPC Supabase thông thường vẫn kiểm tra thời hạn; không thể bỏ hạn chỉ bằng giao diện.',503);
  const config=JSON.parse(fs.readFileSync(file,'utf8')),s=DEV_TEST_REGISTRATION_SCOPE;
  const direct=config.host===`db.${s.project}.supabase.co`&&config.user==='postgres';
  const pooler=/^aws-[0-9]+-[a-z0-9-]+\.pooler\.supabase\.com$/.test(config.host??'')&&config.user===`postgres.${s.project}`;

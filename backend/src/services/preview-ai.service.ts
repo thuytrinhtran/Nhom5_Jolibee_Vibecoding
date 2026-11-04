@@ -13,7 +13,7 @@ import { ScheduleError } from './scheduling.engine.js';
 
 const pending=new Set<string>();
 export function previewAIConfiguration(advisor:SchedulingAIAdvisor=schedulingAIAdvisor()) {
-  return {configured:advisor.configured,model:advisor.model,message:advisor.configured?'Có thể đánh giá phương án đã kiểm tra.':'AI chưa được cấu hình'};
+  return {configured:advisor.configured,model:advisor.model,message:advisor.configured?`Gemini (${advisor.model}) sẽ tự đánh giá phương án đã kiểm tra.`:'AI chưa được cấu hình. Backend cần TV3_AI_EXTERNAL_ENABLED=true, TV3_AI_PROVIDER=gemini, TV3_AI_MODEL hợp lệ (hoặc TV3_AI_DEVELOPMENT_MODEL trong development) và GEMINI_API_KEY. Chưa có yêu cầu nào được gửi tới Gemini.'};
 }
 export async function evaluatePreview(periodId:string,branchId:string,actorId:string,body:Record<string,unknown>,deps:{repository?:RegistrationSummaryRepository;advisor?:SchedulingAIAdvisor}={}):Promise<PreviewAIReviewResponse> {
   if(!body||typeof body!=='object'||Array.isArray(body)||Object.keys(body).some(k=>!['period_id','input_revision','assignments','schedule_id','expected_version'].includes(k))||typeof body.input_revision!=='string'||!Array.isArray(body.assignments))

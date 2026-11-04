@@ -259,16 +259,17 @@ export const ScheduleWorkflow = ({
             }} aria-expanded={open}>
               <span>
                 <strong>{schedule.branches.name}</strong>
-                <small>{schedule.registration_periods.work_start_date} – {schedule.registration_periods.work_end_date}</small>
+                <small>{schedule.registration_periods.work_start_date} – {schedule.registration_periods.work_end_date} · Phiên bản {schedule.version}</small>
               </span>
               <span data-schedule-status={schedule.status} className={`workflow-status ${schedule.status.toLowerCase()}`}>{statusLabel[schedule.status] || schedule.status}</span>
             </button>
             {!schedule.is_latest && <div className="workflow-stale" role="status">Phiên bản cũ · Đã có phiên bản mới hơn; không thể duyệt hoặc công bố bản này.</div>}
-            {latest && <div className="workflow-decision">
+            {latest && !(canPublish&&schedule.status==='NEEDS_REVISION') && <div className="workflow-decision">
               {latest.decision === 'APPROVED' ? 'Quyết định: Đã phê duyệt' : 'Quyết định: Cần điều chỉnh'}
               {' · '}{latest.users.username}{' · '}{new Date(latest.decided_at).toLocaleString('vi-VN')}
               {latest.reason && <p>Lý do: {latest.reason}</p>}
             </div>}
+            {canPublish&&schedule.status==='NEEDS_REVISION'&&<div className="workflow-decision" role="note"><strong>Giám sát yêu cầu chỉnh sửa · Phiên bản {schedule.version}</strong><p style={{whiteSpace:'pre-wrap'}}>Lý do: {schedule.approvals.filter(a=>a.decision==='NEEDS_REVISION').sort((a,b)=>b.decided_at.localeCompare(a.decided_at))[0]?.reason?.trim()||'API chưa trả lý do yêu cầu chỉnh sửa.'}</p><p>Mở editor để chỉnh sửa, kiểm tra, lưu DRAFT mới rồi gửi duyệt lại.</p></div>}
             {schedule.status === 'PUBLISHED' && <div className="workflow-decision">
               Đã công bố bởi {schedule.published_by_username || 'Quản lý cửa hàng'} · {schedule.published_at ? new Date(schedule.published_at).toLocaleString('vi-VN') : 'Chưa có thời điểm'}
             </div>}

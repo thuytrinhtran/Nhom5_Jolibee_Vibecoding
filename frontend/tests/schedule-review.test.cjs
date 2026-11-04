@@ -55,3 +55,11 @@ test('send requires enabled validated DRAFT, explicit confirmation and preserves
  confirm=true;find(render()).props.onClick();await new Promise(setImmediate);assert.equal(states[4],'Retry');assert.equal(notified,0);
  find(render()).props.onClick();await new Promise(setImmediate);assert.equal(calls[0][3],calls[1][3]);assert.equal(calls[0][1],2);assert.equal(notified,1);assert.equal(find(render()).props.disabled,true);
 });
+
+test('preview send choice prepares the saved DRAFT on mount but never submits it',async()=>{
+ const effects=[],states=[],refs=[];let index=0,refIndex=0,prepared=0,submitted=0;
+ const hooks={...React,useState(initial){const i=index++;if(!(i in states))states[i]=initial;return[states[i],v=>states[i]=v];},useRef(initial){return refs[refIndex++]||={current:initial};},useEffect(fn){effects.push(fn);}};
+ const {ScheduleReviewPanel}=component(hooks,{prepareHandoff:async(id,version)=>{prepared++;assert.equal(id,saved.schedule.id);assert.equal(version,saved.schedule.version);return handoff;},submitApproval:()=>{submitted++;}},{window:{confirm:()=>assert.fail('No automatic confirmation')}});
+ ScheduleReviewPanel({saved,prepareOnMount:true});for(const effect of effects)effect();await new Promise(r=>setImmediate(r));
+ assert.equal(prepared,1);assert.equal(submitted,0);assert.equal(states[1],handoff);
+});

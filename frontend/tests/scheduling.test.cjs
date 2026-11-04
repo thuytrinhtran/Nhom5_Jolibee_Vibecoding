@@ -134,7 +134,7 @@ test('API errors, non-JSON and network failures are surfaced without fake succes
   }
 });
 
-function interactivePage(api,browser) {
+function interactivePage(api,browser,search='') {
   const states=[],refs=[],effects=[];let stateIndex=0,refIndex=0,effectIndex=0;let tree;
   const pending=[];
   const hooks={...React,
@@ -145,9 +145,9 @@ function interactivePage(api,browser) {
   const {ManagerSchedule}=load('src/pages/manager/ManagerSchedule.tsx',{
     './RegistrationSummaryPanel':{RegistrationSummaryPanel:()=>null},
   './ScheduleReviewPanel':{ScheduleReviewPanel:()=>null},'./MockDraftEditor':{MockDraftEditor:()=>null},'./ScheduleAIPanel':{ScheduleAIPanel:()=>null},
-    react:hooks,'react-router-dom':{Link:({children})=>React.createElement('a',{},children),useSearchParams:()=>[new URLSearchParams(),()=>{}]},
+    react:hooks,'react-router-dom':{Link:({children})=>React.createElement('a',{},children),useSearchParams:()=>[new URLSearchParams(search),()=>{}]},
     '../../context/AuthContext':{useAuth:()=>({user:{branch_id:'branch',branch_name:'Test Branch'}})},
-    '../../services/auth.service':{ApiError},'../../services/scheduling.service':{schedulingService:api},'../../services/scheduling.view':views,
+    '../../services/auth.service':{ApiError},'../../services/scheduling.service':{schedulingService:{revisionHistory:async()=>[],...api}},'../../services/scheduling.view':views,
   },{crypto:require('node:crypto').webcrypto,...(browser?{window:browser}:{})});
   return {
     find(predicate){const visit=node=>{if(!React.isValidElement(node))return null;if(predicate(node))return node;for(const child of React.Children.toArray(node.props.children)){const found=visit(child);if(found)return found;}return null;};return visit(tree);},
@@ -251,13 +251,46 @@ test('confirmed preview saves exact reviewed assignments then rereads; failed re
  const page=interactivePage({periods:async()=>[period],context:async()=>context,preview:async()=>value,savePreview:async(id,body,target)=>{calls.push({id,body,target});return{id:'saved'}},read:async()=>{if(failRead)throw new ApiError('Read unavailable',503);return persisted;}});
  await page.settle();page.generate();await page.settle();const click=()=>{const b=page.find(n=>n.type==='button'&&n.props.children==='Lưu phương án');assert.equal(b.props.disabled,false);b.props.onClick();};
  click();await page.settle();assert.equal(page.states[11].preview,value);assert.ok(page.html().includes('Đã lưu DRAFT nhưng chưa đọc lại được'));assert.equal(calls[0].body.assignments.length,1);assert.equal(calls[0].body.assignments[0].status,undefined);
- failRead=false;click();await page.settle();assert.equal(calls[0].body.request_id,calls[1].body.request_id);assert.equal(page.states[11].preview,null);assert.equal(page.states[3],persisted);assert.ok(page.html().includes('Đã lưu bản nháp'));assert.ok(page.html().includes('Chỉnh sửa DRAFT đã lưu'));
+ failRead=false;click();await page.settle();assert.equal(calls[0].body.request_id,calls[1].body.request_id);assert.equal(page.states[11].preview,null);assert.equal(page.states[3],persisted);assert.ok(page.html().includes('Đã lưu DRAFT phiên bản 1'));assert.ok(page.html().includes('Chỉnh sửa DRAFT đã lưu'));
 });
 
 test('DRAFT edit opens saved assignments and uses versioned PATCH persistence',async()=>{
  const persisted={...saved,schedule:{...saved.schedule,period_id:period.id}};let request;
  const value={kind:'preview',persisted:false,input_revision:'revision',period,context,result:{assignments:[assignment],coverage:context.requirements,shortages:[],notes:[]},warnings:[],edit_target:{id:'saved',version:1},persistence:{enabled:true,reason:'Ready'}};
  const page=interactivePage({periods:async()=>[{...period,schedules:[persisted.schedule]}],context:async()=>context,read:async()=>persisted,preview:async(id,body)=>{request=body;return value}});await page.settle();page.find(n=>n.type==='button'&&n.props.children==='Chỉnh sửa DRAFT đã lưu').props.onClick();await page.settle();assert.equal(request.schedule_id,'saved');assert.equal(request.expected_version,1);assert.equal(request.use_saved_assignments,true);assert.equal(page.states[11].preview.edit_target.id,'saved');
+});
+
+test('rejected editor keeps requested week, reviews saved assignments and saves a new server version before handoff',async()=>{
+ const rejected={...saved,source:'supabase',schedule:{id:'rejected',version:2,status:'NEEDS_REVISION',period_id:period.id,created_at:'2026-11-03'}};
+ const next={...saved,source:'supabase',schedule:{id:'revised',version:4,status:'DRAFT',period_id:period.id,created_at:'2026-11-04'}};
+ const value={kind:'preview',persisted:false,input_revision:'revision',period,context,result:{assignments:[assignment],coverage:context.requirements,shortages:[],notes:[]},warnings:[],edit_target:{id:'rejected',version:2},persistence:{enabled:true,reason:'Ready'}};
+ const calls=[];
+ const p=interactivePage({periods:async()=>[{...period,id:'other',schedules:[]},{...period,schedules:[rejected.schedule]}],context:async id=>{calls.push(['context',id]);return context;},read:async id=>id==='rejected'?rejected:next,preview:async(id,body)=>{calls.push(['preview',id,body]);return value;},savePreview:async(id,body,target)=>{calls.push(['save',id,body,target]);return{id:'revised'};}},undefined,'period_id=period');
+ await p.settle();assert.equal(p.states[1],'period');assert.deepEqual(calls[0],['context','period']);
+ p.find(n=>n.type==='button'&&n.props.children==='Điều chỉnh lịch bị từ chối').props.onClick();await p.settle();
+ const opened=calls.find(c=>c[0]==='preview');assert.equal(opened[1],'period');assert.equal(opened[2].schedule_id,'rejected');assert.equal(opened[2].expected_version,2);assert.equal(opened[2].use_saved_assignments,true);
+ p.states[11].dirty=true;await p.settle();assert.equal(p.find(n=>n.type==='button'&&n.props.children==='Lưu phương án').props.disabled,true);
+ p.find(n=>n.type==='button'&&n.props.children==='Kiểm tra lại phương án').props.onClick();await p.settle();
+ p.find(n=>n.type==='button'&&n.props.children==='Lưu phương án').props.onClick();await p.settle();
+ assert.equal(calls.find(c=>c[0]==='save')[3].version,2);assert.equal(p.states[3].schedule.version,4,'show allocated version, never assume old version + 1');assert.equal(p.states[11].preview,null);assert.equal(p.states[16],'create');
+ assert.ok(p.find(n=>n.props.saved?.schedule.id==='revised'&&typeof n.props.onSubmitted==='function'),'existing handoff panel receives new DRAFT');
+});
+
+test('an unavailable requested period is not silently replaced by another week',async()=>{
+ const p=interactivePage({periods:async()=>[{...period,id:'other'}],context:()=>assert.fail('must not load unrelated week')},undefined,'period_id=missing');
+ await p.settle();assert.equal(p.states[1],'missing');assert.ok(p.states[7].includes('Không tìm thấy tuần được yêu cầu'));
+});
+
+test('manager chooses balance or a fresh engine proposal; send only saves and prepares, never submits automatically',async()=>{
+ const calls=[],value={kind:'preview',persisted:false,input_revision:'revision',period,context,result:{assignments:[assignment],coverage:context.requirements,shortages:[],notes:[]},warnings:[],persistence:{enabled:true,reason:'Ready'}};
+ const persisted={...saved,schedule:{...saved.schedule,period_id:period.id}};
+ const p=interactivePage({periods:async()=>[period],context:async()=>context,preview:async()=>{calls.push('engine');return value;},savePreview:async()=>{calls.push('save');return{id:'saved'};},read:async()=>persisted,submitApproval:()=>assert.fail('No automatic submission')});
+ await p.settle();p.generate();await p.settle();
+ assert.equal(p.find(n=>n.props.autoEvaluate===true).props.preview,value);
+ p.find(n=>n.type==='button'&&n.props.children==='Cân đối lịch').props.onClick();await p.settle();assert.equal(p.states[16],'assignments');
+ p.find(n=>n.type==='button'&&n.props.children==='Đề xuất lịch').props.onClick();await p.settle();assert.equal(calls.filter(c=>c==='engine').length,2);
+ p.find(n=>n.type==='button'&&n.props.children==='Gửi giám sát duyệt').props.onClick();await p.settle();
+ assert.equal(calls.at(-1),'save');const handoff=p.find(n=>typeof n.props.onSubmitted==='function');assert.equal(handoff.props.prepareOnMount,true);assert.equal(handoff.props.saved,persisted);
 });
 
 test('accepted proposal replaces confirmed preview and editable assignments without saving; manual edits still work',async()=>{
@@ -318,4 +351,8 @@ test('changing week clears the selected cell and date filter while preserving th
  let board=p.find(n=>typeof n.props.onSelect==='function'&&n.props.context);board.props.onDay('2026-11-02');board.props.onSelect('2026-11-02/shift/dept');await p.settle();
  p.find(n=>n.type==='select'&&n.props.id==='schedule-week').props.onChange({target:{value:'next'}});await p.settle();
  board=p.find(n=>typeof n.props.onSelect==='function'&&n.props.context);assert.equal(board.props.context.period.id,'next');assert.equal(board.props.day,'');assert.equal(board.props.selectedCell,'');assert.equal(p.find(n=>n.type==='button'&&n.props.children==='Phân công nhân viên').props['aria-pressed'],true);
+});
+
+test('OPEN preview requires backend capability and never auto-saves',async()=>{
+ for(const enabled of [false,true]){const open={...period,status:'OPEN',schedules:[]};let calls=0;const api={periods:async()=>[open],context:async()=>({...context,period:open,open_registration_preview_enabled:enabled}),read:async()=>saved,preview:async()=>{calls++;return {kind:'preview',persisted:false,period:open,input_revision:'new',context:{...context,period:open,open_registration_preview_enabled:enabled},result:{assignments:[assignment],coverage:[],shortages:[],notes:[]},warnings:[],persistence:{enabled:false,reason:'Preview only'}}},savePreview:()=>assert.fail('No automatic save')};const p=interactivePage(api);await p.settle();const button=p.find(n=>n.type==='button'&&React.Children.toArray(n.props.children).includes("Tạo lịch dự kiến"));assert.ok(button);assert.equal(button.props.disabled,!enabled);if(enabled){p.generate();await p.settle();assert.equal(calls,1);assert.ok(p.html().includes('Development:'));}else assert.equal(calls,0);}
 });

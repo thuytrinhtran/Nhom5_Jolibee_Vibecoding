@@ -1,4 +1,5 @@
 import { requireEmployeeOwner } from '../middleware/data-scope.middleware.js';
+import { requireIntegrationTestWriteScope } from '../services/draft-write-scope.js';
 import { effectivePeriodStatus } from '../registrations/period-status.js';
 import { Router } from 'express';
 import { supabaseAdmin as db } from '../config/supabase.js';
@@ -58,7 +59,13 @@ registrationRoutes.get('/current', async (req, res) => {
       // Administrative TV3 fixtures must never look like this employee submitted them.
       registrations = hasSampleData ? [] : r.data || []; submission = hasSampleData ? null : s.data;
     }
-    res.json({ status: 'ok', employee: { ...employee, branch_name: req.user!.branch_name, department_name: req.user!.employee?.department_name }, period, shifts: shiftResult.data, registrations, submission, has_sample_data: hasSampleData, registration_window:{dev_test_override:!!period&&usesDevTestWindow(period,employee.branch_id)}, schedule: config.data, server_now: new Date().toISOString() });
+    let devOverride=!!period&&usesDevTestWindow(period,employee.branch_id);
+    if(devOverride){
+      const locked=await db.from('schedules').select('id').eq('period_id',period!.id).in('status',['PENDING_APPROVAL','APPROVED','PUBLISHED']).limit(1);
+      if(locked.error)throw locked.error;
+      devOverride=!locked.data?.length;
+    }
+    res.json({ status: 'ok', employee: { ...employee, branch_name: req.user!.branch_name, department_name: req.user!.employee?.department_name }, period, shifts: shiftResult.data, registrations, submission, has_sample_data: hasSampleData, registration_window:{dev_test_override:devOverride}, schedule: config.data, server_now: new Date().toISOString() });
   } catch (error) {
     // Log only a bounded error code, never tokens, request bodies or database details.
     const rawCode = (error as { code?: unknown })?.code;
@@ -73,6 +80,7 @@ registrationRoutes.put('/:periodId/me', async (req, res) => {
     if (!uuid.test(req.params.periodId)) throw new RegistrationError('Mã đợt không hợp lệ.', 400);
     const { preferences, mode } = parsePreferences(req.body);
     const employee = res.locals.employee;
+    try{requireIntegrationTestWriteScope(req.params.periodId,employee.branch_id);}catch{throw new RegistrationError('Ngoài kỳ đăng ký kiểm thử được phép.',403);}
     const p = await db.from('registration_periods').select('*').eq('id', req.params.periodId).eq('branch_id', employee.branch_id).maybeSingle();
     if (p.error) throw p.error;
     if (!p.data) throw new RegistrationError('Không có quyền truy cập đợt đăng ký.', 403);

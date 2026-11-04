@@ -3,11 +3,12 @@ import { ScheduleError } from './scheduling.engine.js';
 import { requireNonTestScheduleWrites } from './test-preview-policy.js';
 import { inspectSchedule } from './schedule-review.service.js';
 import { requireRealSchedulingData } from '../repositories/registration-summary.repository.js';
-import { draftWriteScopeAllowed } from './draft-write-scope.js';
+import { draftWriteScopeAllowed, isTestWriteScope } from './draft-write-scope.js';
 
 export const workflowEnabled=()=>process.env.TV4_WORKFLOW_PERSISTENCE_ENABLED==='true'&&process.env.TV3_TEST_PREVIEW_ENABLED!=='true';
 export function requireWorkflowWrites(){
  requireNonTestScheduleWrites();
+ if(isTestWriteScope()&&process.env.TV3_WRITE_SCOPE_ENABLED!=='true')throw new ScheduleError(403,'WORKFLOW_SCOPE_FORBIDDEN','Chế độ nghiệm thu yêu cầu giới hạn ghi đúng kỳ test.');
  if(!workflowEnabled())throw new ScheduleError(503,'WORKFLOW_PERSISTENCE_DISABLED','Chưa bật lưu workflow TV4. Cần nghiệm thu migration trước.');
  requireRealSchedulingData();
 }
@@ -27,7 +28,7 @@ export async function transitionSchedule(id:string,actor:{id:string;role:string;
   const {data:target,error:scopeError}=await supabaseAdmin.from('schedules').select('id,period_id,branch_id').eq('id',id).maybeSingle();
   if(scopeError)throw new ScheduleError(503,'WORKFLOW_SCOPE_UNAVAILABLE','Chưa thể xác minh phạm vi lịch.');
   if(!target)throw new ScheduleError(404,'SCHEDULE_NOT_FOUND','Không tìm thấy lịch.');
-  if(!draftWriteScopeAllowed(target.period_id,target.branch_id))throw new ScheduleError(403,'WORKFLOW_SCOPE_FORBIDDEN','Chỉ được thao tác lịch Lê Duẩn, kỳ 02–08/11/2026 trong đợt kiểm thử này.');
+  if(!draftWriteScopeAllowed(target.period_id,target.branch_id))throw new ScheduleError(403,'WORKFLOW_SCOPE_FORBIDDEN','Ngoài chi nhánh hoặc kỳ kiểm thử đã được cấu hình.');
  }
  // Authorization and all current constraints are repeated atomically in SQL.
  // Do not pre-check status here: an exact retry must recover its audit response.
