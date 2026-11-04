@@ -1,0 +1,26 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const {localSourceReadEnabled,LOCAL_SOURCE_SQL}=require('../dist/registrations/local-source-read.js');
+test('fast registration source is off by default and cannot escape the approved project/period',()=>{
+ const old={...process.env};try{
+  Object.assign(process.env,{NODE_ENV:'development',DEV_IMPORT_ENABLED:'true',DEV_IMPORT_PROJECT_REF:'wlbpprpiieonjrqglicv',DEV_IMPORT_BATCH_ID:'6e1d2026-1102-4000-8000-000000000017',SUPABASE_URL:'https://wlbpprpiieonjrqglicv.supabase.co',TV2_LOCAL_SOURCE_READ_ENABLED:'false'});
+  const period='79a979cc-8347-48b5-a411-f03bd8aceb92';assert.equal(localSourceReadEnabled(period),false);process.env.TV2_LOCAL_SOURCE_READ_ENABLED='true';assert.equal(localSourceReadEnabled(period),true);assert.equal(localSourceReadEnabled('other'),false);process.env.SUPABASE_URL='https://other.supabase.co';assert.throws(()=>localSourceReadEnabled(period));
+ }finally{for(const k of Object.keys(process.env))if(!(k in old))delete process.env[k];Object.assign(process.env,old);}
+});
+test('isolated SQL source parity retains receipt, header and row after-image guards',{skip:process.env.PERF_SOURCE_NATIVE_TESTS!=='true'?'Requires disposable PostgreSQL only':false},async()=>{
+ const h=await require('./helpers/native-tv3-harness.cjs').nativeHarness(),q=(s,p=[])=>h.admin.query(s,p);
+ try{
+  for(const file of ['20261101_tv3_rule_contract_v2.sql','20261105_scoped_dev_import.sql','20261106_dev_import_source_materialization.sql'])await q(fs.readFileSync(path.join(__dirname,'../migrations',file),'utf8'));
+  const branch='11111111-1111-1111-1111-111111111111',period='79a979cc-8347-48b5-a411-f03bd8aceb92',batch='6e1d2026-1102-4000-8000-000000000017',receipt=h.id(701),nv=h.id(702),employee=h.id(703),dept=h.id(704),shift=h.id(705),row=h.id(706);
+  await q("SET timezone='UTC'");await q("INSERT INTO branches(id,name) VALUES($1,'Synthetic parity')",[branch]);await q('INSERT INTO auth.users VALUES($1)',[nv]);await q("INSERT INTO users(id,username,role,branch_id) VALUES($1,'parity','NV',$2)",[nv,branch]);await q("INSERT INTO departments(id,name) VALUES($1,'Parity')",[dept]);await q("INSERT INTO employees(id,user_id,full_name,branch_id,department_id,skill_level) VALUES($1,$2,'Synthetic',$3,$4,'REGULAR')",[employee,nv,branch,dept]);await q("INSERT INTO shifts(id,name,start_time,end_time) VALUES($1,'Morning','08:00','12:00')",[shift]);
+  await q("INSERT INTO registration_periods(id,branch_id,work_start_date,work_end_date,open_at,close_at,status) VALUES($1,$2,'2026-11-02','2026-11-08','2026-10-30','2026-11-01','CLOSED')",[period,branch]);await q("INSERT INTO audit_logs(id,entity_type,entity_id,action) VALUES($1,'fixture',$1,'DEV_IMPORT')",[batch]);
+  await q("INSERT INTO registration_submissions(period_id,employee_id,status,submitted_at,sample_batch_id) VALUES($1,$2,'VALID',now(),$3)",[period,employee,batch]);await q("INSERT INTO shift_registrations(id,period_id,employee_id,work_date,shift_id,status,submitted_at) VALUES($1,$2,$3,'2026-11-06',$4,'VALID',now())",[row,period,employee,shift]);
+  const images={registration_submissions:(await q('SELECT to_jsonb(t) v FROM registration_submissions t WHERE period_id=$1',[period])).rows.map(r=>r.v),shift_registrations:(await q('SELECT to_jsonb(t) v FROM shift_registrations t WHERE period_id=$1',[period])).rows.map(r=>r.v)};
+  const manifest={environment:'development',receipt_id:receipt,after_images:images};await q('INSERT INTO audit_logs(id,entity_type,entity_id,action,new_data) VALUES($1,\'dev_import_batch\',$2,\'DEV_IMPORT_RECEIPT\',$3::jsonb)',[receipt,batch,JSON.stringify({manifest})]);await q("INSERT INTO dev_import_batches(batch_id,project_ref,environment,branch_id,period_id,enabled,manifest) VALUES($1,'wlbpprpiieonjrqglicv','development',$2,$3,true,$4::jsonb)",[batch,branch,period,JSON.stringify(manifest)]);
+  await q("SELECT set_config('request.headers',$1,false)",[JSON.stringify({'x-jollishift-dev-import':'development/wlbpprpiieonjrqglicv/'+batch})]);
+  const compare=async()=>{const result=(await q(LOCAL_SOURCE_SQL,[period,branch])).rows[0].result;const a=(await q('SELECT dev_import_allowed FROM registration_submissions_sourced WHERE period_id=$1',[period])).rows[0].dev_import_allowed;const b=(await q('SELECT dev_import_allowed FROM shift_registrations_sourced WHERE id=$1',[row])).rows[0].dev_import_allowed;assert.equal(result.headers[0].dev_import_allowed,a);assert.equal(result.rows[0].dev_import_allowed,b);return result;};
+  let result=await compare();assert.equal(result.headers[0].dev_import_allowed,true);assert.equal(result.rows[0].dev_import_allowed,true);
+  await q("UPDATE shift_registrations SET updated_at=coalesce(updated_at,now())+interval '1 second' WHERE id=$1",[row]);result=await compare();assert.equal(result.rows[0].dev_import_allowed,false);
+  await q("UPDATE registration_submissions SET updated_at=updated_at+interval '1 second' WHERE period_id=$1",[period]);result=await compare();assert.equal(result.headers[0].dev_import_allowed,false);
+  await q("SELECT set_config('request.headers','{}',false)");result=await compare();assert.equal(result.rows[0].dev_import_allowed,false);
+ }finally{await h.close();}
+});
