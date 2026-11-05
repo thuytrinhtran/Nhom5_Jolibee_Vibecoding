@@ -58,13 +58,35 @@ test('HTTP preview AI requires QL/branch and bypasses neither auth nor write pol
  assert.equal((await post({...s.body,period_id:'bad'})).status,400);assert.equal((await post({...s.body,period_id:'00000000-0000-4000-8000-000000000999'})).status,404);
  const config=await fetch(url,{headers:{Authorization:'Bearer fixture'}});assert.equal((await config.json()).result.configured,true);
  const response=await post();assert.equal(response.status,200);assert.equal((await response.json()).result.persisted,false);assert.equal(process.env.TV3_DRAFT_PERSISTENCE_ENABLED,'false');
+ for(const [providerStatus,expectedStatus,expectedCode] of [[429,429,'AI_RATE_LIMITED'],[503,503,'AI_PROVIDER_UNAVAILABLE'],[403,503,'AI_CONFIGURATION_ERROR'],[200,502,'AI_INVALID_RESPONSE']]){
+  const events=[],runtime={now:()=>0,wait:async()=>{},random:()=>0,log:e=>events.push(e)};let calls=0;
+  providers.schedulingAIAdvisor=()=>new providers.GeminiSchedulingAIAdvisor('private-key',`gemini-error-${providerStatus}`,async()=>{calls++;return new Response('private-provider-body',{status:providerStatus,headers:{'Retry-After':'120'}})},runtime);
+  const failed=await post(),payload=await failed.json();assert.equal(failed.status,expectedStatus);assert.equal(payload.code,expectedCode);assert.ok(!JSON.stringify(payload).includes('private-'));assert.equal(events[0].http_status,providerStatus);
+  if(providerStatus===429){
+    assert.equal(failed.headers.get('Retry-After'),'120');assert.equal(payload.retry_after_seconds,120);
+    const configuration=await fetch(url,{headers:{Authorization:'Bearer fixture'}});assert.equal((await configuration.json()).result.retry_after_seconds,120);
+    assert.equal((await post()).status,429);assert.equal(calls,1);
+  }
+ }
+ providers.schedulingAIAdvisor=()=>new providers.GeminiSchedulingAIAdvisor('private-key','gemini-timeout',async()=>{throw new DOMException('private-timeout','TimeoutError')},{now:()=>0,wait:async()=>{},random:()=>0,log(){}});
+ const timed=await post();assert.equal(timed.status,504);assert.equal((await timed.json()).code,'AI_TIMEOUT');
  }finally{db.from=original.from;db.rpc=original.rpc;db.auth.getUser=original.getUser;repositories.registrationSummaryRepository=original.repository;providers.schedulingAIAdvisor=original.provider;if(original.flag===undefined)delete process.env.TV3_DRAFT_PERSISTENCE_ENABLED;else process.env.TV3_DRAFT_PERSISTENCE_ENABLED=original.flag;await new Promise(r=>server.close(r));}
 });
 
 test('invalid provider response and transport failure leave no stored report and allow explicit retry',async()=>{
  const s=await setup();let calls=0;
- const advisor={configured:true,model:'test',evaluate:async()=>{calls++;throw new ScheduleError(503,'AI_PROVIDER_UNAVAILABLE','Controlled failure')}};
+ const advisor={configured:true,model:'failure-test',evaluate:async()=>{calls++;throw new ScheduleError(503,'AI_PROVIDER_UNAVAILABLE','Controlled failure')}};
  await assert.rejects(evaluatePreview(period,branch,'actor',s.body,{repository:s.repository,advisor}),e=>e.code==='AI_PROVIDER_UNAVAILABLE');
  await assert.rejects(evaluatePreview(period,branch,'actor',s.body,{repository:s.repository,advisor:{...advisor,evaluate:async()=>({unexpected:'payload'})}}),e=>e.code==='AI_INVALID_RESPONSE');
  const result=await evaluatePreview(period,branch,'actor',s.body,{repository:s.repository,advisor:{...advisor,evaluate:async()=>report()}});assert.equal(result.status,'AVAILABLE');assert.equal(calls,1);
+});
+
+test('preview cache reuses unchanged plan per actor and invalidates changed assignments or source',async()=>{
+ const s=await setup();let calls=0;const advisor={configured:true,model:'cache-test',evaluate:async()=>{calls++;return report()}};
+ const run=(actor,body=s.body)=>evaluatePreview(period,branch,actor,body,{repository:s.repository,advisor});
+ await run('cache-actor');await run('cache-actor');assert.equal(calls,1);
+ await run('different-actor');assert.equal(calls,2);
+ await run('cache-actor',{...s.body,assignments:[]});assert.equal(calls,3);
+ s.snapshot.requirements[0].required_count=2;
+ await assert.rejects(run('cache-actor'),e=>e.code==='PREVIEW_STALE');assert.equal(calls,3);
 });

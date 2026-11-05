@@ -200,7 +200,7 @@ export function createScheduleWorkflowApiService(dependencies: ApiDependencies =
         throw apiError(400, 'Vui lòng nhập lý do từ chối.', 'REASON_REQUIRED');
       }
       const result = await request(`/${encodeURIComponent(scheduleId)}/decision`, {
-        method: 'POST', body: JSON.stringify({ decision, reason: reason.trim() || undefined,expected_version:expectedVersion,request_id:requestKey([scheduleId,expectedVersion,decision,reason.trim()]) }),
+        method: 'POST', body: JSON.stringify({ decision, reason: reason.trim() || undefined,expected_version:expectedVersion,request_id:requestKey([actor.id,scheduleId,expectedVersion,decision,reason.trim()]) }),
       });
       if (!result?.schedule) throw apiError(502, 'Backend không trả kết quả quyết định lịch hợp lệ.');
       return result.schedule as ScheduleWorkflowRecord;
@@ -225,7 +225,7 @@ export function createScheduleWorkflowApiService(dependencies: ApiDependencies =
     async publishSchedule(actor, scheduleId, feedbackDeadlineAt,expectedVersion?:number) {
       requireRole(actor, 'QL');
       const result = await request(`/${encodeURIComponent(scheduleId)}/publish`, {
-        method: 'POST', body: JSON.stringify({ feedback_deadline_at: feedbackDeadlineAt,expected_version:expectedVersion,request_id:requestKey([scheduleId,expectedVersion,feedbackDeadlineAt]) }),
+        method: 'POST', body: JSON.stringify({ feedback_deadline_at: feedbackDeadlineAt,expected_version:expectedVersion,request_id:requestKey([actor.id,scheduleId,expectedVersion,feedbackDeadlineAt]) }),
       });
       if (!result?.schedule) throw apiError(502, 'Backend không trả kết quả công bố lịch hợp lệ.');
       return result.schedule as ScheduleWorkflowRecord;

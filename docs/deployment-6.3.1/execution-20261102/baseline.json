@@ -1,0 +1,470 @@
+{
+  "project_ref": "wlbpprpiieonjrqglicv",
+  "connection_kind": "SESSION_POOLER",
+  "identity": {
+    "current_user": "postgres",
+    "server_version": "17.11"
+  },
+  "bundle_sha256": "80010867af3ec434e5d159b598c08bb05552d0a7f74d43945fb71fb0a4893d8a",
+  "approved_by": "Owner explicit approval in current conversation: seven migrations only",
+  "captured_at": "2026-11-02T16:59:13.259Z",
+  "tables": [
+    {
+      "schema": "auth",
+      "name": "identities",
+      "columns": [
+        "provider_id",
+        "user_id",
+        "identity_data",
+        "provider",
+        "last_sign_in_at",
+        "created_at",
+        "updated_at",
+        "email",
+        "id"
+      ],
+      "count": 74,
+      "checksum": "eba20cbfcf46b7d6f44b5bae9fd0a1ce"
+    },
+    {
+      "schema": "auth",
+      "name": "users",
+      "columns": [
+        "instance_id",
+        "id",
+        "aud",
+        "role",
+        "email",
+        "encrypted_password",
+        "email_confirmed_at",
+        "invited_at",
+        "confirmation_token",
+        "confirmation_sent_at",
+        "recovery_token",
+        "recovery_sent_at",
+        "email_change_token_new",
+        "email_change",
+        "email_change_sent_at",
+        "last_sign_in_at",
+        "raw_app_meta_data",
+        "raw_user_meta_data",
+        "is_super_admin",
+        "created_at",
+        "updated_at",
+        "phone",
+        "phone_confirmed_at",
+        "phone_change",
+        "phone_change_token",
+        "phone_change_sent_at",
+        "confirmed_at",
+        "email_change_token_current",
+        "email_change_confirm_status",
+        "banned_until",
+        "reauthentication_token",
+        "reauthentication_sent_at",
+        "is_sso_user",
+        "deleted_at",
+        "is_anonymous"
+      ],
+      "count": 74,
+      "checksum": "225307411716169f71177527790c940b"
+    },
+    {
+      "schema": "public",
+      "name": "ai_schedule_evaluations",
+      "columns": [
+        "id",
+        "schedule_id",
+        "status",
+        "evaluation",
+        "error_message",
+        "model_name",
+        "created_at"
+      ],
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "schema": "public",
+      "name": "ai_schedule_suggestions",
+      "columns": [
+        "id",
+        "schedule_id",
+        "evaluation_id",
+        "changes",
+        "explanation",
+        "status",
+        "selected_by",
+        "selected_at",
+        "created_at"
+      ],
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "schema": "public",
+      "name": "audit_logs",
+      "columns": [
+        "id",
+        "actor_id",
+        "entity_type",
+        "entity_id",
+        "action",
+        "old_data",
+        "new_data",
+        "change_source",
+        "created_at"
+      ],
+      "count": 19,
+      "checksum": "a240bc688f1bb9df79bbc1ecffda3b57"
+    },
+    {
+      "schema": "public",
+      "name": "branch_support_requests",
+      "columns": [
+        "id",
+        "requesting_branch_id",
+        "target_branch_id",
+        "department_id",
+        "shift_id",
+        "work_date",
+        "required_count",
+        "created_by",
+        "status",
+        "result_notes"
+      ],
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "schema": "public",
+      "name": "branches",
+      "columns": [
+        "id",
+        "name",
+        "address",
+        "supervisor_id",
+        "status"
+      ],
+      "count": 2,
+      "checksum": "e0bd334b9f7260b038c3b21608e688df"
+    },
+    {
+      "schema": "public",
+      "name": "crew_leader_days_off",
+      "columns": [
+        "id",
+        "employee_id",
+        "day_off",
+        "note",
+        "created_by",
+        "created_at"
+      ],
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "schema": "public",
+      "name": "departments",
+      "columns": [
+        "id",
+        "name",
+        "description"
+      ],
+      "count": 3,
+      "checksum": "9218c1b7f7c1401dc290083d1a40d8ed"
+    },
+    {
+      "schema": "public",
+      "name": "employee_skills",
+      "columns": [
+        "id",
+        "employee_id",
+        "skill_name",
+        "proficiency_level",
+        "updated_at"
+      ],
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "schema": "public",
+      "name": "employees",
+      "columns": [
+        "id",
+        "user_id",
+        "full_name",
+        "phone",
+        "branch_id",
+        "department_id",
+        "skill_level",
+        "experience_level",
+        "max_weekly_hours",
+        "status"
+      ],
+      "count": 71,
+      "checksum": "2564af685a157aba27a363e99e8d9a57"
+    },
+    {
+      "schema": "public",
+      "name": "incidents",
+      "columns": [
+        "id",
+        "original_assignment_id",
+        "reporting_employee_id",
+        "description",
+        "status",
+        "declared_substitute_id",
+        "reported_at",
+        "resolved_at"
+      ],
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "schema": "public",
+      "name": "notifications",
+      "columns": [
+        "id",
+        "recipient_id",
+        "type",
+        "title",
+        "content",
+        "status",
+        "created_at",
+        "sent_at",
+        "idempotency_key"
+      ],
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "schema": "public",
+      "name": "registration_automation_config",
+      "columns": [
+        "singleton",
+        "enabled"
+      ],
+      "count": 1,
+      "checksum": "db66e7488af7ed9cded6c28e4cfef042"
+    },
+    {
+      "schema": "public",
+      "name": "registration_period_generation_state",
+      "columns": [
+        "singleton",
+        "last_success_at",
+        "created_count"
+      ],
+      "count": 1,
+      "checksum": "27f11cdffbe42394282f48f519318fff"
+    },
+    {
+      "schema": "public",
+      "name": "registration_periods",
+      "columns": [
+        "id",
+        "branch_id",
+        "work_start_date",
+        "work_end_date",
+        "open_at",
+        "close_at",
+        "status",
+        "created_at"
+      ],
+      "count": 12,
+      "checksum": "0ae58f3b256d08010a8c91a88ba9fff9"
+    },
+    {
+      "schema": "public",
+      "name": "registration_schedule_config",
+      "columns": [
+        "singleton",
+        "timezone",
+        "open_iso_day",
+        "open_local_time",
+        "close_iso_day",
+        "close_local_time",
+        "reminder_minutes"
+      ],
+      "count": 1,
+      "checksum": "f486c067595fb04ec65d8476f1e9d909"
+    },
+    {
+      "schema": "public",
+      "name": "registration_submissions",
+      "columns": [
+        "period_id",
+        "employee_id",
+        "status",
+        "errors",
+        "submitted_at",
+        "updated_at",
+        "sample_batch_id"
+      ],
+      "count": 60,
+      "checksum": "9f601ea0c81a162cf66e1ada9b3a96f9"
+    },
+    {
+      "schema": "public",
+      "name": "replacement_invitations",
+      "columns": [
+        "id",
+        "shift_change_request_id",
+        "incident_id",
+        "target_employee_id",
+        "status",
+        "sent_at",
+        "expires_at",
+        "responded_at",
+        "valid_when_confirmed"
+      ],
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "schema": "public",
+      "name": "schedule_approvals",
+      "columns": [
+        "id",
+        "schedule_id",
+        "supervisor_id",
+        "decision",
+        "reason",
+        "decided_at"
+      ],
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "schema": "public",
+      "name": "schedules",
+      "columns": [
+        "id",
+        "schedule_group_id",
+        "branch_id",
+        "period_id",
+        "version",
+        "status",
+        "created_by",
+        "created_at",
+        "published_at",
+        "feedback_deadline_at"
+      ],
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "schema": "public",
+      "name": "shift_assignments",
+      "columns": [
+        "id",
+        "schedule_id",
+        "employee_id",
+        "work_date",
+        "shift_id",
+        "department_id",
+        "actual_branch_id",
+        "status",
+        "assignment_source",
+        "branch_support_request_id"
+      ],
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "schema": "public",
+      "name": "shift_change_requests",
+      "columns": [
+        "id",
+        "original_assignment_id",
+        "requesting_employee_id",
+        "reason",
+        "status",
+        "created_at",
+        "approved_by",
+        "resolved_at",
+        "replacement_employee_id"
+      ],
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "schema": "public",
+      "name": "shift_registrations",
+      "columns": [
+        "id",
+        "period_id",
+        "employee_id",
+        "work_date",
+        "shift_id",
+        "status",
+        "submitted_at",
+        "updated_at"
+      ],
+      "count": 494,
+      "checksum": "a49491b3613a32853223765103a5da4a"
+    },
+    {
+      "schema": "public",
+      "name": "shifts",
+      "columns": [
+        "id",
+        "name",
+        "start_time",
+        "end_time",
+        "branch_id",
+        "is_active"
+      ],
+      "count": 6,
+      "checksum": "2c029cb30b815b80e443fc36be933a92"
+    },
+    {
+      "schema": "public",
+      "name": "staffing_requirements",
+      "columns": [
+        "id",
+        "branch_id",
+        "department_id",
+        "shift_id",
+        "work_date",
+        "required_count",
+        "excludes_crew_leader",
+        "required_skill_name",
+        "sales_forecast_ref",
+        "created_by",
+        "updated_at"
+      ],
+      "count": 127,
+      "checksum": "9311e36d9743ba88918312d00f240255"
+    },
+    {
+      "schema": "public",
+      "name": "users",
+      "columns": [
+        "id",
+        "username",
+        "role",
+        "branch_id",
+        "is_active",
+        "created_at",
+        "must_change_password",
+        "password_reset_id"
+      ],
+      "count": 74,
+      "checksum": "7c7633642a0aa8ff7d8872ec7ea01a52"
+    },
+    {
+      "schema": "public",
+      "name": "warning_configs",
+      "columns": [
+        "branch_id",
+        "new_employee_count_threshold",
+        "updated_by",
+        "updated_at"
+      ],
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    }
+  ]
+}

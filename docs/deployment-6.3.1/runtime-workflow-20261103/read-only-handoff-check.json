@@ -1,0 +1,28 @@
+{
+  "checked_at": "2026-11-03T08:45:02.657Z",
+  "schedule": {
+    "id": "969c3446-9357-40ef-a40e-1296cca573b8",
+    "branch_id": "11111111-1111-1111-1111-111111111111",
+    "version": 1,
+    "status": "DRAFT"
+  },
+  "workflow_enabled": true,
+  "configured": true,
+  "can_submit": true,
+  "hard_constraints": "PASS",
+  "coverage_complete": true,
+  "issues": [],
+  "employee_visibility": [
+    {
+      "username": "nv_jollibee",
+      "published_schedules": 0,
+      "visible_assignments": 0
+    },
+    {
+      "username": "nv_jollibee_02",
+      "published_schedules": 0,
+      "visible_assignments": 0
+    }
+  ],
+  "transitions_invoked": false
+}

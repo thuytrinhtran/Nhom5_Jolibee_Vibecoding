@@ -1,0 +1,50 @@
+{
+  "checked_at": "2026-11-03T16:23:17.478Z",
+  "project_ref": "wlbpprpiieonjrqglicv",
+  "branch": "Lê Duẩn",
+  "week": "02–08/11/2026",
+  "read_only": true,
+  "rpc_sha256": "ac84387b868cf97aef7b90f6c4fc7f941cb730287feb42949ac365c13bc112c3",
+  "rpc_body_matches_local_migration": true,
+  "requests": [
+    {
+      "status": "PENDING",
+      "date": "2026-11-02",
+      "owner": "nv_jollibee_02",
+      "recipient": null,
+      "original_status": "ACTIVE",
+      "accepted_invitations": 0,
+      "owner_still_sees_original": true,
+      "original_retained": true,
+      "replacement_rows": 0,
+      "recipient_sees_active_replacement": null,
+      "active_replacement_count": 0,
+      "phase": "awaiting_manager"
+    }
+  ],
+  "incidents": [],
+  "accounts": [
+    {
+      "username": "nv_jollibee",
+      "assignments": 5,
+      "days": [
+        "2026-11-03",
+        "2026-11-04",
+        "2026-11-06",
+        "2026-11-07",
+        "2026-11-07"
+      ]
+    },
+    {
+      "username": "nv_jollibee_02",
+      "assignments": 5,
+      "days": [
+        "2026-11-02",
+        "2026-11-04",
+        "2026-11-04",
+        "2026-11-05",
+        "2026-11-08"
+      ]
+    }
+  ]
+}

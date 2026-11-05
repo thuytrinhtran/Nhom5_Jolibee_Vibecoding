@@ -1,0 +1,554 @@
+[
+  [
+    {
+      "signature": "public.employee_schedule_week(uuid,date)",
+      "present": true,
+      "owner": "postgres",
+      "name": "anon",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.employee_schedule_week(uuid,date)",
+      "present": true,
+      "owner": "postgres",
+      "name": "authenticated",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.employee_schedule_week(uuid,date)",
+      "present": true,
+      "owner": "postgres",
+      "name": "service_role",
+      "can_execute": true,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.generate_schedule_draft(uuid,uuid,jsonb,jsonb)",
+      "present": true,
+      "owner": "postgres",
+      "name": "anon",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.generate_schedule_draft(uuid,uuid,jsonb,jsonb)",
+      "present": true,
+      "owner": "postgres",
+      "name": "authenticated",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.generate_schedule_draft(uuid,uuid,jsonb,jsonb)",
+      "present": true,
+      "owner": "postgres",
+      "name": "service_role",
+      "can_execute": true,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.persist_schedule_draft(uuid,uuid,jsonb,jsonb,uuid,integer,uuid,text)",
+      "present": true,
+      "owner": "postgres",
+      "name": "authenticated",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.persist_schedule_draft(uuid,uuid,jsonb,jsonb,uuid,integer,uuid,text)",
+      "present": true,
+      "owner": "postgres",
+      "name": "anon",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.persist_schedule_draft(uuid,uuid,jsonb,jsonb,uuid,integer,uuid,text)",
+      "present": true,
+      "owner": "postgres",
+      "name": "service_role",
+      "can_execute": true,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv3_balance_v2(jsonb,jsonb)",
+      "present": true,
+      "owner": "postgres",
+      "name": "anon",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv3_balance_v2(jsonb,jsonb)",
+      "present": true,
+      "owner": "postgres",
+      "name": "authenticated",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv3_balance_v2(jsonb,jsonb)",
+      "present": true,
+      "owner": "postgres",
+      "name": "service_role",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv3_existing_coverage_v2(jsonb)",
+      "present": true,
+      "owner": "postgres",
+      "name": "service_role",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv3_existing_coverage_v2(jsonb)",
+      "present": true,
+      "owner": "postgres",
+      "name": "authenticated",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv3_existing_coverage_v2(jsonb)",
+      "present": true,
+      "owner": "postgres",
+      "name": "anon",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv3_result_v2(jsonb,uuid,jsonb,jsonb)",
+      "present": true,
+      "owner": "postgres",
+      "name": "authenticated",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv3_result_v2(jsonb,uuid,jsonb,jsonb)",
+      "present": true,
+      "owner": "postgres",
+      "name": "anon",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv3_result_v2(jsonb,uuid,jsonb,jsonb)",
+      "present": true,
+      "owner": "postgres",
+      "name": "service_role",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv3_scheduling_input(uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "service_role",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv3_scheduling_input(uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "authenticated",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv3_scheduling_input(uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "anon",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv4_assert_schedule_v2(uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "anon",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv4_assert_schedule_v2(uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "authenticated",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv4_assert_schedule_v2(uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "service_role",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv4_decide_schedule(uuid,uuid,varchar,text)",
+      "present": true,
+      "owner": "postgres",
+      "name": "anon",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv4_decide_schedule(uuid,uuid,varchar,text)",
+      "present": true,
+      "owner": "postgres",
+      "name": "authenticated",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv4_decide_schedule(uuid,uuid,varchar,text)",
+      "present": true,
+      "owner": "postgres",
+      "name": "service_role",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv4_publish_schedule(uuid,uuid,timestamptz)",
+      "present": true,
+      "owner": "postgres",
+      "name": "anon",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv4_publish_schedule(uuid,uuid,timestamptz)",
+      "present": true,
+      "owner": "postgres",
+      "name": "authenticated",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv4_publish_schedule(uuid,uuid,timestamptz)",
+      "present": true,
+      "owner": "postgres",
+      "name": "service_role",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv4_transition_schedule_v2(uuid,uuid,integer,text,uuid,text,timestamptz)",
+      "present": true,
+      "owner": "postgres",
+      "name": "authenticated",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv4_transition_schedule_v2(uuid,uuid,integer,text,uuid,text,timestamptz)",
+      "present": true,
+      "owner": "postgres",
+      "name": "anon",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv4_transition_schedule_v2(uuid,uuid,integer,text,uuid,text,timestamptz)",
+      "present": true,
+      "owner": "postgres",
+      "name": "service_role",
+      "can_execute": true,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_actor(uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "anon",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_actor(uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "authenticated",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_actor(uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "service_role",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_assignment(uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "authenticated",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_assignment(uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "anon",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_assignment(uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "service_role",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_candidates_for_actor(uuid,uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "anon",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_candidates_for_actor(uuid,uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "authenticated",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_candidates_for_actor(uuid,uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "service_role",
+      "can_execute": true,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_candidates(uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "service_role",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_candidates(uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "authenticated",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_candidates(uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "anon",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_mutate(uuid,text,uuid,jsonb)",
+      "present": true,
+      "owner": "postgres",
+      "name": "authenticated",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_mutate(uuid,text,uuid,jsonb)",
+      "present": true,
+      "owner": "postgres",
+      "name": "anon",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_mutate(uuid,text,uuid,jsonb)",
+      "present": true,
+      "owner": "postgres",
+      "name": "service_role",
+      "can_execute": true,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_read(uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "anon",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_read(uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "authenticated",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_read(uuid)",
+      "present": true,
+      "owner": "postgres",
+      "name": "service_role",
+      "can_execute": true,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_result_v2(jsonb,uuid,jsonb,jsonb)",
+      "present": true,
+      "owner": "postgres",
+      "name": "service_role",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_result_v2(jsonb,uuid,jsonb,jsonb)",
+      "present": true,
+      "owner": "postgres",
+      "name": "authenticated",
+      "can_execute": false,
+      "gate": "PASS"
+    },
+    {
+      "signature": "public.tv5_result_v2(jsonb,uuid,jsonb,jsonb)",
+      "present": true,
+      "owner": "postgres",
+      "name": "anon",
+      "can_execute": false,
+      "gate": "PASS"
+    }
+  ],
+  [
+    {
+      "signature": "employee_schedule_week(uuid,date)",
+      "prosecdef": true,
+      "provolatile": "s",
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "07e25d501b682035cab6b5ec849cf0bb",
+      "v2_input_marker": false,
+      "revision_marker": false
+    },
+    {
+      "signature": "persist_schedule_draft(uuid,uuid,jsonb,jsonb,uuid,integer,uuid,text)",
+      "prosecdef": true,
+      "provolatile": "v",
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp",
+        "lock_timeout=5s",
+        "statement_timeout=5s"
+      ],
+      "body_md5": "f5654bfccd235ef82403e46e65e9128c",
+      "v2_input_marker": false,
+      "revision_marker": true
+    },
+    {
+      "signature": "tv3_scheduling_input(uuid)",
+      "prosecdef": true,
+      "provolatile": "s",
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "76d7d3e9c1b4e6bd0667125e3aace2bb",
+      "v2_input_marker": true,
+      "revision_marker": false
+    },
+    {
+      "signature": "tv4_transition_schedule_v2(uuid,uuid,integer,text,uuid,text,timestamp with time zone)",
+      "prosecdef": true,
+      "provolatile": "v",
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp",
+        "lock_timeout=5s",
+        "statement_timeout=5s"
+      ],
+      "body_md5": "bc324f03b0e5b1d348a20d2e3497e1b8",
+      "v2_input_marker": false,
+      "revision_marker": true
+    },
+    {
+      "signature": "tv5_mutate(uuid,text,uuid,jsonb)",
+      "prosecdef": true,
+      "provolatile": "v",
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp",
+        "statement_timeout=5s",
+        "lock_timeout=5s"
+      ],
+      "body_md5": "a720c57e353693e5e1739dc8ee824a30",
+      "v2_input_marker": false,
+      "revision_marker": false
+    },
+    {
+      "signature": "tv5_result_v2(jsonb,uuid,jsonb,jsonb)",
+      "prosecdef": false,
+      "provolatile": "v",
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "99a1c2cf1ca54735c0f273d368c2db54",
+      "v2_input_marker": true,
+      "revision_marker": false
+    }
+  ],
+  [
+    {
+      "tgname": "trg_validate_schedule_approval",
+      "tgenabled": "O",
+      "definition": "CREATE TRIGGER trg_validate_schedule_approval BEFORE INSERT OR DELETE OR UPDATE ON public.schedule_approvals FOR EACH ROW EXECUTE FUNCTION validate_schedule_approval()"
+    }
+  ],
+  [
+    {
+      "index_name": "tv5_current_employee_shift",
+      "indisvalid": true,
+      "indisunique": true,
+      "definition": "CREATE UNIQUE INDEX tv5_current_employee_shift ON public.shift_assignments USING btree (schedule_id, employee_id, work_date, shift_id) WHERE ((status)::text <> 'REPLACED'::text)"
+    },
+    {
+      "index_name": "tv5_one_successor",
+      "indisvalid": true,
+      "indisunique": true,
+      "definition": "CREATE UNIQUE INDEX tv5_one_successor ON public.shift_assignments USING btree (replaces_assignment_id) WHERE (replaces_assignment_id IS NOT NULL)"
+    },
+    {
+      "index_name": "tv5_open_request",
+      "indisvalid": true,
+      "indisunique": true,
+      "definition": "CREATE UNIQUE INDEX tv5_open_request ON public.shift_change_requests USING btree (original_assignment_id) WHERE ((status)::text = ANY ((ARRAY['PENDING'::character varying, 'SEARCHING'::character varying])::text[]))"
+    },
+    {
+      "index_name": "tv5_open_incident",
+      "indisvalid": true,
+      "indisunique": true,
+      "definition": "CREATE UNIQUE INDEX tv5_open_incident ON public.incidents USING btree (original_assignment_id) WHERE ((status)::text = ANY ((ARRAY['REPORTED'::character varying, 'IN_PROGRESS'::character varying])::text[]))"
+    }
+  ],
+  [
+    {
+      "id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "open_at": "2026-10-30T08:00:00.000Z",
+      "close_at": "2026-11-01T05:00:00.000Z",
+      "status": "PLANNED",
+      "registration_rows": "16",
+      "headers": "2",
+      "demand": "308"
+    }
+  ]
+]

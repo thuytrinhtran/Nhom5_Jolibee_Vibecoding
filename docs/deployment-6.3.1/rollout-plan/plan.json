@@ -1,0 +1,223 @@
+{
+  "format": "jollishift-staged-rollout-plan.v1",
+  "prepared_at": "2026-11-02T13:28:58.074Z",
+  "project_ref": "wlbpprpiieonjrqglicv",
+  "branch_id": "11111111-1111-1111-1111-111111111111",
+  "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+  "week": [
+    "2026-11-02",
+    "2026-11-08"
+  ],
+  "owner_context": "SOLE_DEVELOPMENT_OWNER_EXISTING_DATA_PRESERVED",
+  "apply_allowed": false,
+  "approval_granted_for_writes": false,
+  "live_queries_this_turn": 0,
+  "readiness_by_stage": {
+    "migration": {
+      "status": "READY_FOR_SEPARATE_APPROVAL",
+      "blockers": [
+        "MIGRATION_APPROVAL_PENDING"
+      ]
+    },
+    "auth_provisioning": {
+      "status": "NOT_READY",
+      "prerequisites": [
+        "MIGRATION_POSTFLIGHT_PASS",
+        "DB_AUTH_TRIGGER_REVIEW_PASS_RECHECK_API_HOOKS_AT_PROVISIONING",
+        "PROVISIONING_EXECUTOR_AND_RECEIPT_REHEARSED",
+        "SEPARATE_APPROVAL"
+      ]
+    },
+    "registration_import": {
+      "status": "NOT_READY",
+      "prerequisites": [
+        "MATCHING_AUTH_PROFILE_BINDINGS",
+        "FRESH_PREPARE_MISSING_PROFILES_ZERO",
+        "BASELINE_AND_PLAN_DIGEST_APPROVED"
+      ]
+    },
+    "draft": {
+      "status": "LOCAL_PASS_LIVE_PENDING",
+      "prerequisites": [
+        "APPROVED_IMPORT",
+        "EXPLICIT_CONFIG_ENABLE_APPROVAL"
+      ]
+    },
+    "workflow_employee_tv5": {
+      "status": "LOCAL_PASS_LIVE_PENDING",
+      "prerequisites": [
+        "DRAFT_LIVE_PASS",
+        "EXPLICIT_ENABLE_APPROVAL",
+        "REAL_WEB_AND_API_EVIDENCE"
+      ]
+    },
+    "backup": {
+      "status": "ARCHIVE_CHECKED_NOT_RESTORE_TESTED",
+      "backup_created": true,
+      "backup_checked": true,
+      "restore_tested": false
+    }
+  },
+  "critical_sql": [
+    "C3.1",
+    "C6",
+    "C7.2",
+    "C8.1",
+    "C8.2",
+    "C8.3",
+    "C9",
+    "C10"
+  ],
+  "optional_or_alternative_evidence": [
+    "S5 history inventory is not an independent blocker without conflicting schema/ledger evidence",
+    "C1.1 PostgreSQL version can come from verified backup/restore metadata"
+  ],
+  "do_not_rerun": [
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S6",
+    "C2",
+    "C3.2",
+    "C4",
+    "C5",
+    "C7.1",
+    "Auth check",
+    "User-confirmed zero-row D queries",
+    "Dev-import preflight 1-2"
+  ],
+  "migration_order": [
+    {
+      "file": "backend/migrations/20261029_tv4_schedule_workflow.sql",
+      "condition": "ONLY_IF_MISSING_AND_COMPATIBLE",
+      "sha256": "1503d76e38c7bb95ec7a82f42984ec166a61e7c7d4bdf66b2e4889f1c0dffaac"
+    },
+    {
+      "file": "backend/migrations/20261101_tv3_rule_contract_v2.sql",
+      "condition": "ONLY_AFTER_PREDECESSORS_AND_REVIEW",
+      "sha256": "cc88a1241fccb6bc3936f61611dba3f99abced0bb24247e9ef2cb4e3d09c7018"
+    },
+    {
+      "file": "backend/migrations/20261102_tv4_workflow_v2.sql",
+      "condition": "ONLY_AFTER_PREDECESSORS_AND_REVIEW",
+      "sha256": "8d310cbbc386b2109a74faf41002c75a01d60af1d2ea518025e91c54072995aa"
+    },
+    {
+      "file": "backend/migrations/20261103_employee_schedule_read.sql",
+      "condition": "ONLY_AFTER_PREDECESSORS_AND_REVIEW",
+      "sha256": "54dd64fd48ca81b48b45f0a9ee6888a6a2d654f2754e62cf919d66652f1a4a9f"
+    },
+    {
+      "file": "backend/migrations/20261104_tv5_shift_replacement.sql",
+      "condition": "ONLY_AFTER_PREDECESSORS_AND_REVIEW",
+      "sha256": "1da380b9649f560734fb679f5b28b273a0db510b3655b18f319664c1c976d5ef"
+    },
+    {
+      "file": "backend/migrations/20261105_scoped_dev_import.sql",
+      "condition": "ONLY_AFTER_PREDECESSORS_AND_REVIEW",
+      "sha256": "1649935c801568916b0a0b02cfc8a6c21163cdb4756c116749ff640edb0fe51e"
+    },
+    {
+      "file": "backend/migrations/20261106_dev_import_source_materialization.sql",
+      "condition": "ONLY_AFTER_PREDECESSORS_AND_REVIEW",
+      "sha256": "7e3a5200abe53fc45b98496ac8517383925eba9974faff2ba2722be1aad408c4"
+    }
+  ],
+  "scenario": {
+    "existing_employees": 60,
+    "preserved_real_headers": 2,
+    "preserved_real_registrations": 16,
+    "preserved_demand_cells": 63,
+    "preserved_positions": 308,
+    "planned_new_auth_profiles": 17,
+    "planned_new_employees_import_owned": 17,
+    "planned_import_headers": 68,
+    "planned_import_registrations": 591,
+    "expected_total_registrations": 607,
+    "expected_assignments": 308,
+    "expected_shortage": 0,
+    "expected_composition_shortages": 0,
+    "daily_distinct_employees_expected": [
+      67,
+      66,
+      67,
+      67,
+      66,
+      67,
+      67
+    ],
+    "batch_id": "6e1d2026-1102-4000-8000-000000000017",
+    "fresh_live_baseline_sha256": null,
+    "fresh_seed_plan_sha256": null
+  },
+  "source_evidence": [
+    {
+      "file": "docs/deployment-6.3.1/catalog-review-20261102/inventory.md",
+      "sha256": "e1013a43b2b73b9a353138612e6fa08c69f8be01aece8a6bbb012b58bf321a0e"
+    },
+    {
+      "file": "docs/deployment-6.3.1/catalog-review-20261102/query-coverage.md",
+      "sha256": "08b401353bd23862f715bfcd71c9ac5bb2262c0a0f3f34de22c40b4545d00fe9"
+    },
+    {
+      "file": "docs/deployment-6.3.1/catalog-review-20261102/REPORT.md",
+      "sha256": "57d8341441ac39b07d9ae5d7a342c6e7c64b72446dbac0b34db693c75c42781a"
+    },
+    {
+      "file": "docs/deployment-6.3.1/catalog-review-20261102/audit.json",
+      "sha256": "4f3467af50564f72c363eb7665f24d4734b338c4bde5b0717b7dede016c001e2"
+    },
+    {
+      "file": "docs/deployment-6.3.1/metadata-review-20261102/audit.json",
+      "sha256": "dc05f6168726bcb5b7fc98500f1f50b1ee3ee36ecb4a0a615f394f4e8051a25c"
+    }
+  ],
+  "existing_local_bundle_sha256": "d47a3bd0c16d4fc331d9bbf0f6bc30942c0759f3ef3f5494c2da025967f5cce1",
+  "prepared_files": [
+    {
+      "file": "docs/deployment-6.3.1/rollout-plan/PLAN.md",
+      "sha256": "2aa32f6712da5723883cf1c0a05ad4f887c7654beda2f5d35f404a91fcaf1471"
+    },
+    {
+      "file": "docs/deployment-6.3.1/rollout-plan/remaining-critical-selects.sql",
+      "sha256": "9dde64c1035c7f4bf1fa853d0ab20338f9eff2f82dbe783da53b8a45e2d00e42"
+    },
+    {
+      "file": "docs/deployment-6.3.1/metadata-review-20261102/REPORT.md",
+      "sha256": "4e7eb15436e5af45ec56ea558db84dff2aa48916b6b231fd16fc0e19125eb7f8"
+    },
+    {
+      "file": "docs/deployment-6.3.1/metadata-review-20261102/BACKUP-RESTORE.md",
+      "sha256": "cf93e081b1f0078af83b789e5d0039ec62477e18b8fc01f7047bf855aa9e4899"
+    },
+    {
+      "file": "docs/deployment-6.3.1/MINIMAL-BACKUP-WINDOWS.md",
+      "sha256": "df9c76110477d920647330ebc4bb292c8fcee449b0d88adc9d9cfdc39d15e047"
+    },
+    {
+      "file": "docs/deployment-6.3.1/DEPLOY-READY.md",
+      "sha256": "2a13323688f7da07eb4b91b26982adb1e94b4500e24e91b8a7951e4e19177008"
+    }
+  ],
+  "critical_metadata_review": {
+    "status": "PASS_REVIEWED_SCOPE",
+    "source": "docs/deployment-6.3.1/metadata-review-20261102/audit.json",
+    "sha256": "dc05f6168726bcb5b7fc98500f1f50b1ee3ee36ecb4a0a615f394f4e8051a25c",
+    "missing_groups": [],
+    "does_not_authorize_write": true
+  },
+  "backup_policy": {
+    "mode": "MINIMAL_PUBLIC_AUTH_ARCHIVE_CHECK",
+    "selected_by_owner": true,
+    "create_additional_supabase_project": false,
+    "create_restore_environment_now": false,
+    "restore_test_deferred": true,
+    "restore_tested": false,
+    "guide": "docs/deployment-6.3.1/MINIMAL-BACKUP-WINDOWS.md",
+    "backup_checked": true,
+    "client_version": "17.11"
+  },
+  "actual_connection_kind": "SESSION_POOLER_PROJECT_SCOPED_VERIFIED_TLS",
+  "current_commands": "docs/deployment-6.3.1/DEPLOY-READY.md"
+}

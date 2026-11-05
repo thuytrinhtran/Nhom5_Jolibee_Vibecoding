@@ -1,0 +1,10 @@
+{
+  "stage": 2,
+  "file": "20261102_tv4_workflow_v2.sql",
+  "passed": true,
+  "committed": true,
+  "elapsed_ms": 3024,
+  "bundle_sha256": "80010867af3ec434e5d159b598c08bb05552d0a7f74d43945fb71fb0a4893d8a",
+  "completed_at": "2026-11-02T16:59:44.789Z",
+  "data_tables_unchanged": 28
+}

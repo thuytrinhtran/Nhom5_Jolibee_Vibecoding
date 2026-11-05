@@ -1,7 +1,7 @@
 import type { Assignment, Employee, Registration, Requirement, SchedulingInput, Shift } from '../services/scheduling.engine.js';
 export type SummarySource = 'mock' | 'supabase';
 export type SummaryEmployee = Omit<Employee, 'is_active' | 'role' | 'skills'> & {
-  branch_id: string; full_name: string; is_active: boolean | null; role: string | null; skills: string[] | null;
+  branch_id: string; full_name: string; phone?: string | null; is_active: boolean | null; role: string | null; skills: string[] | null;
 };
 export interface SummarySnapshot {
   registration_provenance?: SchedulingInput['registration_provenance'];

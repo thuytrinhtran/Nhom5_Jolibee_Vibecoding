@@ -1,0 +1,90 @@
+[
+  {
+    "page": "create",
+    "width": 1366,
+    "height": 768,
+    "scrollWidth": 1366,
+    "overflow": false,
+    "navigation_overflow": false,
+    "planner_cells": 63,
+    "panel_members": 0,
+    "static_snapshot": true
+  },
+  {
+    "page": "assignments",
+    "width": 1366,
+    "height": 768,
+    "scrollWidth": 1351,
+    "overflow": false,
+    "navigation_overflow": false,
+    "planner_cells": 63,
+    "panel_members": 0,
+    "static_snapshot": true
+  },
+  {
+    "page": "panel",
+    "width": 1366,
+    "height": 768,
+    "scrollWidth": 1351,
+    "overflow": false,
+    "navigation_overflow": false,
+    "planner_cells": 63,
+    "panel_members": 5,
+    "static_snapshot": true
+  },
+  {
+    "page": "ai",
+    "width": 1366,
+    "height": 768,
+    "scrollWidth": 1366,
+    "overflow": false,
+    "navigation_overflow": false,
+    "planner_cells": 63,
+    "panel_members": 0,
+    "static_snapshot": true
+  },
+  {
+    "page": "create",
+    "width": 390,
+    "height": 768,
+    "scrollWidth": 375,
+    "overflow": false,
+    "navigation_overflow": false,
+    "planner_cells": 63,
+    "panel_members": 0,
+    "static_snapshot": true
+  },
+  {
+    "page": "assignments",
+    "width": 390,
+    "height": 768,
+    "scrollWidth": 375,
+    "overflow": false,
+    "navigation_overflow": false,
+    "planner_cells": 63,
+    "panel_members": 0,
+    "static_snapshot": true
+  },
+  {
+    "page": "panel",
+    "width": 390,
+    "height": 768,
+    "scrollWidth": 375,
+    "overflow": false,
+    "navigation_overflow": false,
+    "planner_cells": 63,
+    "panel_members": 5,
+    "static_snapshot": true
+  },
+  {
+    "page": "ai",
+    "width": 390,
+    "height": 768,
+    "scrollWidth": 375,
+    "overflow": false,
+    "navigation_overflow": false,
+    "planner_cells": 63,
+    "panel_members": 0,
+    "static_snapshot": true
+  }
+]

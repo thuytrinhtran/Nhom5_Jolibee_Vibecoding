@@ -68,11 +68,13 @@ function createInteractiveWorkflowHarness(profile, service, initialSchedules, mo
   }).outputText;
   const loaded = { exports: {} };
   const state = [initialSchedules, null, null, '', '', {}, '', false, false, '', '', null];
-  let stateIndex = 0;
+  let stateIndex = 0,refIndex=0;
+  const refs=[];
   const effects = [];
   const jsx = (type, props, key) => ({ type, props: props || {}, key });
   const runtime = { jsx, jsxs: jsx, Fragment: Symbol('Fragment') };
   const fakeReact = {
+    useRef(value){return refs[refIndex++]||={current:value};},
     useState(initialValue) {
       const index = stateIndex++;
       if (!(index in state)) state[index] = initialValue;
@@ -103,7 +105,7 @@ function createInteractiveWorkflowHarness(profile, service, initialSchedules, mo
   }, { filename: 'ScheduleWorkflow.tsx' });
 
   const render = () => {
-    stateIndex = 0;
+    stateIndex = 0;refIndex=0;
     return loaded.exports.ScheduleWorkflow({ mode, service });
   };
   const allNodes = root => {

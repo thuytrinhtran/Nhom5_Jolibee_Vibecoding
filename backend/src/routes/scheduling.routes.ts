@@ -1,6 +1,4 @@
-import { applyAdjustmentProposal } from '../services/schedule-adjustment-apply.service.js';
-import { proposeAdjustment } from '../services/schedule-adjustment-proposal.service.js';
-import { analyzeAdjustment } from '../services/schedule-adjustment.service.js';
+import { previewCandidates } from '../services/preview-candidates.service.js';
 import { prepareApprovalHandoff, validateSchedule } from '../services/schedule-review.service.js';
 import { readManagerCalendar } from '../services/manager-calendar.service.js';
 import { readManagerOverview } from '../services/manager-overview.service.js';
@@ -49,26 +47,12 @@ router.post('/test-preview',async(req,res)=>{
   }catch(err){const error=err instanceof ScheduleError?err:new ScheduleError(503,'TEST_PREVIEW_UNAVAILABLE','Không thể tạo preview kiểm thử; không có dữ liệu nào được ghi.');
     return res.status(error.status).json({status:'error',code:error.code,message:error.message});}
 });
-router.post('/preview/apply-adjustment',async(req,res)=>{
-  try{
-    if(!req.user?.branch_id)throw new ScheduleError(403,'BRANCH_REQUIRED','Quản lý chưa được phân công chi nhánh.');
-    if(!req.body||typeof req.body.period_id!=='string'||!uuid.test(req.body.period_id))throw new ScheduleError(400,'INVALID_PERIOD_ID','Cần mã tuần hợp lệ.');
-    return res.json({status:'ok',result:await applyAdjustmentProposal(req.body.period_id,req.user.branch_id,req.user.id,req.body)});
-  }catch(err){const error=err instanceof ScheduleError?err:new ScheduleError(503,'ADJUSTMENT_APPLY_UNAVAILABLE','Chưa thể áp dụng. Lịch hiện tại được giữ nguyên.');return res.status(error.status).json({status:'error',code:error.code,message:error.message});}
-});
-router.post('/preview/adjustment-proposal',async(req,res)=>{
-  try{
-    if(!req.user?.branch_id)throw new ScheduleError(403,'BRANCH_REQUIRED','Quản lý chưa được phân công chi nhánh.');
-    if(!req.body||typeof req.body.period_id!=='string'||!uuid.test(req.body.period_id))throw new ScheduleError(400,'INVALID_PERIOD_ID','Cần mã tuần hợp lệ.');
-    return res.json({status:'ok',result:await proposeAdjustment(req.body.period_id,req.user.branch_id,req.user.id,req.body)});
-  }catch(err){const error=err instanceof ScheduleError?err:new ScheduleError(503,'ADJUSTMENT_UNAVAILABLE','Chưa thể tạo đề xuất. Phương án gốc không thay đổi.');return res.status(error.status).json({status:'error',code:error.code,message:error.message});}
-});
-router.post('/preview/adjustment-intent',async(req,res)=>{
-  try{
-    if(!req.user?.branch_id)throw new ScheduleError(403,'BRANCH_REQUIRED','Quản lý chưa được phân công chi nhánh.');
-    if(!req.body||typeof req.body.period_id!=='string'||!uuid.test(req.body.period_id))throw new ScheduleError(400,'INVALID_PERIOD_ID','Cần mã tuần hợp lệ.');
-    return res.json({status:'ok',result:await analyzeAdjustment(req.body.period_id,req.user.branch_id,req.user.id,req.body)});
-  }catch(err){const error=err instanceof ScheduleError?err:new ScheduleError(503,'AI_UNAVAILABLE','Không thể phân tích nguyện vọng. Lịch không thay đổi.');return res.status(error.status).json({status:'error',code:error.code,message:error.message});}
+router.post('/preview/candidates',async(req,res)=>{
+ try{
+  if(!req.user?.branch_id)throw new ScheduleError(403,'BRANCH_REQUIRED','Chưa có chi nhánh.');
+  if(!req.body||typeof req.body.period_id!=='string'||!uuid.test(req.body.period_id))throw new ScheduleError(400,'INVALID_PERIOD_ID','Kỳ không hợp lệ.');
+  return res.json({status:'ok',result:await previewCandidates(req.body.period_id,req.user.branch_id,req.body)});
+ }catch(err){const error=err instanceof ScheduleError?err:new ScheduleError(503,'CANDIDATES_UNAVAILABLE','Không tải được ứng viên. Phương án giữ nguyên.');return res.status(error.status).json({status:'error',code:error.code,message:error.message});}
 });
 router.get('/preview/ai-evaluation',(_req,res)=>res.json({status:'ok',result:previewAIConfiguration()}));
 router.post('/preview/ai-evaluation',async(req,res)=>{
@@ -76,7 +60,10 @@ router.post('/preview/ai-evaluation',async(req,res)=>{
     if(!req.user?.branch_id)throw new ScheduleError(403,'BRANCH_REQUIRED','Quản lý chưa được phân công chi nhánh.');
     if(!req.body||typeof req.body.period_id!=='string'||!uuid.test(req.body.period_id))throw new ScheduleError(400,'INVALID_PERIOD_ID','Cần mã tuần hợp lệ.');
     return res.json({status:'ok',result:await evaluatePreview(req.body.period_id,req.user.branch_id,req.user.id,req.body)});
-  }catch(err){const error=err instanceof ScheduleError?err:new ScheduleError(503,'AI_UNAVAILABLE','Không thể đánh giá preview. Phương án không thay đổi.');return res.status(error.status).json({status:'error',code:error.code,message:error.message});}
+  }catch(err){const error=err instanceof ScheduleError?err:new ScheduleError(503,'AI_UNAVAILABLE','Không thể đánh giá preview. Phương án không thay đổi.');
+    const seconds=error.code==='AI_RATE_LIMITED'&&'retryAfterSeconds' in error&&typeof error.retryAfterSeconds==='number'?error.retryAfterSeconds:undefined;
+    if(seconds!==undefined)res.setHeader('Retry-After',String(seconds));
+    return res.status(error.status).json({status:'error',code:error.code,message:error.message,...(seconds!==undefined?{retry_after_seconds:seconds}:{})});}
 });
 router.post('/drafts',async(req,res)=>{
   try{

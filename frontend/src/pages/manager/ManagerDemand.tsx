@@ -134,6 +134,6 @@ export function ManagerDemand() {
     {pending&&user?.branch_id&&<p className="summary-loading" role="status"><Loader2 className="spin" size={20}/>Đang đọc nhu cầu và cung–cầu…</p>}
     {!loading&&!periods.length&&!error&&user?.branch_id&&<div className="card schedule-empty">Chưa có đợt/tuần của chi nhánh trong nguồn dữ liệu hiện tại. Có thể bật chế độ Dữ liệu thử nghiệm trong development.</div>}
     {data&&<DemandWorkspace key={data.period.id} data={data} draft={draft} onChange={next=>{setDraft(next);setNotice('');setErrors(current=>Object.fromEntries(Object.entries(current).filter(([key])=>next[key]&&next[key]===draft[key])));}} saving={saving} errors={errors}/>}
-      {data&&<div className="demand-bottom-bar"><span role="status">{demandSyncMessage(data,dirty,saving,error)}</span><Link className="btn btn-outline" to={`/manager/schedule?period_id=${encodeURIComponent(data.period.id)}`}>Xếp lịch &amp; AI →</Link></div>}
+      {data&&<div className="demand-bottom-bar"><span role="status">{demandSyncMessage(data,dirty,saving,error)}</span><Link className="btn btn-outline" to={`/manager/schedule?period_id=${encodeURIComponent(data.period.id)}`}>Xếp lịch làm việc →</Link></div>}
   </section>;
 }

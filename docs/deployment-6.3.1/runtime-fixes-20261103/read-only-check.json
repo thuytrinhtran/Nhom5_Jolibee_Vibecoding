@@ -1,0 +1,39 @@
+{
+  "checked_at": "2026-11-03T09:41:55.476Z",
+  "windows": [
+    {
+      "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+      "start": "2026-11-02",
+      "end": "2026-11-08",
+      "test_exception": false,
+      "stored_status": "PLANNED"
+    },
+    {
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "start": "2026-11-09",
+      "end": "2026-11-15",
+      "test_exception": true,
+      "stored_status": "PLANNED"
+    }
+  ],
+  "schedule": {
+    "id": "969c3446-9357-40ef-a40e-1296cca573b8",
+    "status": "APPROVED",
+    "published_at": null,
+    "assignments": 308
+  },
+  "employee": [
+    {
+      "username": "nv_jollibee",
+      "expected_assignments": 5,
+      "visible_assignments": 0
+    },
+    {
+      "username": "nv_jollibee_02",
+      "expected_assignments": 5,
+      "visible_assignments": 0
+    }
+  ],
+  "publication_invoked": false,
+  "registration_save_invoked": false
+}

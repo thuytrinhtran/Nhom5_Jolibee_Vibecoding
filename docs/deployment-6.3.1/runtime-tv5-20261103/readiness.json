@@ -1,0 +1,25 @@
+{
+  "checked_at": "2026-11-03T10:17:22.547Z",
+  "enabled": true,
+  "local_pg_rpc": true,
+  "scope_enabled": true,
+  "open_sources_for_test_assignment": 0,
+  "mutations_invoked": false,
+  "test_case": {
+    "requester": "nv_jollibee",
+    "replacement": "nv_jollibee_02",
+    "assignment_id": "d00ed6e0-06b2-43e7-9c33-82dce15b3401",
+    "date": "2026-11-06",
+    "shift": "Ca chiều",
+    "start": "12:00",
+    "end": "17:00",
+    "department": "Bếp",
+    "candidate_count": 4
+  },
+  "feedback_deadline_vietnam": "2026-11-04 18:09 +07:00",
+  "rpc_read_only_check": {
+    "status": "PASS",
+    "elapsed_ms": 2103,
+    "chosen_candidate_found": true
+  }
+}

@@ -1,0 +1,54 @@
+[
+  {
+    "check_name": "TV4_BASE_published_by",
+    "present": false
+  },
+  {
+    "check_name": "M1_source_v2",
+    "present": false
+  },
+  {
+    "check_name": "M2_workflow",
+    "present": false
+  },
+  {
+    "check_name": "M2_approval_trigger",
+    "present": false
+  },
+  {
+    "check_name": "M3_employee_read",
+    "present": false
+  },
+  {
+    "check_name": "M4_mutate",
+    "present": false
+  },
+  {
+    "check_name": "M4_current_index",
+    "present": false
+  },
+  {
+    "check_name": "M4_open_request_index",
+    "present": false
+  },
+  {
+    "check_name": "M4_successor_index",
+    "present": false
+  },
+  {
+    "check_name": "M5_registry",
+    "present": false
+  },
+  {
+    "check_name": "M5_row_source",
+    "present": false
+  },
+  {
+    "check_name": "M6_materialized_source",
+    "present": false
+  },
+  {
+    "check_name": "M6_budget_kept",
+    "present": true
+  }
+]

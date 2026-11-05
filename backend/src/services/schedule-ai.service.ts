@@ -74,7 +74,7 @@ export async function evaluateSchedule(id:string,branchId:string,body:unknown,de
     await repository.save(id,{status:'SUCCESS',evaluation,error_message:null,model_name:advisor.model});
     return {...base,status:'AVAILABLE',message:'AI đã đánh giá; đây là tư vấn, lịch chưa được thay đổi.',evaluation};
   }catch(error){
-    if(error instanceof ScheduleError&&['AI_INVALID_RESPONSE','AI_PROVIDER_UNAVAILABLE','AI_CONTRADICTS_RULES'].includes(error.code)) {
+    if(error instanceof ScheduleError&&['AI_INVALID_RESPONSE','AI_PROVIDER_UNAVAILABLE','AI_RATE_LIMITED','AI_TIMEOUT','AI_CONFIGURATION_ERROR','AI_REQUEST_REJECTED','AI_NETWORK_ERROR','AI_CONTRADICTS_RULES'].includes(error.code)) {
       // Never retain provider raw output/errors/credentials. Only a controlled failure message is stored.
       const current=await inspect(id,branchId,expectedVersion);
       if(revision(current)!==revision(state))throw new ScheduleError(409,'AI_REVIEW_STALE','Dữ liệu đã thay đổi trong khi AI đánh giá.');

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CalendarDays } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ScheduleWorkflowError, TV4_SHIFT_DEFINITIONS, mockActorForProfile, resolveTv4MockBranch } from './scheduleWorkflow.types';
@@ -101,7 +101,7 @@ export const ScheduleWorkflow = ({
   const actor = useMemo(() => user ? usesMockWorkflow ? mockActorForProfile(user) : {
     id: user.id, username: user.username, role: user.role, branch_id: user.branch_id,
   } : null, [user, usesMockWorkflow]);
-  const [schedules, setSchedules] = useState<ScheduleWorkflowRecord[]>([]);
+  const [scheduleRows, setSchedules] = useState<ScheduleWorkflowRecord[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [editingScheduleId, setEditingScheduleId] = useState<string | null>(null);
   const [reason, setReason] = useState('');
@@ -120,8 +120,15 @@ export const ScheduleWorkflow = ({
   const view: ScheduleWorkflowView = mode === 'approvals' ? 'pending'
     : mode === 'history' ? 'history'
       : mode === 'publication-history' ? 'publicationHistory' : 'manager';
+  const scope=JSON.stringify([actor?.id,actor?.role,actor?.branch_id,view]);
+  const [loadedScope,setLoadedScope]=useState(scope);
+  const schedules=loadedScope===scope?scheduleRows:[];
+  const loadSequence=useRef(0),working=useRef(false),currentScope=useRef(scope);
+  currentScope.current=scope;
 
   const load = useCallback(async () => {
+    if(currentScope.current!==scope)return;
+    const request=++loadSequence.current;
     if (!actor) {
       setSchedules([]);
       setError('Cần đăng nhập để xem dữ liệu TV4.');
@@ -137,26 +144,33 @@ export const ScheduleWorkflow = ({
     setLoading(true);
     setError('');
     try {
-      setSchedules(await service.listSchedules(actor, view));
+      const result=await service.listSchedules(actor, view);
+      if(request!==loadSequence.current||currentScope.current!==scope)return;
+      setSchedules(result);setLoadedScope(scope);
     } catch (err) {
+      if(request!==loadSequence.current||currentScope.current!==scope)return;
       setSchedules([]);
       setError(errorText(err));
     } finally {
-      setLoading(false);
+      if(request===loadSequence.current&&currentScope.current===scope)setLoading(false);
     }
-  }, [actor, branchResolution, service, view, usesMockWorkflow]);
+  }, [actor, branchResolution, service, view, usesMockWorkflow,scope]);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => { void load();return()=>{loadSequence.current++;}; }, [load]);
+  useEffect(()=>{setSelected(null);setConfirmation(null);setReason('');setDeadline('');setSuccessMessage('');},[scope]);
 
   const perform = async (
     schedule: ScheduleWorkflowRecord,
     action: WorkflowAction,
   ) => {
-    if (!actor) return;
+    if (!actor||working.current||currentScope.current!==scope) return;
     if(action==='publish'){
       const invalid=publicationDeadlineError(deadline);
       if(invalid){setError(invalid);return;}
     }
+    working.current=true;
+    loadSequence.current++;
+    setLoading(false);
     setBusy(true);
     setError('');
     setSuccessMessage('');
@@ -175,6 +189,7 @@ export const ScheduleWorkflow = ({
         successMessage = `Lịch đã được điều chỉnh và gửi đến GS phê duyệt. Phiên bản ${submittedVersion.version} đang chờ phê duyệt.`;
       }
       if (action === 'publish') await service.publishSchedule(actor, schedule.id, new Date(deadline).toISOString(),schedule.version);
+      if(currentScope.current!==scope)return;
       setSuccessMessage(successMessage);
       setReason('');
       setAdjustmentNote('');
@@ -183,8 +198,9 @@ export const ScheduleWorkflow = ({
       setSelected(null);
       await load();
     } catch (err) {
-      setError(err instanceof ScheduleWorkflowError ? err.message : errorText(err));
+      if(currentScope.current===scope)setError(err instanceof ScheduleWorkflowError ? err.message : errorText(err));
     } finally {
+      working.current=false;
       setBusy(false);
     }
   };

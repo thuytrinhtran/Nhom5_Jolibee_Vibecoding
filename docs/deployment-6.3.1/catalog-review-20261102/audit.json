@@ -1,0 +1,995 @@
+{
+  "format": "jollishift-csv-content-audit.v1",
+  "project_ref": "wlbpprpiieonjrqglicv",
+  "project_binding": "User declaration plus prior GET; SQL current_database=postgres does not independently bind project",
+  "archive_path": "C:\\Users\\Thuy Trinh Tran\\Downloads\\Supabase Snippet Untitled query.zip",
+  "archive_sha256": "4d684f0e1bb438aec829370f9390301b22b06370a6d916485cd079ff99c6b860",
+  "csv_count": 24,
+  "original_csv_modified": false,
+  "archive_modified": false,
+  "original_file_numbers_used_as_query_mapping": false,
+  "sql_sources": [
+    {
+      "file": "docs/deployment-6.1/01-catalog-preflight.sql",
+      "sha256": "f1559ff8add6bf492fb8555dd786289a0b776ea2331f8be1a16353f8b46ff535"
+    },
+    {
+      "file": "docs/deployment-6.1/02-data-preflight.sql",
+      "sha256": "3db0fc9a0b5924a7a389b2a4c4bd21f6045f6d03c9012b13ae13ff07b63edff0"
+    },
+    {
+      "file": "docs/deployment-6.2/preflight.sql",
+      "sha256": "002cc02d343ed672fe2b9e090ccab05dc2536ccf72f7f7bff25c800a434d1f94"
+    },
+    {
+      "file": "docs/deployment-6.3.1/sql-editor-complete-catalog.sql",
+      "sha256": "1f19caa3622378b5f2c70a72e9eb6ed7fbe5eb638253cb604f5ca133f8e5f95d"
+    },
+    {
+      "file": "docs/deployment-6.3.1/sql-editor-auth-check.sql",
+      "sha256": "4449b64cb31ab60a0a1ac471e06cc2b9ea410f195bbea0dbbb7d7564424e9f41"
+    }
+  ],
+  "inventory": [
+    {
+      "file": "Supabase Snippet Untitled query (32).csv",
+      "query": "S1",
+      "original_query": 32,
+      "row_count": 206,
+      "columns": [
+        "total_rows",
+        "relation_name",
+        "attnum",
+        "attname",
+        "data_type",
+        "attnotnull",
+        "default_expression"
+      ],
+      "sha256": "c97fcfd7752d4dab91718e4e7024ac120187ec2bbd57fba6873a1c8e353ae3d6",
+      "bytes": 13063,
+      "total_rows_values": [
+        "206"
+      ],
+      "complete_by_total_rows": true,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Complete column metadata",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (33).csv",
+      "query": "S2",
+      "original_query": 33,
+      "row_count": 18,
+      "columns": [
+        "total_rows",
+        "signature",
+        "owner",
+        "prosecdef",
+        "proconfig",
+        "proacl",
+        "normalized_body_md5",
+        "definition"
+      ],
+      "sha256": "8ed46b09331299128ef267753f113b16d8d36ac17c39d1991abd33bae709b53d",
+      "bytes": 42923,
+      "total_rows_values": [
+        "18"
+      ],
+      "complete_by_total_rows": true,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Complete function metadata/bodies",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (34).csv",
+      "query": "S3",
+      "original_query": 34,
+      "row_count": 64,
+      "columns": [
+        "total_rows",
+        "table_name",
+        "index_name",
+        "indisunique",
+        "indisvalid",
+        "indisready",
+        "definition"
+      ],
+      "sha256": "b43724be87cbfeebe9d54bade2cc8e9a5235ebb5ae5d13f6fb5c8f033de199ca",
+      "bytes": 10499,
+      "total_rows_values": [
+        "64"
+      ],
+      "complete_by_total_rows": true,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Complete index metadata",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (35).csv",
+      "query": "S4",
+      "original_query": 35,
+      "row_count": 54,
+      "columns": [
+        "total_rows",
+        "signature",
+        "rolname",
+        "can_execute"
+      ],
+      "sha256": "fdfca43c0f7ed60fa5062f8c79fbb49fa161d4cbfe635bdf03bdf8c2271209c7",
+      "bytes": 3304,
+      "total_rows_values": [
+        "54"
+      ],
+      "complete_by_total_rows": true,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Effective EXECUTE",
+      "identical_content_files": [
+        "Supabase Snippet Untitled query (36).csv"
+      ]
+    },
+    {
+      "file": "Supabase Snippet Untitled query (36).csv",
+      "query": "S4",
+      "original_query": 35,
+      "row_count": 54,
+      "columns": [
+        "total_rows",
+        "signature",
+        "rolname",
+        "can_execute"
+      ],
+      "sha256": "fdfca43c0f7ed60fa5062f8c79fbb49fa161d4cbfe635bdf03bdf8c2271209c7",
+      "bytes": 3304,
+      "total_rows_values": [
+        "54"
+      ],
+      "complete_by_total_rows": true,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Effective EXECUTE",
+      "identical_content_files": [
+        "Supabase Snippet Untitled query (35).csv"
+      ]
+    },
+    {
+      "file": "Supabase Snippet Untitled query (37).csv",
+      "query": "S6",
+      "original_query": 37,
+      "row_count": 60,
+      "columns": [
+        "employee_id",
+        "user_id",
+        "department_id",
+        "skill_level",
+        "status",
+        "username",
+        "role",
+        "branch_id",
+        "is_active",
+        "must_change_password",
+        "auth_id"
+      ],
+      "sha256": "2128f88a7ba606fbaf38da8ebaa64cc7e386d2346e426847e829e17d0a6d4540",
+      "bytes": 13689,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Existing employee/Auth bindings",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (38).csv",
+      "query": "D1.1",
+      "original_query": 38,
+      "row_count": 1,
+      "columns": [
+        "id",
+        "branch_id",
+        "work_start_date",
+        "work_end_date",
+        "open_at",
+        "close_at",
+        "stored_status",
+        "effective_status"
+      ],
+      "sha256": "8959c424c23925f88d03a03467efe5185e0f44239a469180be55aafe0a2360aa",
+      "bytes": 248,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Period and effective status",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (39).csv",
+      "query": "D1.2",
+      "original_query": 39,
+      "row_count": 1,
+      "columns": [
+        "cells",
+        "positions",
+        "demand_evidence_md5"
+      ],
+      "sha256": "b3a8364811f0d2954dc87d5f0cfbc8e40a0657cd7a0ecf44d8089e281b7cb99e",
+      "bytes": 76,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Demand totals",
+      "identical_content_files": [
+        "Supabase Snippet Untitled query (40).csv"
+      ]
+    },
+    {
+      "file": "Supabase Snippet Untitled query (40).csv",
+      "query": "D1.2",
+      "original_query": 39,
+      "row_count": 1,
+      "columns": [
+        "cells",
+        "positions",
+        "demand_evidence_md5"
+      ],
+      "sha256": "b3a8364811f0d2954dc87d5f0cfbc8e40a0657cd7a0ecf44d8089e281b7cb99e",
+      "bytes": 76,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Demand totals",
+      "identical_content_files": [
+        "Supabase Snippet Untitled query (39).csv"
+      ]
+    },
+    {
+      "file": "Supabase Snippet Untitled query (41).csv",
+      "query": "D2.1",
+      "original_query": 41,
+      "row_count": 4,
+      "columns": [
+        "skill_level",
+        "employees",
+        "active_nv",
+        "missing_auth_profile",
+        "password_change_required"
+      ],
+      "sha256": "b6fab97c3cd6e17ef045a2e8ff34e57720e2c55176afebffb7c889446a0a537b",
+      "bytes": 155,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Employee skill counts",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (42).csv",
+      "query": "D2.2",
+      "original_query": 42,
+      "row_count": 1,
+      "columns": [
+        "id",
+        "status",
+        "supervisor_id",
+        "supervisor_role",
+        "supervisor_active",
+        "must_change_password"
+      ],
+      "sha256": "6429ff39519fa7d243d826d3415171edb55d6911587c115b8c1c427dc13e589e",
+      "bytes": 174,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Branch supervisor",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (43).csv",
+      "query": "D2.3",
+      "original_query": 43,
+      "row_count": 3,
+      "columns": [
+        "role",
+        "profiles",
+        "active",
+        "password_change_required"
+      ],
+      "sha256": "4238df271856d419fbd6ce1488c4adbf79c812c876c4718cef889cc805a5c9a2",
+      "bytes": 77,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Branch profile counts",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (44).csv",
+      "query": "D3.1",
+      "original_query": 44,
+      "row_count": 1,
+      "columns": [
+        "status",
+        "sample_batch_id",
+        "headers",
+        "recorded_after_close"
+      ],
+      "sha256": "be8c7331d7baea5a2842903b6125cc12eb62b0517905f0b35dc47874c7a389a4",
+      "bytes": 67,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Registration provenance counts",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (45).csv",
+      "query": "D3.2",
+      "original_query": 45,
+      "row_count": 7,
+      "columns": [
+        "work_date",
+        "registration_rows",
+        "distinct_employees",
+        "real_employees",
+        "sample_rows_excluded_from_ordinary_flow"
+      ],
+      "sha256": "f199f5f0dd7924dcc60be3b9b8c5ca3418ba2502733f51b0a01fa6a57d9f99b9",
+      "bytes": 241,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Daily registration counts",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (46).csv",
+      "query": "D4.1 COUNT variant",
+      "original_query": 46,
+      "row_count": 1,
+      "columns": [
+        "duplicate_open_requests"
+      ],
+      "sha256": "d1c19942e638589aeed78ef3b13a9bc760383adf3f9a615ca5eaf61095563bf1",
+      "bytes": 26,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "MEDIUM_MODIFIED_COUNT_SQL_NOT_SUPPLIED",
+      "note": "Supplemental COUNT; exact SQL not supplied",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (47).csv",
+      "query": "D4.2 COUNT variant",
+      "original_query": 47,
+      "row_count": 1,
+      "columns": [
+        "duplicate_open_incidents"
+      ],
+      "sha256": "93269acd75a14422b9fd5d34f73270d5d032610b8bafec1a3fe7f95be23fe270",
+      "bytes": 27,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "MEDIUM_MODIFIED_COUNT_SQL_NOT_SUPPLIED",
+      "note": "Supplemental COUNT; exact SQL not supplied",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (48).csv",
+      "query": "D4.3 COUNT variant",
+      "original_query": 48,
+      "row_count": 1,
+      "columns": [
+        "overlapping_open_requests_incidents"
+      ],
+      "sha256": "5fad277a21230a218fc8d39d0f1c10caa2fb60465e957f1cfef09881b3b06951",
+      "bytes": 38,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "MEDIUM_MODIFIED_COUNT_SQL_NOT_SUPPLIED",
+      "note": "Supplemental COUNT; exact SQL not supplied",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (49).csv",
+      "query": "D4.4",
+      "original_query": 49,
+      "row_count": 2,
+      "columns": [
+        "entity",
+        "legacy_open_without_snapshot"
+      ],
+      "sha256": "1bd79dd56056ff530f62db0cc20858a34ab9c4c7d57a8ae77e570c2669e38401",
+      "bytes": 60,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Legacy open requests/incidents",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (50).csv",
+      "query": "D7.1",
+      "original_query": 56,
+      "row_count": 1,
+      "columns": [
+        "singleton",
+        "timezone",
+        "open_iso_day",
+        "open_local_time",
+        "close_iso_day",
+        "close_local_time",
+        "reminder_minutes"
+      ],
+      "sha256": "16df69f9fecf358784085ea83bd53ed198bb045ef03a973e59237583bd34e55d",
+      "bytes": 143,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Registration schedule config",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (51).csv",
+      "query": "D7.2",
+      "original_query": 57,
+      "row_count": 1,
+      "columns": [
+        "singleton",
+        "enabled"
+      ],
+      "sha256": "70eafb832965da524a18c2cbda63ea0544876ce826b4a0f262311e0366ed7932",
+      "bytes": 29,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Automation config",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (52).csv",
+      "query": "Auth check",
+      "original_query": null,
+      "row_count": 17,
+      "columns": [
+        "planned_id",
+        "planned_username",
+        "profile_id",
+        "role",
+        "branch_id",
+        "is_active",
+        "must_change_password",
+        "auth_id_exists",
+        "employee_bindings"
+      ],
+      "sha256": "91c3d95db83f98e88f71b4bb8d95971ec2dcfb9acf8c8bb447eda57e92e02abe",
+      "bytes": 1619,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "17 planned accounts",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (53).csv",
+      "query": "Dev-import SELECT 1",
+      "original_query": null,
+      "row_count": 1,
+      "columns": [
+        "current_database",
+        "current_user",
+        "statement_timestamp",
+        "current_setting"
+      ],
+      "sha256": "371340dad552b9da6e07692214c57d21665a2b6e98cbe6781fb12d1933a63331",
+      "bytes": 118,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Session identity",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (54).csv",
+      "query": "Dev-import SELECT 2",
+      "original_query": null,
+      "row_count": 1,
+      "columns": [
+        "registry",
+        "row_source",
+        "header_gate",
+        "row_gate"
+      ],
+      "sha256": "38049b83829593a34ba3f7adafd805daad4244f75a1684011c699ed7f9b03bd1",
+      "bytes": 61,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Object presence",
+      "identical_content_files": []
+    },
+    {
+      "file": "Supabase Snippet Untitled query (55).csv",
+      "query": "Dev-import SELECT 3-compatible",
+      "original_query": null,
+      "row_count": 1,
+      "columns": [
+        "signature",
+        "owner",
+        "prosecdef",
+        "proconfig",
+        "body_checksum",
+        "grantee",
+        "privilege_type"
+      ],
+      "sha256": "a3cbe34c5186d1fa47a839c8ee358cf138f88c8dd60302cae9d270b7aae63ed8",
+      "bytes": 212,
+      "total_rows_values": [],
+      "complete_by_total_rows": null,
+      "confidence": "HIGH_CONTENT_MATCH",
+      "note": "Catalog EXECUTE/checksum; execution provenance unconfirmed",
+      "identical_content_files": []
+    }
+  ],
+  "function_checks": [
+    {
+      "signature": "generate_schedule_draft(uuid,uuid,jsonb,jsonb)",
+      "reported_md5": "477fbe0785dcdbd85cd7cdf1dc600509",
+      "recomputed_md5": "477fbe0785dcdbd85cd7cdf1dc600509",
+      "verified": true,
+      "owner": "postgres",
+      "security_definer": "true",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=pg_catalog, public, pg_temp",
+        "statement_timeout=5s"
+      ],
+      "matching_direct_local_bodies": [
+        "backend/migrations/20261031_tv3_schedule_draft.sql",
+        "backend/migrations/20261101_tv3_rule_contract_v2.sql"
+      ]
+    },
+    {
+      "signature": "guard_password_change_state()",
+      "reported_md5": "6de7be31a78b625af7d45cb7f6326d84",
+      "recomputed_md5": "6de7be31a78b625af7d45cb7f6326d84",
+      "verified": true,
+      "owner": "postgres",
+      "security_definer": "false",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "matching_direct_local_bodies": [
+        "backend/migrations/20261029_require_password_change.sql"
+      ]
+    },
+    {
+      "signature": "jollishift_business_access()",
+      "reported_md5": "130d1e0a560ab800c26ed4b28fb7f492",
+      "recomputed_md5": "130d1e0a560ab800c26ed4b28fb7f492",
+      "verified": true,
+      "owner": "postgres",
+      "security_definer": "true",
+      "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "matching_direct_local_bodies": [
+        "backend/migrations/20261029_require_password_change.sql"
+      ]
+    },
+    {
+      "signature": "persist_schedule_draft(uuid,uuid,jsonb,jsonb,uuid,integer,uuid,text)",
+      "reported_md5": "f3dfa0c40d77478ab317079fc68405e6",
+      "recomputed_md5": "f3dfa0c40d77478ab317079fc68405e6",
+      "verified": true,
+      "owner": "postgres",
+      "security_definer": "true",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=pg_catalog, public, pg_temp",
+        "lock_timeout=5s",
+        "statement_timeout=5s"
+      ],
+      "matching_direct_local_bodies": [
+        "backend/migrations/20261031_tv3_schedule_draft.sql"
+      ]
+    },
+    {
+      "signature": "prevent_audit_log_changes()",
+      "reported_md5": "eae1897d057ae0433b3b0dd8e705174e",
+      "recomputed_md5": "eae1897d057ae0433b3b0dd8e705174e",
+      "verified": true,
+      "owner": "postgres",
+      "security_definer": "false",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public, pg_temp"
+      ],
+      "matching_direct_local_bodies": [
+        "docs/Jollishift.sql"
+      ]
+    },
+    {
+      "signature": "prevent_direct_published_schedule()",
+      "reported_md5": "4c95572d9bca8454fec7817ea19c20bd",
+      "recomputed_md5": "4c95572d9bca8454fec7817ea19c20bd",
+      "verified": true,
+      "owner": "postgres",
+      "security_definer": "false",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public, pg_temp"
+      ],
+      "matching_direct_local_bodies": [
+        "docs/Jollishift.sql"
+      ]
+    },
+    {
+      "signature": "registration_effective_status(timestamp with time zone,timestamp with time zone,timestamp with time zone)",
+      "reported_md5": "fa18fa723bdba545f71fead7b5991cfc",
+      "recomputed_md5": "fa18fa723bdba545f71fead7b5991cfc",
+      "verified": true,
+      "owner": "postgres",
+      "security_definer": "false",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "matching_direct_local_bodies": [
+        "backend/migrations/20261030_registration_effective_state.sql"
+      ]
+    },
+    {
+      "signature": "rls_auto_enable()",
+      "reported_md5": "1749fcafbfa33f3d5c2f879765c32c0c",
+      "recomputed_md5": "1749fcafbfa33f3d5c2f879765c32c0c",
+      "verified": true,
+      "owner": "postgres",
+      "security_definer": "true",
+      "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "matching_direct_local_bodies": []
+    },
+    {
+      "signature": "run_registration_automation()",
+      "reported_md5": "70c8c63faedb4786d9d5794e99087126",
+      "recomputed_md5": "70c8c63faedb4786d9d5794e99087126",
+      "verified": true,
+      "owner": "postgres",
+      "security_definer": "true",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public, pg_temp"
+      ],
+      "matching_direct_local_bodies": [
+        "backend/migrations/20261029_registration_off_schedule.sql"
+      ]
+    },
+    {
+      "signature": "save_employee_registration(uuid,uuid,jsonb,boolean)",
+      "reported_md5": "ddca0e88b8615703b53fbc8405ce7ae7",
+      "recomputed_md5": "ddca0e88b8615703b53fbc8405ce7ae7",
+      "verified": true,
+      "owner": "postgres",
+      "security_definer": "true",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public, pg_temp"
+      ],
+      "matching_direct_local_bodies": [
+        "backend/migrations/20261030_registration_effective_state.sql"
+      ]
+    },
+    {
+      "signature": "tv2_ensure_registration_periods_at(timestamp with time zone)",
+      "reported_md5": "c5d09f03707613908520a4b13742c017",
+      "recomputed_md5": "c5d09f03707613908520a4b13742c017",
+      "verified": true,
+      "owner": "postgres",
+      "security_definer": "true",
+      "acl": "{postgres=X/postgres}",
+      "settings": [
+        "search_path=public, pg_temp"
+      ],
+      "matching_direct_local_bodies": [
+        "backend/migrations/20261030_registration_effective_state.sql"
+      ]
+    },
+    {
+      "signature": "tv2_ensure_registration_periods()",
+      "reported_md5": "dc986eb679e5a6ddb2c60ac64221f3be",
+      "recomputed_md5": "dc986eb679e5a6ddb2c60ac64221f3be",
+      "verified": true,
+      "owner": "postgres",
+      "security_definer": "true",
+      "acl": "{postgres=X/postgres}",
+      "settings": [
+        "search_path=public, pg_temp"
+      ],
+      "matching_direct_local_bodies": [
+        "backend/migrations/20261030_registration_effective_state.sql"
+      ]
+    },
+    {
+      "signature": "tv3_scheduling_input(uuid)",
+      "reported_md5": "cd4e4b5440ae3f1a38567d7dd0acf8b9",
+      "recomputed_md5": "cd4e4b5440ae3f1a38567d7dd0acf8b9",
+      "verified": true,
+      "owner": "postgres",
+      "security_definer": "true",
+      "acl": "{postgres=X/postgres}",
+      "settings": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "matching_direct_local_bodies": [
+        "backend/migrations/20261031_tv3_schedule_draft.sql"
+      ]
+    },
+    {
+      "signature": "validate_assignment_source()",
+      "reported_md5": "f104386926f152305e312462c39f3860",
+      "recomputed_md5": "f104386926f152305e312462c39f3860",
+      "verified": true,
+      "owner": "postgres",
+      "security_definer": "false",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public, pg_temp"
+      ],
+      "matching_direct_local_bodies": [
+        "docs/Jollishift.sql"
+      ]
+    },
+    {
+      "signature": "validate_crew_leader_day_off()",
+      "reported_md5": "b943d1d0777be598f60997db7f598be0",
+      "recomputed_md5": "b943d1d0777be598f60997db7f598be0",
+      "verified": true,
+      "owner": "postgres",
+      "security_definer": "false",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public, pg_temp"
+      ],
+      "matching_direct_local_bodies": [
+        "docs/Jollishift.sql"
+      ]
+    },
+    {
+      "signature": "validate_schedule_approval()",
+      "reported_md5": "cc44dd3c39c1a9eeb638ded93373e2b1",
+      "recomputed_md5": "cc44dd3c39c1a9eeb638ded93373e2b1",
+      "verified": true,
+      "owner": "postgres",
+      "security_definer": "false",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public, pg_temp"
+      ],
+      "matching_direct_local_bodies": [
+        "docs/Jollishift.sql"
+      ]
+    },
+    {
+      "signature": "validate_schedule_publish()",
+      "reported_md5": "75a5c672a5980a87bb23d7bfea2aaa36",
+      "recomputed_md5": "75a5c672a5980a87bb23d7bfea2aaa36",
+      "verified": true,
+      "owner": "postgres",
+      "security_definer": "false",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public, pg_temp"
+      ],
+      "matching_direct_local_bodies": [
+        "docs/Jollishift.sql"
+      ]
+    },
+    {
+      "signature": "validate_shift_registration()",
+      "reported_md5": "e90d91f47680b7aea9fcefdff142f360",
+      "recomputed_md5": "e90d91f47680b7aea9fcefdff142f360",
+      "verified": true,
+      "owner": "postgres",
+      "security_definer": "false",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public, pg_temp"
+      ],
+      "matching_direct_local_bodies": [
+        "docs/Jollishift.sql"
+      ]
+    }
+  ],
+  "migration_20261101_function_guard": [
+    {
+      "signature": "tv3_scheduling_input(uuid)",
+      "expected_body_md5": "cd4e4b5440ae3f1a38567d7dd0acf8b9",
+      "actual_body_md5": "cd4e4b5440ae3f1a38567d7dd0acf8b9",
+      "owner_security_acl_ok": true,
+      "body_match": true,
+      "scope": "20261101 function guard only; not full rollout approval"
+    },
+    {
+      "signature": "persist_schedule_draft(uuid,uuid,jsonb,jsonb,uuid,integer,uuid,text)",
+      "expected_body_md5": "f3dfa0c40d77478ab317079fc68405e6",
+      "actual_body_md5": "f3dfa0c40d77478ab317079fc68405e6",
+      "owner_security_acl_ok": true,
+      "body_match": true,
+      "scope": "20261101 function guard only; not full rollout approval"
+    },
+    {
+      "signature": "generate_schedule_draft(uuid,uuid,jsonb,jsonb)",
+      "expected_body_md5": "477fbe0785dcdbd85cd7cdf1dc600509",
+      "actual_body_md5": "477fbe0785dcdbd85cd7cdf1dc600509",
+      "owner_security_acl_ok": true,
+      "body_match": true,
+      "scope": "20261101 function guard only; not full rollout approval"
+    }
+  ],
+  "zero_row_evidence": [
+    {
+      "original_query": 40,
+      "query": "D1.3",
+      "rows_reported_by_user": 0,
+      "evidence": "USER_CONFIRMED_ZERO_NO_DISTINCT_RESULT_CSV_IN_ARCHIVE",
+      "supplemental_csv": [],
+      "explicit_no_csv_confirmed_by_user": true,
+      "not_sql_error": true,
+      "not_inference_about_execution": true
+    },
+    {
+      "original_query": 46,
+      "query": "D4.1",
+      "rows_reported_by_user": 0,
+      "evidence": "USER_CONFIRMED_ZERO_PLUS_COUNT_CSV",
+      "supplemental_csv": [
+        "Supabase Snippet Untitled query (46).csv"
+      ],
+      "explicit_no_csv_confirmed_by_user": false,
+      "not_sql_error": true,
+      "not_inference_about_execution": true
+    },
+    {
+      "original_query": 47,
+      "query": "D4.2",
+      "rows_reported_by_user": 0,
+      "evidence": "USER_CONFIRMED_ZERO_PLUS_COUNT_CSV",
+      "supplemental_csv": [
+        "Supabase Snippet Untitled query (47).csv"
+      ],
+      "explicit_no_csv_confirmed_by_user": false,
+      "not_sql_error": true,
+      "not_inference_about_execution": true
+    },
+    {
+      "original_query": 48,
+      "query": "D4.3",
+      "rows_reported_by_user": 0,
+      "evidence": "USER_CONFIRMED_ZERO_PLUS_COUNT_CSV",
+      "supplemental_csv": [
+        "Supabase Snippet Untitled query (48).csv"
+      ],
+      "explicit_no_csv_confirmed_by_user": false,
+      "not_sql_error": true,
+      "not_inference_about_execution": true
+    },
+    {
+      "original_query": 50,
+      "query": "D5.1",
+      "rows_reported_by_user": 0,
+      "evidence": "USER_CONFIRMED_ZERO_NO_DISTINCT_RESULT_CSV_IN_ARCHIVE",
+      "supplemental_csv": [],
+      "explicit_no_csv_confirmed_by_user": true,
+      "not_sql_error": true,
+      "not_inference_about_execution": true
+    },
+    {
+      "original_query": 51,
+      "query": "D5.2",
+      "rows_reported_by_user": 0,
+      "evidence": "USER_CONFIRMED_ZERO_NO_DISTINCT_RESULT_CSV_IN_ARCHIVE",
+      "supplemental_csv": [],
+      "explicit_no_csv_confirmed_by_user": false,
+      "not_sql_error": true,
+      "not_inference_about_execution": true
+    },
+    {
+      "original_query": 52,
+      "query": "D6.1",
+      "rows_reported_by_user": 0,
+      "evidence": "USER_CONFIRMED_ZERO_NO_DISTINCT_RESULT_CSV_IN_ARCHIVE",
+      "supplemental_csv": [],
+      "explicit_no_csv_confirmed_by_user": false,
+      "not_sql_error": true,
+      "not_inference_about_execution": true
+    },
+    {
+      "original_query": 53,
+      "query": "D6.2",
+      "rows_reported_by_user": 0,
+      "evidence": "USER_CONFIRMED_ZERO_NO_DISTINCT_RESULT_CSV_IN_ARCHIVE",
+      "supplemental_csv": [],
+      "explicit_no_csv_confirmed_by_user": false,
+      "not_sql_error": true,
+      "not_inference_about_execution": true
+    },
+    {
+      "original_query": 54,
+      "query": "D6.3",
+      "rows_reported_by_user": 0,
+      "evidence": "USER_CONFIRMED_ZERO_NO_DISTINCT_RESULT_CSV_IN_ARCHIVE",
+      "supplemental_csv": [],
+      "explicit_no_csv_confirmed_by_user": false,
+      "not_sql_error": true,
+      "not_inference_about_execution": true
+    },
+    {
+      "original_query": 55,
+      "query": "D6.4",
+      "rows_reported_by_user": 0,
+      "evidence": "USER_CONFIRMED_ZERO_NO_DISTINCT_RESULT_CSV_IN_ARCHIVE",
+      "supplemental_csv": [],
+      "explicit_no_csv_confirmed_by_user": true,
+      "not_sql_error": true,
+      "not_inference_about_execution": true
+    }
+  ],
+  "missing_export_evidence_not_missing_execution": [
+    "C1.1/version",
+    "C3.1 constraints",
+    "C6 trigger attachments",
+    "C7.2 default ACL",
+    "C8.1 RLS flags",
+    "C8.2 policies",
+    "C8.3 table privileges",
+    "C9 view definitions/options/ACL",
+    "C10 event trigger attachments",
+    "S5 migration-history presence/versions"
+  ],
+  "integrity_errors": [],
+  "conflicts_or_limits": [
+    "Files (35)/(36) are identical S4 exports; neither proves S5.",
+    "Files (39)/(40) are identical D1.2 exports; filename 40 is not original query 40.",
+    "File (55) matches dev-import SELECT 3 structure despite reported not run 3-6; its capture provenance is unconfirmed.",
+    "File (53) current_setting(transaction_read_only)=off; does not prove writes occurred or a consistent/read-only export transaction.",
+    "Aggregate row counts do not establish immutable per-row baseline checksums.",
+    "No backup/restore evidence supplied."
+  ],
+  "decision": "NO_GO",
+  "apply_allowed": false,
+  "fresh_data_summary": {
+    "branch_employees": 60,
+    "skills": {
+      "CREW_LEADER": 7,
+      "CREW_TRAINING": 12,
+      "NEW": 8,
+      "REGULAR": 33
+    },
+    "branch_profiles": 62,
+    "real_registrations": 16,
+    "headers": 2,
+    "demand_cells": 63,
+    "demand_positions": 308,
+    "demand_evidence_md5": "34ef45ab2d0038f49faf75c9958bca0e",
+    "daily_distinct_employees": [
+      2,
+      1,
+      2,
+      2,
+      1,
+      2,
+      2
+    ],
+    "target_period_schedules": {
+      "value": 0,
+      "source": "USER_CONFIRMED_ZERO_ORIGINAL_40"
+    },
+    "missing_auth_bindings": 0,
+    "planned_auth_and_profile_missing": 17,
+    "planned_uuid_set_matches_seed": true,
+    "employee_password_change_required": 1,
+    "period_stored_status": "PLANNED",
+    "period_effective_status": "CLOSED"
+  }
+}

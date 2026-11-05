@@ -27,6 +27,7 @@ export interface ScheduleOptimization {
   after:ScheduleOptimization['before'];
 }
 export interface SchedulingContext {
+  development_preview?: boolean;
   source?: 'mock' | 'supabase';
   can_generate_mock?:boolean;test_rules?:{max_shifts_per_day:number};
   period: Omit<SchedulingPeriod, 'schedules'>; requirements: StaffingRequirement[];
@@ -112,20 +113,12 @@ export interface PreviewAIReviewResponse {
   status:'NOT_CONFIGURED'|'AVAILABLE';message:string;configured:boolean;model:string|null;
   evaluation:PreviewAIEvaluation|null;
 }
-export interface PreviewAIConfiguration {configured:boolean;model:string|null;message:string}
+export interface PreviewAIConfiguration {configured:boolean;model:string|null;message:string;retry_after_seconds?:number}
 
-export interface AdjustmentIntent {
- analysis_token?:string|null;
- scope:'preview';persisted:false;input_revision:string;plan_revision:string;
- status:'READY'|'NEEDS_CLARIFICATION'|'UNSUPPORTED';objectives:string[];employee_codes:string[];
- priority:'HIGH'|'NORMAL'|'LOW';limits:{kind:'AVOID_DATE'|'PREFER_DATE'|'MAX_WEEKLY_HOURS';employee_code:string|null;date:string|null;value:number|null}[];
- preference_strength:'SOFT_PREFERENCE';business_rules_overridable:false;feasibility:'NOT_SOLVED';message:string;employees:{code:string;employee_id:string}[];
+export interface PreviewCandidate {
+ id:string;full_name:string;skill_level:string;phone:string|null;availability:string;
+ employee_status?:string;status?:'ELIGIBLE';
 }
-
-export interface AdjustmentProposal {
- proposal_token?:string;expires_at?:string;
- scope:'adjustment-proposal';persisted:false;applied:false;input_revision:string;base_plan_revision:string;
- result:SchedulePreview['result'];changes:{added:ScheduleAssignment[];removed:ScheduleAssignment[]};
- satisfaction:{criterion:string;target:string;before:number;after:number;status:string;reason:string}[];
- blocking_reasons:{code:string;message:string;attempts:number}[];coverage_preserved:boolean;unchanged:boolean;search:{attempts:number;bounded:boolean;optimality_guaranteed:false};limitations:string[];
+export interface CheckedPreviewCandidates {
+ preview:SchedulePreview;requirementId:string;replaceIndex?:number;count:number;experiencedCount:number;
 }

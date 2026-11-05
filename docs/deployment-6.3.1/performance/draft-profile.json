@@ -1,0 +1,739 @@
+{
+  "scope": "ISOLATED_POSTGRESQL_ONLY",
+  "captured_at": "2026-11-02T04:27:18.872Z",
+  "supabase_contacted": false,
+  "budget_ms": 3000,
+  "assignment_count": 308,
+  "samples": [
+    {
+      "phase": "before",
+      "instrumented": true,
+      "transaction_begin_ms": 0.4620999999970081,
+      "rpc_ms": 3702.872000000003,
+      "response_reserialization_ms": null,
+      "rollback_ms": 1.6154000000024098,
+      "total_ms": 3705.056700000001,
+      "pass": false,
+      "error": {
+        "code": "57014",
+        "message": "DRAFT_SAVE_BUDGET_EXCEEDED"
+      },
+      "stages": {
+        "authorization_and_locks": 2.564,
+        "source_start": 3.3,
+        "source_complete": 3694.055
+      }
+    },
+    {
+      "phase": "before",
+      "instrumented": false,
+      "transaction_begin_ms": 0.49619999999413267,
+      "rpc_ms": 3233.3087000000014,
+      "response_reserialization_ms": null,
+      "rollback_ms": 1.366199999996752,
+      "total_ms": 3235.2073999999993,
+      "pass": false,
+      "error": {
+        "code": "57014",
+        "message": "DRAFT_SAVE_BUDGET_EXCEEDED"
+      }
+    },
+    {
+      "phase": "before",
+      "instrumented": false,
+      "transaction_begin_ms": 0.3452000000033877,
+      "rpc_ms": 3042.383799999996,
+      "response_reserialization_ms": null,
+      "rollback_ms": 1.422999999995227,
+      "total_ms": 3044.199400000005,
+      "pass": false,
+      "error": {
+        "code": "57014",
+        "message": "DRAFT_SAVE_BUDGET_EXCEEDED"
+      }
+    },
+    {
+      "phase": "before",
+      "instrumented": false,
+      "transaction_begin_ms": 0.3166999999957625,
+      "rpc_ms": 3008.992400000003,
+      "response_reserialization_ms": null,
+      "rollback_ms": 1.1194999999934225,
+      "total_ms": 3010.4801000000007,
+      "pass": false,
+      "error": {
+        "code": "57014",
+        "message": "DRAFT_SAVE_BUDGET_EXCEEDED"
+      }
+    },
+    {
+      "phase": "after",
+      "instrumented": true,
+      "transaction_begin_ms": 0.2929999999978463,
+      "rpc_ms": 710.8004000000001,
+      "response_reserialization_ms": 1.1797999999980675,
+      "rollback_ms": 1.0509999999994761,
+      "total_ms": 713.3458000000028,
+      "pass": true,
+      "stages": {
+        "authorization_and_locks": 3.293,
+        "source_start": 4.164,
+        "source_complete": 332.441,
+        "snapshot_validation_and_schedule_insert": 333.796,
+        "assignment_insert_subset": 53.004,
+        "assignment_validation_and_inserts": 577.701,
+        "metrics_and_response_preparation": 675.176,
+        "audit_complete": 692.942
+      }
+    },
+    {
+      "phase": "after",
+      "instrumented": false,
+      "transaction_begin_ms": 0.2821999999941909,
+      "rpc_ms": 686.6562999999951,
+      "response_reserialization_ms": 1.6360999999960768,
+      "rollback_ms": 1.2166999999972177,
+      "total_ms": 689.8166999999958,
+      "pass": true
+    },
+    {
+      "phase": "after",
+      "instrumented": false,
+      "transaction_begin_ms": 0.3367999999973108,
+      "rpc_ms": 720.2115000000049,
+      "response_reserialization_ms": 0.9297999999980675,
+      "rollback_ms": 1.1797999999980675,
+      "total_ms": 722.6754999999976,
+      "pass": true
+    },
+    {
+      "phase": "after",
+      "instrumented": false,
+      "transaction_begin_ms": 0.2635999999984051,
+      "rpc_ms": 812.2850000000035,
+      "response_reserialization_ms": 3.7883999999976368,
+      "rollback_ms": 1.359199999998964,
+      "total_ms": 817.7217999999993,
+      "pass": true
+    },
+    {
+      "phase": "after",
+      "instrumented": false,
+      "transaction_begin_ms": 0.3261999999958789,
+      "rpc_ms": 846.9374000000025,
+      "response_reserialization_ms": 2.0531000000046333,
+      "rollback_ms": 1.1634999999951106,
+      "total_ms": 850.505999999994,
+      "pass": true
+    },
+    {
+      "phase": "after",
+      "instrumented": false,
+      "transaction_begin_ms": 0.484599999996135,
+      "rpc_ms": 673.4850000000006,
+      "response_reserialization_ms": 1.827499999999418,
+      "rollback_ms": 2.1375000000116415,
+      "total_ms": 677.9763999999996,
+      "pass": true
+    },
+    {
+      "phase": "after",
+      "instrumented": false,
+      "transaction_begin_ms": 0.6520000000018626,
+      "rpc_ms": 620.3889999999956,
+      "response_reserialization_ms": 0.8252999999967869,
+      "rollback_ms": 1.0804999999963911,
+      "total_ms": 622.9624999999942,
+      "pass": true
+    },
+    {
+      "phase": "after",
+      "instrumented": false,
+      "transaction_begin_ms": 0.36740000000281725,
+      "rpc_ms": 632.9482999999891,
+      "response_reserialization_ms": 1.681799999991199,
+      "rollback_ms": 1.6656999999977415,
+      "total_ms": 636.6719000000012,
+      "pass": true
+    },
+    {
+      "phase": "after",
+      "instrumented": false,
+      "transaction_begin_ms": 0.8733999999967637,
+      "rpc_ms": 714.5154000000039,
+      "response_reserialization_ms": 1.2414999999891734,
+      "rollback_ms": 1.8853000000090105,
+      "total_ms": 718.5243000000046,
+      "pass": true
+    },
+    {
+      "phase": "after",
+      "instrumented": false,
+      "transaction_begin_ms": 0.8052000000025146,
+      "rpc_ms": 814.1826999999903,
+      "response_reserialization_ms": 1.9376000000047497,
+      "rollback_ms": 1.5249000000039814,
+      "total_ms": 818.4596999999922,
+      "pass": true
+    },
+    {
+      "phase": "after",
+      "instrumented": false,
+      "transaction_begin_ms": 0.7671000000118511,
+      "rpc_ms": 824.521900000007,
+      "response_reserialization_ms": 1.9624999999941792,
+      "rollback_ms": 1.3325000000040745,
+      "total_ms": 828.5939000000071,
+      "pass": true
+    }
+  ],
+  "limitations": [
+    "Local direct PostgreSQL transport; browser rendering, external JWT verification and Supabase gateway latency not measured.",
+    "Instrumented cumulative SQL checkpoints are diagnostic; acceptance samples use uninstrumented RPC.",
+    "Transactions rolled back per sample; no committed schedule retained."
+  ],
+  "payload_normalization_ms": 5.019499999994878,
+  "payload_serialization_ms": 1.8161000000036438,
+  "canonical_input_ms": 18.655899999997928,
+  "server_verified_plan_ms": 292.5146999999997,
+  "before_source_explain": {
+    "elapsed_ms": 3281.268299999996,
+    "plan": [
+      {
+        "Plan": {
+          "Node Type": "Result",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 0,
+          "Total Cost": 0.26,
+          "Plan Rows": 1,
+          "Plan Width": 32,
+          "Actual Startup Time": 3278.7,
+          "Actual Total Time": 3278.702,
+          "Actual Rows": 1,
+          "Actual Loops": 1,
+          "Shared Hit Blocks": 55892,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning": {
+          "Shared Hit Blocks": 0,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.033,
+        "Triggers": [],
+        "Execution Time": 3278.718
+      }
+    ]
+  },
+  "before_function_stats": [
+    {
+      "funcname": "tv3_scheduling_input",
+      "calls": "2",
+      "total_time": 6969.204,
+      "self_time": 168.128
+    },
+    {
+      "funcname": "dev_import_header_allowed",
+      "calls": "2500",
+      "total_time": 6325.843,
+      "self_time": 1729.301
+    },
+    {
+      "funcname": "dev_import_context_matches",
+      "calls": "2500",
+      "total_time": 4596.542,
+      "self_time": 4596.542
+    },
+    {
+      "funcname": "dev_import_registration_allowed",
+      "calls": "1182",
+      "total_time": 3809.28,
+      "self_time": 475.076
+    },
+    {
+      "funcname": "registration_effective_status",
+      "calls": "4",
+      "total_time": 0.245,
+      "self_time": 0.245
+    },
+    {
+      "funcname": "persist_schedule_draft",
+      "calls": "0",
+      "total_time": 0,
+      "self_time": 0
+    }
+  ],
+  "function_contracts": [
+    {
+      "signature": "dev_import_utc_image(anyelement)",
+      "owner": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp",
+        "TimeZone=UTC"
+      ],
+      "proacl": "{postgres=X/postgres}",
+      "body_md5": "2fea943d86c07ea74be2ec9516cdf6de"
+    },
+    {
+      "signature": "persist_schedule_draft(uuid,uuid,jsonb,jsonb,uuid,integer,uuid,text)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp",
+        "lock_timeout=5s",
+        "statement_timeout=5s"
+      ],
+      "proacl": "{postgres=X/postgres,service_role=X/postgres}",
+      "body_md5": "f5654bfccd235ef82403e46e65e9128c"
+    },
+    {
+      "signature": "tv3_scheduling_input(uuid)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "proacl": "{postgres=X/postgres}",
+      "body_md5": "76d7d3e9c1b4e6bd0667125e3aace2bb"
+    }
+  ],
+  "materialized_rows_explain": [
+    {
+      "Plan": {
+        "Node Type": "Aggregate",
+        "Strategy": "Plain",
+        "Partial Mode": "Simple",
+        "Parallel Aware": false,
+        "Async Capable": false,
+        "Startup Cost": 153.22,
+        "Total Cost": 153.23,
+        "Plan Rows": 1,
+        "Plan Width": 8,
+        "Actual Startup Time": 192.638,
+        "Actual Total Time": 192.641,
+        "Actual Rows": 1,
+        "Actual Loops": 1,
+        "Shared Hit Blocks": 5946,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0,
+        "Plans": [
+          {
+            "Node Type": "Seq Scan",
+            "Parent Relationship": "InitPlan",
+            "Subplan Name": "CTE approved_batches",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Relation Name": "dev_import_batches",
+            "Alias": "b",
+            "Startup Cost": 0,
+            "Total Cost": 134.55,
+            "Plan Rows": 1,
+            "Plan Width": 145,
+            "Actual Startup Time": 2.259,
+            "Actual Total Time": 2.262,
+            "Actual Rows": 1,
+            "Actual Loops": 1,
+            "Filter": "((period_id = '79a979cc-8347-48b5-a411-f03bd8aceb92'::uuid) AND (branch_id = '11111111-1111-1111-1111-111111111111'::uuid) AND dev_import_context_matches(b.*))",
+            "Rows Removed by Filter": 0,
+            "Shared Hit Blocks": 19,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          {
+            "Node Type": "Nested Loop",
+            "Parent Relationship": "InitPlan",
+            "Subplan Name": "CTE approved_headers",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Join Type": "Inner",
+            "Startup Cost": 4.16,
+            "Total Cost": 10.06,
+            "Plan Rows": 1,
+            "Plan Width": 80,
+            "Actual Startup Time": 2.635,
+            "Actual Total Time": 31.598,
+            "Actual Rows": 68,
+            "Actual Loops": 1,
+            "Inner Unique": false,
+            "Shared Hit Blocks": 566,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0,
+            "Plans": [
+              {
+                "Node Type": "CTE Scan",
+                "Parent Relationship": "Outer",
+                "Parallel Aware": false,
+                "Async Capable": false,
+                "CTE Name": "approved_batches",
+                "Alias": "b_1",
+                "Startup Cost": 0,
+                "Total Cost": 0.02,
+                "Plan Rows": 1,
+                "Plan Width": 64,
+                "Actual Startup Time": 2.261,
+                "Actual Total Time": 2.264,
+                "Actual Rows": 1,
+                "Actual Loops": 1,
+                "Shared Hit Blocks": 19,
+                "Shared Read Blocks": 0,
+                "Shared Dirtied Blocks": 0,
+                "Shared Written Blocks": 0,
+                "Local Hit Blocks": 0,
+                "Local Read Blocks": 0,
+                "Local Dirtied Blocks": 0,
+                "Local Written Blocks": 0,
+                "Temp Read Blocks": 0,
+                "Temp Written Blocks": 0
+              },
+              {
+                "Node Type": "Bitmap Heap Scan",
+                "Parent Relationship": "Inner",
+                "Parallel Aware": false,
+                "Async Capable": false,
+                "Relation Name": "registration_submissions",
+                "Alias": "h",
+                "Startup Cost": 4.16,
+                "Total Cost": 10.03,
+                "Plan Rows": 1,
+                "Plan Width": 236,
+                "Actual Startup Time": 0.36,
+                "Actual Total Time": 29.274,
+                "Actual Rows": 68,
+                "Actual Loops": 1,
+                "Recheck Cond": "(period_id = b_1.period_id)",
+                "Rows Removed by Index Recheck": 0,
+                "Filter": "((b_1.batch_id = sample_batch_id) AND (((b_1.manifest -> 'after_images'::text) -> 'registration_submissions'::text) @> jsonb_build_array(dev_import_utc_image(h.*))))",
+                "Rows Removed by Filter": 2,
+                "Exact Heap Blocks": 2,
+                "Lossy Heap Blocks": 0,
+                "Shared Hit Blocks": 547,
+                "Shared Read Blocks": 0,
+                "Shared Dirtied Blocks": 0,
+                "Shared Written Blocks": 0,
+                "Local Hit Blocks": 0,
+                "Local Read Blocks": 0,
+                "Local Dirtied Blocks": 0,
+                "Local Written Blocks": 0,
+                "Temp Read Blocks": 0,
+                "Temp Written Blocks": 0,
+                "Plans": [
+                  {
+                    "Node Type": "Bitmap Index Scan",
+                    "Parent Relationship": "Outer",
+                    "Parallel Aware": false,
+                    "Async Capable": false,
+                    "Index Name": "registration_submissions_pkey",
+                    "Startup Cost": 0,
+                    "Total Cost": 4.16,
+                    "Plan Rows": 2,
+                    "Plan Width": 0,
+                    "Actual Startup Time": 0.022,
+                    "Actual Total Time": 0.022,
+                    "Actual Rows": 70,
+                    "Actual Loops": 1,
+                    "Index Cond": "(period_id = b_1.period_id)",
+                    "Shared Hit Blocks": 1,
+                    "Shared Read Blocks": 0,
+                    "Shared Dirtied Blocks": 0,
+                    "Shared Written Blocks": 0,
+                    "Local Hit Blocks": 0,
+                    "Local Read Blocks": 0,
+                    "Local Dirtied Blocks": 0,
+                    "Local Written Blocks": 0,
+                    "Temp Read Blocks": 0,
+                    "Temp Written Blocks": 0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "Node Type": "Nested Loop",
+            "Parent Relationship": "InitPlan",
+            "Subplan Name": "CTE approved_rows",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Join Type": "Inner",
+            "Startup Cost": 0.28,
+            "Total Cost": 8.58,
+            "Plan Rows": 1,
+            "Plan Width": 16,
+            "Actual Startup Time": 2.926,
+            "Actual Total Time": 192.19,
+            "Actual Rows": 591,
+            "Actual Loops": 1,
+            "Inner Unique": false,
+            "Shared Hit Blocks": 5946,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0,
+            "Plans": [
+              {
+                "Node Type": "CTE Scan",
+                "Parent Relationship": "Outer",
+                "Parallel Aware": false,
+                "Async Capable": false,
+                "CTE Name": "approved_headers",
+                "Alias": "h_1",
+                "Startup Cost": 0,
+                "Total Cost": 0.02,
+                "Plan Rows": 1,
+                "Plan Width": 64,
+                "Actual Startup Time": 2.636,
+                "Actual Total Time": 31.676,
+                "Actual Rows": 68,
+                "Actual Loops": 1,
+                "Shared Hit Blocks": 566,
+                "Shared Read Blocks": 0,
+                "Shared Dirtied Blocks": 0,
+                "Shared Written Blocks": 0,
+                "Local Hit Blocks": 0,
+                "Local Read Blocks": 0,
+                "Local Dirtied Blocks": 0,
+                "Local Written Blocks": 0,
+                "Temp Read Blocks": 0,
+                "Temp Written Blocks": 0
+              },
+              {
+                "Node Type": "Index Scan",
+                "Parent Relationship": "Inner",
+                "Parallel Aware": false,
+                "Async Capable": false,
+                "Scan Direction": "Forward",
+                "Index Name": "shift_registrations_unique",
+                "Relation Name": "shift_registrations",
+                "Alias": "r",
+                "Startup Cost": 0.28,
+                "Total Cost": 8.55,
+                "Plan Rows": 1,
+                "Plan Width": 224,
+                "Actual Startup Time": 0.477,
+                "Actual Total Time": 2.357,
+                "Actual Rows": 9,
+                "Actual Loops": 68,
+                "Index Cond": "((period_id = h_1.period_id) AND (employee_id = h_1.employee_id))",
+                "Rows Removed by Index Recheck": 0,
+                "Filter": "(((h_1.manifest -> 'after_images'::text) -> 'shift_registrations'::text) @> jsonb_build_array(dev_import_utc_image(r.*)))",
+                "Rows Removed by Filter": 0,
+                "Shared Hit Blocks": 5380,
+                "Shared Read Blocks": 0,
+                "Shared Dirtied Blocks": 0,
+                "Shared Written Blocks": 0,
+                "Local Hit Blocks": 0,
+                "Local Read Blocks": 0,
+                "Local Dirtied Blocks": 0,
+                "Local Written Blocks": 0,
+                "Temp Read Blocks": 0,
+                "Temp Written Blocks": 0
+              }
+            ]
+          },
+          {
+            "Node Type": "CTE Scan",
+            "Parent Relationship": "Outer",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "CTE Name": "approved_rows",
+            "Alias": "approved_rows",
+            "Startup Cost": 0,
+            "Total Cost": 0.02,
+            "Plan Rows": 1,
+            "Plan Width": 0,
+            "Actual Startup Time": 2.929,
+            "Actual Total Time": 192.462,
+            "Actual Rows": 591,
+            "Actual Loops": 1,
+            "Shared Hit Blocks": 5946,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          }
+        ]
+      },
+      "Planning": {
+        "Shared Hit Blocks": 0,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0
+      },
+      "Planning Time": 0.581,
+      "Triggers": [],
+      "Execution Time": 192.908
+    }
+  ],
+  "after_source_explain": {
+    "elapsed_ms": 198.9262000000017,
+    "plan": [
+      {
+        "Plan": {
+          "Node Type": "Result",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 0,
+          "Total Cost": 0.26,
+          "Plan Rows": 1,
+          "Plan Width": 32,
+          "Actual Startup Time": 198.169,
+          "Actual Total Time": 198.169,
+          "Actual Rows": 1,
+          "Actual Loops": 1,
+          "Shared Hit Blocks": 13048,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning": {
+          "Shared Hit Blocks": 0,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.021,
+        "Triggers": [],
+        "Execution Time": 198.177
+      }
+    ]
+  },
+  "after_function_stats": [
+    {
+      "funcname": "tv3_scheduling_input",
+      "calls": "2",
+      "total_time": 430.529,
+      "self_time": 410.4
+    },
+    {
+      "funcname": "dev_import_utc_image",
+      "calls": "1977",
+      "total_time": 19.113,
+      "self_time": 19.113
+    },
+    {
+      "funcname": "dev_import_context_matches",
+      "calls": "3",
+      "total_time": 9.248,
+      "self_time": 9.248
+    },
+    {
+      "funcname": "registration_effective_status",
+      "calls": "2",
+      "total_time": 0.293,
+      "self_time": 0.293
+    },
+    {
+      "funcname": "dev_import_header_allowed",
+      "calls": "0",
+      "total_time": 0,
+      "self_time": 0
+    },
+    {
+      "funcname": "dev_import_registration_allowed",
+      "calls": "0",
+      "total_time": 0,
+      "self_time": 0
+    },
+    {
+      "funcname": "prevent_direct_published_schedule",
+      "calls": "0",
+      "total_time": 0,
+      "self_time": 0
+    },
+    {
+      "funcname": "persist_schedule_draft",
+      "calls": "0",
+      "total_time": 0,
+      "self_time": 0
+    },
+    {
+      "funcname": "validate_assignment_source",
+      "calls": "0",
+      "total_time": 0,
+      "self_time": 0
+    }
+  ],
+  "before": {
+    "runs": 3,
+    "pass": 0,
+    "fail": 3,
+    "median_ms": 3042.383799999996,
+    "p95_ms": 3233.3087000000014,
+    "min_ms": 3008.992400000003,
+    "max_ms": 3233.3087000000014
+  },
+  "after": {
+    "runs": 10,
+    "pass": 10,
+    "fail": 0,
+    "median_ms": 717.3634500000044,
+    "p95_ms": 846.9374000000025,
+    "min_ms": 620.3889999999956,
+    "max_ms": 846.9374000000025
+  }
+}

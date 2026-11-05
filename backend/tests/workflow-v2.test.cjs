@@ -17,7 +17,8 @@ test('workflow is opt-in, test-preview read-only, rejects forged fields and pass
   delete process.env.TV3_TEST_PREVIEW_ENABLED;
   for(const invalid of [{...body,actor_id:'forged'},{...body,test_mode:true},{...body,expected_version:'1'},{...body,request_id:'bad'}])await assert.rejects(transitionSchedule(id,actor,invalid,'SUBMIT'),e=>e.status===400);
   await assert.rejects(transitionSchedule(id,{...actor,role:'NV'},body,'SUBMIT'),e=>e.status===403);
-  for(const feedback_deadline_at of ['',new Date(Date.now()-1000).toISOString(),'invalid'])await assert.rejects(transitionSchedule(id,actor,{expected_version:1,request_id,feedback_deadline_at},'PUBLISH'),e=>e.code==='INVALID_FEEDBACK_DEADLINE');
+  // Expired deadlines are checked atomically after receipt replay in SQL.
+  for(const feedback_deadline_at of ['','invalid'])await assert.rejects(transitionSchedule(id,actor,{expected_version:1,request_id,feedback_deadline_at},'PUBLISH'),e=>e.code==='INVALID_FEEDBACK_DEADLINE');
   assert.equal(calls.length,0);
   await transitionSchedule(id,actor,body,'SUBMIT');assert.equal(calls[0].name,'tv4_transition_schedule_v2');assert.equal(calls[0].args.p_actor_id,id);assert.equal(calls[0].args.p_expected_version,1);
   db.rpc=async()=>({data:null,error:{code:'40001',message:'STALE_SCHEDULE_VERSION'}});

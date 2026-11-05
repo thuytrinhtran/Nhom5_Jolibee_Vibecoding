@@ -1,0 +1,206 @@
+{
+  "status": "PASS",
+  "project_ref": "wlbpprpiieonjrqglicv",
+  "completed_at": "2026-11-02T17:00:47.182Z",
+  "acl_checks": 54,
+  "facts": [
+    {
+      "check_name": "TV4_BASE_published_by",
+      "present": true
+    },
+    {
+      "check_name": "M1_source_v2",
+      "present": true
+    },
+    {
+      "check_name": "M2_workflow",
+      "present": true
+    },
+    {
+      "check_name": "M2_approval_trigger",
+      "present": true
+    },
+    {
+      "check_name": "M3_employee_read",
+      "present": true
+    },
+    {
+      "check_name": "M4_mutate",
+      "present": true
+    },
+    {
+      "check_name": "M4_current_index",
+      "present": true
+    },
+    {
+      "check_name": "M4_open_request_index",
+      "present": true
+    },
+    {
+      "check_name": "M4_successor_index",
+      "present": true
+    },
+    {
+      "check_name": "M5_registry",
+      "present": true
+    },
+    {
+      "check_name": "M5_row_source",
+      "present": true
+    },
+    {
+      "check_name": "M6_materialized_source",
+      "present": true
+    },
+    {
+      "check_name": "M6_budget_kept",
+      "present": true
+    }
+  ],
+  "existing_data_unchanged": [
+    {
+      "table": "auth.identities",
+      "count": 74,
+      "checksum": "eba20cbfcf46b7d6f44b5bae9fd0a1ce"
+    },
+    {
+      "table": "auth.users",
+      "count": 74,
+      "checksum": "225307411716169f71177527790c940b"
+    },
+    {
+      "table": "public.ai_schedule_evaluations",
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "table": "public.ai_schedule_suggestions",
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "table": "public.audit_logs",
+      "count": 19,
+      "checksum": "a240bc688f1bb9df79bbc1ecffda3b57"
+    },
+    {
+      "table": "public.branch_support_requests",
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "table": "public.branches",
+      "count": 2,
+      "checksum": "e0bd334b9f7260b038c3b21608e688df"
+    },
+    {
+      "table": "public.crew_leader_days_off",
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "table": "public.departments",
+      "count": 3,
+      "checksum": "9218c1b7f7c1401dc290083d1a40d8ed"
+    },
+    {
+      "table": "public.employee_skills",
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "table": "public.employees",
+      "count": 71,
+      "checksum": "2564af685a157aba27a363e99e8d9a57"
+    },
+    {
+      "table": "public.incidents",
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "table": "public.notifications",
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "table": "public.registration_automation_config",
+      "count": 1,
+      "checksum": "db66e7488af7ed9cded6c28e4cfef042"
+    },
+    {
+      "table": "public.registration_period_generation_state",
+      "count": 1,
+      "checksum": "27f11cdffbe42394282f48f519318fff"
+    },
+    {
+      "table": "public.registration_periods",
+      "count": 12,
+      "checksum": "0ae58f3b256d08010a8c91a88ba9fff9"
+    },
+    {
+      "table": "public.registration_schedule_config",
+      "count": 1,
+      "checksum": "f486c067595fb04ec65d8476f1e9d909"
+    },
+    {
+      "table": "public.registration_submissions",
+      "count": 60,
+      "checksum": "9f601ea0c81a162cf66e1ada9b3a96f9"
+    },
+    {
+      "table": "public.replacement_invitations",
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "table": "public.schedule_approvals",
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "table": "public.schedules",
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "table": "public.shift_assignments",
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "table": "public.shift_change_requests",
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "table": "public.shift_registrations",
+      "count": 494,
+      "checksum": "a49491b3613a32853223765103a5da4a"
+    },
+    {
+      "table": "public.shifts",
+      "count": 6,
+      "checksum": "2c029cb30b815b80e443fc36be933a92"
+    },
+    {
+      "table": "public.staffing_requirements",
+      "count": 127,
+      "checksum": "9311e36d9743ba88918312d00f240255"
+    },
+    {
+      "table": "public.users",
+      "count": 74,
+      "checksum": "7c7633642a0aa8ff7d8872ec7ea01a52"
+    },
+    {
+      "table": "public.warning_configs",
+      "count": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    }
+  ],
+  "import_performed": false,
+  "auth_created": false,
+  "persistence_enabled": false,
+  "restore_tested": false
+}
