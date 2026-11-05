@@ -22,13 +22,25 @@ export async function transitionSchedule(id:string,actor:{id:string;role:string;
  const reason=body.reason??body.note;
  if(reason!==undefined&&reason!==null&&typeof reason!=='string')throw new ScheduleError(400,'INVALID_REASON','Lý do không hợp lệ.');
  if(action==='NEEDS_REVISION'&&!(typeof reason==='string'&&reason.trim()))throw new ScheduleError(422,'REASON_REQUIRED','Cần lý do từ chối.');
- if(action==='PUBLISH'&&(typeof body.feedback_deadline_at!=='string'||!Number.isFinite(Date.parse(body.feedback_deadline_at))||Date.parse(body.feedback_deadline_at)<=Date.now()))throw new ScheduleError(400,'INVALID_FEEDBACK_DEADLINE','Thời hạn phản hồi phải là thời điểm hợp lệ trong tương lai.');
+ // A past deadline may only recover an already recorded publication request.
+ if(action==='PUBLISH'&&(typeof body.feedback_deadline_at!=='string'||!Number.isFinite(Date.parse(body.feedback_deadline_at))))throw new ScheduleError(400,'INVALID_FEEDBACK_DEADLINE','Thời hạn phản hồi phải là thời điểm hợp lệ.');
  // Resolve scope from storage, never from a period/branch supplied by the browser.
  if(process.env.TV3_WRITE_SCOPE_ENABLED!==undefined&&process.env.TV3_WRITE_SCOPE_ENABLED!=='false'){
   const {data:target,error:scopeError}=await supabaseAdmin.from('schedules').select('id,period_id,branch_id').eq('id',id).maybeSingle();
   if(scopeError)throw new ScheduleError(503,'WORKFLOW_SCOPE_UNAVAILABLE','Chưa thể xác minh phạm vi lịch.');
   if(!target)throw new ScheduleError(404,'SCHEDULE_NOT_FOUND','Không tìm thấy lịch.');
   if(!draftWriteScopeAllowed(target.period_id,target.branch_id))throw new ScheduleError(403,'WORKFLOW_SCOPE_FORBIDDEN','Ngoài chi nhánh hoặc kỳ kiểm thử đã được cấu hình.');
+ }
+ if(action==='PUBLISH'&&Date.parse(body.feedback_deadline_at as string)<=Date.now()){
+  const {data:receipt,error:receiptError}=await supabaseAdmin.from('audit_logs').select('actor_id,new_data')
+   .eq('entity_type','schedules').eq('new_data->>request_id',body.request_id).maybeSingle();
+  if(receiptError)throw new ScheduleError(503,'WORKFLOW_BUSY','Chưa thể xác minh yêu cầu công bố trước đó. Hãy tải lại lịch hoặc thử lại cùng yêu cầu.');
+  if(!receipt)throw new ScheduleError(400,'INVALID_FEEDBACK_DEADLINE','Thời hạn phản hồi phải là thời điểm hợp lệ trong tương lai.');
+  const fingerprint=receipt.new_data?.workflow_request;
+  if(receipt.actor_id!==actor.id||fingerprint?.schedule_id!==id||fingerprint?.version!==body.expected_version
+   ||fingerprint?.action!=='PUBLISH'||(fingerprint?.reason??null)!==(typeof reason==='string'?reason.trim()||null:null)
+   ||Date.parse(fingerprint?.feedback_deadline_at)!==Date.parse(body.feedback_deadline_at as string))
+   throw new ScheduleError(409,'REQUEST_CONFLICT','Mã yêu cầu đã dùng cho thao tác khác. Hãy tải lại lịch.');
  }
  // Authorization and all current constraints are repeated atomically in SQL.
  // Do not pre-check status here: an exact retry must recover its audit response.
@@ -38,7 +50,7 @@ export async function transitionSchedule(id:string,actor:{id:string;role:string;
  });
  if(error){if(['55P03','57014','40P01'].includes(error.code??''))throw new ScheduleError(503,'WORKFLOW_BUSY','Workflow đang bận; thử lại cùng yêu cầu.');
   const message=String(error.message??'');const code=['FORBIDDEN','SCHEDULE_NOT_FOUND','STALE_SCHEDULE_VERSION','REQUEST_CONFLICT','REASON_REQUIRED','HARD_CONSTRAINT_FAILED','COVERAGE_INCOMPLETE','INVALID_ASSIGNMENTS','INVALID_SCHEDULE_STATUS','INVALID_FEEDBACK_DEADLINE','DUPLICATE_ASSIGNMENT','INCOMPLETE_DATA','INVALID_RULE_INPUT'].find(k=>message.includes(k));
-  throw new ScheduleError(code==='FORBIDDEN'?403:code==='SCHEDULE_NOT_FOUND'?404:error.code==='42883'||error.code==='PGRST202'?503:409,code??'WORKFLOW_UNAVAILABLE',code?`Không thể chuyển trạng thái: ${code}. Hãy tải lại lịch.`:'Workflow chưa sẵn sàng hoặc đang bận; hãy thử lại cùng yêu cầu.');}
+  throw new ScheduleError(code==='FORBIDDEN'?403:code==='SCHEDULE_NOT_FOUND'?404:code==='INVALID_FEEDBACK_DEADLINE'?400:error.code==='42883'||error.code==='PGRST202'?503:409,code??'WORKFLOW_UNAVAILABLE',code?`Không thể chuyển trạng thái: ${code}. Hãy tải lại lịch.`:'Workflow chưa sẵn sàng hoặc đang bận; hãy thử lại cùng yêu cầu.');}
  if(!data?.schedule?.id)throw new ScheduleError(503,'INVALID_WORKFLOW_RESPONSE','Không xác nhận được kết quả workflow.');
  return data;
 }

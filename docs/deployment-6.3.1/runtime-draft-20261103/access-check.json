@@ -1,0 +1,8 @@
+{
+  "checked_at": "2026-11-03T08:19:29.354Z",
+  "eligible_managers": 1,
+  "backend_can_execute_draft": true,
+  "browser_direct_execute": false,
+  "used_read_only_transaction": true,
+  "authenticated_browser_session_tested": false
+}

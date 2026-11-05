@@ -1,0 +1,102 @@
+[
+  {
+    "file": "employee-schedule.service-3kYcD5KQ.js",
+    "bytes": 633,
+    "gzip": 414
+  },
+  {
+    "file": "EmployeeCompetency-BCt8rZpi.js",
+    "bytes": 8052,
+    "gzip": 2997
+  },
+  {
+    "file": "EmployeeDashboard-w9V60nmU.js",
+    "bytes": 294,
+    "gzip": 224
+  },
+  {
+    "file": "EmployeeSchedule-CD61PGk8.js",
+    "bytes": 3109,
+    "gzip": 1406
+  },
+  {
+    "file": "index-CpeMBYbN.js",
+    "bytes": 233859,
+    "gzip": 74233
+  },
+  {
+    "file": "ManagerCalendar-HrY79p-m.js",
+    "bytes": 7672,
+    "gzip": 2723
+  },
+  {
+    "file": "ManagerDashboard-DtDEyfCu.js",
+    "bytes": 3110,
+    "gzip": 1444
+  },
+  {
+    "file": "ManagerDemand-BzTmQhGE.js",
+    "bytes": 13009,
+    "gzip": 5281
+  },
+  {
+    "file": "ManagerSchedule-LiwzmNID.js",
+    "bytes": 64428,
+    "gzip": 17900
+  },
+  {
+    "file": "OfficialSchedule-CzvK6SAH.js",
+    "bytes": 5533,
+    "gzip": 2173
+  },
+  {
+    "file": "RoleOverview-D5n4RRBq.js",
+    "bytes": 2781,
+    "gzip": 1309
+  },
+  {
+    "file": "save-Bu3MT68j.js",
+    "bytes": 496,
+    "gzip": 327
+  },
+  {
+    "file": "ScheduleWorkflow-BsebG_gA.js",
+    "bytes": 18493,
+    "gzip": 5724
+  },
+  {
+    "file": "scheduleWorkflow.api.service-C4_BaVNB.js",
+    "bytes": 8558,
+    "gzip": 3613
+  },
+  {
+    "file": "scheduling.view-D7Glw31K.js",
+    "bytes": 8954,
+    "gzip": 2713
+  },
+  {
+    "file": "shift-change.service-DwMkgJBv.js",
+    "bytes": 427,
+    "gzip": 280
+  },
+  {
+    "file": "ShiftChanges-XFtr0Sdv.js",
+    "bytes": 10340,
+    "gzip": 3617
+  },
+  {
+    "file": "ShiftRegistration-Y7Wiekap.js",
+    "bytes": 10139,
+    "gzip": 3995
+  },
+  {
+    "file": "StaffingStatusMatrix-BErHiNgk.js",
+    "bytes": 15077,
+    "gzip": 5845
+  },
+  {
+    "file": "SupervisorDashboard-B1ltpl2o.js",
+    "bytes": 296,
+    "gzip": 227
+  }
+]

@@ -1,0 +1,158 @@
+{
+  "indexes": [
+    {
+      "tablename": "registration_submissions",
+      "indexname": "registration_submissions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX registration_submissions_pkey ON public.registration_submissions USING btree (period_id, employee_id)"
+    },
+    {
+      "tablename": "schedules",
+      "indexname": "idx_schedules_branch_period",
+      "indexdef": "CREATE INDEX idx_schedules_branch_period ON public.schedules USING btree (branch_id, period_id, status)"
+    },
+    {
+      "tablename": "schedules",
+      "indexname": "schedules_group_version_unique",
+      "indexdef": "CREATE UNIQUE INDEX schedules_group_version_unique ON public.schedules USING btree (schedule_group_id, version)"
+    },
+    {
+      "tablename": "schedules",
+      "indexname": "schedules_pkey",
+      "indexdef": "CREATE UNIQUE INDEX schedules_pkey ON public.schedules USING btree (id)"
+    },
+    {
+      "tablename": "shift_assignments",
+      "indexname": "idx_shift_assignments_employee_date",
+      "indexdef": "CREATE INDEX idx_shift_assignments_employee_date ON public.shift_assignments USING btree (employee_id, work_date)"
+    },
+    {
+      "tablename": "shift_assignments",
+      "indexname": "idx_shift_assignments_schedule",
+      "indexdef": "CREATE INDEX idx_shift_assignments_schedule ON public.shift_assignments USING btree (schedule_id)"
+    },
+    {
+      "tablename": "shift_assignments",
+      "indexname": "shift_assignments_pkey",
+      "indexdef": "CREATE UNIQUE INDEX shift_assignments_pkey ON public.shift_assignments USING btree (id)"
+    },
+    {
+      "tablename": "shift_assignments",
+      "indexname": "tv5_current_employee_shift",
+      "indexdef": "CREATE UNIQUE INDEX tv5_current_employee_shift ON public.shift_assignments USING btree (schedule_id, employee_id, work_date, shift_id) WHERE ((status)::text <> 'REPLACED'::text)"
+    },
+    {
+      "tablename": "shift_assignments",
+      "indexname": "tv5_one_successor",
+      "indexdef": "CREATE UNIQUE INDEX tv5_one_successor ON public.shift_assignments USING btree (replaces_assignment_id) WHERE (replaces_assignment_id IS NOT NULL)"
+    },
+    {
+      "tablename": "shift_registrations",
+      "indexname": "idx_shift_registrations_employee",
+      "indexdef": "CREATE INDEX idx_shift_registrations_employee ON public.shift_registrations USING btree (employee_id, work_date)"
+    },
+    {
+      "tablename": "shift_registrations",
+      "indexname": "idx_shift_registrations_period_status",
+      "indexdef": "CREATE INDEX idx_shift_registrations_period_status ON public.shift_registrations USING btree (period_id, status)"
+    },
+    {
+      "tablename": "shift_registrations",
+      "indexname": "shift_registrations_pkey",
+      "indexdef": "CREATE UNIQUE INDEX shift_registrations_pkey ON public.shift_registrations USING btree (id)"
+    },
+    {
+      "tablename": "shift_registrations",
+      "indexname": "shift_registrations_unique",
+      "indexdef": "CREATE UNIQUE INDEX shift_registrations_unique ON public.shift_registrations USING btree (period_id, employee_id, work_date, shift_id)"
+    },
+    {
+      "tablename": "staffing_requirements",
+      "indexname": "idx_staffing_requirements_date",
+      "indexdef": "CREATE INDEX idx_staffing_requirements_date ON public.staffing_requirements USING btree (branch_id, work_date, shift_id)"
+    },
+    {
+      "tablename": "staffing_requirements",
+      "indexname": "staffing_requirements_pkey",
+      "indexdef": "CREATE UNIQUE INDEX staffing_requirements_pkey ON public.staffing_requirements USING btree (id)"
+    },
+    {
+      "tablename": "staffing_requirements",
+      "indexname": "staffing_requirements_unique",
+      "indexdef": "CREATE UNIQUE INDEX staffing_requirements_unique ON public.staffing_requirements USING btree (branch_id, department_id, shift_id, work_date)"
+    }
+  ],
+  "source_view_plan": [
+    {
+      "Plan": {
+        "Node Type": "Limit",
+        "Parallel Aware": false,
+        "Async Capable": false,
+        "Startup Cost": 0.28,
+        "Total Cost": 164.98,
+        "Plan Rows": 500,
+        "Plan Width": 83,
+        "Actual Startup Time": 6.108,
+        "Actual Total Time": 1581.467,
+        "Actual Rows": 500,
+        "Actual Loops": 1,
+        "Shared Hit Blocks": 24411,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0,
+        "Plans": [
+          {
+            "Node Type": "Index Scan",
+            "Parent Relationship": "Outer",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Scan Direction": "Forward",
+            "Index Name": "shift_registrations_pkey",
+            "Relation Name": "shift_registrations",
+            "Alias": "r",
+            "Startup Cost": 0.28,
+            "Total Cost": 208.46,
+            "Plan Rows": 632,
+            "Plan Width": 83,
+            "Actual Startup Time": 6.106,
+            "Actual Total Time": 1581.229,
+            "Actual Rows": 500,
+            "Actual Loops": 1,
+            "Filter": "((period_id = '79a979cc-8347-48b5-a411-f03bd8aceb92'::uuid) AND ((status)::text = 'VALID'::text))",
+            "Rows Removed by Filter": 377,
+            "Shared Hit Blocks": 24411,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          }
+        ]
+      },
+      "Planning": {
+        "Shared Hit Blocks": 98,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0
+      },
+      "Planning Time": 0.362,
+      "Triggers": [],
+      "Execution Time": 1581.637
+    }
+  ]
+}

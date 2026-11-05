@@ -1,0 +1,177 @@
+{
+  "tables": [
+    {
+      "relname": "ai_schedule_evaluations",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "ai_schedule_suggestions",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "audit_logs",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "branch_support_requests",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "branches",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "crew_leader_days_off",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "departments",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "dev_import_batches",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "employee_skills",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "employees",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "incidents",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "notifications",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "registration_automation_config",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "registration_period_generation_state",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "registration_periods",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "registration_schedule_config",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "registration_submissions",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "replacement_invitations",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "schedule_approvals",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "schedules",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "shift_assignments",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "shift_change_requests",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "shift_registrations",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "shifts",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "staffing_requirements",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "users",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "warning_configs",
+      "relrowsecurity": true
+    }
+  ],
+  "invalid_constraints": [],
+  "registry_rows": 0,
+  "helper_acl": [
+    {
+      "signature": "dev_import_context_matches(dev_import_batches)",
+      "rolname": "anon",
+      "can_execute": false
+    },
+    {
+      "signature": "dev_import_context_matches(dev_import_batches)",
+      "rolname": "authenticated",
+      "can_execute": false
+    },
+    {
+      "signature": "dev_import_context_matches(dev_import_batches)",
+      "rolname": "service_role",
+      "can_execute": false
+    },
+    {
+      "signature": "dev_import_header_allowed(uuid,uuid,uuid)",
+      "rolname": "anon",
+      "can_execute": false
+    },
+    {
+      "signature": "dev_import_header_allowed(uuid,uuid,uuid)",
+      "rolname": "authenticated",
+      "can_execute": false
+    },
+    {
+      "signature": "dev_import_header_allowed(uuid,uuid,uuid)",
+      "rolname": "service_role",
+      "can_execute": true
+    },
+    {
+      "signature": "dev_import_registration_allowed(uuid)",
+      "rolname": "anon",
+      "can_execute": false
+    },
+    {
+      "signature": "dev_import_registration_allowed(uuid)",
+      "rolname": "authenticated",
+      "can_execute": false
+    },
+    {
+      "signature": "dev_import_registration_allowed(uuid)",
+      "rolname": "service_role",
+      "can_execute": true
+    },
+    {
+      "signature": "dev_import_utc_image(anyelement)",
+      "rolname": "anon",
+      "can_execute": false
+    },
+    {
+      "signature": "dev_import_utc_image(anyelement)",
+      "rolname": "authenticated",
+      "can_execute": false
+    },
+    {
+      "signature": "dev_import_utc_image(anyelement)",
+      "rolname": "service_role",
+      "can_execute": false
+    }
+  ],
+  "passed": true
+}

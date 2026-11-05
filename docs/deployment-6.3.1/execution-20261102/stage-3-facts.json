@@ -1,0 +1,202 @@
+[
+  [
+    {
+      "read_only": "on",
+      "current_user": "postgres",
+      "version": "PostgreSQL 17.11 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 15.2.0, 64-bit"
+    }
+  ],
+  [
+    {
+      "check_name": "TV4_BASE_published_by",
+      "present": true
+    },
+    {
+      "check_name": "M1_source_v2",
+      "present": true
+    },
+    {
+      "check_name": "M2_workflow",
+      "present": true
+    },
+    {
+      "check_name": "M2_approval_trigger",
+      "present": true
+    },
+    {
+      "check_name": "M3_employee_read",
+      "present": true
+    },
+    {
+      "check_name": "M4_mutate",
+      "present": false
+    },
+    {
+      "check_name": "M4_current_index",
+      "present": false
+    },
+    {
+      "check_name": "M4_open_request_index",
+      "present": false
+    },
+    {
+      "check_name": "M4_successor_index",
+      "present": false
+    },
+    {
+      "check_name": "M5_registry",
+      "present": false
+    },
+    {
+      "check_name": "M5_row_source",
+      "present": false
+    },
+    {
+      "check_name": "M6_materialized_source",
+      "present": false
+    },
+    {
+      "check_name": "M6_budget_kept",
+      "present": true
+    }
+  ],
+  [
+    {
+      "signature": "validate_schedule_approval()",
+      "owner": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "0165e41d087917c9239f2453f6aa253c",
+      "proacl": "{postgres=X/postgres}"
+    },
+    {
+      "signature": "tv3_scheduling_input(uuid)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "80ec1098f661c668d89acda7a2dfbb25",
+      "proacl": "{postgres=X/postgres}"
+    },
+    {
+      "signature": "persist_schedule_draft(uuid,uuid,jsonb,jsonb,uuid,integer,uuid,text)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp",
+        "lock_timeout=5s",
+        "statement_timeout=5s"
+      ],
+      "body_md5": "f5654bfccd235ef82403e46e65e9128c",
+      "proacl": "{postgres=X/postgres,service_role=X/postgres}"
+    },
+    {
+      "signature": "generate_schedule_draft(uuid,uuid,jsonb,jsonb)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp",
+        "statement_timeout=5s"
+      ],
+      "body_md5": "477fbe0785dcdbd85cd7cdf1dc600509",
+      "proacl": "{postgres=X/postgres,service_role=X/postgres}"
+    },
+    {
+      "signature": "tv4_decide_schedule(uuid,uuid,character varying,text)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog"
+      ],
+      "body_md5": "2048315f37adc0e487c9e75ac1b0846a",
+      "proacl": "{postgres=X/postgres}"
+    },
+    {
+      "signature": "tv4_publish_schedule(uuid,uuid,timestamp with time zone)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog"
+      ],
+      "body_md5": "8847443ea56b65915beaf2d760488bcb",
+      "proacl": "{postgres=X/postgres}"
+    },
+    {
+      "signature": "tv3_balance_v2(jsonb,jsonb)",
+      "owner": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "4d556a65fdc630e593768dd20a17f93f",
+      "proacl": "{postgres=X/postgres}"
+    },
+    {
+      "signature": "tv3_existing_coverage_v2(jsonb)",
+      "owner": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "1d0f241e820b894040b2df90bc078703",
+      "proacl": "{postgres=X/postgres}"
+    },
+    {
+      "signature": "tv3_result_v2(jsonb,uuid,jsonb,jsonb)",
+      "owner": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "ed0c2976eaffd4ba32b1d59fd1db7830",
+      "proacl": "{postgres=X/postgres}"
+    },
+    {
+      "signature": "tv4_assert_schedule_v2(uuid)",
+      "owner": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "67c725836fb9b441d34fa56e60eead74",
+      "proacl": "{postgres=X/postgres}"
+    },
+    {
+      "signature": "tv4_transition_schedule_v2(uuid,uuid,integer,text,uuid,text,timestamp with time zone)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp",
+        "lock_timeout=5s",
+        "statement_timeout=5s"
+      ],
+      "body_md5": "bc324f03b0e5b1d348a20d2e3497e1b8",
+      "proacl": "{postgres=X/postgres,service_role=X/postgres}"
+    },
+    {
+      "signature": "employee_schedule_week(uuid,date)",
+      "owner": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "body_md5": "07e25d501b682035cab6b5ec849cf0bb",
+      "proacl": "{postgres=X/postgres,service_role=X/postgres}"
+    }
+  ],
+  [],
+  [
+    {
+      "real_registration_rows": "16"
+    }
+  ],
+  [
+    {
+      "demand_cells": "63",
+      "positions": "308"
+    }
+  ]
+]

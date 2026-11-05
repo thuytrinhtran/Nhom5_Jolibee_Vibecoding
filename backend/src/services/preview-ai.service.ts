@@ -12,8 +12,9 @@ import type { PreviewAIReviewResponse } from './schedule-ai.types.js';
 import { ScheduleError } from './scheduling.engine.js';
 
 const pending=new Set<string>();
+const cache=new Map<string,{expires:number;response:PreviewAIReviewResponse}>();
 export function previewAIConfiguration(advisor:SchedulingAIAdvisor=schedulingAIAdvisor()) {
-  return {configured:advisor.configured,model:advisor.model,message:advisor.configured?`Gemini (${advisor.model}) sẽ tự đánh giá phương án đã kiểm tra.`:'AI chưa được cấu hình. Backend cần TV3_AI_EXTERNAL_ENABLED=true, TV3_AI_PROVIDER=gemini, TV3_AI_MODEL hợp lệ (hoặc TV3_AI_DEVELOPMENT_MODEL trong development) và GEMINI_API_KEY. Chưa có yêu cầu nào được gửi tới Gemini.'};
+  return {configured:advisor.configured,model:advisor.model,retry_after_seconds:advisor.retryAfterSeconds??0,message:advisor.configured?'Có thể đánh giá phương án đã kiểm tra.':'AI chưa được cấu hình'};
 }
 export async function evaluatePreview(periodId:string,branchId:string,actorId:string,body:Record<string,unknown>,deps:{repository?:RegistrationSummaryRepository;advisor?:SchedulingAIAdvisor}={}):Promise<PreviewAIReviewResponse> {
   if(!body||typeof body!=='object'||Array.isArray(body)||Object.keys(body).some(k=>!['period_id','input_revision','assignments','schedule_id','expected_version'].includes(k))||typeof body.input_revision!=='string'||!Array.isArray(body.assignments))
@@ -31,14 +32,20 @@ export async function evaluatePreview(periodId:string,branchId:string,actorId:st
     const dataComplete=summary.rows.every(r=>r.status!=='UNKNOWN')&&!summary.warnings.some(w=>['INVALID_REGISTRATION','INVALID_REQUIREMENT','MISSING_REQUIREMENT'].includes(w.code));
     const validation={hard_constraints:'PASS' as const,data_complete:dataComplete,coverage_complete:state.result.shortages.length===0,coverage:state.result.coverage,issues:[],warnings:summary.warnings};
     const assignments=state.result.assignments.map(({employee_id,work_date,shift_id,department_id})=>({employee_id,work_date,shift_id,department_id}));
-    const prepared=buildAISummary({scope:'preview',rule_snapshot:state.snapshot,assignments,validation});
+    const prepared=buildAISummary({scope:'preview',rule_snapshot:{...state.snapshot,period:state.input.period},assignments,validation});
+    const cacheKey=createHash('sha256').update(JSON.stringify({actorId,branchId,periodId,planRevision,model:advisor.model,summary:prepared.summary})).digest('hex');
+    const cached=cache.get(cacheKey);
+    if(cached&&cached.expires>Date.now())return cached.response;
     const report=parseAIReport(await advisor.evaluate(prepared.summary));
     // Preview evaluation is text advice only. Do not implement/apply AI adjustments.
     if(report.suggestions.some(s=>s.candidate_assignments!==null))throw new ScheduleError(502,'AI_INVALID_RESPONSE','Đánh giá preview chỉ hỗ trợ gợi ý bằng lời; chưa có phương án AI để áp dụng.');
     assertAIConclusion(report,validation);
     // Reload and re-review after provider latency. No evaluation repository/writer.
     await inspectPreview(periodId,branchId,body,repository);
-    return {...base,status:'AVAILABLE',message:'AI đã đánh giá lịch dự kiến chưa lưu. Phân công không thay đổi.',evaluation:{scope:'preview',contract_version:'tv3-ai.v1',input_revision:planRevision,created_at:new Date().toISOString(),employee_aliases:prepared.aliases,labels:prepared.labels,missing_criteria:prepared.summary.missing_criteria,
+    const response:PreviewAIReviewResponse={...base,status:'AVAILABLE',message:'AI đã đánh giá lịch dự kiến chưa lưu. Phân công không thay đổi.',evaluation:{scope:'preview',contract_version:'tv3-ai.v1',input_revision:planRevision,created_at:new Date().toISOString(),employee_aliases:prepared.aliases,labels:prepared.labels,missing_criteria:prepared.summary.missing_criteria,
       report:{...report,suggestions:report.suggestions.map(s=>({...s,rule_check:{status:'NOT_APPLICABLE',code:null,message:'Gợi ý tư vấn, không tự thay đổi phân công.'}}))}}};
+    if(cache.size>=100)cache.delete(cache.keys().next().value!);
+    cache.set(cacheKey,{expires:Date.now()+10*60*1000,response});
+    return response;
   }finally{pending.delete(lock);}
 }

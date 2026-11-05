@@ -16,6 +16,6 @@ export function ManagerDashboard(){
  {error&&<div role="alert" className="schedule-alert">{error}<button className="btn btn-outline" onClick={()=>setRetry(n=>n+1)}>Thử lại</button></div>}
  <div className="dashboard-metrics" aria-busy={loading}>{cards.map(([label,value])=><article className="dashboard-metric" key={label}><h3>{label}</h3><p className="workspace-kpi">{loading?'Đang tải…':error?'Không tải được':value??'Chưa có dữ liệu'}</p></article>)}</div>
  {!loading&&!periods.length&&!error&&<p>Chưa có tuần làm việc tại chi nhánh.</p>}
- <div className="workspace-links"><Link className="btn btn-primary" to={`/manager/official-schedule?period_id=${week}`}>Xem lịch chính thức</Link><Link className="btn btn-outline" to={`/manager/schedule?period_id=${week}`}>Xếp lịch &amp; AI</Link><Link className="btn btn-outline" to="/manager/shift-requests">Xử lý đổi ca</Link></div>
+ <div className="workspace-links"><Link className="btn btn-primary" to={`/manager/official-schedule?period_id=${week}`}>Xem lịch chính thức</Link><Link className="btn btn-outline" to={`/manager/schedule?period_id=${week}`}>Xếp lịch làm việc</Link><Link className="btn btn-outline" to="/manager/shift-requests">Xử lý đổi ca</Link></div>
  </section>;
 }

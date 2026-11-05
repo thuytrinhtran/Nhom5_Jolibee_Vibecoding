@@ -1,0 +1,124 @@
+{
+  "format": "ld-exception-receipt.v1",
+  "plan_sha256": "dbe480fcea8c512d966362c022e48008ccf918e547169fc0bfe1098e654c2622",
+  "batch_id": "dc3d6a98-e209-4aa5-9b27-c8ca20261109",
+  "baseline_sha256": "f90c6cd63294f306fb361d9f340bc64af9e585b9d9e3c1081ecbe28795417b3e",
+  "headers": [
+    {
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "00d9bde1-e94b-5921-b1b5-5d2e222805ce",
+      "status": "VALID",
+      "errors": [],
+      "submitted_at": "2026-11-05T06:47:44.183Z",
+      "updated_at": "2026-11-05T06:47:44.183Z",
+      "sample_batch_id": null
+    },
+    {
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "18429963-35b5-5042-ab1c-9fba6f3d2cc5",
+      "status": "VALID",
+      "errors": [],
+      "submitted_at": "2026-11-05T06:47:44.276Z",
+      "updated_at": "2026-11-05T06:47:44.276Z",
+      "sample_batch_id": null
+    },
+    {
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "95d5fa40-ec03-51fa-bd83-fecc886ea93d",
+      "status": "VALID",
+      "errors": [],
+      "submitted_at": "2026-11-05T06:47:44.356Z",
+      "updated_at": "2026-11-05T06:47:44.356Z",
+      "sample_batch_id": null
+    },
+    {
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "227e6fc6-c562-572b-9a64-3381bc5b4506",
+      "status": "VALID",
+      "errors": [],
+      "submitted_at": "2026-11-05T06:47:44.437Z",
+      "updated_at": "2026-11-05T06:47:44.437Z",
+      "sample_batch_id": null
+    },
+    {
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "58ced2db-965c-513f-94b4-1a204fcdaed5",
+      "status": "VALID",
+      "errors": [],
+      "submitted_at": "2026-11-05T06:47:44.519Z",
+      "updated_at": "2026-11-05T06:47:44.519Z",
+      "sample_batch_id": null
+    },
+    {
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "598ebc25-01ed-5dac-89bf-2c302c5d6ded",
+      "status": "VALID",
+      "errors": [],
+      "submitted_at": "2026-11-05T06:47:44.602Z",
+      "updated_at": "2026-11-05T06:47:44.602Z",
+      "sample_batch_id": null
+    }
+  ],
+  "rows": [
+    {
+      "id": "bc112b12-ff65-4252-854a-0da38ab59a4e",
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "00d9bde1-e94b-5921-b1b5-5d2e222805ce",
+      "work_date": "2026-11-08T17:00:00.000Z",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "status": "VALID",
+      "submitted_at": "2026-11-05T06:47:44.687Z",
+      "updated_at": "2026-11-05T06:47:44.687Z"
+    },
+    {
+      "id": "40085d11-dc9e-474f-86f9-62c9d09d568d",
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "18429963-35b5-5042-ab1c-9fba6f3d2cc5",
+      "work_date": "2026-11-08T17:00:00.000Z",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "status": "VALID",
+      "submitted_at": "2026-11-05T06:47:44.781Z",
+      "updated_at": "2026-11-05T06:47:44.781Z"
+    },
+    {
+      "id": "999c1c30-bc04-47f0-8388-cf317fd3dc39",
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "95d5fa40-ec03-51fa-bd83-fecc886ea93d",
+      "work_date": "2026-11-08T17:00:00.000Z",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "status": "VALID",
+      "submitted_at": "2026-11-05T06:47:44.863Z",
+      "updated_at": "2026-11-05T06:47:44.863Z"
+    },
+    {
+      "id": "f4af087b-8a20-47a7-8436-84a29e2a0775",
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "227e6fc6-c562-572b-9a64-3381bc5b4506",
+      "work_date": "2026-11-09T17:00:00.000Z",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "status": "VALID",
+      "submitted_at": "2026-11-05T06:47:44.948Z",
+      "updated_at": "2026-11-05T06:47:44.948Z"
+    },
+    {
+      "id": "cf4df166-184f-447a-8bb9-6e47d22572e1",
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "58ced2db-965c-513f-94b4-1a204fcdaed5",
+      "work_date": "2026-11-08T17:00:00.000Z",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "status": "VALID",
+      "submitted_at": "2026-11-05T06:47:45.028Z",
+      "updated_at": "2026-11-05T06:47:45.028Z"
+    },
+    {
+      "id": "5cafcdca-32d3-4360-87ad-39c8f2c92530",
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "598ebc25-01ed-5dac-89bf-2c302c5d6ded",
+      "work_date": "2026-11-08T17:00:00.000Z",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "status": "VALID",
+      "submitted_at": "2026-11-05T06:47:45.109Z",
+      "updated_at": "2026-11-05T06:47:45.109Z"
+    }
+  ]
+}

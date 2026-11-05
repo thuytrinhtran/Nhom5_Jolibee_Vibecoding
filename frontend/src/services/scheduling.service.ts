@@ -1,4 +1,4 @@
-import type { AdjustmentIntent, AdjustmentProposal, ScheduleRevisionRecord } from '../types/scheduling';
+import type { PreviewCandidate, ScheduleRevisionRecord } from '../types/scheduling';
 import { authService, ApiError,fetchWithReadDedupe } from './auth.service';
 import type { ManagerCalendarData,OfficialCalendarData } from '../types/manager-calendar';
 import type { SchedulePreview, PreviewAIReviewResponse, PreviewAIConfiguration } from '../types/scheduling';
@@ -13,16 +13,28 @@ async function request<T>(path: string, options: RequestInit = {}, workflowList 
     try {
       response = await (fetchWithReadDedupe??fetch)(`${API_URL}/schedules${path}`, { ...options,
         headers: { ...options.headers, Authorization: `Bearer ${authService.getStoredToken() || ''}` },
-        signal: AbortSignal.timeout(60000), cache: 'no-store' });
-    } catch {
+        signal: options.signal??AbortSignal.timeout(60000), cache: 'no-store' });
+    } catch (error) {
+      if(path==='/preview/ai-evaluation') {
+        const timeout=options.signal?.aborted||error instanceof Error&&['TimeoutError','AbortError'].includes(error.name);
+        throw new ApiError(timeout?'AI phản hồi quá chậm.':'Chưa kết nối được dịch vụ AI.',timeout?504:0,timeout?'AI_TIMEOUT':'AI_NETWORK_ERROR');
+      }
       throw new ApiError('Không kết nối được dịch vụ xếp lịch hoặc yêu cầu đã hết thời gian. Hãy tải lại tuần để kiểm tra lịch đã lưu trước khi thử tạo lại.', 0);
     }
     let data;
     try { data = await response.json(); } catch {
+      if(path==='/preview/ai-evaluation')throw new ApiError('Phản hồi AI chưa đúng định dạng.',502,'AI_INVALID_RESPONSE');
       throw new ApiError(`API xếp lịch trả về dữ liệu không hợp lệ (HTTP ${response.status}).`, response.status);
     }
-    if (!response.ok) throw new ApiError(data?.message || 'Không thể xử lý yêu cầu xếp lịch.', response.status, data?.code);
-    if (!workflowList && data?.status !== 'ok') throw new ApiError('Phản hồi xếp lịch không hợp lệ.', 502);
+    if (!response.ok) {
+      const error=new ApiError(data?.message || 'Không thể xử lý yêu cầu xếp lịch.', response.status, data?.code);
+      if(path==='/preview/ai-evaluation'&&response.status===429){
+        const seconds=Number(response.headers.get('Retry-After')??data?.retry_after_seconds??60);
+        Object.assign(error,{retryAfterSeconds:Number.isFinite(seconds)&&seconds>0?seconds:60});
+      }
+      throw error;
+    }
+    if (!workflowList && data?.status !== 'ok') throw new ApiError('Phản hồi xếp lịch không hợp lệ.', 502,path==='/preview/ai-evaluation'?'AI_INVALID_RESPONSE':undefined);
     return data as T;
   };
   try { return await send(); } catch (error) {
@@ -38,28 +50,19 @@ export const schedulingService = {
     if(!Array.isArray(data?.schedules))throw new ApiError('Không tải được lịch sử yêu cầu chỉnh sửa.',502);
     return data.schedules;
   },
+  async candidates(preview:SchedulePreview,requirement_id:string,replace_index?:number):Promise<PreviewCandidate[]> {
+    return(await request<{result:PreviewCandidate[]}>('/preview/candidates',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({period_id:preview.period.id,input_revision:preview.input_revision,assignments:preview.result.assignments.map(({employee_id,work_date,shift_id,department_id})=>({employee_id,work_date,shift_id,department_id})),requirement_id,replace_index,...(preview.edit_target?{schedule_id:preview.edit_target.id,expected_version:preview.edit_target.version}:{})})})).result;
+  },
   async officialCalendar(period:string,filters:Record<string,string|number|boolean>={}):Promise<OfficialCalendarData>{
     const query=Object.entries(filters).filter(([,v])=>v!=='').map(([k,v])=>`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`).join('&');
     return(await request<{result:OfficialCalendarData}>(`/periods/${encodeURIComponent(period)}/official-calendar?${query}`)).result;
   },
   async previewAIConfiguration():Promise<PreviewAIConfiguration> {
-    return(await request<{result:PreviewAIConfiguration}>('/preview/ai-evaluation')).result;
-  },
-  async applyAdjustment(preview:SchedulePreview,proposal:AdjustmentProposal):Promise<SchedulePreview> {
-    const plain=({employee_id,work_date,shift_id,department_id}:ScheduleAssignment)=>({employee_id,work_date,shift_id,department_id});
-    return(await request<{result:SchedulePreview}>('/preview/apply-adjustment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({period_id:preview.period.id,input_revision:preview.input_revision,assignments:preview.result.assignments.map(plain),proposal_assignments:proposal.result.assignments.map(plain),proposal_token:proposal.proposal_token,...(preview.edit_target?{schedule_id:preview.edit_target.id,expected_version:preview.edit_target.version}:{})})})).result;
-  },
-  async proposeAdjustment(preview:SchedulePreview,analysis_token:string):Promise<AdjustmentProposal> {
-    const assignments=preview.result.assignments.map(({employee_id,work_date,shift_id,department_id})=>({employee_id,work_date,shift_id,department_id}));
-    return(await request<{result:AdjustmentProposal}>('/preview/adjustment-proposal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({period_id:preview.period.id,input_revision:preview.input_revision,assignments,analysis_token,...(preview.edit_target?{schedule_id:preview.edit_target.id,expected_version:preview.edit_target.version}:{})})})).result;
-  },
-  async analyzeAdjustment(preview:SchedulePreview,wish:string):Promise<AdjustmentIntent> {
-    const assignments=preview.result.assignments.map(({employee_id,work_date,shift_id,department_id})=>({employee_id,work_date,shift_id,department_id}));
-    return(await request<{result:AdjustmentIntent}>('/preview/adjustment-intent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({period_id:preview.period.id,input_revision:preview.input_revision,assignments,wish,...(preview.edit_target?{schedule_id:preview.edit_target.id,expected_version:preview.edit_target.version}:{})})})).result;
+    return(await request<{result:PreviewAIConfiguration}>('/preview/ai-evaluation',{signal:AbortSignal.timeout(15000)})).result;
   },
   async evaluatePreviewAI(preview:SchedulePreview):Promise<PreviewAIReviewResponse> {
     const assignments=preview.result.assignments.map(({employee_id,work_date,shift_id,department_id})=>({employee_id,work_date,shift_id,department_id}));
-    return(await request<{result:PreviewAIReviewResponse}>('/preview/ai-evaluation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({period_id:preview.period.id,input_revision:preview.input_revision,assignments,...(preview.edit_target?{schedule_id:preview.edit_target.id,expected_version:preview.edit_target.version}:{})})})).result;
+    return(await request<{result:PreviewAIReviewResponse}>('/preview/ai-evaluation',{method:'POST',signal:AbortSignal.timeout(15000),headers:{'Content-Type':'application/json'},body:JSON.stringify({period_id:preview.period.id,input_revision:preview.input_revision,assignments,...(preview.edit_target?{schedule_id:preview.edit_target.id,expected_version:preview.edit_target.version}:{})})})).result;
   },
   async preview(period_id:string,edit?:{input_revision?:string;assignments?:ScheduleAssignment[];schedule_id?:string;expected_version?:number;use_saved_assignments?:true}):Promise<SchedulePreview> {
     return(await request<{result:SchedulePreview}>('/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({period_id,...edit})})).result;

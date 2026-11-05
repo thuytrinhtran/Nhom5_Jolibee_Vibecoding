@@ -170,6 +170,14 @@ test('API mode UI shows exact loading, empty, error and retry states', async () 
   assert.match(source, />Làm mới<\/button>/);
   assert.match(source, />Thử lại<\/button>/);
   assert.match(source, /: error \? null/);
-  assert.match(source, /catch \(err\) \{\s*setSchedules\(\[\]\);\s*setError\(errorText\(err\)\);/);
+  assert.match(source, /catch \(err\) \{[^}]*setSchedules\(\[\]\);\s*setError\(errorText\(err\)\);/);
   assert.doesNotMatch(source, /catch[\s\S]{0,100}tv4MockWorkflowService/);
+});
+
+test('request receipts are reused only by the same authenticated actor',async()=>{
+ const api=loadApiService(),bodies=[];
+ const service=api.createScheduleWorkflowApiService({getToken:()=> 'session',fetcher:async(_url,options)=>{bodies.push(JSON.parse(options.body));return response(200,{schedule:{id:'s',status:'APPROVED'}})}});
+ await service.decideSchedule(gs,'s','APPROVED','',2);await service.decideSchedule(gs,'s','APPROVED','',2);
+ await service.decideSchedule({...gs,id:'another-supervisor'},'s','APPROVED','',2);
+ assert.equal(bodies[0].request_id,bodies[1].request_id);assert.notEqual(bodies[0].request_id,bodies[2].request_id);
 });

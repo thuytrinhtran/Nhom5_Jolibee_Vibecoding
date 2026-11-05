@@ -5,6 +5,7 @@ process.env.NODE_ENV='test';process.env.SUPABASE_URL||='https://example.supabase
 const {evaluateSchedule,readAIEvaluation}=require('../dist/services/schedule-ai.service.js');
 const {buildAISummary}=require('../dist/services/schedule-ai.summary.js');const {parseAIReport}=require('../dist/services/schedule-ai.report.js');
 const {schedulingAIAdvisor,GeminiSchedulingAIAdvisor}=require('../dist/services/schedule-ai.gemini.js');
+const immediateRetry=()=>({now:()=>0,wait:async()=>{},random:()=>0,log:()=>{}});
 const {inspectSchedule}=require('../dist/services/schedule-review.service.js');const {createDraft,readDraft}=require('../dist/services/scheduling.service.js');
 const {readDemand,saveDemand}=require('../dist/services/staffing-demand.service.js');const {editMockDraft}=require('../dist/services/mock-scheduling.service.js');
 const {MockScheduleAIRepository,SupabaseScheduleAIRepository}=require('../dist/repositories/schedule-ai.repository.js');
@@ -98,7 +99,7 @@ test('same-version data mutation while AI runs is rejected; duplicate concurrent
 test('Gemini adapter performs real HTTP protocol through injected transport, handles schema and safe failures without live network',async()=>{
  let captured;const transport=async(url,options)=>{captured={url,options};return new Response(JSON.stringify({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify(report())}]}}]}))};
  const adapter=new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-test',transport);const result=await adapter.evaluate({employees:[],coverage:[],contract_version:'tv3-ai.v1'});assert.equal(result.conclusion,'NEEDS_ADJUSTMENT');assert.ok(captured.url.endsWith('/gemini-test:generateContent'));assert.ok(!captured.url.includes('isolated-test-key'));assert.equal(captured.options.headers['x-goog-api-key'],'isolated-test-key');assert.equal(captured.options.redirect,'error');const body=JSON.parse(captured.options.body);assert.equal(body.generationConfig.responseMimeType,'application/json');assert.ok(body.generationConfig.responseJsonSchema.required.includes('conclusion'));assert.equal(body.tools,undefined);
- for(const [reply,code,status] of [[new Response('private-provider-error',{status:429}),'AI_PROVIDER_UNAVAILABLE',503],[new Response('bad json'),'AI_INVALID_RESPONSE',502],[new Response(JSON.stringify({candidates:[{finishReason:'MAX_TOKENS'}]})),'AI_INVALID_RESPONSE',502]])await assert.rejects(new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-test',async()=>reply).evaluate({}),e=>!e.message.includes('private-provider-error')&&e.code===code&&e.status===status);
+ for(const [reply,code,status] of [[new Response('private-provider-error',{status:429}),'AI_RATE_LIMITED',429],[new Response('bad json'),'AI_INVALID_RESPONSE',502],[new Response(JSON.stringify({candidates:[{finishReason:'MAX_TOKENS'}]})),'AI_INVALID_RESPONSE',502]])await assert.rejects(new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-test',async()=>reply.clone(),immediateRetry()).evaluate({}),e=>!e.message.includes('private-provider-error')&&e.code===code&&e.status===status);
 });
 test('Gemini outbound subset keeps supported constraints while strict parser rejects oversized/extra fields',()=>{
  const {AI_REPORT_SCHEMA,GEMINI_AI_REPORT_SCHEMA}=require('../dist/services/schedule-ai.report.js');
@@ -112,32 +113,34 @@ test('Gemini outbound subset keeps supported constraints while strict parser rej
  for(const raw of [{...report(),good_points:['x'.repeat(1201)]},{...report(),concerns:Array(11).fill('x')},{...report(),suggestions:Array(6).fill({description:'x',reason:'x',candidate_assignments:null})},{...report(),extra:true}])assert.throws(()=>parseAIReport(raw),e=>e.code==='AI_INVALID_RESPONSE');
 });
 
-test('provider HTTP failures are classified safely without retries or leaking raw bodies',async()=>{
- for(const [status,detail] of [[400,'JSON schema'],[401,'Xác thực'],[403,'quyền'],[404,'models.list'],[429,'hạn mức'],[500,'tạm thời']]){
-  let calls=0;
-  await assert.rejects(new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-unavailable',async()=>{calls++;return new Response('private-provider-details',{status})}).evaluate({}),e=>e.code==='AI_PROVIDER_UNAVAILABLE'&&e.message.includes(`HTTP ${status}`)&&e.message.includes(detail)&&!e.message.includes('private-'));
-  assert.equal(calls,1);
+test('provider HTTP failures keep safe distinct codes and status; diagnostics remain in logs',async()=>{
+ for(const [status,code,apiStatus] of [[400,'AI_REQUEST_REJECTED',502],[401,'AI_CONFIGURATION_ERROR',503],[403,'AI_CONFIGURATION_ERROR',503],[404,'AI_CONFIGURATION_ERROR',503],[429,'AI_RATE_LIMITED',429],[503,'AI_PROVIDER_UNAVAILABLE',503]]){
+  let calls=0;const logs=[];
+  await assert.rejects(new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-fixed',async()=>{calls++;return new Response('private-provider-details',{status})},{...immediateRetry(),log:e=>logs.push(e)}).evaluate({}),e=>e.code===code&&e.status===apiStatus&&!e.message.includes('private-'));
+  assert.equal(calls,status===503?2:1);assert.equal(logs[0].http_status,status);
  }
- await assert.rejects(new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-test',async()=>{throw new DOMException('private','TimeoutError')}).evaluate({}),e=>e.message.includes('30 giây'));
+ await assert.rejects(new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-fixed',async()=>{throw new DOMException('private','TimeoutError')}).evaluate({}),e=>e.code==='AI_TIMEOUT'&&e.status===504);
 });
 
-test('safe diagnostics classify provider evidence and never echo raw message, details or credentials',async()=>{
+test('safe diagnostics classify provider evidence without exposing it in API errors',async()=>{
  const cases=[
   ['INVALID_ARGUMENT','Schema produces a constraint with too many states for serving','SCHEMA_TOO_COMPLEX'],
-  ['INVALID_ARGUMENT','Schema has too much branching for serving','SCHEMA_TOO_COMPLEX'],
   ['INVALID_ARGUMENT','Unknown name responseFormat: Cannot find field','UNSUPPORTED_REQUEST_FIELD'],
   ['INVALID_ARGUMENT','Model is not supported for this API version','MODEL_API_INCOMPATIBLE'],
   ['INVALID_ARGUMENT','Other invalid request','INVALID_ARGUMENT_UNCLASSIFIED'],
   ['OTHER','Schema has too many states','UNKNOWN'],
  ];
- for(const [status,message,label] of cases){let calls=0;
-  await assert.rejects(new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-test',async()=>{calls++;return new Response(JSON.stringify({error:{status,message:message+' private-person isolated-test-key',details:[{secret:'private-detail'}]}}),{status:400})}).evaluate({}),e=>e.message.includes(`[${label}]`)&&!e.message.includes('private-')&&!e.message.includes('isolated-test-key'));
-  assert.equal(calls,1);
+ for(const [status,message,label] of cases){const logs=[];
+  await assert.rejects(new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-fixed',async()=>new Response(JSON.stringify({error:{status,message:message+' private-person isolated-test-key',details:[{secret:'private-detail'}]}}),{status:400}),{...immediateRetry(),log:e=>logs.push(e)}).evaluate({}),e=>e.code==='AI_REQUEST_REJECTED'&&!e.message.includes('private-')&&!e.message.includes('isolated-test-key'));
+  assert.equal(logs[0].diagnostic,label);assert.ok(!JSON.stringify(logs).includes('private-'));assert.ok(!JSON.stringify(logs).includes('isolated-test-key'));
  }
- for(const body of ['not JSON',JSON.stringify({error:{message:'x'.repeat(17000),status:'INVALID_ARGUMENT'}}),JSON.stringify({error:{status:'INVALID_ARGUMENT'}})])await assert.rejects(new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-test',async()=>new Response(body,{status:400})).evaluate({}),e=>e.message.includes('[UNKNOWN]'));
+ for(const body of ['not JSON',JSON.stringify({error:{message:'x'.repeat(17000),status:'INVALID_ARGUMENT'}})]){
+  const logs=[];
+  await assert.rejects(new GeminiSchedulingAIAdvisor('key','gemini-fixed',async()=>new Response(body,{status:400}),{...immediateRetry(),log:e=>logs.push(e)}).evaluate({}),e=>e.code==='AI_REQUEST_REJECTED');assert.equal(logs[0].diagnostic,'UNKNOWN');
+ }
 });
 
-test('503 capacity, 429 quota and provider deadline remain distinct with one request and no raw provider text',async()=>{
+test('503 capacity, 429 quota and provider deadline remain distinct with bounded retries and no raw provider text',async()=>{
  const cases=[
   [503,'UNAVAILABLE','Model is overloaded with high demand','PROVIDER_OVERLOADED'],
   [503,'UNAVAILABLE','Service temporarily unavailable','PROVIDER_UNAVAILABLE'],
@@ -145,9 +148,9 @@ test('503 capacity, 429 quota and provider deadline remain distinct with one req
   [504,'DEADLINE_EXCEEDED','Deadline exceeded','PROVIDER_DEADLINE_EXCEEDED'],
   [503,'INTERNAL','Unknown failure','UNKNOWN'],
  ];
- for(const [http,status,message,label] of cases){let calls=0;
-  await assert.rejects(new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-test',async()=>{calls++;return new Response(JSON.stringify({error:{status,message:message+' private-person isolated-test-key',details:[{credential:'private-secret'}]}}),{status:http});}).evaluate({}),e=>e.code==='AI_PROVIDER_UNAVAILABLE'&&e.message.includes(`HTTP ${http}`)&&e.message.includes(`[${label}]`)&&!e.message.includes('private-')&&!e.message.includes('isolated-test-key'));
-  assert.equal(calls,1,'no adapter retry or implicit model fallback');
+ for(const [http,status,message,label] of cases){let calls=0;const logs=[],runtime={...immediateRetry(),log:e=>logs.push(e)};
+  await assert.rejects(new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-test',async()=>{calls++;return new Response(JSON.stringify({error:{status,message:message+' private-person isolated-test-key',details:[{credential:'private-secret'}]}}),{status:http});},runtime).evaluate({}),e=>e.code===(http===429?'AI_RATE_LIMITED':http===504?'AI_TIMEOUT':'AI_PROVIDER_UNAVAILABLE')&&!e.message.includes('private-')&&!e.message.includes('isolated-test-key'));assert.equal(logs[0].diagnostic,label);assert.ok(!JSON.stringify(logs).includes('private-'));
+  assert.equal(calls,http===503?2:1,'only bounded transient retries, never implicit model fallback');
  }
 });
 
@@ -166,7 +169,7 @@ test('Gemini evaluation accepts text advice but rejects unexpected assignment pr
 
 test('network failures, request timeouts and interrupted response streams are provider failures, not invalid AI JSON',async()=>{
  for(const transport of [async()=>{throw new TypeError('private-network-details')},async()=>{throw new DOMException('private-timeout-details','TimeoutError')},async()=>new Response(new ReadableStream({start(controller){controller.error(new TypeError('private-stream-details'));}}))]){
-  await assert.rejects(new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-test',transport).evaluate({}),e=>e.code==='AI_PROVIDER_UNAVAILABLE'&&e.status===503&&!e.message.includes('private-'));
+  await assert.rejects(new GeminiSchedulingAIAdvisor('isolated-test-key','gemini-test',transport).evaluate({}),e=>['AI_NETWORK_ERROR','AI_TIMEOUT'].includes(e.code)&&e.status===(e.code==='AI_TIMEOUT'?504:503)&&!e.message.includes('private-'));
  }
 });
 test('DRAFT with no assigned staff still reaches AI when declared demand and mandatory data can be checked',()=>mode(async()=>{

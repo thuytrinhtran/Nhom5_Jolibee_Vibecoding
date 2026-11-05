@@ -1,4 +1,4 @@
-import { openRegistrationPreviewAllowed } from './manual-preview-policy.js';
+import { developmentPreviewAllowed } from './preview-development-policy.js';
 import { createMockDraft, isMockSchedulingFlow, readMockDraft } from './mock-scheduling.service.js';
 import { registrationSummaryRepository, requireRealSchedulingData } from '../repositories/registration-summary.repository.js';
 import { summarizeRegistrations } from './registration-summary.service.js';
@@ -83,7 +83,7 @@ export async function readSchedulingContext(periodId: string, branchId: string) 
       shifts: data.shifts, departments: data.departments };
   }
   const data=await readSummarySnapshot(repository,branchId,periodId);
-  return {source:data.source,open_registration_preview_enabled:openRegistrationPreviewAllowed(data),period:data.period,requirements:data.requirements,
+  return {development_preview:developmentPreviewAllowed(data),source:data.source,open_registration_preview_enabled:developmentPreviewAllowed(data),period:data.period,requirements:data.requirements,
     valid_registration_count:data.registrations.length,registration_declarations:data.registration_declarations,
     employees:data.employees.map(e=>({id:e.id,full_name:e.full_name,department_id:e.department_id,employee_code:e.employee_code,skill_level:e.skill_level,skills:e.skills,max_weekly_hours:e.max_weekly_hours})),
     shifts:data.shifts,departments:data.departments};

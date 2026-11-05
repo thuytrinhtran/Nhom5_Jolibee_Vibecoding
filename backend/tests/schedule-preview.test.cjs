@@ -1,6 +1,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 process.env.NODE_ENV='test';
+process.env.TV3_DRAFT_PERSISTENCE_ENABLED='false';
 const {previewSchedule}=require('../dist/services/schedule-preview.service.js');
 const {generateSchedule}=require('../dist/services/scheduling.engine.js');
 const {schedulingInput}=require('../dist/services/scheduling-input.js');
@@ -32,6 +33,21 @@ test('review rejects excess demand and unregistered employee, then accepts a val
  await assert.rejects(previewSchedule('p','b',{assignments:[{...a,employee_id:'unregistered'}],input_revision:fresh.input_revision},repo),e=>e.status===422&&e.code==='REGISTRATION_REQUIRED');
  const valid=await previewSchedule('p','b',{assignments:[b],input_revision:fresh.input_revision},repo);assert.equal(valid.result.assigned_count,1);assert.equal(valid.result.assignments[0].employee_id,'b');assert.equal(valid.result.coverage[0].missing_count,0);
 });
+
+test('manual move and removal recompute hours, shortages and experience; invalid destination preserves source',async()=>{
+ const data=fixture();data.shifts.push({id:'pm',name:'Chiều',start_time:'13:00:00',end_time:'18:00:00',is_active:true});
+ data.requirements.push({...data.requirements[0],id:'pm-need',shift_id:'pm'});
+ data.registrations.push({...data.registrations[0],id:'pm-reg',shift_id:'pm'});
+ const repo={load:async()=>structuredClone(data)},preview=await previewSchedule('p','b',{},repo);
+ const a={employee_id:'a',work_date:'2026-11-02',shift_id:'s',department_id:'d'};
+ const base=await previewSchedule('p','b',{input_revision:preview.input_revision,assignments:[a]},repo);
+ const original=JSON.stringify(base);
+ const moved=await previewSchedule('p','b',{input_revision:base.input_revision,assignments:[{...a,shift_id:'pm'}]},repo);
+ assert.equal(moved.result.employee_statistics[0].total_weekly_hours,5);assert.equal(moved.result.coverage.find(c=>c.id==='n').missing_count,1);assert.equal(moved.result.coverage.find(c=>c.id==='pm-need').assigned_count,1);
+ const removed=await previewSchedule('p','b',{input_revision:base.input_revision,assignments:[]},repo);assert.equal(removed.result.assigned_count,0);assert.equal(removed.result.shortages.length,2);
+ await assert.rejects(previewSchedule('p','b',{input_revision:base.input_revision,assignments:[{...a,work_date:'2026-11-03'}]},repo),e=>e.code==='DEMAND_EXCEEDED');
+ assert.equal(JSON.stringify(base),original);assert.equal(base.persisted,false);
+});
 test('preview HTTP requires manager and own branch; no database mutation or RPC',async()=>{
  const app=require('../dist/server.js').default,{supabaseAdmin:db}=require('../dist/config/supabase.js');
  const repositories=require('../dist/repositories/registration-summary.repository.js');
@@ -39,7 +55,7 @@ test('preview HTTP requires manager and own branch; no database mutation or RPC'
  const id='00000000-0000-4000-8000-000000000001';let role='QL',branch=id,loads=0;
  db.auth.getUser=async()=>({data:{user:{id}}});db.rpc=()=>assert.fail('RPC forbidden');
  db.from=table=>({select(){return this},eq(){return this},maybeSingle:async()=>({data:null}),single:async()=>({data:table==='users'?{id,role,branch_id:branch,is_active:true,must_change_password:false}:{name:'Branch'}})});
- repositories.registrationSummaryRepository=()=>({load:async(b,p)=>{loads++;assert.equal(b,id);assert.equal(p,id);const data=fixture();data.period.id=id;data.period.branch_id=id;data.employees.push({...data.employees[0],id:'b'},{...data.employees[0],id:'unregistered'});data.registrations.push({...data.registrations[0],id:'r2',employee_id:'b'});return data}});
+ repositories.registrationSummaryRepository=()=>({load:async(b,p)=>{loads++;assert.equal(b,id);assert.equal(p,id);const data=fixture();data.period.id=id;data.period.branch_id=id;data.branch.id=id;data.employees.push({...data.employees[0],id:'b'},{...data.employees[0],id:'unregistered'});data.registrations.push({...data.registrations[0],id:'r2',employee_id:'b'});return data}});
  const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));const url=`http://127.0.0.1:${server.address().port}/api/schedules/preview`;
  const post=(body={period_id:id},auth=true)=>fetch(url,{method:'POST',headers:{'Content-Type':'application/json',...(auth?{Authorization:'Bearer fixture'}:{})},body:JSON.stringify(body)});
  try{assert.equal((await post({},false)).status,401);for(const r of ['NV','GS']){role=r;assert.equal((await post()).status,403)}role='QL';branch=null;assert.equal((await post()).status,403);branch=id;assert.equal((await post({period_id:'bad'})).status,400);assert.equal(loads,0);const response=await post();assert.equal(response.status,200);const preview=(await response.json()).result;assert.equal(preview.persisted,false);assert.equal(loads,1);
@@ -52,7 +68,7 @@ test('preview HTTP requires manager and own branch; no database mutation or RPC'
 });
 
 test('manual OPEN preview is development-only, scoped, non-persisting and revision-aware',async()=>{
- const old={...process.env},p='7f48f53e-d707-4a32-9f15-eb32aeb0095a',b='11111111-1111-1111-1111-111111111111';const data=fixture();Object.assign(data.period,{id:p,branch_id:b,status:'OPEN'});data.employees[0].branch_id=b;data.registrations[0].period_id=p;
+ const old={...process.env},p='7f48f53e-d707-4a32-9f15-eb32aeb0095a',b='11111111-1111-1111-1111-111111111111';const data=fixture();Object.assign(data.period,{id:p,branch_id:b,status:'OPEN'});data.branch.id=b;data.employees[0].branch_id=b;data.registrations[0].period_id=p;
  Object.assign(process.env,{NODE_ENV:'development',TV3_OPEN_REGISTRATION_PREVIEW_ENABLED:'true',TV3_WRITE_SCOPE_MODE:'manual-test',TV3_WRITE_SCOPE_ENABLED:'true',TV3_WRITE_PROJECT_REF:'wlbpprpiieonjrqglicv',SUPABASE_URL:'https://wlbpprpiieonjrqglicv.supabase.co',TV3_WRITE_BRANCH_ID:b,TV3_WRITE_PERIOD_ID:p});const repo={load:async()=>data};
  try{const v=await previewSchedule(p,b,{},repo);assert.equal(v.period.status,'OPEN');assert.equal(v.persisted,false);assert.equal(data.period.status,'OPEN');
  const assignments=v.result.assignments.map(({employee_id,work_date,shift_id,department_id})=>({employee_id,work_date,shift_id,department_id}));

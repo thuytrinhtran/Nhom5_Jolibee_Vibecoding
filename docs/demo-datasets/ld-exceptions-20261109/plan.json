@@ -1,0 +1,953 @@
+{
+  "format": "ld-exception-registrations.v1",
+  "project_ref": "wlbpprpiieonjrqglicv",
+  "branch_id": "11111111-1111-1111-1111-111111111111",
+  "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+  "start": "2026-11-09",
+  "end": "2026-11-15",
+  "batch_id": "dc3d6a98-e209-4aa5-9b27-c8ca20261109",
+  "created_at": "2026-11-05T06:41:14.963Z",
+  "baseline_sha256": "f90c6cd63294f306fb361d9f340bc64af9e585b9d9e3c1081ecbe28795417b3e",
+  "period_status": "OPEN",
+  "rule_engine_preview_status": "BLOCKED_UNTIL_PERIOD_CLOSED",
+  "intent": "EXCEPTIONAL_SPARSE_DATA_ONLY; NO_FULL_DEMAND_FILL; NO_INVALID_REGISTRATIONS; NO_EXISTING_ROW_MUTATION",
+  "employees": [
+    {
+      "id": "00d9bde1-e94b-5921-b1b5-5d2e222805ce",
+      "department_id": "22222222-2222-2222-2222-222222222222",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "18429963-35b5-5042-ab1c-9fba6f3d2cc5",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "skill_level": "NEW",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "227e6fc6-c562-572b-9a64-3381bc5b4506",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "58ced2db-965c-513f-94b4-1a204fcdaed5",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "598ebc25-01ed-5dac-89bf-2c302c5d6ded",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "skill_level": "CREW_TRAINING",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "95d5fa40-ec03-51fa-bd83-fecc886ea93d",
+      "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+      "skill_level": "NEW",
+      "status": "ACTIVE"
+    }
+  ],
+  "new_headers": [
+    {
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "00d9bde1-e94b-5921-b1b5-5d2e222805ce",
+      "status": "VALID",
+      "errors": [],
+      "submitted_at": "DB_TRANSACTION_TIME",
+      "sample_batch_id": null
+    },
+    {
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "18429963-35b5-5042-ab1c-9fba6f3d2cc5",
+      "status": "VALID",
+      "errors": [],
+      "submitted_at": "DB_TRANSACTION_TIME",
+      "sample_batch_id": null
+    },
+    {
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "95d5fa40-ec03-51fa-bd83-fecc886ea93d",
+      "status": "VALID",
+      "errors": [],
+      "submitted_at": "DB_TRANSACTION_TIME",
+      "sample_batch_id": null
+    },
+    {
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "227e6fc6-c562-572b-9a64-3381bc5b4506",
+      "status": "VALID",
+      "errors": [],
+      "submitted_at": "DB_TRANSACTION_TIME",
+      "sample_batch_id": null
+    },
+    {
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "58ced2db-965c-513f-94b4-1a204fcdaed5",
+      "status": "VALID",
+      "errors": [],
+      "submitted_at": "DB_TRANSACTION_TIME",
+      "sample_batch_id": null
+    },
+    {
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "598ebc25-01ed-5dac-89bf-2c302c5d6ded",
+      "status": "VALID",
+      "errors": [],
+      "submitted_at": "DB_TRANSACTION_TIME",
+      "sample_batch_id": null
+    }
+  ],
+  "new_rows": [
+    {
+      "id": "bc112b12-ff65-4252-854a-0da38ab59a4e",
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "00d9bde1-e94b-5921-b1b5-5d2e222805ce",
+      "work_date": "2026-11-09",
+      "shift_id": "1392b8d7-91f9-46d6-9e2c-b4f2dedbb09a",
+      "status": "VALID",
+      "cases": [
+        "quantity-shortage"
+      ]
+    },
+    {
+      "id": "40085d11-dc9e-474f-86f9-62c9d09d568d",
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "18429963-35b5-5042-ab1c-9fba6f3d2cc5",
+      "work_date": "2026-11-09",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "status": "VALID",
+      "cases": [
+        "experience-shortage"
+      ]
+    },
+    {
+      "id": "999c1c30-bc04-47f0-8388-cf317fd3dc39",
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "95d5fa40-ec03-51fa-bd83-fecc886ea93d",
+      "work_date": "2026-11-09",
+      "shift_id": "94fbcbd3-e4f5-4dca-aba8-0400d8ccb8a7",
+      "status": "VALID",
+      "cases": [
+        "experience-shortage"
+      ]
+    },
+    {
+      "id": "f4af087b-8a20-47a7-8436-84a29e2a0775",
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "227e6fc6-c562-572b-9a64-3381bc5b4506",
+      "work_date": "2026-11-10",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "status": "VALID",
+      "cases": [
+        "concentrated-shifts"
+      ]
+    },
+    {
+      "id": "cf4df166-184f-447a-8bb9-6e47d22572e1",
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "58ced2db-965c-513f-94b4-1a204fcdaed5",
+      "work_date": "2026-11-09",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "status": "VALID",
+      "cases": [
+        "extra-candidate"
+      ]
+    },
+    {
+      "id": "5cafcdca-32d3-4360-87ad-39c8f2c92530",
+      "period_id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "employee_id": "598ebc25-01ed-5dac-89bf-2c302c5d6ded",
+      "work_date": "2026-11-09",
+      "shift_id": "36433672-1bd3-48d3-beed-70c858fc438c",
+      "status": "VALID",
+      "cases": [
+        "extra-candidate"
+      ]
+    }
+  ],
+  "scenarios": [
+    {
+      "caseId": "quantity-shortage",
+      "cells": [
+        {
+          "date": "2026-11-09",
+          "shift": "Ca sáng",
+          "department": "Bếp",
+          "required": 5,
+          "registered": 4,
+          "fixture_added": 1,
+          "missing": 1,
+          "missingExperienced": 0
+        }
+      ],
+      "expected": "Thiếu số người so với nhu cầu."
+    },
+    {
+      "caseId": "experience-shortage",
+      "cells": [
+        {
+          "date": "2026-11-09",
+          "shift": "Ca tối",
+          "department": "Thu ngân",
+          "required": 2,
+          "registered": 2,
+          "fixture_added": 2,
+          "missing": 0,
+          "missingExperienced": 2
+        }
+      ],
+      "expected": "Đủ số đăng ký ở ô kiểm thử, thiếu cấp REGULAR/CREW_TRAINING."
+    },
+    {
+      "caseId": "zero-registration",
+      "cells": [
+        {
+          "date": "2026-11-09",
+          "shift": "Ca sáng",
+          "department": "Thu ngân",
+          "required": 1,
+          "registered": 0,
+          "fixture_added": 0,
+          "missing": 1,
+          "missingExperienced": 1
+        }
+      ],
+      "expected": "0 đăng ký hợp lệ; thiếu toàn bộ nhu cầu ô đã chọn."
+    },
+    {
+      "caseId": "concentrated-shifts",
+      "cells": [
+        {
+          "date": "2026-11-10",
+          "shift": "Ca chiều",
+          "department": "Thu ngân",
+          "required": 1,
+          "registered": 1,
+          "fixture_added": 1,
+          "missing": 0,
+          "missingExperienced": 0
+        }
+      ],
+      "expected": "Đăng ký gom ở ô này; các ca khác để thiếu."
+    },
+    {
+      "caseId": "extra-candidate",
+      "cells": [
+        {
+          "date": "2026-11-09",
+          "shift": "Ca chiều",
+          "department": "Thu ngân",
+          "required": 1,
+          "registered": 2,
+          "fixture_added": 2,
+          "missing": 0,
+          "missingExperienced": 0
+        }
+      ],
+      "expected": "Có 2 đăng ký hợp lệ cho 1 vị trí; Rule Engine xếp tối đa 1, còn ít nhất 1 ứng viên chưa xếp.",
+      "unassigned_valid_candidates": 1,
+      "ui_steps": [
+        "Trong bản preview ban đầu có một phân công và một ứng viên hợp lệ chưa xếp.",
+        "Thử thêm: bỏ phân công ở ô này trong editor, mở Tìm ứng viên và xác nhận ứng viên đang chờ; Rule Engine phải chấp nhận.",
+        "Thử thay: giữ phân công và dùng Tìm người thay, chọn cùng ứng viên đang chờ rồi xác nhận; Rule Engine phải chấp nhận."
+      ]
+    },
+    {
+      "caseId": "cross-branch-support-required",
+      "cells": [
+        {
+          "date": "2026-11-09",
+          "shift": "Ca sáng",
+          "department": "Phục vụ",
+          "required": 6,
+          "registered": 0,
+          "fixture_added": 0,
+          "missing": 6,
+          "missingExperienced": 2
+        }
+      ],
+      "expected": "Không có ứng viên nội bộ; báo thiếu, chi viện liên chi nhánh chưa hỗ trợ."
+    },
+    {
+      "caseId": "rule-engine-negative-tests",
+      "cells": [
+        {
+          "date": "2026-11-09",
+          "shift": "Ca sáng",
+          "department": "Bếp",
+          "required": 5,
+          "registered": 4,
+          "fixture_added": 1,
+          "missing": 1,
+          "missingExperienced": 0
+        },
+        {
+          "date": "2026-11-09",
+          "shift": "Ca tối",
+          "department": "Thu ngân",
+          "required": 2,
+          "registered": 2,
+          "fixture_added": 2,
+          "missing": 0,
+          "missingExperienced": 2
+        }
+      ],
+      "expected": "Từ chối department/skill/overlap không hợp lệ; không tạo đăng ký INVALID."
+    }
+  ],
+  "preview_coverage": [
+    {
+      "date": "2026-11-09",
+      "shift": "Ca sáng",
+      "department": "Thu ngân",
+      "required": 1,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 1,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-09",
+      "shift": "Ca sáng",
+      "department": "Bếp",
+      "required": 5,
+      "registered": 4,
+      "assigned": 4,
+      "missing": 1,
+      "experienced_missing": 0,
+      "fixture_added": 1
+    },
+    {
+      "date": "2026-11-09",
+      "shift": "Ca sáng",
+      "department": "Phục vụ",
+      "required": 6,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 6,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-09",
+      "shift": "Ca chiều",
+      "department": "Thu ngân",
+      "required": 1,
+      "registered": 2,
+      "assigned": 1,
+      "missing": 0,
+      "experienced_missing": 0,
+      "fixture_added": 2
+    },
+    {
+      "date": "2026-11-09",
+      "shift": "Ca chiều",
+      "department": "Bếp",
+      "required": 5,
+      "registered": 2,
+      "assigned": 2,
+      "missing": 3,
+      "experienced_missing": 0,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-09",
+      "shift": "Ca chiều",
+      "department": "Phục vụ",
+      "required": 6,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 6,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-09",
+      "shift": "Ca tối",
+      "department": "Thu ngân",
+      "required": 2,
+      "registered": 2,
+      "assigned": 2,
+      "missing": 0,
+      "experienced_missing": 2,
+      "fixture_added": 2
+    },
+    {
+      "date": "2026-11-09",
+      "shift": "Ca tối",
+      "department": "Bếp",
+      "required": 7,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 7,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-09",
+      "shift": "Ca tối",
+      "department": "Phục vụ",
+      "required": 4,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 4,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-10",
+      "shift": "Ca sáng",
+      "department": "Thu ngân",
+      "required": 1,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 1,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-10",
+      "shift": "Ca sáng",
+      "department": "Bếp",
+      "required": 5,
+      "registered": 2,
+      "assigned": 2,
+      "missing": 3,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-10",
+      "shift": "Ca sáng",
+      "department": "Phục vụ",
+      "required": 6,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 6,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-10",
+      "shift": "Ca chiều",
+      "department": "Thu ngân",
+      "required": 1,
+      "registered": 1,
+      "assigned": 1,
+      "missing": 0,
+      "experienced_missing": 0,
+      "fixture_added": 1
+    },
+    {
+      "date": "2026-11-10",
+      "shift": "Ca chiều",
+      "department": "Bếp",
+      "required": 5,
+      "registered": 2,
+      "assigned": 2,
+      "missing": 3,
+      "experienced_missing": 0,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-10",
+      "shift": "Ca chiều",
+      "department": "Phục vụ",
+      "required": 6,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 6,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-10",
+      "shift": "Ca tối",
+      "department": "Thu ngân",
+      "required": 2,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 2,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-10",
+      "shift": "Ca tối",
+      "department": "Bếp",
+      "required": 7,
+      "registered": 1,
+      "assigned": 1,
+      "missing": 6,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-10",
+      "shift": "Ca tối",
+      "department": "Phục vụ",
+      "required": 4,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 4,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-11",
+      "shift": "Ca sáng",
+      "department": "Thu ngân",
+      "required": 1,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 1,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-11",
+      "shift": "Ca sáng",
+      "department": "Bếp",
+      "required": 5,
+      "registered": 2,
+      "assigned": 2,
+      "missing": 3,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-11",
+      "shift": "Ca sáng",
+      "department": "Phục vụ",
+      "required": 6,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 6,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-11",
+      "shift": "Ca chiều",
+      "department": "Thu ngân",
+      "required": 1,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 1,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-11",
+      "shift": "Ca chiều",
+      "department": "Bếp",
+      "required": 5,
+      "registered": 1,
+      "assigned": 1,
+      "missing": 4,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-11",
+      "shift": "Ca chiều",
+      "department": "Phục vụ",
+      "required": 6,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 6,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-11",
+      "shift": "Ca tối",
+      "department": "Thu ngân",
+      "required": 2,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 2,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-11",
+      "shift": "Ca tối",
+      "department": "Bếp",
+      "required": 7,
+      "registered": 1,
+      "assigned": 1,
+      "missing": 6,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-11",
+      "shift": "Ca tối",
+      "department": "Phục vụ",
+      "required": 4,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 4,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-12",
+      "shift": "Ca sáng",
+      "department": "Thu ngân",
+      "required": 1,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 1,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-12",
+      "shift": "Ca sáng",
+      "department": "Bếp",
+      "required": 5,
+      "registered": 1,
+      "assigned": 1,
+      "missing": 4,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-12",
+      "shift": "Ca sáng",
+      "department": "Phục vụ",
+      "required": 6,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 6,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-12",
+      "shift": "Ca chiều",
+      "department": "Thu ngân",
+      "required": 1,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 1,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-12",
+      "shift": "Ca chiều",
+      "department": "Bếp",
+      "required": 5,
+      "registered": 1,
+      "assigned": 1,
+      "missing": 4,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-12",
+      "shift": "Ca chiều",
+      "department": "Phục vụ",
+      "required": 6,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 6,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-12",
+      "shift": "Ca tối",
+      "department": "Thu ngân",
+      "required": 2,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 2,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-12",
+      "shift": "Ca tối",
+      "department": "Bếp",
+      "required": 7,
+      "registered": 2,
+      "assigned": 2,
+      "missing": 5,
+      "experienced_missing": 0,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-12",
+      "shift": "Ca tối",
+      "department": "Phục vụ",
+      "required": 4,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 4,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-13",
+      "shift": "Ca sáng",
+      "department": "Thu ngân",
+      "required": 1,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 1,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-13",
+      "shift": "Ca sáng",
+      "department": "Bếp",
+      "required": 5,
+      "registered": 2,
+      "assigned": 2,
+      "missing": 3,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-13",
+      "shift": "Ca sáng",
+      "department": "Phục vụ",
+      "required": 6,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 6,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-13",
+      "shift": "Ca chiều",
+      "department": "Thu ngân",
+      "required": 1,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 1,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-13",
+      "shift": "Ca chiều",
+      "department": "Bếp",
+      "required": 5,
+      "registered": 1,
+      "assigned": 1,
+      "missing": 4,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-13",
+      "shift": "Ca chiều",
+      "department": "Phục vụ",
+      "required": 6,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 6,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-13",
+      "shift": "Ca tối",
+      "department": "Thu ngân",
+      "required": 2,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 2,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-13",
+      "shift": "Ca tối",
+      "department": "Bếp",
+      "required": 7,
+      "registered": 1,
+      "assigned": 1,
+      "missing": 6,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-13",
+      "shift": "Ca tối",
+      "department": "Phục vụ",
+      "required": 4,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 4,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-14",
+      "shift": "Ca sáng",
+      "department": "Thu ngân",
+      "required": 1,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 1,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-14",
+      "shift": "Ca sáng",
+      "department": "Bếp",
+      "required": 5,
+      "registered": 2,
+      "assigned": 2,
+      "missing": 3,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-14",
+      "shift": "Ca sáng",
+      "department": "Phục vụ",
+      "required": 6,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 6,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-14",
+      "shift": "Ca chiều",
+      "department": "Thu ngân",
+      "required": 1,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 1,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-14",
+      "shift": "Ca chiều",
+      "department": "Bếp",
+      "required": 5,
+      "registered": 2,
+      "assigned": 2,
+      "missing": 3,
+      "experienced_missing": 0,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-14",
+      "shift": "Ca chiều",
+      "department": "Phục vụ",
+      "required": 6,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 6,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-14",
+      "shift": "Ca tối",
+      "department": "Thu ngân",
+      "required": 2,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 2,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-14",
+      "shift": "Ca tối",
+      "department": "Bếp",
+      "required": 7,
+      "registered": 1,
+      "assigned": 1,
+      "missing": 6,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-14",
+      "shift": "Ca tối",
+      "department": "Phục vụ",
+      "required": 4,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 4,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-15",
+      "shift": "Ca sáng",
+      "department": "Thu ngân",
+      "required": 1,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 1,
+      "experienced_missing": 1,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-15",
+      "shift": "Ca sáng",
+      "department": "Bếp",
+      "required": 5,
+      "registered": 3,
+      "assigned": 3,
+      "missing": 2,
+      "experienced_missing": 0,
+      "fixture_added": 0
+    },
+    {
+      "date": "2026-11-15",
+      "shift": "Ca sáng",
+      "department": "Phục vụ",
+      "required": 6,
+      "registered": 0,
+      "assigned": 0,
+      "missing": 6,
+      "experienced_missing": 2,
+      "fixture_added": 0
+    }
+  ],
+  "summary": {
+    "new_headers": 6,
+    "new_valid_registrations": 6,
+    "required_count": 234,
+    "assigned_count": 35,
+    "shortage_cells": 54,
+    "experience_shortage_cells": 49,
+    "web_candidate_checks": {
+      "unassigned": 1,
+      "addition_accepted": true,
+      "replacement_accepted": true
+    },
+    "department_negative_assertion": "DEPARTMENT_MISMATCH",
+    "skill_negative_assertion": "SKILL_MISMATCH",
+    "overlap_negative_assertion": "SHIFT_OVERLAP",
+    "negative_tests": "Skill and overlap are isolated in-memory Rule Engine tests; real needs have no required_skill_name and actual shifts do not overlap.",
+    "period_status": "OPEN",
+    "preview_status": "BLOCKED_UNTIL_PERIOD_CLOSED"
+  },
+  "rollback": {
+    "mode": "DELETE_EXACT_INSERTED_IMAGES_ONLY",
+    "guard": "requires exact current header/row after-images and plan hash; never deletes unrelated rows"
+  },
+  "plan_sha256": "dbe480fcea8c512d966362c022e48008ccf918e547169fc0bfe1098e654c2622"
+}

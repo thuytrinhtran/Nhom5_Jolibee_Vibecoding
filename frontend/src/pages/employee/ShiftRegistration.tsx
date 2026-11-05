@@ -11,21 +11,30 @@ const timestamp = (value: string) => new Date(value).toLocaleString('vi-VN', { t
 export const ShiftRegistration: React.FC = () => {
   const { user } = useAuth();
   const registrationService = getRegistrationService(user?.id);
-  const [data, setData] = useState<RegistrationData | null>(null);
+  const [storedData, setData] = useState<RegistrationData | null>(null);
   const [preferences, setPreferences] = useState<Preference[]>([]);
   const [loading, setLoading] = useState(true), [saving, setSaving] = useState(false);
   const [error, setError] = useState(''), [message, setMessage] = useState('');
   const [dirty, setDirty] = useState(false), [now, setNow] = useState(Date.now());
+  const [loadedUser,setLoadedUser]=useState(user?.id);
+  const [loadedBranch,setLoadedBranch]=useState(user?.branch_id);
+  const scope=[user?.id,user?.branch_id].join('/');
+  const data=loadedUser===user?.id&&loadedBranch===user?.branch_id?storedData:null;
   const offset = useRef(0);
+  const sequence=useRef(0),working=useRef(false),identity=useRef(scope);
+  identity.current=scope;
   const load = async () => {
+    const request=++sequence.current,owner=scope;
     setLoading(true); setError('');
     try {
-      const result = await registrationService.load(); setData(result); setPreferences(result.registrations.map(({work_date,shift_id}) => ({work_date,shift_id})));
+      const result = await registrationService.load();if(sequence.current!==request||identity.current!==owner)return false;
+      setData(result);setLoadedUser(user?.id);setLoadedBranch(user?.branch_id); setPreferences(result.registrations.map(({work_date,shift_id}) => ({work_date,shift_id})));
       offset.current = Date.parse(result.server_now)-Date.now(); setNow(Date.now()+offset.current); setDirty(false);
-    } catch (e) { setError(e instanceof Error ? e.message : 'Không tải được đăng ký.'); }
-    finally { setLoading(false); }
+      return true;
+    } catch (e) { if(sequence.current===request&&identity.current===owner)setError(e instanceof Error ? e.message : 'Không tải được đăng ký.');return false; }
+    finally { if(sequence.current===request&&identity.current===owner)setLoading(false); }
   };
-  useEffect(() => { void load(); const timer = window.setInterval(() => setNow(Date.now()+offset.current), 1000); return () => window.clearInterval(timer); }, [user?.id]);
+  useEffect(() => {setData(null);setPreferences([]);setMessage('');setDirty(false);setSaving(false);void load(); const timer = window.setInterval(() => setNow(Date.now()+offset.current), 1000); return () => {sequence.current++;window.clearInterval(timer);}; }, [user?.id,user?.branch_id]);
   useEffect(() => {
     if (!dirty) return;
     const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ''; };
@@ -39,21 +48,26 @@ export const ShiftRegistration: React.FC = () => {
     setDirty(true); setMessage(''); setError('');
   };
   const save = async (mode: 'draft' | 'submit') => {
-    if (!period || saving) return;
+    if (!period || saving||loading||working.current||!editable) return;
     const errors = data ? validateSelection(preferences, data) : [];
     if (errors.length) { setError(errors.join(' ')); return; }
     if (mode==='submit' && !window.confirm(`Gửi đăng ký với ${preferences.length} ca? Ngày không chọn ca sẽ được xác nhận OFF, kể cả cả tuần nếu không chọn ca nào. Bạn có thể sửa trước hạn.`)) return;
+    working.current=true;const owner=scope,request=sequence.current;
     setSaving(true); setError(''); setMessage('');
-    try { const result = await registrationService.save(period.id, preferences, mode); await load(); setMessage(result.message); }
-    catch (e) { setError(e instanceof Error ? e.message : 'Không lưu được đăng ký.'); if (e instanceof ApiError && e.status === 422 && !preferences.length && mode==='submit') { await load(); setError(e.message); } }
-    finally { setSaving(false); }
+    try { const result = await registrationService.save(period.id, preferences, mode);
+      if(sequence.current!==request||identity.current!==owner)return;
+      const reloaded=await load();if(identity.current!==owner)return;
+      if(reloaded)setMessage(result.message);else setError('Đã lưu đăng ký nhưng chưa tải lại được. Hãy tải lại để kiểm tra trước khi gửi tiếp.');
+    }
+    catch (e) {if(sequence.current!==request||identity.current!==owner)return;setError(e instanceof Error ? e.message : 'Không lưu được đăng ký.'); if (e instanceof ApiError && e.status === 422 && !preferences.length && mode==='submit') { await load();if(identity.current===owner)setError(e.message); } }
+    finally { working.current=false;if(identity.current===owner)setSaving(false); }
   };
   if (!registrationDemoEnabled && user?.employee?.skill_level === 'CREW_LEADER') return <section className="registration"><h1>Đăng ký ca làm</h1><p className="reg-card">Crew Leader có lịch do quản lý thiết lập. Vui lòng xem Lịch làm của tôi.</p></section>;
   return <section className="registration" aria-busy={loading || saving}>
     <header className="reg-heading"><h1><CalendarDays size={25}/> Đăng ký ca làm</h1><p>Chọn mọi ca bạn có thể làm. Ngày trống chỉ được xem là OFF sau khi gửi.</p></header>
     {registrationDemoEnabled && <details className="reg-demo"><summary><strong>DEMO – dữ liệu giả lập</strong><span>Hướng dẫn &amp; công cụ thử</span></summary><p>Lưu và gửi chỉ ở bộ nhớ; không ghi Supabase. Tải lại trang sẽ xóa DEMO. Đăng nhập vẫn dùng hệ thống thật. Ba ca liền nhau được chọn đồng thời. Gửi không chọn ca để mô phỏng nghỉ cả tuần; nháp không xác nhận OFF.</p><div className="reg-demo-actions"><button className="btn btn-secondary" disabled={loading || saving} onClick={async () => { await registrationService.resetDemo?.(); setMessage(''); await load(); }}>Đặt lại DEMO</button><button className="btn btn-secondary" disabled={loading || saving || !editable} onClick={async () => { await registrationService.closeDemo?.(); setMessage(''); await load(); }}>Mô phỏng đóng đợt</button></div></details>}
     <div className="reg-profile"><strong>{data?.employee.full_name || user?.employee?.full_name || user?.username}</strong><span>Chi nhánh: {data?.employee.branch_name || user?.branch_name || 'Chưa có thông tin'}</span><span>Bộ phận: {data?.employee.department_name || user?.employee?.department_name || 'Chưa có thông tin'}</span></div>
-    {error && <div role="alert" className="reg-alert">{error} {!data && <button className="btn" onClick={() => void load()}>Thử lại</button>}</div>}
+    {error && <div role="alert" className="reg-alert">{error} <button className="btn" disabled={loading||saving} onClick={() => void load()}>Thử lại</button></div>}
     {message && <p role="status" className="reg-success">{message}</p>}
     {data?.registration_window?.dev_test_override&&<p className="reg-note" role="status">Chế độ development: đăng ký tuần 09–15/11/2026 không giới hạn giờ mở/đóng. Nguyện vọng vẫn được kiểm tra và lưu thật; hạn đăng ký gốc không thay đổi. Không mở lại lịch đã gửi duyệt hoặc công bố.</p>}
     {data?.has_sample_data && <p className="reg-note">Nhóm đang có dữ liệu mẫu TV3 cho hồ sơ này. Dữ liệu mẫu không phải đăng ký của bạn; hãy chọn và gửi các ca bạn thực sự có thể làm.</p>}

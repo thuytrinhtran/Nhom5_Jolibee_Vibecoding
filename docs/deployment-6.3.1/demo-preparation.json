@@ -1,0 +1,57 @@
+{
+  "format": "jollishift-demo-preparation.v1",
+  "captured_at": "2026-11-02T15:32:15.652Z",
+  "project_ref": "wlbpprpiieonjrqglicv",
+  "source_changes_performed": false,
+  "migrations_run": false,
+  "auth_users_created": false,
+  "data_imported": false,
+  "backend": {
+    "started": true,
+    "port": 5000,
+    "health_http": 200,
+    "db_health_http": 200,
+    "db_status": "connected",
+    "persistence_process_flags": false
+  },
+  "frontend": {
+    "started": true,
+    "port": 5173,
+    "index_http": 200,
+    "entry_module_http": 200,
+    "proxy_health_http": 200,
+    "browser_login_tested": false
+  },
+  "unauthenticated_protected_gets": {
+    "scheduling": 401,
+    "employee_schedule": 401,
+    "shift_changes": 401
+  },
+  "validation": {
+    "backend_typecheck": "PASS",
+    "backend_build": "PASS",
+    "frontend_typecheck": "PASS",
+    "frontend_build": "PASS",
+    "full_test_suite_rerun": false
+  },
+  "readonly_evidence": {
+    "file": "docs/deployment-6.3.1/target-rest-1793633173491.json",
+    "sha256": "7a37628ceed71fc17d6d8530a85074142dac1e47c6980604f95ee9b453dc0fa4",
+    "collector_get_requests": 18,
+    "backend_db_health_get_select": 1
+  },
+  "actual": {
+    "branch_employees": 60,
+    "target_registrations": 16,
+    "demand_cells": 63,
+    "positions": 308,
+    "schedules_all_project": 0,
+    "planned_missing_auth": 17,
+    "planned_missing_profiles": 17,
+    "naturally_open_branch_periods": 0
+  },
+  "migration_status_basis": "Previously supplied complete CSV metadata/body checks plus fresh GET schema/API; no writer RPC probe or fresh PostgreSQL catalog body query.",
+  "guide": "docs/deployment-6.3.1/DEMO-PREPARATION.md",
+  "guide_sha256": "ac9059a2e712f62c2325c584decd007ff34dea094eacfdd02ecb2b475662cf65",
+  "migration_approval_granted": false
+}

@@ -1,0 +1,357 @@
+{
+  "rule_version": "tv3.rules.v2",
+  "period": {
+    "id": "b727e685-2c58-4998-81b5-daca1d747e82",
+    "branch_id": "359d4e7d-a59d-4fbf-8d72-3dda20758f32",
+    "work_start_date": "2026-11-09",
+    "work_end_date": "2026-11-15",
+    "status": "CLOSED"
+  },
+  "employees": [
+    {
+      "id": "b3938d66-3e09-452f-89a5-8d9fb833f603",
+      "employee_code": "SMALL_0_0",
+      "department_id": "3d68bf78-c629-4f86-8e96-3468246dcf81",
+      "skill_level": "NEW",
+      "status": "ACTIVE",
+      "is_active": true,
+      "role": "NV",
+      "max_weekly_hours": null,
+      "skills": []
+    },
+    {
+      "id": "73cd35c4-cced-4484-8c34-df74fb50656a",
+      "employee_code": "SMALL_0_1",
+      "department_id": "3d68bf78-c629-4f86-8e96-3468246dcf81",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "is_active": true,
+      "role": "NV",
+      "max_weekly_hours": null,
+      "skills": []
+    },
+    {
+      "id": "47078b5a-ccdb-471e-8bf6-bd7a41c59fe3",
+      "employee_code": "SMALL_0_2",
+      "department_id": "3d68bf78-c629-4f86-8e96-3468246dcf81",
+      "skill_level": "CREW_TRAINING",
+      "status": "ACTIVE",
+      "is_active": true,
+      "role": "NV",
+      "max_weekly_hours": null,
+      "skills": []
+    },
+    {
+      "id": "43d3511d-bbfe-426e-864c-b8043fd6ed47",
+      "employee_code": "SMALL_1_0",
+      "department_id": "6efe1a34-e921-4e33-8eac-97fbe495bcbf",
+      "skill_level": "NEW",
+      "status": "ACTIVE",
+      "is_active": true,
+      "role": "NV",
+      "max_weekly_hours": null,
+      "skills": []
+    },
+    {
+      "id": "befb00aa-0391-4ea5-8972-937bab2d1994",
+      "employee_code": "SMALL_1_1",
+      "department_id": "6efe1a34-e921-4e33-8eac-97fbe495bcbf",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "is_active": true,
+      "role": "NV",
+      "max_weekly_hours": null,
+      "skills": []
+    },
+    {
+      "id": "144393f7-022d-40e3-8852-11a549d330bb",
+      "employee_code": "SMALL_1_2",
+      "department_id": "6efe1a34-e921-4e33-8eac-97fbe495bcbf",
+      "skill_level": "CREW_TRAINING",
+      "status": "ACTIVE",
+      "is_active": true,
+      "role": "NV",
+      "max_weekly_hours": null,
+      "skills": []
+    },
+    {
+      "id": "024857c3-43fd-4439-8a26-e1b71666db49",
+      "employee_code": "SMALL_2_0",
+      "department_id": "1751d53c-e4dd-44a6-87e5-a09c91a3f7db",
+      "skill_level": "NEW",
+      "status": "ACTIVE",
+      "is_active": true,
+      "role": "NV",
+      "max_weekly_hours": null,
+      "skills": []
+    },
+    {
+      "id": "4d639702-8628-4126-882f-70b3c1edec06",
+      "employee_code": "SMALL_2_1",
+      "department_id": "1751d53c-e4dd-44a6-87e5-a09c91a3f7db",
+      "skill_level": "REGULAR",
+      "status": "ACTIVE",
+      "is_active": true,
+      "role": "NV",
+      "max_weekly_hours": null,
+      "skills": []
+    },
+    {
+      "id": "39f3e8f1-023f-4f40-8050-a610405a44cd",
+      "employee_code": "SMALL_2_2",
+      "department_id": "1751d53c-e4dd-44a6-87e5-a09c91a3f7db",
+      "skill_level": "CREW_TRAINING",
+      "status": "ACTIVE",
+      "is_active": true,
+      "role": "NV",
+      "max_weekly_hours": null,
+      "skills": []
+    }
+  ],
+  "shifts": [
+    {
+      "id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "start_time": "08:00:00",
+      "end_time": "12:00:00",
+      "is_active": true,
+      "branch_id": "359d4e7d-a59d-4fbf-8d72-3dda20758f32"
+    },
+    {
+      "id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+      "start_time": "12:00:00",
+      "end_time": "17:00:00",
+      "is_active": true,
+      "branch_id": "359d4e7d-a59d-4fbf-8d72-3dda20758f32"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "4179a21f-348d-4f92-8cc8-ade561c0bd24",
+      "department_id": "3d68bf78-c629-4f86-8e96-3468246dcf81",
+      "work_date": "2026-11-09",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "required_count": 3,
+      "required_skill_name": null
+    },
+    {
+      "id": "48af5fff-99de-45e0-8ffb-31ca0244d1a9",
+      "department_id": "3d68bf78-c629-4f86-8e96-3468246dcf81",
+      "work_date": "2026-11-09",
+      "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+      "required_count": 3,
+      "required_skill_name": null
+    },
+    {
+      "id": "361f5311-da9a-4683-8b63-3b0195532eec",
+      "department_id": "3d68bf78-c629-4f86-8e96-3468246dcf81",
+      "work_date": "2026-11-10",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "required_count": 3,
+      "required_skill_name": null
+    },
+    {
+      "id": "8039c82e-737b-4fa0-8512-ecdb90538b57",
+      "department_id": "3d68bf78-c629-4f86-8e96-3468246dcf81",
+      "work_date": "2026-11-10",
+      "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+      "required_count": 3,
+      "required_skill_name": null
+    },
+    {
+      "id": "84bc5d64-ebef-4925-887a-4a447427d210",
+      "department_id": "6efe1a34-e921-4e33-8eac-97fbe495bcbf",
+      "work_date": "2026-11-09",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "required_count": 3,
+      "required_skill_name": null
+    },
+    {
+      "id": "e15e4ffa-d9cc-4f83-85bc-07db3639f3c2",
+      "department_id": "6efe1a34-e921-4e33-8eac-97fbe495bcbf",
+      "work_date": "2026-11-09",
+      "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+      "required_count": 3,
+      "required_skill_name": null
+    },
+    {
+      "id": "5bbdff4d-2a00-4ea3-87e1-77c8e05012bd",
+      "department_id": "6efe1a34-e921-4e33-8eac-97fbe495bcbf",
+      "work_date": "2026-11-10",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "required_count": 3,
+      "required_skill_name": null
+    },
+    {
+      "id": "a25b10ed-234a-444b-8d4c-6f76d81b8577",
+      "department_id": "6efe1a34-e921-4e33-8eac-97fbe495bcbf",
+      "work_date": "2026-11-10",
+      "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+      "required_count": 3,
+      "required_skill_name": null
+    },
+    {
+      "id": "27dbe3e6-c7ae-41e5-8037-7da9ca624a8a",
+      "department_id": "1751d53c-e4dd-44a6-87e5-a09c91a3f7db",
+      "work_date": "2026-11-09",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "required_count": 3,
+      "required_skill_name": null
+    },
+    {
+      "id": "5c3339b4-70d7-491b-84b6-b213356c32a5",
+      "department_id": "1751d53c-e4dd-44a6-87e5-a09c91a3f7db",
+      "work_date": "2026-11-09",
+      "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+      "required_count": 3,
+      "required_skill_name": null
+    },
+    {
+      "id": "989fca18-5026-4df3-8ec3-b22c5518d0c9",
+      "department_id": "1751d53c-e4dd-44a6-87e5-a09c91a3f7db",
+      "work_date": "2026-11-10",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "required_count": 3,
+      "required_skill_name": null
+    },
+    {
+      "id": "70ee438a-62b2-4a4c-8954-5e5b2356c5d7",
+      "department_id": "1751d53c-e4dd-44a6-87e5-a09c91a3f7db",
+      "work_date": "2026-11-10",
+      "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+      "required_count": 3,
+      "required_skill_name": null
+    }
+  ],
+  "registrations": [
+    {
+      "employee_id": "b3938d66-3e09-452f-89a5-8d9fb833f603",
+      "work_date": "2026-11-09",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "b3938d66-3e09-452f-89a5-8d9fb833f603",
+      "work_date": "2026-11-10",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "73cd35c4-cced-4484-8c34-df74fb50656a",
+      "work_date": "2026-11-09",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "73cd35c4-cced-4484-8c34-df74fb50656a",
+      "work_date": "2026-11-10",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "47078b5a-ccdb-471e-8bf6-bd7a41c59fe3",
+      "work_date": "2026-11-09",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "47078b5a-ccdb-471e-8bf6-bd7a41c59fe3",
+      "work_date": "2026-11-10",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "43d3511d-bbfe-426e-864c-b8043fd6ed47",
+      "work_date": "2026-11-09",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "43d3511d-bbfe-426e-864c-b8043fd6ed47",
+      "work_date": "2026-11-10",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "befb00aa-0391-4ea5-8972-937bab2d1994",
+      "work_date": "2026-11-09",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "befb00aa-0391-4ea5-8972-937bab2d1994",
+      "work_date": "2026-11-10",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "144393f7-022d-40e3-8852-11a549d330bb",
+      "work_date": "2026-11-09",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "144393f7-022d-40e3-8852-11a549d330bb",
+      "work_date": "2026-11-10",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "024857c3-43fd-4439-8a26-e1b71666db49",
+      "work_date": "2026-11-09",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "024857c3-43fd-4439-8a26-e1b71666db49",
+      "work_date": "2026-11-10",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "4d639702-8628-4126-882f-70b3c1edec06",
+      "work_date": "2026-11-09",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "4d639702-8628-4126-882f-70b3c1edec06",
+      "work_date": "2026-11-10",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "39f3e8f1-023f-4f40-8050-a610405a44cd",
+      "work_date": "2026-11-09",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "39f3e8f1-023f-4f40-8050-a610405a44cd",
+      "work_date": "2026-11-10",
+      "shift_id": "7a0fba27-68ac-4d5d-84c6-7294f98dbe5b",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "47078b5a-ccdb-471e-8bf6-bd7a41c59fe3",
+      "work_date": "2026-11-09",
+      "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "144393f7-022d-40e3-8852-11a549d330bb",
+      "work_date": "2026-11-09",
+      "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+      "status": "VALID"
+    },
+    {
+      "employee_id": "39f3e8f1-023f-4f40-8050-a610405a44cd",
+      "work_date": "2026-11-09",
+      "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+      "status": "VALID"
+    }
+  ],
+  "existing": [],
+  "registration_provenance": [],
+  "holiday_dates": [],
+  "new_employee_count_threshold": null
+}

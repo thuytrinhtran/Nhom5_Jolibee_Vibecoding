@@ -1,0 +1,23 @@
+{
+  "project_ref": "wlbpprpiieonjrqglicv",
+  "transaction_read_only": "on",
+  "real_registration_rows": 16,
+  "real_rows_sha256": "421243c8c29a18866485093a2adbceb9b7837ac5b2f29a80ae789d3cbea82ea0",
+  "collisions": {
+    "registration_id_collisions": "0",
+    "header_collisions": "0"
+  },
+  "proposed_headers": 51,
+  "proposed_registrations": 640,
+  "new_auth": 0,
+  "next_week": [
+    {
+      "id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "work_start_date": "2026-11-09",
+      "work_end_date": "2026-11-15",
+      "open_at": "2026-11-06T08:00:00.000Z",
+      "close_at": "2026-11-08T05:00:00.000Z",
+      "effective_status": "PLANNED"
+    }
+  ]
+}

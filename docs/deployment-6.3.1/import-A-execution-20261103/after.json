@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-11-03T07:39:54.727Z",
+  "project_ref": "wlbpprpiieonjrqglicv",
+  "batch_id": "6e1d2026-1102-4000-8000-000000000017",
+  "plan_sha256": "b9dcd9fbb121b39816458ae6ef82d28c84c5b93fb12c4e82dd5830a029850979",
+  "counts": {
+    "employees": 60,
+    "headers": 53,
+    "registrations": 656,
+    "demand_cells": 63,
+    "demand_positions": 308,
+    "schedules": 0
+  },
+  "original_tables_preserved": 29,
+  "real_rows_preserved": 16,
+  "real_rows_sha256": "421243c8c29a18866485093a2adbceb9b7837ac5b2f29a80ae789d3cbea82ea0",
+  "owned_headers": 51,
+  "owned_registrations": 640,
+  "ordinary_source_rows": 16,
+  "scoped_source_rows": 656,
+  "receipt_verified": true,
+  "after_images_verified": true,
+  "after_image_sha256": "a97373a985e0892adb745f6f07a29850c2277ef5ccf40b630e75ec066e3892fc",
+  "rollback": {
+    "eligible_at_check": true,
+    "foreign_keys_checked": 12,
+    "schedules": 0,
+    "executed": false,
+    "will_recheck_under_locks": true
+  },
+  "new_auth": 0,
+  "new_employees": 0,
+  "schedule_created": false,
+  "persistence_enabled": false
+}

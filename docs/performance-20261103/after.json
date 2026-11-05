@@ -1,0 +1,1100 @@
+{
+  "phase": "after",
+  "created_at": "2026-11-03T12:32:20.852Z",
+  "project_ref": "wlbpprpiieonjrqglicv",
+  "measurement": "READ_ONLY_SERVICE_WALL_TIME; API_SUBREQUEST_HEADERS_TIME; excludes browser/Auth HTTP; first vs subsequent is process/client warm-up, not browser cache",
+  "runs": [
+    {
+      "page": "dashboard",
+      "run": 0,
+      "kind": "first",
+      "ms": 1403,
+      "subrequests": 8,
+      "spans": [
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 288,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 186,
+          "status": 200
+        },
+        {
+          "endpoint": "employees",
+          "method": "GET",
+          "ms": 248,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_submissions_sourced",
+          "method": "GET",
+          "ms": 376,
+          "status": 200
+        },
+        {
+          "endpoint": "schedules",
+          "method": "GET",
+          "ms": 559,
+          "status": 200
+        },
+        {
+          "endpoint": "shift_assignments",
+          "method": "GET",
+          "ms": 680,
+          "status": 200
+        },
+        {
+          "endpoint": "staffing_requirements",
+          "method": "GET",
+          "ms": 185,
+          "status": 200
+        },
+        {
+          "endpoint": "rpc/tv5_read",
+          "method": "POST",
+          "ms": 234,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "registration_dependencies",
+      "run": 0,
+      "kind": "first",
+      "ms": 364,
+      "subrequests": 4,
+      "spans": [
+        {
+          "endpoint": "registration_schedule_config",
+          "method": "GET",
+          "ms": 170,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 171,
+          "status": 200
+        },
+        {
+          "endpoint": "shifts",
+          "method": "GET",
+          "ms": 362,
+          "status": 200
+        },
+        {
+          "endpoint": "employees",
+          "method": "GET",
+          "ms": 362,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "demand",
+      "run": 0,
+      "kind": "first",
+      "ms": 5153,
+      "subrequests": 14,
+      "spans": [
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 229,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 192,
+          "status": 200
+        },
+        {
+          "endpoint": "employees",
+          "method": "GET",
+          "ms": 202,
+          "status": 200
+        },
+        {
+          "endpoint": "staffing_requirements",
+          "method": "GET",
+          "ms": 298,
+          "status": 200
+        },
+        {
+          "endpoint": "shifts",
+          "method": "GET",
+          "ms": 299,
+          "status": 200
+        },
+        {
+          "endpoint": "departments",
+          "method": "GET",
+          "ms": 300,
+          "status": 200
+        },
+        {
+          "endpoint": "employee_skills",
+          "method": "GET",
+          "ms": 334,
+          "status": 200
+        },
+        {
+          "endpoint": "warning_configs",
+          "method": "GET",
+          "ms": 333,
+          "status": 200
+        },
+        {
+          "endpoint": "branches",
+          "method": "GET",
+          "ms": 366,
+          "status": 200
+        },
+        {
+          "endpoint": "shift_assignments",
+          "method": "GET",
+          "ms": 441,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_submissions_sourced",
+          "method": "GET",
+          "ms": 600,
+          "status": 200
+        },
+        {
+          "endpoint": "shift_registrations_sourced",
+          "method": "GET",
+          "ms": 1760,
+          "status": 200
+        },
+        {
+          "endpoint": "shift_registrations_sourced",
+          "method": "GET",
+          "ms": 1885,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_submissions_sourced",
+          "method": "GET",
+          "ms": 316,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "scheduling",
+      "run": 0,
+      "kind": "first",
+      "ms": 3467,
+      "subrequests": 14,
+      "spans": [
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 187,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 199,
+          "status": 200
+        },
+        {
+          "endpoint": "departments",
+          "method": "GET",
+          "ms": 180,
+          "status": 200
+        },
+        {
+          "endpoint": "shifts",
+          "method": "GET",
+          "ms": 324,
+          "status": 200
+        },
+        {
+          "endpoint": "warning_configs",
+          "method": "GET",
+          "ms": 354,
+          "status": 200
+        },
+        {
+          "endpoint": "staffing_requirements",
+          "method": "GET",
+          "ms": 357,
+          "status": 200
+        },
+        {
+          "endpoint": "branches",
+          "method": "GET",
+          "ms": 406,
+          "status": 200
+        },
+        {
+          "endpoint": "employees",
+          "method": "GET",
+          "ms": 410,
+          "status": 200
+        },
+        {
+          "endpoint": "shift_assignments",
+          "method": "GET",
+          "ms": 541,
+          "status": 200
+        },
+        {
+          "endpoint": "employee_skills",
+          "method": "GET",
+          "ms": 542,
+          "status": 200
+        },
+        {
+          "endpoint": "schedules",
+          "method": "GET",
+          "ms": 378,
+          "status": 200
+        },
+        {
+          "endpoint": "shift_assignments",
+          "method": "GET",
+          "ms": 303,
+          "status": 200
+        },
+        {
+          "endpoint": "audit_logs",
+          "method": "GET",
+          "ms": 330,
+          "status": 200
+        },
+        {
+          "endpoint": "audit_logs",
+          "method": "GET",
+          "ms": 185,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "publication",
+      "run": 0,
+      "kind": "first",
+      "ms": 304,
+      "subrequests": 1,
+      "spans": [
+        {
+          "endpoint": "schedules",
+          "method": "GET",
+          "ms": 300,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "official_calendar",
+      "run": 0,
+      "kind": "first",
+      "ms": 987,
+      "subrequests": 7,
+      "spans": [
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 199,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 203,
+          "status": 200
+        },
+        {
+          "endpoint": "schedules",
+          "method": "GET",
+          "ms": 209,
+          "status": 200
+        },
+        {
+          "endpoint": "departments",
+          "method": "GET",
+          "ms": 370,
+          "status": 200
+        },
+        {
+          "endpoint": "employees",
+          "method": "GET",
+          "ms": 371,
+          "status": 200
+        },
+        {
+          "endpoint": "shift_assignments",
+          "method": "GET",
+          "ms": 372,
+          "status": 206
+        },
+        {
+          "endpoint": "shifts",
+          "method": "GET",
+          "ms": 372,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "shift_changes",
+      "run": 0,
+      "kind": "first",
+      "ms": 585,
+      "subrequests": 1,
+      "spans": [
+        {
+          "endpoint": "rpc/employee_schedule_week",
+          "method": "POST",
+          "ms": 205,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "employee_schedule",
+      "run": 0,
+      "kind": "first",
+      "ms": 166,
+      "subrequests": 1,
+      "spans": [
+        {
+          "endpoint": "rpc/employee_schedule_week",
+          "method": "POST",
+          "ms": 165,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "dashboard",
+      "run": 1,
+      "kind": "subsequent",
+      "ms": 977,
+      "subrequests": 8,
+      "spans": [
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 176,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 205,
+          "status": 200
+        },
+        {
+          "endpoint": "employees",
+          "method": "GET",
+          "ms": 243,
+          "status": 200
+        },
+        {
+          "endpoint": "shift_assignments",
+          "method": "GET",
+          "ms": 336,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_submissions_sourced",
+          "method": "GET",
+          "ms": 337,
+          "status": 200
+        },
+        {
+          "endpoint": "schedules",
+          "method": "GET",
+          "ms": 392,
+          "status": 200
+        },
+        {
+          "endpoint": "staffing_requirements",
+          "method": "GET",
+          "ms": 199,
+          "status": 200
+        },
+        {
+          "endpoint": "rpc/tv5_read",
+          "method": "POST",
+          "ms": 199,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "registration_dependencies",
+      "run": 1,
+      "kind": "subsequent",
+      "ms": 206,
+      "subrequests": 4,
+      "spans": [
+        {
+          "endpoint": "shifts",
+          "method": "GET",
+          "ms": 184,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 185,
+          "status": 200
+        },
+        {
+          "endpoint": "employees",
+          "method": "GET",
+          "ms": 193,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_schedule_config",
+          "method": "GET",
+          "ms": 205,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "demand",
+      "run": 1,
+      "kind": "subsequent",
+      "ms": 1456,
+      "subrequests": 10,
+      "spans": [
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 176,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 146,
+          "status": 200
+        },
+        {
+          "endpoint": "employees",
+          "method": "GET",
+          "ms": 203,
+          "status": 200
+        },
+        {
+          "endpoint": "shifts",
+          "method": "GET",
+          "ms": 211,
+          "status": 200
+        },
+        {
+          "endpoint": "departments",
+          "method": "GET",
+          "ms": 221,
+          "status": 200
+        },
+        {
+          "endpoint": "staffing_requirements",
+          "method": "GET",
+          "ms": 230,
+          "status": 200
+        },
+        {
+          "endpoint": "employee_skills",
+          "method": "GET",
+          "ms": 250,
+          "status": 200
+        },
+        {
+          "endpoint": "shift_assignments",
+          "method": "GET",
+          "ms": 353,
+          "status": 200
+        },
+        {
+          "endpoint": "warning_configs",
+          "method": "GET",
+          "ms": 448,
+          "status": 200
+        },
+        {
+          "endpoint": "branches",
+          "method": "GET",
+          "ms": 449,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "scheduling",
+      "run": 1,
+      "kind": "subsequent",
+      "ms": 2482,
+      "subrequests": 14,
+      "spans": [
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 150,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 236,
+          "status": 200
+        },
+        {
+          "endpoint": "departments",
+          "method": "GET",
+          "ms": 200,
+          "status": 200
+        },
+        {
+          "endpoint": "shifts",
+          "method": "GET",
+          "ms": 201,
+          "status": 200
+        },
+        {
+          "endpoint": "employee_skills",
+          "method": "GET",
+          "ms": 289,
+          "status": 200
+        },
+        {
+          "endpoint": "warning_configs",
+          "method": "GET",
+          "ms": 290,
+          "status": 200
+        },
+        {
+          "endpoint": "branches",
+          "method": "GET",
+          "ms": 290,
+          "status": 200
+        },
+        {
+          "endpoint": "employees",
+          "method": "GET",
+          "ms": 291,
+          "status": 200
+        },
+        {
+          "endpoint": "staffing_requirements",
+          "method": "GET",
+          "ms": 292,
+          "status": 200
+        },
+        {
+          "endpoint": "shift_assignments",
+          "method": "GET",
+          "ms": 348,
+          "status": 200
+        },
+        {
+          "endpoint": "schedules",
+          "method": "GET",
+          "ms": 254,
+          "status": 200
+        },
+        {
+          "endpoint": "shift_assignments",
+          "method": "GET",
+          "ms": 262,
+          "status": 200
+        },
+        {
+          "endpoint": "audit_logs",
+          "method": "GET",
+          "ms": 263,
+          "status": 200
+        },
+        {
+          "endpoint": "audit_logs",
+          "method": "GET",
+          "ms": 169,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "publication",
+      "run": 1,
+      "kind": "subsequent",
+      "ms": 354,
+      "subrequests": 1,
+      "spans": [
+        {
+          "endpoint": "schedules",
+          "method": "GET",
+          "ms": 317,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "official_calendar",
+      "run": 1,
+      "kind": "subsequent",
+      "ms": 1502,
+      "subrequests": 7,
+      "spans": [
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 176,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 172,
+          "status": 200
+        },
+        {
+          "endpoint": "schedules",
+          "method": "GET",
+          "ms": 787,
+          "status": 200
+        },
+        {
+          "endpoint": "employees",
+          "method": "GET",
+          "ms": 176,
+          "status": 200
+        },
+        {
+          "endpoint": "shift_assignments",
+          "method": "GET",
+          "ms": 177,
+          "status": 206
+        },
+        {
+          "endpoint": "departments",
+          "method": "GET",
+          "ms": 206,
+          "status": 200
+        },
+        {
+          "endpoint": "shifts",
+          "method": "GET",
+          "ms": 359,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "shift_changes",
+      "run": 1,
+      "kind": "subsequent",
+      "ms": 525,
+      "subrequests": 1,
+      "spans": [
+        {
+          "endpoint": "rpc/employee_schedule_week",
+          "method": "POST",
+          "ms": 171,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "employee_schedule",
+      "run": 1,
+      "kind": "subsequent",
+      "ms": 196,
+      "subrequests": 1,
+      "spans": [
+        {
+          "endpoint": "rpc/employee_schedule_week",
+          "method": "POST",
+          "ms": 194,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "dashboard",
+      "run": 2,
+      "kind": "subsequent",
+      "ms": 842,
+      "subrequests": 8,
+      "spans": [
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 156,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 153,
+          "status": 200
+        },
+        {
+          "endpoint": "employees",
+          "method": "GET",
+          "ms": 218,
+          "status": 200
+        },
+        {
+          "endpoint": "shift_assignments",
+          "method": "GET",
+          "ms": 306,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_submissions_sourced",
+          "method": "GET",
+          "ms": 327,
+          "status": 200
+        },
+        {
+          "endpoint": "schedules",
+          "method": "GET",
+          "ms": 353,
+          "status": 200
+        },
+        {
+          "endpoint": "staffing_requirements",
+          "method": "GET",
+          "ms": 148,
+          "status": 200
+        },
+        {
+          "endpoint": "rpc/tv5_read",
+          "method": "POST",
+          "ms": 170,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "registration_dependencies",
+      "run": 2,
+      "kind": "subsequent",
+      "ms": 205,
+      "subrequests": 4,
+      "spans": [
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 174,
+          "status": 200
+        },
+        {
+          "endpoint": "shifts",
+          "method": "GET",
+          "ms": 197,
+          "status": 200
+        },
+        {
+          "endpoint": "employees",
+          "method": "GET",
+          "ms": 199,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_schedule_config",
+          "method": "GET",
+          "ms": 199,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "demand",
+      "run": 2,
+      "kind": "subsequent",
+      "ms": 1514,
+      "subrequests": 10,
+      "spans": [
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 187,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 184,
+          "status": 200
+        },
+        {
+          "endpoint": "departments",
+          "method": "GET",
+          "ms": 194,
+          "status": 200
+        },
+        {
+          "endpoint": "shifts",
+          "method": "GET",
+          "ms": 213,
+          "status": 200
+        },
+        {
+          "endpoint": "employees",
+          "method": "GET",
+          "ms": 215,
+          "status": 200
+        },
+        {
+          "endpoint": "staffing_requirements",
+          "method": "GET",
+          "ms": 215,
+          "status": 200
+        },
+        {
+          "endpoint": "branches",
+          "method": "GET",
+          "ms": 269,
+          "status": 200
+        },
+        {
+          "endpoint": "employee_skills",
+          "method": "GET",
+          "ms": 285,
+          "status": 200
+        },
+        {
+          "endpoint": "warning_configs",
+          "method": "GET",
+          "ms": 290,
+          "status": 200
+        },
+        {
+          "endpoint": "shift_assignments",
+          "method": "GET",
+          "ms": 408,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "scheduling",
+      "run": 2,
+      "kind": "subsequent",
+      "ms": 2145,
+      "subrequests": 14,
+      "spans": [
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 152,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 158,
+          "status": 200
+        },
+        {
+          "endpoint": "staffing_requirements",
+          "method": "GET",
+          "ms": 204,
+          "status": 200
+        },
+        {
+          "endpoint": "warning_configs",
+          "method": "GET",
+          "ms": 237,
+          "status": 200
+        },
+        {
+          "endpoint": "employees",
+          "method": "GET",
+          "ms": 251,
+          "status": 200
+        },
+        {
+          "endpoint": "shifts",
+          "method": "GET",
+          "ms": 252,
+          "status": 200
+        },
+        {
+          "endpoint": "departments",
+          "method": "GET",
+          "ms": 271,
+          "status": 200
+        },
+        {
+          "endpoint": "branches",
+          "method": "GET",
+          "ms": 276,
+          "status": 200
+        },
+        {
+          "endpoint": "employee_skills",
+          "method": "GET",
+          "ms": 350,
+          "status": 200
+        },
+        {
+          "endpoint": "shift_assignments",
+          "method": "GET",
+          "ms": 358,
+          "status": 200
+        },
+        {
+          "endpoint": "schedules",
+          "method": "GET",
+          "ms": 194,
+          "status": 200
+        },
+        {
+          "endpoint": "shift_assignments",
+          "method": "GET",
+          "ms": 240,
+          "status": 200
+        },
+        {
+          "endpoint": "audit_logs",
+          "method": "GET",
+          "ms": 277,
+          "status": 200
+        },
+        {
+          "endpoint": "audit_logs",
+          "method": "GET",
+          "ms": 154,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "publication",
+      "run": 2,
+      "kind": "subsequent",
+      "ms": 253,
+      "subrequests": 1,
+      "spans": [
+        {
+          "endpoint": "schedules",
+          "method": "GET",
+          "ms": 244,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "official_calendar",
+      "run": 2,
+      "kind": "subsequent",
+      "ms": 686,
+      "subrequests": 7,
+      "spans": [
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 159,
+          "status": 200
+        },
+        {
+          "endpoint": "registration_periods",
+          "method": "GET",
+          "ms": 143,
+          "status": 200
+        },
+        {
+          "endpoint": "schedules",
+          "method": "GET",
+          "ms": 146,
+          "status": 200
+        },
+        {
+          "endpoint": "shift_assignments",
+          "method": "GET",
+          "ms": 208,
+          "status": 206
+        },
+        {
+          "endpoint": "departments",
+          "method": "GET",
+          "ms": 235,
+          "status": 200
+        },
+        {
+          "endpoint": "shifts",
+          "method": "GET",
+          "ms": 235,
+          "status": 200
+        },
+        {
+          "endpoint": "employees",
+          "method": "GET",
+          "ms": 235,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "shift_changes",
+      "run": 2,
+      "kind": "subsequent",
+      "ms": 464,
+      "subrequests": 1,
+      "spans": [
+        {
+          "endpoint": "rpc/employee_schedule_week",
+          "method": "POST",
+          "ms": 153,
+          "status": 200
+        }
+      ],
+      "error": null
+    },
+    {
+      "page": "employee_schedule",
+      "run": 2,
+      "kind": "subsequent",
+      "ms": 173,
+      "subrequests": 1,
+      "spans": [
+        {
+          "endpoint": "rpc/employee_schedule_week",
+          "method": "POST",
+          "ms": 172,
+          "status": 200
+        }
+      ],
+      "error": null
+    }
+  ]
+}

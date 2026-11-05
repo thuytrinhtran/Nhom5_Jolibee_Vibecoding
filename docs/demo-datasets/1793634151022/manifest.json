@@ -1,0 +1,371 @@
+{
+  "scope": "LOCAL_FIXTURES_NOT_SHARED_IMPORT_AUTHORIZATION",
+  "project_ref": "wlbpprpiieonjrqglicv",
+  "captured_at": "2026-11-02T15:42:31.022Z",
+  "baseline_input_sha256": "3c11031635840cb1f4b3a62284f0ecb18c7a7934974de33535a06c2b0bc746bf",
+  "preserved_headers": 2,
+  "preserved_real_registrations": 16,
+  "existing_employees": 60,
+  "extra_auth_required": 0,
+  "extra_employees_required": 0,
+  "new_headers": 51,
+  "extra_registrations": 640,
+  "positive": {
+    "assigned": 308,
+    "required": 308,
+    "shortages": [],
+    "composition_shortages": [],
+    "optimization": {
+      "method": "DETERMINISTIC_SINGLE_REPLACEMENT",
+      "objective": "WITHIN_DEPARTMENT_SQUARED_HOUR_DEVIATION",
+      "max_iterations": 200,
+      "iterations": 8,
+      "converged": true,
+      "limit_reached": false,
+      "before": {
+        "objective": 350.55167055167055,
+        "departments": [
+          {
+            "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+            "employee_count": 13,
+            "total_hours": 434,
+            "mean_hours": 33.38461538461539,
+            "squared_deviation": 9.076923076923078
+          },
+          {
+            "department_id": "22222222-2222-2222-2222-222222222222",
+            "employee_count": 22,
+            "total_hours": 490,
+            "mean_hours": 22.272727272727273,
+            "squared_deviation": 290.3636363636364
+          },
+          {
+            "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+            "employee_count": 18,
+            "total_hours": 518,
+            "mean_hours": 28.77777777777778,
+            "squared_deviation": 51.1111111111111
+          }
+        ]
+      },
+      "after": {
+        "objective": 90.55167055167055,
+        "departments": [
+          {
+            "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+            "employee_count": 13,
+            "total_hours": 434,
+            "mean_hours": 33.38461538461539,
+            "squared_deviation": 9.076923076923078
+          },
+          {
+            "department_id": "22222222-2222-2222-2222-222222222222",
+            "employee_count": 22,
+            "total_hours": 490,
+            "mean_hours": 22.272727272727273,
+            "squared_deviation": 46.36363636363635
+          },
+          {
+            "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+            "employee_count": 18,
+            "total_hours": 518,
+            "mean_hours": 28.77777777777778,
+            "squared_deviation": 35.111111111111114
+          }
+        ]
+      }
+    }
+  },
+  "negative": {
+    "employees": 9,
+    "registrations": 21,
+    "assigned": 21,
+    "required": 36,
+    "shortages": [
+      {
+        "id": "5c3339b4-70d7-491b-84b6-b213356c32a5",
+        "department_id": "1751d53c-e4dd-44a6-87e5-a09c91a3f7db",
+        "work_date": "2026-11-09",
+        "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+        "required_count": 3,
+        "required_skill_name": null,
+        "assigned_count": 1,
+        "new_assigned_count": 1,
+        "existing_count": 0,
+        "missing_count": 2,
+        "excess_count": 0,
+        "experienced_target": 2,
+        "experienced_count": 1,
+        "missing_experienced_count": 1,
+        "composition_status": "SHORTAGE",
+        "warnings": [
+          "STAFFING_SHORTAGE",
+          "EXPERIENCE_SHORTAGE"
+        ],
+        "warning": "EXPERIENCE_SHORTAGE"
+      },
+      {
+        "id": "48af5fff-99de-45e0-8ffb-31ca0244d1a9",
+        "department_id": "3d68bf78-c629-4f86-8e96-3468246dcf81",
+        "work_date": "2026-11-09",
+        "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+        "required_count": 3,
+        "required_skill_name": null,
+        "assigned_count": 1,
+        "new_assigned_count": 1,
+        "existing_count": 0,
+        "missing_count": 2,
+        "excess_count": 0,
+        "experienced_target": 2,
+        "experienced_count": 1,
+        "missing_experienced_count": 1,
+        "composition_status": "SHORTAGE",
+        "warnings": [
+          "STAFFING_SHORTAGE",
+          "EXPERIENCE_SHORTAGE"
+        ],
+        "warning": "EXPERIENCE_SHORTAGE"
+      },
+      {
+        "id": "e15e4ffa-d9cc-4f83-85bc-07db3639f3c2",
+        "department_id": "6efe1a34-e921-4e33-8eac-97fbe495bcbf",
+        "work_date": "2026-11-09",
+        "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+        "required_count": 3,
+        "required_skill_name": null,
+        "assigned_count": 1,
+        "new_assigned_count": 1,
+        "existing_count": 0,
+        "missing_count": 2,
+        "excess_count": 0,
+        "experienced_target": 2,
+        "experienced_count": 1,
+        "missing_experienced_count": 1,
+        "composition_status": "SHORTAGE",
+        "warnings": [
+          "STAFFING_SHORTAGE",
+          "EXPERIENCE_SHORTAGE"
+        ],
+        "warning": "EXPERIENCE_SHORTAGE"
+      },
+      {
+        "id": "70ee438a-62b2-4a4c-8954-5e5b2356c5d7",
+        "department_id": "1751d53c-e4dd-44a6-87e5-a09c91a3f7db",
+        "work_date": "2026-11-10",
+        "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+        "required_count": 3,
+        "required_skill_name": null,
+        "assigned_count": 0,
+        "new_assigned_count": 0,
+        "existing_count": 0,
+        "missing_count": 3,
+        "excess_count": 0,
+        "experienced_target": 2,
+        "experienced_count": 0,
+        "missing_experienced_count": 2,
+        "composition_status": "SHORTAGE",
+        "warnings": [
+          "STAFFING_SHORTAGE",
+          "EXPERIENCE_SHORTAGE"
+        ],
+        "warning": "EXPERIENCE_SHORTAGE"
+      },
+      {
+        "id": "8039c82e-737b-4fa0-8512-ecdb90538b57",
+        "department_id": "3d68bf78-c629-4f86-8e96-3468246dcf81",
+        "work_date": "2026-11-10",
+        "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+        "required_count": 3,
+        "required_skill_name": null,
+        "assigned_count": 0,
+        "new_assigned_count": 0,
+        "existing_count": 0,
+        "missing_count": 3,
+        "excess_count": 0,
+        "experienced_target": 2,
+        "experienced_count": 0,
+        "missing_experienced_count": 2,
+        "composition_status": "SHORTAGE",
+        "warnings": [
+          "STAFFING_SHORTAGE",
+          "EXPERIENCE_SHORTAGE"
+        ],
+        "warning": "EXPERIENCE_SHORTAGE"
+      },
+      {
+        "id": "a25b10ed-234a-444b-8d4c-6f76d81b8577",
+        "department_id": "6efe1a34-e921-4e33-8eac-97fbe495bcbf",
+        "work_date": "2026-11-10",
+        "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+        "required_count": 3,
+        "required_skill_name": null,
+        "assigned_count": 0,
+        "new_assigned_count": 0,
+        "existing_count": 0,
+        "missing_count": 3,
+        "excess_count": 0,
+        "experienced_target": 2,
+        "experienced_count": 0,
+        "missing_experienced_count": 2,
+        "composition_status": "SHORTAGE",
+        "warnings": [
+          "STAFFING_SHORTAGE",
+          "EXPERIENCE_SHORTAGE"
+        ],
+        "warning": "EXPERIENCE_SHORTAGE"
+      }
+    ],
+    "composition_shortages": [
+      {
+        "id": "5c3339b4-70d7-491b-84b6-b213356c32a5",
+        "department_id": "1751d53c-e4dd-44a6-87e5-a09c91a3f7db",
+        "work_date": "2026-11-09",
+        "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+        "required_count": 3,
+        "required_skill_name": null,
+        "assigned_count": 1,
+        "new_assigned_count": 1,
+        "existing_count": 0,
+        "missing_count": 2,
+        "excess_count": 0,
+        "experienced_target": 2,
+        "experienced_count": 1,
+        "missing_experienced_count": 1,
+        "composition_status": "SHORTAGE",
+        "warnings": [
+          "STAFFING_SHORTAGE",
+          "EXPERIENCE_SHORTAGE"
+        ],
+        "warning": "EXPERIENCE_SHORTAGE"
+      },
+      {
+        "id": "48af5fff-99de-45e0-8ffb-31ca0244d1a9",
+        "department_id": "3d68bf78-c629-4f86-8e96-3468246dcf81",
+        "work_date": "2026-11-09",
+        "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+        "required_count": 3,
+        "required_skill_name": null,
+        "assigned_count": 1,
+        "new_assigned_count": 1,
+        "existing_count": 0,
+        "missing_count": 2,
+        "excess_count": 0,
+        "experienced_target": 2,
+        "experienced_count": 1,
+        "missing_experienced_count": 1,
+        "composition_status": "SHORTAGE",
+        "warnings": [
+          "STAFFING_SHORTAGE",
+          "EXPERIENCE_SHORTAGE"
+        ],
+        "warning": "EXPERIENCE_SHORTAGE"
+      },
+      {
+        "id": "e15e4ffa-d9cc-4f83-85bc-07db3639f3c2",
+        "department_id": "6efe1a34-e921-4e33-8eac-97fbe495bcbf",
+        "work_date": "2026-11-09",
+        "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+        "required_count": 3,
+        "required_skill_name": null,
+        "assigned_count": 1,
+        "new_assigned_count": 1,
+        "existing_count": 0,
+        "missing_count": 2,
+        "excess_count": 0,
+        "experienced_target": 2,
+        "experienced_count": 1,
+        "missing_experienced_count": 1,
+        "composition_status": "SHORTAGE",
+        "warnings": [
+          "STAFFING_SHORTAGE",
+          "EXPERIENCE_SHORTAGE"
+        ],
+        "warning": "EXPERIENCE_SHORTAGE"
+      },
+      {
+        "id": "70ee438a-62b2-4a4c-8954-5e5b2356c5d7",
+        "department_id": "1751d53c-e4dd-44a6-87e5-a09c91a3f7db",
+        "work_date": "2026-11-10",
+        "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+        "required_count": 3,
+        "required_skill_name": null,
+        "assigned_count": 0,
+        "new_assigned_count": 0,
+        "existing_count": 0,
+        "missing_count": 3,
+        "excess_count": 0,
+        "experienced_target": 2,
+        "experienced_count": 0,
+        "missing_experienced_count": 2,
+        "composition_status": "SHORTAGE",
+        "warnings": [
+          "STAFFING_SHORTAGE",
+          "EXPERIENCE_SHORTAGE"
+        ],
+        "warning": "EXPERIENCE_SHORTAGE"
+      },
+      {
+        "id": "8039c82e-737b-4fa0-8512-ecdb90538b57",
+        "department_id": "3d68bf78-c629-4f86-8e96-3468246dcf81",
+        "work_date": "2026-11-10",
+        "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+        "required_count": 3,
+        "required_skill_name": null,
+        "assigned_count": 0,
+        "new_assigned_count": 0,
+        "existing_count": 0,
+        "missing_count": 3,
+        "excess_count": 0,
+        "experienced_target": 2,
+        "experienced_count": 0,
+        "missing_experienced_count": 2,
+        "composition_status": "SHORTAGE",
+        "warnings": [
+          "STAFFING_SHORTAGE",
+          "EXPERIENCE_SHORTAGE"
+        ],
+        "warning": "EXPERIENCE_SHORTAGE"
+      },
+      {
+        "id": "a25b10ed-234a-444b-8d4c-6f76d81b8577",
+        "department_id": "6efe1a34-e921-4e33-8eac-97fbe495bcbf",
+        "work_date": "2026-11-10",
+        "shift_id": "1e7f4ef1-4ff2-4a2f-85b1-cbdd1dbe44f2",
+        "required_count": 3,
+        "required_skill_name": null,
+        "assigned_count": 0,
+        "new_assigned_count": 0,
+        "existing_count": 0,
+        "missing_count": 3,
+        "excess_count": 0,
+        "experienced_target": 2,
+        "experienced_count": 0,
+        "missing_experienced_count": 2,
+        "composition_status": "SHORTAGE",
+        "warnings": [
+          "STAFFING_SHORTAGE",
+          "EXPERIENCE_SHORTAGE"
+        ],
+        "warning": "EXPERIENCE_SHORTAGE"
+      }
+    ]
+  },
+  "files": [
+    {
+      "file": "real-source-input.json",
+      "sha256": "71b741cb6eaeafd817f92d3853506d8a682931cb147ef7f77601e71f27b40f95"
+    },
+    {
+      "file": "existing-employees-seed.json",
+      "sha256": "3757a759d539e1258685a7ca4b60251869249b518e370c7b5a26231a56ae8b22"
+    },
+    {
+      "file": "existing-employees-input.json",
+      "sha256": "3ee5796e0ec2fe9cca847291d275c480b2d33f5882efae29f91f215822f39cf2"
+    },
+    {
+      "file": "shortage-input.json",
+      "sha256": "d5265ffd3ff99fab76ccaa020245e1b4b5503d7578e1d7e8027adad6b60feb87"
+    }
+  ]
+}

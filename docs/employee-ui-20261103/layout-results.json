@@ -1,0 +1,50 @@
+[
+  {
+    "page": "calendar",
+    "width": 1366,
+    "height": 768,
+    "scrollWidth": 1366,
+    "overflow": false,
+    "fixture": true
+  },
+  {
+    "page": "request",
+    "width": 1366,
+    "height": 768,
+    "scrollWidth": 1351,
+    "overflow": false,
+    "fixture": true
+  },
+  {
+    "page": "incident",
+    "width": 1366,
+    "height": 768,
+    "scrollWidth": 1351,
+    "overflow": false,
+    "fixture": true
+  },
+  {
+    "page": "calendar",
+    "width": 390,
+    "height": 768,
+    "scrollWidth": 375,
+    "overflow": false,
+    "fixture": true
+  },
+  {
+    "page": "request",
+    "width": 390,
+    "height": 768,
+    "scrollWidth": 375,
+    "overflow": false,
+    "fixture": true
+  },
+  {
+    "page": "incident",
+    "width": 390,
+    "height": 768,
+    "scrollWidth": 375,
+    "overflow": false,
+    "fixture": true
+  }
+]

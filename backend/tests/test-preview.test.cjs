@@ -112,7 +112,7 @@ test('HTTP requires QL/branch, ignores client activation and blocks draft, edits
    assert.equal((await request('/test-preview',{},false)).status,401);role='NV';assert.equal((await request('/test-preview')).status,403);role='QL';branch='other';assert.equal((await request('/test-preview')).status,403);branch=BRANCH;
    const response=await request('/test-preview');assert.equal(response.status,200);assert.equal((await response.json()).result.test_metadata.batch_id,BATCH);
    const reads=loads;
-   for(const [path,method] of [['/drafts','POST'],['/generate','POST'],[`/${user}/draft-assignments`,'PATCH'],[`/periods/${PERIOD}/requirements`,'PUT'],[`/periods/${PERIOD}/requirements`,'DELETE'],[`/${user}/approval-handoff`,'POST'],[`/workflow/${user}/publish`,'POST'],[`/workflow/${user}/submit`,'POST'],[`/workflow/${user}/decision`,'POST'],[`/workflow/${user}/resubmit`,'POST'],['/preview/apply-adjustment','POST']]){
+   for(const [path,method] of [['/drafts','POST'],['/generate','POST'],[`/${user}/draft-assignments`,'PATCH'],[`/periods/${PERIOD}/requirements`,'PUT'],[`/periods/${PERIOD}/requirements`,'DELETE'],[`/${user}/approval-handoff`,'POST'],[`/workflow/${user}/publish`,'POST'],[`/workflow/${user}/submit`,'POST'],[`/workflow/${user}/decision`,'POST'],[`/workflow/${user}/resubmit`,'POST']]){
     const blocked=await request(path,{},true,method);assert.equal(blocked.status,403,path);assert.equal((await blocked.json()).code,'TEST_PREVIEW_READ_ONLY');
    }assert.equal(loads,reads);
   });

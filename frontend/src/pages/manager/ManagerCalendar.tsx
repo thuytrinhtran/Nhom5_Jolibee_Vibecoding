@@ -64,6 +64,6 @@ export function ManagerCalendar(){
         })}</tr>)}</tbody>
       </table></div>}
     </div>
-    <p className="calendar-links"><Link to="/manager/schedule">Mở công cụ lập lịch và đánh giá AI</Link> · <Link to="/manager/publish">Mở quy trình phê duyệt / công bố</Link></p>
+    <p className="calendar-links"><Link to="/manager/schedule">Mở công cụ xếp lịch</Link> · <Link to="/manager/publish">Mở quy trình phê duyệt / công bố</Link></p>
   </section>;
 }

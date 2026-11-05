@@ -1,0 +1,1886 @@
+{
+  "format": "jollishift-metadata-review.v1",
+  "project_ref": "wlbpprpiieonjrqglicv",
+  "project_binding": "User declaration and earlier GET; CSV alone does not bind server project",
+  "inventory": [
+    {
+      "file": "Supabase Snippet Untitled query (56).csv",
+      "source_path": "C:\\Users\\Thuy Trinh Tran\\Downloads\\Supabase Snippet Untitled query (56).csv",
+      "query_by_columns": "C3.1",
+      "rows": 95,
+      "columns": [
+        "table_name",
+        "conname",
+        "contype",
+        "convalidated",
+        "referenced_table",
+        "definition"
+      ],
+      "sha256": "11ccb1995495b5a291be46ca888e916d5b08781392831bdaaeaa239f4b6ca1e8",
+      "confidence": "HIGH_CONTENT_AND_USER_MAPPING_AGREE"
+    },
+    {
+      "file": "Supabase Snippet Untitled query (57).csv",
+      "source_path": "C:\\Users\\Thuy Trinh Tran\\Downloads\\Supabase Snippet Untitled query (57).csv",
+      "query_by_columns": "C6",
+      "rows": 7,
+      "columns": [
+        "table_name",
+        "tgname",
+        "tgenabled",
+        "function_name",
+        "definition",
+        "function_definition"
+      ],
+      "sha256": "71bc9c3bd754081f2736698685e3bb9da62a5ca7c8dbfad987d93cd5408f0916",
+      "confidence": "HIGH_CONTENT_AND_USER_MAPPING_AGREE"
+    },
+    {
+      "file": "Supabase Snippet Untitled query (58).csv",
+      "source_path": "C:\\Users\\Thuy Trinh Tran\\Downloads\\Supabase Snippet Untitled query (58).csv",
+      "query_by_columns": "C7.2",
+      "rows": 96,
+      "columns": [
+        "owner",
+        "nspname",
+        "defaclobjtype",
+        "grantee",
+        "privilege_type"
+      ],
+      "sha256": "6b41fc9d6cc64571091ae392ef5745a8a263483e96b96e167d36f5a1245d17b1",
+      "confidence": "HIGH_CONTENT_AND_USER_MAPPING_AGREE"
+    },
+    {
+      "file": "Supabase Snippet Untitled query (59).csv",
+      "source_path": "C:\\Users\\Thuy Trinh Tran\\Downloads\\Supabase Snippet Untitled query (59).csv",
+      "query_by_columns": "C8.1",
+      "rows": 26,
+      "columns": [
+        "table_name",
+        "relrowsecurity",
+        "relforcerowsecurity",
+        "owner"
+      ],
+      "sha256": "4cc67e4a5dcaddf529271d4fb544877a262540bb5f91d83d2dcc23b32ac955a4",
+      "confidence": "HIGH_CONTENT_AND_USER_MAPPING_AGREE"
+    },
+    {
+      "file": "Supabase Snippet Untitled query (60).csv",
+      "source_path": "C:\\Users\\Thuy Trinh Tran\\Downloads\\Supabase Snippet Untitled query (60).csv",
+      "query_by_columns": "C8.2",
+      "rows": 22,
+      "columns": [
+        "schemaname",
+        "tablename",
+        "policyname",
+        "permissive",
+        "roles",
+        "cmd",
+        "qual",
+        "with_check"
+      ],
+      "sha256": "4c94856e1d120c37057ba32601c7da0e954a3ada7bb29e966155faf3dd79968f",
+      "confidence": "HIGH_CONTENT_AND_USER_MAPPING_AGREE"
+    },
+    {
+      "file": "Supabase Snippet Untitled query (61).csv",
+      "source_path": "C:\\Users\\Thuy Trinh Tran\\Downloads\\Supabase Snippet Untitled query (61).csv",
+      "query_by_columns": "C8.3",
+      "rows": 15,
+      "columns": [
+        "table_name",
+        "rolname",
+        "can_select",
+        "can_insert",
+        "can_update",
+        "can_delete"
+      ],
+      "sha256": "82fbf89815b4f924316cd94bc5e7f3a41a9ab71730a4f0bffa154e85e4c5d591",
+      "confidence": "HIGH_CONTENT_AND_USER_MAPPING_AGREE"
+    },
+    {
+      "file": "Supabase Snippet Untitled query (62).csv",
+      "source_path": "C:\\Users\\Thuy Trinh Tran\\Downloads\\Supabase Snippet Untitled query (62).csv",
+      "query_by_columns": "C9",
+      "rows": 2,
+      "columns": [
+        "view_name",
+        "reloptions",
+        "relacl",
+        "definition"
+      ],
+      "sha256": "10b5867357c2b546faa32f7c160a942d6fad0452dd682b2ddeab60e51999514e",
+      "confidence": "HIGH_CONTENT_AND_USER_MAPPING_AGREE"
+    },
+    {
+      "file": "Supabase Snippet Untitled query (63).csv",
+      "source_path": "C:\\Users\\Thuy Trinh Tran\\Downloads\\Supabase Snippet Untitled query (63).csv",
+      "query_by_columns": "C9 duplicate",
+      "rows": 2,
+      "columns": [
+        "view_name",
+        "reloptions",
+        "relacl",
+        "definition"
+      ],
+      "sha256": "10b5867357c2b546faa32f7c160a942d6fad0452dd682b2ddeab60e51999514e",
+      "confidence": "HIGH_CONTENT_AND_USER_MAPPING_AGREE"
+    },
+    {
+      "file": "Supabase Snippet Untitled query (64).csv",
+      "source_path": "C:\\Users\\Thuy Trinh Tran\\Downloads\\Supabase Snippet Untitled query (64).csv",
+      "query_by_columns": "C10",
+      "rows": 7,
+      "columns": [
+        "evtname",
+        "evtevent",
+        "evtenabled",
+        "owner",
+        "evttags",
+        "handler",
+        "definition"
+      ],
+      "sha256": "50e3c765846a591de30337e2b616f75da8bd55bff5d8325f017ea780e82d1159",
+      "confidence": "HIGH_CONTENT_AND_USER_MAPPING_AGREE"
+    }
+  ],
+  "original_files_modified": false,
+  "missing_critical_metadata": [],
+  "critical_metadata_groups_verified": 8,
+  "schema_conflict_requiring_bundle_change_found": false,
+  "constraints": {
+    "count": 95,
+    "all_validated": true,
+    "tv5_unique_guard_constraint": {
+      "table_name": "shift_assignments",
+      "conname": "shift_assignments_unique",
+      "contype": "u",
+      "convalidated": "true",
+      "referenced_table": "-",
+      "definition": "UNIQUE (schedule_id, employee_id, work_date, shift_id)"
+    },
+    "cascade_edges": [
+      {
+        "table_name": "employee_skills",
+        "conname": "employee_skills_employee_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "employees",
+        "definition": "FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE"
+      },
+      {
+        "table_name": "users",
+        "conname": "users_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "auth.users",
+        "definition": "FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE"
+      }
+    ],
+    "rows": [
+      {
+        "table_name": "ai_schedule_suggestions",
+        "conname": "ai_schedule_suggestions_selected_by_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "users",
+        "definition": "FOREIGN KEY (selected_by) REFERENCES users(id)"
+      },
+      {
+        "table_name": "audit_logs",
+        "conname": "audit_logs_actor_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "users",
+        "definition": "FOREIGN KEY (actor_id) REFERENCES users(id)"
+      },
+      {
+        "table_name": "branch_support_requests",
+        "conname": "branch_support_requests_created_by_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "users",
+        "definition": "FOREIGN KEY (created_by) REFERENCES users(id)"
+      },
+      {
+        "table_name": "branches",
+        "conname": "branches_supervisor_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "users",
+        "definition": "FOREIGN KEY (supervisor_id) REFERENCES users(id) ON DELETE SET NULL"
+      },
+      {
+        "table_name": "crew_leader_days_off",
+        "conname": "crew_leader_days_off_created_by_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "users",
+        "definition": "FOREIGN KEY (created_by) REFERENCES users(id)"
+      },
+      {
+        "table_name": "crew_leader_days_off",
+        "conname": "crew_leader_days_off_employee_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "employees",
+        "definition": "FOREIGN KEY (employee_id) REFERENCES employees(id)"
+      },
+      {
+        "table_name": "employee_skills",
+        "conname": "employee_skills_employee_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "employees",
+        "definition": "FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE"
+      },
+      {
+        "table_name": "employees",
+        "conname": "employees_branch_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "branches",
+        "definition": "FOREIGN KEY (branch_id) REFERENCES branches(id)"
+      },
+      {
+        "table_name": "employees",
+        "conname": "employees_department_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "departments",
+        "definition": "FOREIGN KEY (department_id) REFERENCES departments(id)"
+      },
+      {
+        "table_name": "employees",
+        "conname": "employees_full_name_not_blank",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK ((length(btrim((full_name)::text)) > 0))"
+      },
+      {
+        "table_name": "employees",
+        "conname": "employees_id_department_unique",
+        "contype": "u",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "UNIQUE (id, department_id)"
+      },
+      {
+        "table_name": "employees",
+        "conname": "employees_max_weekly_hours_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK (((max_weekly_hours IS NULL) OR (max_weekly_hours > (0)::numeric)))"
+      },
+      {
+        "table_name": "employees",
+        "conname": "employees_pkey",
+        "contype": "p",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "PRIMARY KEY (id)"
+      },
+      {
+        "table_name": "employees",
+        "conname": "employees_skill_level_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK (((skill_level)::text = ANY ((ARRAY['NEW'::character varying, 'REGULAR'::character varying, 'CREW_TRAINING'::character varying, 'CREW_LEADER'::character varying])::text[])))"
+      },
+      {
+        "table_name": "employees",
+        "conname": "employees_status_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK (((status)::text = ANY ((ARRAY['ACTIVE'::character varying, 'INACTIVE'::character varying])::text[])))"
+      },
+      {
+        "table_name": "employees",
+        "conname": "employees_user_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "users",
+        "definition": "FOREIGN KEY (user_id) REFERENCES users(id)"
+      },
+      {
+        "table_name": "employees",
+        "conname": "employees_user_id_key",
+        "contype": "u",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "UNIQUE (user_id)"
+      },
+      {
+        "table_name": "incidents",
+        "conname": "incidents_declared_substitute_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "employees",
+        "definition": "FOREIGN KEY (declared_substitute_id) REFERENCES employees(id)"
+      },
+      {
+        "table_name": "incidents",
+        "conname": "incidents_description_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK ((length(btrim(description)) > 0))"
+      },
+      {
+        "table_name": "incidents",
+        "conname": "incidents_original_assignment_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "shift_assignments",
+        "definition": "FOREIGN KEY (original_assignment_id) REFERENCES shift_assignments(id)"
+      },
+      {
+        "table_name": "incidents",
+        "conname": "incidents_pkey",
+        "contype": "p",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "PRIMARY KEY (id)"
+      },
+      {
+        "table_name": "incidents",
+        "conname": "incidents_reporting_employee_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "employees",
+        "definition": "FOREIGN KEY (reporting_employee_id) REFERENCES employees(id)"
+      },
+      {
+        "table_name": "incidents",
+        "conname": "incidents_status_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK (((status)::text = ANY ((ARRAY['REPORTED'::character varying, 'IN_PROGRESS'::character varying, 'RESOLVED'::character varying, 'UNRESOLVED'::character varying])::text[])))"
+      },
+      {
+        "table_name": "notifications",
+        "conname": "notifications_recipient_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "users",
+        "definition": "FOREIGN KEY (recipient_id) REFERENCES users(id)"
+      },
+      {
+        "table_name": "registration_periods",
+        "conname": "registration_periods_branch_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "branches",
+        "definition": "FOREIGN KEY (branch_id) REFERENCES branches(id)"
+      },
+      {
+        "table_name": "registration_periods",
+        "conname": "registration_periods_pkey",
+        "contype": "p",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "PRIMARY KEY (id)"
+      },
+      {
+        "table_name": "registration_periods",
+        "conname": "registration_periods_range",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK ((open_at < close_at))"
+      },
+      {
+        "table_name": "registration_periods",
+        "conname": "registration_periods_status_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK (((status)::text = ANY ((ARRAY['PLANNED'::character varying, 'OPEN'::character varying, 'CLOSED'::character varying])::text[])))"
+      },
+      {
+        "table_name": "registration_periods",
+        "conname": "registration_periods_unique",
+        "contype": "u",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "UNIQUE (branch_id, work_start_date)"
+      },
+      {
+        "table_name": "registration_periods",
+        "conname": "registration_periods_week",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK (((EXTRACT(isodow FROM work_start_date) = (1)::numeric) AND (work_end_date = (work_start_date + 6))))"
+      },
+      {
+        "table_name": "registration_submissions",
+        "conname": "registration_submissions_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK (((((status)::text = 'VALID'::text) AND (submitted_at IS NOT NULL)) OR (((status)::text <> 'VALID'::text) AND (submitted_at IS NULL))))"
+      },
+      {
+        "table_name": "registration_submissions",
+        "conname": "registration_submissions_employee_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "employees",
+        "definition": "FOREIGN KEY (employee_id) REFERENCES employees(id)"
+      },
+      {
+        "table_name": "registration_submissions",
+        "conname": "registration_submissions_period_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "registration_periods",
+        "definition": "FOREIGN KEY (period_id) REFERENCES registration_periods(id)"
+      },
+      {
+        "table_name": "registration_submissions",
+        "conname": "registration_submissions_pkey",
+        "contype": "p",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "PRIMARY KEY (period_id, employee_id)"
+      },
+      {
+        "table_name": "registration_submissions",
+        "conname": "registration_submissions_sample_batch_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "audit_logs",
+        "definition": "FOREIGN KEY (sample_batch_id) REFERENCES audit_logs(id)"
+      },
+      {
+        "table_name": "registration_submissions",
+        "conname": "registration_submissions_status_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK (((status)::text = ANY ((ARRAY['DRAFT'::character varying, 'INVALID'::character varying, 'VALID'::character varying])::text[])))"
+      },
+      {
+        "table_name": "replacement_invitations",
+        "conname": "replacement_invitation_exactly_one_source",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK ((num_nonnulls(shift_change_request_id, incident_id) = 1))"
+      },
+      {
+        "table_name": "replacement_invitations",
+        "conname": "replacement_invitation_expiry",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK ((expires_at > sent_at))"
+      },
+      {
+        "table_name": "replacement_invitations",
+        "conname": "replacement_invitations_incident_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "incidents",
+        "definition": "FOREIGN KEY (incident_id) REFERENCES incidents(id)"
+      },
+      {
+        "table_name": "replacement_invitations",
+        "conname": "replacement_invitations_pkey",
+        "contype": "p",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "PRIMARY KEY (id)"
+      },
+      {
+        "table_name": "replacement_invitations",
+        "conname": "replacement_invitations_shift_change_request_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "shift_change_requests",
+        "definition": "FOREIGN KEY (shift_change_request_id) REFERENCES shift_change_requests(id)"
+      },
+      {
+        "table_name": "replacement_invitations",
+        "conname": "replacement_invitations_status_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK (((status)::text = ANY ((ARRAY['PENDING'::character varying, 'ACCEPTED'::character varying, 'DECLINED'::character varying, 'EXPIRED'::character varying])::text[])))"
+      },
+      {
+        "table_name": "replacement_invitations",
+        "conname": "replacement_invitations_target_employee_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "employees",
+        "definition": "FOREIGN KEY (target_employee_id) REFERENCES employees(id)"
+      },
+      {
+        "table_name": "schedule_approvals",
+        "conname": "schedule_approvals_decision_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK (((decision)::text = ANY ((ARRAY['APPROVED'::character varying, 'NEEDS_REVISION'::character varying])::text[])))"
+      },
+      {
+        "table_name": "schedule_approvals",
+        "conname": "schedule_approvals_pkey",
+        "contype": "p",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "PRIMARY KEY (id)"
+      },
+      {
+        "table_name": "schedule_approvals",
+        "conname": "schedule_approvals_reason_required",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK ((((decision)::text <> 'NEEDS_REVISION'::text) OR (length(btrim(COALESCE(reason, ''::text))) > 0)))"
+      },
+      {
+        "table_name": "schedule_approvals",
+        "conname": "schedule_approvals_schedule_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "schedules",
+        "definition": "FOREIGN KEY (schedule_id) REFERENCES schedules(id)"
+      },
+      {
+        "table_name": "schedule_approvals",
+        "conname": "schedule_approvals_supervisor_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "users",
+        "definition": "FOREIGN KEY (supervisor_id) REFERENCES users(id)"
+      },
+      {
+        "table_name": "schedules",
+        "conname": "schedules_branch_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "branches",
+        "definition": "FOREIGN KEY (branch_id) REFERENCES branches(id)"
+      },
+      {
+        "table_name": "schedules",
+        "conname": "schedules_created_by_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "users",
+        "definition": "FOREIGN KEY (created_by) REFERENCES users(id)"
+      },
+      {
+        "table_name": "schedules",
+        "conname": "schedules_group_version_unique",
+        "contype": "u",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "UNIQUE (schedule_group_id, version)"
+      },
+      {
+        "table_name": "schedules",
+        "conname": "schedules_period_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "registration_periods",
+        "definition": "FOREIGN KEY (period_id) REFERENCES registration_periods(id)"
+      },
+      {
+        "table_name": "schedules",
+        "conname": "schedules_pkey",
+        "contype": "p",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "PRIMARY KEY (id)"
+      },
+      {
+        "table_name": "schedules",
+        "conname": "schedules_publication_times",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK ((((status)::text <> 'PUBLISHED'::text) OR ((published_at IS NOT NULL) AND (feedback_deadline_at IS NOT NULL) AND (feedback_deadline_at >= published_at))))"
+      },
+      {
+        "table_name": "schedules",
+        "conname": "schedules_status_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK (((status)::text = ANY ((ARRAY['DRAFT'::character varying, 'PENDING_APPROVAL'::character varying, 'NEEDS_REVISION'::character varying, 'APPROVED'::character varying, 'PUBLISHED'::character varying])::text[])))"
+      },
+      {
+        "table_name": "schedules",
+        "conname": "schedules_version_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK ((version > 0))"
+      },
+      {
+        "table_name": "shift_assignments",
+        "conname": "shift_assignments_actual_branch_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "branches",
+        "definition": "FOREIGN KEY (actual_branch_id) REFERENCES branches(id)"
+      },
+      {
+        "table_name": "shift_assignments",
+        "conname": "shift_assignments_assignment_source_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK (((assignment_source)::text = ANY ((ARRAY['REGULAR'::character varying, 'CREW_LEADER'::character varying, 'SUPPORT'::character varying])::text[])))"
+      },
+      {
+        "table_name": "shift_assignments",
+        "conname": "shift_assignments_branch_support_request_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "branch_support_requests",
+        "definition": "FOREIGN KEY (branch_support_request_id) REFERENCES branch_support_requests(id)"
+      },
+      {
+        "table_name": "shift_assignments",
+        "conname": "shift_assignments_department_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "departments",
+        "definition": "FOREIGN KEY (department_id) REFERENCES departments(id)"
+      },
+      {
+        "table_name": "shift_assignments",
+        "conname": "shift_assignments_employee_department_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "employees",
+        "definition": "FOREIGN KEY (employee_id, department_id) REFERENCES employees(id, department_id)"
+      },
+      {
+        "table_name": "shift_assignments",
+        "conname": "shift_assignments_pkey",
+        "contype": "p",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "PRIMARY KEY (id)"
+      },
+      {
+        "table_name": "shift_assignments",
+        "conname": "shift_assignments_schedule_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "schedules",
+        "definition": "FOREIGN KEY (schedule_id) REFERENCES schedules(id)"
+      },
+      {
+        "table_name": "shift_assignments",
+        "conname": "shift_assignments_shift_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "shifts",
+        "definition": "FOREIGN KEY (shift_id) REFERENCES shifts(id)"
+      },
+      {
+        "table_name": "shift_assignments",
+        "conname": "shift_assignments_status_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK (((status)::text = ANY ((ARRAY['DRAFT'::character varying, 'ACTIVE'::character varying, 'REPLACED'::character varying])::text[])))"
+      },
+      {
+        "table_name": "shift_assignments",
+        "conname": "shift_assignments_unique",
+        "contype": "u",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "UNIQUE (schedule_id, employee_id, work_date, shift_id)"
+      },
+      {
+        "table_name": "shift_assignments",
+        "conname": "support_assignment_has_request",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK ((((assignment_source)::text <> 'SUPPORT'::text) OR (branch_support_request_id IS NOT NULL)))"
+      },
+      {
+        "table_name": "shift_change_requests",
+        "conname": "shift_change_requests_approved_by_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "users",
+        "definition": "FOREIGN KEY (approved_by) REFERENCES users(id)"
+      },
+      {
+        "table_name": "shift_change_requests",
+        "conname": "shift_change_requests_original_assignment_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "shift_assignments",
+        "definition": "FOREIGN KEY (original_assignment_id) REFERENCES shift_assignments(id)"
+      },
+      {
+        "table_name": "shift_change_requests",
+        "conname": "shift_change_requests_pkey",
+        "contype": "p",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "PRIMARY KEY (id)"
+      },
+      {
+        "table_name": "shift_change_requests",
+        "conname": "shift_change_requests_reason_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK ((length(btrim(reason)) > 0))"
+      },
+      {
+        "table_name": "shift_change_requests",
+        "conname": "shift_change_requests_replacement_employee_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "employees",
+        "definition": "FOREIGN KEY (replacement_employee_id) REFERENCES employees(id)"
+      },
+      {
+        "table_name": "shift_change_requests",
+        "conname": "shift_change_requests_requesting_employee_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "employees",
+        "definition": "FOREIGN KEY (requesting_employee_id) REFERENCES employees(id)"
+      },
+      {
+        "table_name": "shift_change_requests",
+        "conname": "shift_change_requests_status_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK (((status)::text = ANY ((ARRAY['PENDING'::character varying, 'SEARCHING'::character varying, 'APPROVED'::character varying, 'REJECTED'::character varying])::text[])))"
+      },
+      {
+        "table_name": "shift_registrations",
+        "conname": "shift_registrations_employee_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "employees",
+        "definition": "FOREIGN KEY (employee_id) REFERENCES employees(id)"
+      },
+      {
+        "table_name": "shift_registrations",
+        "conname": "shift_registrations_period_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "registration_periods",
+        "definition": "FOREIGN KEY (period_id) REFERENCES registration_periods(id)"
+      },
+      {
+        "table_name": "shift_registrations",
+        "conname": "shift_registrations_pkey",
+        "contype": "p",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "PRIMARY KEY (id)"
+      },
+      {
+        "table_name": "shift_registrations",
+        "conname": "shift_registrations_shift_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "shifts",
+        "definition": "FOREIGN KEY (shift_id) REFERENCES shifts(id)"
+      },
+      {
+        "table_name": "shift_registrations",
+        "conname": "shift_registrations_status_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK (((status)::text = ANY ((ARRAY['DRAFT'::character varying, 'VALID'::character varying, 'INVALID'::character varying])::text[])))"
+      },
+      {
+        "table_name": "shift_registrations",
+        "conname": "shift_registrations_unique",
+        "contype": "u",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "UNIQUE (period_id, employee_id, work_date, shift_id)"
+      },
+      {
+        "table_name": "staffing_requirements",
+        "conname": "staffing_requirements_branch_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "branches",
+        "definition": "FOREIGN KEY (branch_id) REFERENCES branches(id)"
+      },
+      {
+        "table_name": "staffing_requirements",
+        "conname": "staffing_requirements_created_by_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "users",
+        "definition": "FOREIGN KEY (created_by) REFERENCES users(id)"
+      },
+      {
+        "table_name": "staffing_requirements",
+        "conname": "staffing_requirements_department_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "departments",
+        "definition": "FOREIGN KEY (department_id) REFERENCES departments(id)"
+      },
+      {
+        "table_name": "staffing_requirements",
+        "conname": "staffing_requirements_excludes_crew_leader_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK ((excludes_crew_leader = true))"
+      },
+      {
+        "table_name": "staffing_requirements",
+        "conname": "staffing_requirements_pkey",
+        "contype": "p",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "PRIMARY KEY (id)"
+      },
+      {
+        "table_name": "staffing_requirements",
+        "conname": "staffing_requirements_required_count_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK ((required_count >= 0))"
+      },
+      {
+        "table_name": "staffing_requirements",
+        "conname": "staffing_requirements_shift_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "shifts",
+        "definition": "FOREIGN KEY (shift_id) REFERENCES shifts(id)"
+      },
+      {
+        "table_name": "staffing_requirements",
+        "conname": "staffing_requirements_unique",
+        "contype": "u",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "UNIQUE (branch_id, department_id, shift_id, work_date)"
+      },
+      {
+        "table_name": "users",
+        "conname": "users_branch_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "branches",
+        "definition": "FOREIGN KEY (branch_id) REFERENCES branches(id) ON DELETE SET NULL"
+      },
+      {
+        "table_name": "users",
+        "conname": "users_id_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "auth.users",
+        "definition": "FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE"
+      },
+      {
+        "table_name": "users",
+        "conname": "users_pkey",
+        "contype": "p",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "PRIMARY KEY (id)"
+      },
+      {
+        "table_name": "users",
+        "conname": "users_role_check",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK (((role)::text = ANY ((ARRAY['NV'::character varying, 'QL'::character varying, 'GS'::character varying])::text[])))"
+      },
+      {
+        "table_name": "users",
+        "conname": "users_username_key",
+        "contype": "u",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "UNIQUE (username)"
+      },
+      {
+        "table_name": "users",
+        "conname": "users_username_not_blank",
+        "contype": "c",
+        "convalidated": "true",
+        "referenced_table": "-",
+        "definition": "CHECK ((length(btrim((username)::text)) > 0))"
+      },
+      {
+        "table_name": "warning_configs",
+        "conname": "warning_configs_updated_by_fkey",
+        "contype": "f",
+        "convalidated": "true",
+        "referenced_table": "users",
+        "definition": "FOREIGN KEY (updated_by) REFERENCES users(id)"
+      }
+    ]
+  },
+  "trigger_checks": [
+    {
+      "table": "users",
+      "trigger": "guard_password_change_state",
+      "enabled": "O",
+      "function": "guard_password_change_state()",
+      "body_md5": "6de7be31a78b625af7d45cb7f6326d84",
+      "matches_previous_function_export": true,
+      "attachment": "CREATE TRIGGER guard_password_change_state BEFORE INSERT OR UPDATE ON public.users FOR EACH ROW EXECUTE FUNCTION guard_password_change_state()"
+    },
+    {
+      "table": "shift_registrations",
+      "trigger": "trg_validate_shift_registration",
+      "enabled": "O",
+      "function": "validate_shift_registration()",
+      "body_md5": "e90d91f47680b7aea9fcefdff142f360",
+      "matches_previous_function_export": true,
+      "attachment": "CREATE TRIGGER trg_validate_shift_registration BEFORE INSERT OR UPDATE OF period_id, employee_id, work_date ON public.shift_registrations FOR EACH ROW EXECUTE FUNCTION validate_shift_registration()"
+    },
+    {
+      "table": "schedules",
+      "trigger": "trg_prevent_direct_published_schedule",
+      "enabled": "O",
+      "function": "prevent_direct_published_schedule()",
+      "body_md5": "4c95572d9bca8454fec7817ea19c20bd",
+      "matches_previous_function_export": true,
+      "attachment": "CREATE TRIGGER trg_prevent_direct_published_schedule BEFORE INSERT ON public.schedules FOR EACH ROW EXECUTE FUNCTION prevent_direct_published_schedule()"
+    },
+    {
+      "table": "schedules",
+      "trigger": "trg_validate_schedule_publish",
+      "enabled": "O",
+      "function": "validate_schedule_publish()",
+      "body_md5": "75a5c672a5980a87bb23d7bfea2aaa36",
+      "matches_previous_function_export": true,
+      "attachment": "CREATE TRIGGER trg_validate_schedule_publish BEFORE UPDATE OF status ON public.schedules FOR EACH ROW EXECUTE FUNCTION validate_schedule_publish()"
+    },
+    {
+      "table": "shift_assignments",
+      "trigger": "trg_validate_assignment_source",
+      "enabled": "O",
+      "function": "validate_assignment_source()",
+      "body_md5": "f104386926f152305e312462c39f3860",
+      "matches_previous_function_export": true,
+      "attachment": "CREATE TRIGGER trg_validate_assignment_source BEFORE INSERT OR UPDATE OF employee_id, assignment_source ON public.shift_assignments FOR EACH ROW EXECUTE FUNCTION validate_assignment_source()"
+    },
+    {
+      "table": "audit_logs",
+      "trigger": "trg_prevent_audit_log_changes",
+      "enabled": "O",
+      "function": "prevent_audit_log_changes()",
+      "body_md5": "eae1897d057ae0433b3b0dd8e705174e",
+      "matches_previous_function_export": true,
+      "attachment": "CREATE TRIGGER trg_prevent_audit_log_changes BEFORE DELETE OR UPDATE ON public.audit_logs FOR EACH ROW EXECUTE FUNCTION prevent_audit_log_changes()"
+    },
+    {
+      "table": "crew_leader_days_off",
+      "trigger": "trg_validate_crew_leader_day_off",
+      "enabled": "O",
+      "function": "validate_crew_leader_day_off()",
+      "body_md5": "b943d1d0777be598f60997db7f598be0",
+      "matches_previous_function_export": true,
+      "attachment": "CREATE TRIGGER trg_validate_crew_leader_day_off BEFORE INSERT OR UPDATE OF employee_id ON public.crew_leader_days_off FOR EACH ROW EXECUTE FUNCTION validate_crew_leader_day_off()"
+    }
+  ],
+  "approval_trigger_attached": false,
+  "custom_auth_users_trigger_observed": false,
+  "rls_tables": [
+    {
+      "table_name": "branches",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "users",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "departments",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "employees",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "employee_skills",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "shifts",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "registration_periods",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "shift_registrations",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "staffing_requirements",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "schedules",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "branch_support_requests",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "shift_assignments",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "shift_change_requests",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "incidents",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "replacement_invitations",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "notifications",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "audit_logs",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "warning_configs",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "crew_leader_days_off",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "ai_schedule_evaluations",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "ai_schedule_suggestions",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "schedule_approvals",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "registration_submissions",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "registration_automation_config",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "registration_schedule_config",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    },
+    {
+      "table_name": "registration_period_generation_state",
+      "relrowsecurity": "true",
+      "relforcerowsecurity": "false",
+      "owner": "postgres"
+    }
+  ],
+  "policies": [
+    {
+      "schemaname": "public",
+      "tablename": "ai_schedule_evaluations",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "ai_schedule_suggestions",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "audit_logs",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "branch_support_requests",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "branches",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "crew_leader_days_off",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "departments",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "employee_skills",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "employees",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "incidents",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "notifications",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "registration_periods",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "replacement_invitations",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "schedule_approvals",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "schedules",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "shift_assignments",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "shift_change_requests",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "shift_registrations",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "shifts",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "staffing_requirements",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "users",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "warning_configs",
+      "policyname": "password_change_gate",
+      "permissive": "RESTRICTIVE",
+      "roles": "{authenticated}",
+      "cmd": "ALL",
+      "qual": "jollishift_business_access()",
+      "with_check": "jollishift_business_access()"
+    }
+  ],
+  "business_table_privileges": [
+    {
+      "table_name": "schedules",
+      "rolname": "anon",
+      "can_select": "false",
+      "can_insert": "false",
+      "can_update": "false",
+      "can_delete": "false"
+    },
+    {
+      "table_name": "schedules",
+      "rolname": "authenticated",
+      "can_select": "false",
+      "can_insert": "false",
+      "can_update": "false",
+      "can_delete": "false"
+    },
+    {
+      "table_name": "schedules",
+      "rolname": "service_role",
+      "can_select": "true",
+      "can_insert": "true",
+      "can_update": "true",
+      "can_delete": "true"
+    },
+    {
+      "table_name": "shift_assignments",
+      "rolname": "anon",
+      "can_select": "false",
+      "can_insert": "false",
+      "can_update": "false",
+      "can_delete": "false"
+    },
+    {
+      "table_name": "shift_assignments",
+      "rolname": "authenticated",
+      "can_select": "false",
+      "can_insert": "false",
+      "can_update": "false",
+      "can_delete": "false"
+    },
+    {
+      "table_name": "shift_assignments",
+      "rolname": "service_role",
+      "can_select": "true",
+      "can_insert": "true",
+      "can_update": "true",
+      "can_delete": "true"
+    },
+    {
+      "table_name": "shift_change_requests",
+      "rolname": "anon",
+      "can_select": "false",
+      "can_insert": "false",
+      "can_update": "false",
+      "can_delete": "false"
+    },
+    {
+      "table_name": "shift_change_requests",
+      "rolname": "authenticated",
+      "can_select": "false",
+      "can_insert": "false",
+      "can_update": "false",
+      "can_delete": "false"
+    },
+    {
+      "table_name": "shift_change_requests",
+      "rolname": "service_role",
+      "can_select": "true",
+      "can_insert": "true",
+      "can_update": "true",
+      "can_delete": "true"
+    },
+    {
+      "table_name": "incidents",
+      "rolname": "anon",
+      "can_select": "false",
+      "can_insert": "false",
+      "can_update": "false",
+      "can_delete": "false"
+    },
+    {
+      "table_name": "incidents",
+      "rolname": "authenticated",
+      "can_select": "false",
+      "can_insert": "false",
+      "can_update": "false",
+      "can_delete": "false"
+    },
+    {
+      "table_name": "incidents",
+      "rolname": "service_role",
+      "can_select": "true",
+      "can_insert": "true",
+      "can_update": "true",
+      "can_delete": "true"
+    },
+    {
+      "table_name": "replacement_invitations",
+      "rolname": "anon",
+      "can_select": "false",
+      "can_insert": "false",
+      "can_update": "false",
+      "can_delete": "false"
+    },
+    {
+      "table_name": "replacement_invitations",
+      "rolname": "authenticated",
+      "can_select": "false",
+      "can_insert": "false",
+      "can_update": "false",
+      "can_delete": "false"
+    },
+    {
+      "table_name": "replacement_invitations",
+      "rolname": "service_role",
+      "can_select": "true",
+      "can_insert": "true",
+      "can_update": "true",
+      "can_delete": "true"
+    }
+  ],
+  "default_acl_summary": [
+    {
+      "owner": "postgres",
+      "schema": "public",
+      "object_type": "r",
+      "grantee": "postgres",
+      "privileges": [
+        "DELETE",
+        "INSERT",
+        "MAINTAIN",
+        "REFERENCES",
+        "SELECT",
+        "TRIGGER",
+        "TRUNCATE",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "postgres",
+      "schema": "public",
+      "object_type": "r",
+      "grantee": "anon",
+      "privileges": [
+        "DELETE",
+        "INSERT",
+        "MAINTAIN",
+        "REFERENCES",
+        "SELECT",
+        "TRIGGER",
+        "TRUNCATE",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "postgres",
+      "schema": "public",
+      "object_type": "r",
+      "grantee": "authenticated",
+      "privileges": [
+        "DELETE",
+        "INSERT",
+        "MAINTAIN",
+        "REFERENCES",
+        "SELECT",
+        "TRIGGER",
+        "TRUNCATE",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "postgres",
+      "schema": "public",
+      "object_type": "r",
+      "grantee": "service_role",
+      "privileges": [
+        "DELETE",
+        "INSERT",
+        "MAINTAIN",
+        "REFERENCES",
+        "SELECT",
+        "TRIGGER",
+        "TRUNCATE",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "postgres",
+      "schema": "public",
+      "object_type": "f",
+      "grantee": "postgres",
+      "privileges": [
+        "EXECUTE"
+      ]
+    },
+    {
+      "owner": "postgres",
+      "schema": "public",
+      "object_type": "f",
+      "grantee": "anon",
+      "privileges": [
+        "EXECUTE"
+      ]
+    },
+    {
+      "owner": "postgres",
+      "schema": "public",
+      "object_type": "f",
+      "grantee": "authenticated",
+      "privileges": [
+        "EXECUTE"
+      ]
+    },
+    {
+      "owner": "postgres",
+      "schema": "public",
+      "object_type": "f",
+      "grantee": "service_role",
+      "privileges": [
+        "EXECUTE"
+      ]
+    },
+    {
+      "owner": "postgres",
+      "schema": "public",
+      "object_type": "S",
+      "grantee": "postgres",
+      "privileges": [
+        "SELECT",
+        "UPDATE",
+        "USAGE"
+      ]
+    },
+    {
+      "owner": "postgres",
+      "schema": "public",
+      "object_type": "S",
+      "grantee": "anon",
+      "privileges": [
+        "SELECT",
+        "UPDATE",
+        "USAGE"
+      ]
+    },
+    {
+      "owner": "postgres",
+      "schema": "public",
+      "object_type": "S",
+      "grantee": "authenticated",
+      "privileges": [
+        "SELECT",
+        "UPDATE",
+        "USAGE"
+      ]
+    },
+    {
+      "owner": "postgres",
+      "schema": "public",
+      "object_type": "S",
+      "grantee": "service_role",
+      "privileges": [
+        "SELECT",
+        "UPDATE",
+        "USAGE"
+      ]
+    },
+    {
+      "owner": "supabase_admin",
+      "schema": "public",
+      "object_type": "S",
+      "grantee": "postgres",
+      "privileges": [
+        "SELECT",
+        "UPDATE",
+        "USAGE"
+      ]
+    },
+    {
+      "owner": "supabase_admin",
+      "schema": "public",
+      "object_type": "S",
+      "grantee": "anon",
+      "privileges": [
+        "SELECT",
+        "UPDATE",
+        "USAGE"
+      ]
+    },
+    {
+      "owner": "supabase_admin",
+      "schema": "public",
+      "object_type": "S",
+      "grantee": "authenticated",
+      "privileges": [
+        "SELECT",
+        "UPDATE",
+        "USAGE"
+      ]
+    },
+    {
+      "owner": "supabase_admin",
+      "schema": "public",
+      "object_type": "S",
+      "grantee": "service_role",
+      "privileges": [
+        "SELECT",
+        "UPDATE",
+        "USAGE"
+      ]
+    },
+    {
+      "owner": "supabase_admin",
+      "schema": "public",
+      "object_type": "r",
+      "grantee": "postgres",
+      "privileges": [
+        "DELETE",
+        "INSERT",
+        "MAINTAIN",
+        "REFERENCES",
+        "SELECT",
+        "TRIGGER",
+        "TRUNCATE",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "supabase_admin",
+      "schema": "public",
+      "object_type": "r",
+      "grantee": "anon",
+      "privileges": [
+        "DELETE",
+        "INSERT",
+        "MAINTAIN",
+        "REFERENCES",
+        "SELECT",
+        "TRIGGER",
+        "TRUNCATE",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "supabase_admin",
+      "schema": "public",
+      "object_type": "r",
+      "grantee": "authenticated",
+      "privileges": [
+        "DELETE",
+        "INSERT",
+        "MAINTAIN",
+        "REFERENCES",
+        "SELECT",
+        "TRIGGER",
+        "TRUNCATE",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "supabase_admin",
+      "schema": "public",
+      "object_type": "r",
+      "grantee": "service_role",
+      "privileges": [
+        "DELETE",
+        "INSERT",
+        "MAINTAIN",
+        "REFERENCES",
+        "SELECT",
+        "TRIGGER",
+        "TRUNCATE",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "supabase_admin",
+      "schema": "public",
+      "object_type": "f",
+      "grantee": "postgres",
+      "privileges": [
+        "EXECUTE"
+      ]
+    },
+    {
+      "owner": "supabase_admin",
+      "schema": "public",
+      "object_type": "f",
+      "grantee": "anon",
+      "privileges": [
+        "EXECUTE"
+      ]
+    },
+    {
+      "owner": "supabase_admin",
+      "schema": "public",
+      "object_type": "f",
+      "grantee": "authenticated",
+      "privileges": [
+        "EXECUTE"
+      ]
+    },
+    {
+      "owner": "supabase_admin",
+      "schema": "public",
+      "object_type": "f",
+      "grantee": "service_role",
+      "privileges": [
+        "EXECUTE"
+      ]
+    }
+  ],
+  "views": [
+    {
+      "view_name": "registration_periods_effective",
+      "reloptions": "[\"security_invoker=true\"]",
+      "relacl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "definition": " SELECT id,\n    branch_id,\n    work_start_date,\n    work_end_date,\n    open_at,\n    close_at,\n    created_at,\n    status AS stored_status,\n    registration_effective_status(open_at, close_at, statement_timestamp()) AS status\n   FROM registration_periods p;"
+    },
+    {
+      "view_name": "registration_submissions_sourced",
+      "reloptions": "[\"security_invoker=true\"]",
+      "relacl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "definition": " SELECT h.period_id,\n    h.employee_id,\n    h.status,\n    h.errors,\n    h.submitted_at,\n    h.updated_at,\n    COALESCE(h.sample_batch_id, legacy.id) AS sample_batch_id,\n    h.sample_batch_id AS stored_sample_batch_id\n   FROM registration_submissions h\n     LEFT JOIN LATERAL ( SELECT a.id\n           FROM audit_logs a\n          WHERE a.entity_id = h.period_id AND a.action::text = 'TV2_TEST_SEED'::text AND a.change_source::text = 'SYSTEM'::text AND a.actor_id IS NULL AND (a.new_data ->> 'fixture'::text) = 'tv2-test-week-20261026-v1'::text AND (a.new_data ->> 'synthetic'::text) = 'true'::text AND (a.new_data -> 'employee_ids'::text) @> jsonb_build_array(h.employee_id) AND h.status::text = 'VALID'::text AND h.errors = '[]'::jsonb AND h.submitted_at = '2026-10-24 03:00:00+00'::timestamp with time zone AND h.updated_at <= a.created_at\n          ORDER BY a.created_at\n         LIMIT 1) legacy ON h.sample_batch_id IS NULL;"
+    }
+  ],
+  "duplicate_c9_byte_identical": true,
+  "event_triggers": [
+    {
+      "name": "ensure_rls",
+      "event": "ddl_command_end",
+      "enabled": "O",
+      "owner": "postgres",
+      "tags": "[\"CREATE TABLE\",\"CREATE TABLE AS\",\"SELECT INTO\"]",
+      "handler": "rls_auto_enable()",
+      "definition_sha256": "b21d88816c445d14cef5032c3cd4abaebc1db2001fcb3435022ab6b496182ca4"
+    },
+    {
+      "name": "issue_graphql_placeholder",
+      "event": "sql_drop",
+      "enabled": "O",
+      "owner": "supabase_admin",
+      "tags": "[\"DROP EXTENSION\"]",
+      "handler": "set_graphql_placeholder()",
+      "definition_sha256": "b0cadab880dc68f569b3e01057dc6f5acee9d05e122de6f4256130ae330bbcec"
+    },
+    {
+      "name": "issue_pg_cron_access",
+      "event": "ddl_command_end",
+      "enabled": "O",
+      "owner": "supabase_admin",
+      "tags": "[\"CREATE EXTENSION\"]",
+      "handler": "grant_pg_cron_access()",
+      "definition_sha256": "eb3fa2e82a0135bc04a6236f93331911861c91b45d72cba5d9c03c1be2c34b4c"
+    },
+    {
+      "name": "issue_pg_graphql_access",
+      "event": "ddl_command_end",
+      "enabled": "O",
+      "owner": "supabase_admin",
+      "tags": "[\"CREATE EXTENSION\"]",
+      "handler": "grant_pg_graphql_access()",
+      "definition_sha256": "9ec845adab4ba00bbf7740458b6c4461094697023f0f7adc693b373e2ea54f68"
+    },
+    {
+      "name": "issue_pg_net_access",
+      "event": "ddl_command_end",
+      "enabled": "O",
+      "owner": "supabase_admin",
+      "tags": "[\"CREATE EXTENSION\"]",
+      "handler": "grant_pg_net_access()",
+      "definition_sha256": "e38c4060751c9695123350596f1cb0d0c943015f3267a2a455d8efe02c711184"
+    },
+    {
+      "name": "pgrst_ddl_watch",
+      "event": "ddl_command_end",
+      "enabled": "O",
+      "owner": "supabase_admin",
+      "tags": "null",
+      "handler": "pgrst_ddl_watch()",
+      "definition_sha256": "2b4b5d702ddf70fbd1a05c9825f9f9016d5c0ef97dd3df5f5b012ea23d9b94b1"
+    },
+    {
+      "name": "pgrst_drop_watch",
+      "event": "sql_drop",
+      "enabled": "O",
+      "owner": "supabase_admin",
+      "tags": "null",
+      "handler": "pgrst_drop_watch()",
+      "definition_sha256": "3a2696133853e17a0456cbfbb233a03815f50895492143e84df983b558d76593"
+    }
+  ],
+  "backup_restore_status": "NOT_VERIFIED",
+  "decision": "NO_GO_FOR_SOURCE_WRITES_BACKUP_RESTORE_PREPARATION_READY",
+  "apply_allowed": false,
+  "live_calls_this_review": 0
+}

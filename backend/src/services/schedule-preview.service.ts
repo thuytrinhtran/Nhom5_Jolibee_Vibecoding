@@ -1,4 +1,4 @@
-import { openRegistrationPreviewAllowed } from './manual-preview-policy.js';
+import { developmentPreviewAllowed } from './preview-development-policy.js';
 import { SCHEDULING_RULE_VERSION } from './scheduling-contract.js';
 import { createHash } from 'node:crypto';
 import { registrationSummaryRepository } from '../repositories/registration-summary.repository.js';
@@ -11,12 +11,14 @@ import { draftWriteScopeAllowed } from './draft-write-scope.js';
 
 export async function previewSnapshot(periodId:string,branchId:string,body:Record<string,unknown>,repository:RegistrationSummaryRepository) {
   const snapshot=await repository.load(branchId,periodId);
+  if(snapshot.period.id!==periodId||snapshot.period.branch_id!==branchId||snapshot.branch.id!==branchId)throw new ScheduleError(403,'BRANCH_MISMATCH','Dữ liệu lịch không thuộc chi nhánh đang quản lý.');
+  const periods=await repository.listPeriods?.(branchId)??[];
+  if(periods.find(p=>p.id===periodId)?.schedules.some(s=>s.status==='PUBLISHED'))throw new ScheduleError(409,'PERIOD_LOCKED','Kỳ đã có lịch công bố chỉ được xem.');
   let target:{id:string;version:number}|null=null;
   if(body.schedule_id!==undefined){
     if(typeof body.schedule_id!=='string'||!Number.isSafeInteger(body.expected_version)||Number(body.expected_version)<1)throw new ScheduleError(400,'INVALID_VERSION','Cần mã lịch và phiên bản DRAFT hợp lệ.');
     const saved=await readDraft(body.schedule_id,branchId);
     if(saved.schedule.period_id!==periodId||!['DRAFT','NEEDS_REVISION'].includes(saved.schedule.status))throw new ScheduleError(409,'DRAFT_LOCKED','Chỉ chỉnh sửa DRAFT của tuần đang chọn.');
-    const periods=await repository.listPeriods(branchId);
     if(saved.schedule.version!==body.expected_version||periods.find(p=>p.id===periodId)?.schedules.some(s=>s.version>saved.schedule.version))throw new ScheduleError(409,'SCHEDULE_VERSION_CHANGED','Đã có phiên bản lịch mới. Hãy tải lại tuần.');
     if((saved.assignments??[]).some(a=>a.status!=='DRAFT'||a.assignment_source!=='REGULAR'))throw new ScheduleError(409,'DRAFT_LOCKED','Phân công không thuộc DRAFT thông thường.');
     const ids=new Set((saved.assignments??[]).map(a=>a.id));
@@ -31,7 +33,7 @@ export async function inspectPreview(periodId:string,branchId:string,body:Record
   if(Object.keys(body).some(k=>!['period_id','assignments','input_revision','schedule_id','expected_version','use_saved_assignments'].includes(k)))throw new ScheduleError(400,'INVALID_PREVIEW','Chỉ gửi tuần và phương án cần kiểm tra.');
   const {snapshot,target}=await previewSnapshot(periodId,branchId,body,repository);
   const input=schedulingInput(snapshot);
-  if(openRegistrationPreviewAllowed(snapshot))input.period={...input.period,status:'CLOSED'};
+  if(developmentPreviewAllowed(snapshot))input.period={...input.period,status:'CLOSED'};
   const revision=previewRevision(snapshot);
   // All engine constraints remain enforced; the scoped development preview alone may normalize OPEN.
   const generated=generateSchedule(input);
@@ -61,8 +63,8 @@ export async function inspectPreview(periodId:string,branchId:string,body:Record
 export async function previewSchedule(periodId:string,branchId:string,body:Record<string,unknown>,repository:RegistrationSummaryRepository=registrationSummaryRepository()) {
   const {snapshot,target,revision,result}=await inspectPreview(periodId,branchId,body,repository);
   return {kind:'preview' as const,persisted:false as const,source:snapshot.source,period:snapshot.period,input_revision:revision,edit_target:target,
-    result,context:{source:snapshot.source,open_registration_preview_enabled:openRegistrationPreviewAllowed(snapshot),period:snapshot.period,requirements:snapshot.requirements,valid_registration_count:snapshot.registrations.length,
+    result,context:{development_preview:developmentPreviewAllowed(snapshot),source:snapshot.source,open_registration_preview_enabled:developmentPreviewAllowed(snapshot),period:snapshot.period,requirements:snapshot.requirements,valid_registration_count:snapshot.registrations.length,
       employees:snapshot.employees.map(e=>({id:e.id,full_name:e.full_name,department_id:e.department_id,employee_code:e.employee_code,skill_level:e.skill_level,skills:e.skills,max_weekly_hours:e.max_weekly_hours})),shifts:snapshot.shifts,departments:snapshot.departments},
     warnings:result.coverage.filter(c=>c.warning).map(c=>({code:c.warning!,work_date:c.work_date,shift_id:c.shift_id,department_id:c.department_id})),
-    persistence:{enabled:snapshot.source==='supabase'&&isDraftPersistenceEnabled()&&draftWriteScopeAllowed(periodId,branchId),reason:!draftWriteScopeAllowed(periodId,branchId)?'Chỉ cho phép lưu DRAFT tại Lê Duẩn, kỳ 02–08/11/2026.':isDraftPersistenceEnabled()?'Lưu thành phiên bản DRAFT; dữ liệu sẽ được kiểm tra lại trước khi ghi.':'Chưa bật lưu DRAFT. Cần triển khai và xác minh migration trước.'}};
+    persistence:{enabled:!developmentPreviewAllowed(snapshot)&&snapshot.source==='supabase'&&isDraftPersistenceEnabled()&&draftWriteScopeAllowed(periodId,branchId),reason:developmentPreviewAllowed(snapshot)?'Preview development khi đăng ký còn mở; không được lưu DRAFT.':!draftWriteScopeAllowed(periodId,branchId)?'Chỉ cho phép lưu DRAFT tại Lê Duẩn, kỳ 02–08/11/2026.':isDraftPersistenceEnabled()?'Lưu thành phiên bản DRAFT; dữ liệu sẽ được kiểm tra lại trước khi ghi.':'Chưa bật lưu DRAFT. Cần triển khai và xác minh migration trước.'}};
 }

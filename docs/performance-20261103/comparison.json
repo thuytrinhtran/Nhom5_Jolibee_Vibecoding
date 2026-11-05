@@ -1,0 +1,82 @@
+[
+  {
+    "page": "dashboard",
+    "first_before_ms": 5591,
+    "first_after_ms": 1403,
+    "warm_before_ms": 5460,
+    "warm_after_ms": 910,
+    "first_http_subrequests_before": 13,
+    "first_http_subrequests_after": 8,
+    "errors_after": 0
+  },
+  {
+    "page": "registration_dependencies",
+    "first_before_ms": 256,
+    "first_after_ms": 364,
+    "warm_before_ms": 256,
+    "warm_after_ms": 206,
+    "first_http_subrequests_before": 4,
+    "first_http_subrequests_after": 4,
+    "errors_after": 0
+  },
+  {
+    "page": "demand",
+    "first_before_ms": 5381,
+    "first_after_ms": 5153,
+    "warm_before_ms": 4936,
+    "warm_after_ms": 1485,
+    "first_http_subrequests_before": 14,
+    "first_http_subrequests_after": 14,
+    "errors_after": 0
+  },
+  {
+    "page": "scheduling",
+    "first_before_ms": 8513,
+    "first_after_ms": 3467,
+    "warm_before_ms": 8371,
+    "warm_after_ms": 2314,
+    "first_http_subrequests_before": 31,
+    "first_http_subrequests_after": 14,
+    "errors_after": 0
+  },
+  {
+    "page": "publication",
+    "first_before_ms": 307,
+    "first_after_ms": 304,
+    "warm_before_ms": 301,
+    "warm_after_ms": 304,
+    "first_http_subrequests_before": 1,
+    "first_http_subrequests_after": 1,
+    "errors_after": 0
+  },
+  {
+    "page": "official_calendar",
+    "first_before_ms": 5030,
+    "first_after_ms": 987,
+    "warm_before_ms": 3895,
+    "warm_after_ms": 1094,
+    "first_http_subrequests_before": 11,
+    "first_http_subrequests_after": 7,
+    "errors_after": 0
+  },
+  {
+    "page": "shift_changes",
+    "first_before_ms": 207,
+    "first_after_ms": 585,
+    "warm_before_ms": 1390,
+    "warm_after_ms": 495,
+    "first_http_subrequests_before": 1,
+    "first_http_subrequests_after": 1,
+    "errors_after": 0
+  },
+  {
+    "page": "employee_schedule",
+    "first_before_ms": 201,
+    "first_after_ms": 166,
+    "warm_before_ms": 247,
+    "warm_after_ms": 185,
+    "first_http_subrequests_before": 1,
+    "first_http_subrequests_after": 1,
+    "errors_after": 0
+  }
+]

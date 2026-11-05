@@ -1,0 +1,1238 @@
+{
+  "format": "jollishift-deployment-readiness.v1",
+  "local_inspected_at": "2026-11-02T04:29:44.894Z",
+  "timezone": "Asia/Saigon",
+  "decision": "PUBLISHED_SCOPED_TV5_ENABLED_AWAITING_MANUAL_REPLACEMENT_ACCEPTANCE",
+  "apply_allowed": false,
+  "live_queries_executed": 36,
+  "live_catalog": {
+    "status": "POSTDEPLOYMENT_POSTGRES_READ_ONLY_COMPLETE",
+    "private_output": "D:/JolliShift-private/minimal-backup/live-postdeployment-20261103",
+    "files": 60,
+    "migration_history": "ABSENT_LOCAL_EXECUTION_RECEIPTS_RECORDED",
+    "application_migrations_new_contracts_present": true,
+    "old_tv3_function_guards": "HISTORICAL_PREDEPLOYMENT_MATCH_NOT_APPLICABLE_AFTER_V2"
+  },
+  "live_baseline_sha256": null,
+  "seed_plan_sha256": null,
+  "expected_project_ref": "wlbpprpiieonjrqglicv",
+  "configured_project_ref": "wlbpprpiieonjrqglicv",
+  "blockers": [
+    "MANUAL_SHIFT_REPLACEMENT_END_TO_END_ACCEPTANCE_PENDING"
+  ],
+  "expected_only": {
+    "employees": 60,
+    "real_registration_rows": 16,
+    "demand_cells": 63,
+    "demand_positions": 308,
+    "planned_additional_profiles": 0
+  },
+  "migration_live_eligibility": {
+    "20261101": "DEPLOYED_POSTFLIGHT_PASS",
+    "20261102": "DEPLOYED_POSTFLIGHT_PASS",
+    "20261103": "DEPLOYED_POSTFLIGHT_PASS",
+    "20261104": "DEPLOYED_POSTFLIGHT_PASS",
+    "20261105": "DEPLOYED_POSTFLIGHT_PASS",
+    "20261106": "DEPLOYED_POSTFLIGHT_PASS",
+    "20261029_tv4_schedule_workflow": "DEPLOYED_POSTFLIGHT_PASS"
+  },
+  "local_files": [
+    {
+      "file": "backend/migrations/20261029_employee_registration.sql",
+      "sha256": "b90268fb4fb859748c72daa20e8942deb5c740d505589d626bd069a7926bf74b"
+    },
+    {
+      "file": "backend/migrations/20261029_registration_off_schedule.sql",
+      "sha256": "5ae22197a91d45db674bb45ade6eaca4af50b8b1345bdeac224a6fdc5ea21dfd"
+    },
+    {
+      "file": "backend/migrations/20261029_require_password_change.sql",
+      "sha256": "fee1a57e7e8ff8a97ba8b93841d11ab784e2b89bfd21ceec77537db81adf9582"
+    },
+    {
+      "file": "backend/migrations/20261029_tv4_schedule_workflow.sql",
+      "sha256": "1503d76e38c7bb95ec7a82f42984ec166a61e7c7d4bdf66b2e4889f1c0dffaac"
+    },
+    {
+      "file": "backend/migrations/20261030_registration_effective_state.sql",
+      "sha256": "269f3714985bd7feab7aa7ccc976bfe4502e45c82646e8b8ce56f34049c54ec8"
+    },
+    {
+      "file": "backend/migrations/20261031_tv3_schedule_draft.sql",
+      "sha256": "ca00abcb3253c9b549bf59a17e3f438fce96984f1a10cda9cc6be38df58dd44a"
+    },
+    {
+      "file": "backend/migrations/20261101_tv3_rule_contract_v2.sql",
+      "sha256": "cc88a1241fccb6bc3936f61611dba3f99abced0bb24247e9ef2cb4e3d09c7018"
+    },
+    {
+      "file": "backend/migrations/20261102_tv4_workflow_v2.sql",
+      "sha256": "8d310cbbc386b2109a74faf41002c75a01d60af1d2ea518025e91c54072995aa"
+    },
+    {
+      "file": "backend/migrations/20261103_employee_schedule_read.sql",
+      "sha256": "54dd64fd48ca81b48b45f0a9ee6888a6a2d654f2754e62cf919d66652f1a4a9f"
+    },
+    {
+      "file": "backend/migrations/20261104_tv5_shift_replacement.sql",
+      "sha256": "1da380b9649f560734fb679f5b28b273a0db510b3655b18f319664c1c976d5ef"
+    },
+    {
+      "file": "backend/migrations/20261105_scoped_dev_import.sql",
+      "sha256": "1649935c801568916b0a0b02cfc8a6c21163cdb4756c116749ff640edb0fe51e"
+    },
+    {
+      "file": "backend/migrations/20261106_dev_import_source_materialization.sql",
+      "sha256": "7e3a5200abe53fc45b98496ac8517383925eba9974faff2ba2722be1aad408c4"
+    },
+    {
+      "file": "backend/scripts/collect-live-preflight.cjs",
+      "sha256": "149864e2b19b76cc5ce41a78a075536d706fd0df44e6a60319cf14b2d791b001"
+    },
+    {
+      "file": "backend/scripts/dev-import-executor.cjs",
+      "sha256": "a2a9b8be6aa69ac50dd0c29da02100b9affc36cec6bf0be8514ed344747b23d4"
+    },
+    {
+      "file": "backend/scripts/prepare-existing-employee-fixtures.cjs",
+      "sha256": "259de033399a978c77787762de8b480d4cfe1216294d601760cc98abc0e93500"
+    },
+    {
+      "file": "backend/scripts/prepare-private-pg-connection.cjs",
+      "sha256": "5e432182fba9e71de415cca6393fa16ff380d4323a7122e7fbfb5dc55c889b0b"
+    },
+    {
+      "file": "backend/scripts/project-connection.cjs",
+      "sha256": "58bdbffb459f6704e8f32fe8f6e0270321d56fdf210d41c8b534755c0b01a623"
+    },
+    {
+      "file": "backend/src/config/supabase.ts",
+      "sha256": "d25c851d7755291059bc9a1821d473f668a7979b73f0769ff9ccaae366ff83ca"
+    },
+    {
+      "file": "backend/src/registrations/dev-import-policy.ts",
+      "sha256": "8ca140cd87ecf19c76fe4cf96936649cf0ed015d2835f20a012af35c147850f0"
+    },
+    {
+      "file": "backend/src/registrations/tv3-source.ts",
+      "sha256": "8df6b7e0cf601e527e3f849c83aa820a9f197e5e3b47dd320aac65459eefc20c"
+    },
+    {
+      "file": "backend/src/repositories/registration-summary.supabase.ts",
+      "sha256": "aab97225139781c1d1f75c4832b56929d30f23058dcba75e13b56966951dcf4f"
+    },
+    {
+      "file": "backend/src/routes/registration-reports.routes.ts",
+      "sha256": "b460bd6b31e1d05a6cb3036753fb1380f9eb06141d3db867fa002ccc72936fe9"
+    },
+    {
+      "file": "backend/tests/dev-import.test.cjs",
+      "sha256": "55e6f667b7b6d90526412f808d7c8481f4ef9f68d487e617609c55eec1db4d12"
+    },
+    {
+      "file": "backend/tests/existing-employee-fixtures.test.cjs",
+      "sha256": "c1d5ed513e7570fbd6a363f351c3f0f5cb4d7520105e98efa084b00e3d949661"
+    },
+    {
+      "file": "backend/tests/helpers/draft-performance.cjs",
+      "sha256": "4edcd54ca3d25b589dd42c18ceb95fc610b981bc58db4113769e94f6c10a30b0"
+    },
+    {
+      "file": "backend/tests/live-preflight-collector.test.cjs",
+      "sha256": "f1c4b60f5b59d77868fb9a9e90f885813481d4d44d336af8f03fe5878ba4c6c1"
+    },
+    {
+      "file": "backend/tests/project-connection.test.cjs",
+      "sha256": "8855e78f877cb9c073c029da990e00e7e7000df2490ada27ce92bb669748b9bf"
+    },
+    {
+      "file": "docs/demo-datasets/1793634151022/existing-employees-input.json",
+      "sha256": "3ee5796e0ec2fe9cca847291d275c480b2d33f5882efae29f91f215822f39cf2"
+    },
+    {
+      "file": "docs/demo-datasets/1793634151022/existing-employees-seed.json",
+      "sha256": "3757a759d539e1258685a7ca4b60251869249b518e370c7b5a26231a56ae8b22"
+    },
+    {
+      "file": "docs/demo-datasets/1793634151022/expanded-regression/local-rehearsal.json",
+      "sha256": "481844bc6d8c3f37d41454c45d466cc9523503be47a6d8b59758fab11f5dcaa2"
+    },
+    {
+      "file": "docs/demo-datasets/1793634151022/final-live-recheck.json",
+      "sha256": "6b783fb7188954fc4e642d963ca65b7a969243058f2ebc776aef20c05d79734a"
+    },
+    {
+      "file": "docs/demo-datasets/1793634151022/manifest.json",
+      "sha256": "6b6007ac69f9ef57ac03ee28077971a8e6871d1193815d0c1508c72c4c57a9b1"
+    },
+    {
+      "file": "docs/demo-datasets/1793634151022/postgres/local-rehearsal.json",
+      "sha256": "257fb4a41497230b2671ec83ecd02c27f25486b16ed2bf8b2e9414dbd99777c3"
+    },
+    {
+      "file": "docs/demo-datasets/1793634151022/postgres/uuid-manifest.json",
+      "sha256": "95a2cf33eddffdaebe06e95fe579457110c3e57fbf2118062054ae984dce197d"
+    },
+    {
+      "file": "docs/demo-datasets/1793634151022/real-source-input.json",
+      "sha256": "71b741cb6eaeafd817f92d3853506d8a682931cb147ef7f77601e71f27b40f95"
+    },
+    {
+      "file": "docs/demo-datasets/1793634151022/shortage-input.json",
+      "sha256": "d5265ffd3ff99fab76ccaa020245e1b4b5503d7578e1d7e8027adad6b60feb87"
+    },
+    {
+      "file": "docs/demo-datasets/README.md",
+      "sha256": "f7eb1ffc3849265249162baf3e9fac6a73a22f279ae0b09e3084738742963663"
+    },
+    {
+      "file": "docs/deployment-6.2/preflight.sql",
+      "sha256": "002cc02d343ed672fe2b9e090ccab05dc2536ccf72f7f7bff25c800a434d1f94"
+    },
+    {
+      "file": "docs/deployment-6.3.1/CATALOG-EXPORT.md",
+      "sha256": "d165dc0f1c862304e972a107245c2df2cf2483f22940a591f71488a5866b28d5"
+    },
+    {
+      "file": "docs/deployment-6.3.1/DEPLOY-READY.md",
+      "sha256": "2a13323688f7da07eb4b91b26982adb1e94b4500e24e91b8a7951e4e19177008"
+    },
+    {
+      "file": "docs/deployment-6.3.1/MINIMAL-BACKUP-WINDOWS.md",
+      "sha256": "df9c76110477d920647330ebc4bb292c8fcee449b0d88adc9d9cfdc39d15e047"
+    },
+    {
+      "file": "docs/deployment-6.3.1/REBOUND-RESULT.md",
+      "sha256": "835eefa21adbec25073d3adad05ac6f37f67945aaff7a0dc28baa936f373cc40"
+    },
+    {
+      "file": "docs/deployment-6.3.1/TARGET-UPDATE.md",
+      "sha256": "e70e5e10863a7ee525197c684e073367b089babbb48cfc41d1d96c9c142952a9"
+    },
+    {
+      "file": "docs/deployment-6.3.1/current-migration-facts.json",
+      "sha256": "6531673e950157be663592b89e746a50edfe6ab8151c7a0e2f008c40d8c752ff"
+    },
+    {
+      "file": "docs/deployment-6.3.1/performance/README.md",
+      "sha256": "e5c60d8cd2ea902b8f984cd378a976662d826446d9ec827272c991d4a6f1a3f8"
+    },
+    {
+      "file": "docs/deployment-6.3.1/performance/draft-profile-run1.json",
+      "sha256": "a4374c11627b2909931e04c7cfceb2e33b1f7cffac92a8b79cc2d33f27ee9115"
+    },
+    {
+      "file": "docs/deployment-6.3.1/performance/draft-profile.json",
+      "sha256": "4e027acd1e406a0098f39ac3e822ea01dd9a532f2bfae66c121d00615f1992e7"
+    },
+    {
+      "file": "docs/deployment-6.3.1/performance/performance-summary.json",
+      "sha256": "a6215970f6e664fc55b247a2ed2bfd85d47efb800fe722c769d8e0a2021cab3b"
+    },
+    {
+      "file": "docs/deployment-6.3.1/performance/postflight.sql",
+      "sha256": "e00658943006fd88dd78cb5b0ecb2cc2d3afb27b9d07deaf95e24247264c320a"
+    },
+    {
+      "file": "docs/deployment-6.3.1/post-migration-facts.sql",
+      "sha256": "4ac7e571815b240d3c110a073a9d1cabeac93252c3e3f34396515237c17cb4cf"
+    },
+    {
+      "file": "docs/deployment-6.3.1/rebound/local-rehearsal.json",
+      "sha256": "481844bc6d8c3f37d41454c45d466cc9523503be47a6d8b59758fab11f5dcaa2"
+    },
+    {
+      "file": "docs/deployment-6.3.1/rebound/uuid-manifest.json",
+      "sha256": "7e028e29811d84d58fdc3c63c9753142fcd9c5df36ffb7728a21569f908c464c"
+    },
+    {
+      "file": "docs/deployment-6.3.1/sql-editor-auth-check.sql",
+      "sha256": "4449b64cb31ab60a0a1ac471e06cc2b9ea410f195bbea0dbbb7d7564424e9f41"
+    },
+    {
+      "file": "docs/deployment-6.3.1/sql-editor-complete-catalog.sql",
+      "sha256": "1f19caa3622378b5f2c70a72e9eb6ed7fbe5eb638253cb604f5ca133f8e5f95d"
+    }
+  ],
+  "confirmed_target_project_ref": "wlbpprpiieonjrqglicv",
+  "backend_project_matches": true,
+  "dev_import_project_ref": "wlbpprpiieonjrqglicv",
+  "live_access_method": "REST_GET_AND_AUTH_ADMIN_GET_ONLY",
+  "latest_rest_evidence": "docs/deployment-6.3.1/target-rest-1793588514539.json",
+  "rest_evidence_sha256": "2e52eb8f1547a842ffb0b62f6bc42b2e5b7baac555798b8d18be52f76854e423",
+  "baseline_projected_comparisons": {
+    "users": {
+      "fields": [
+        "id",
+        "username",
+        "role",
+        "branch_id",
+        "is_active",
+        "must_change_password"
+      ],
+      "old_count": 62,
+      "current_count": 62,
+      "equal": true
+    },
+    "employees": {
+      "fields": [
+        "id",
+        "user_id",
+        "branch_id",
+        "department_id",
+        "skill_level",
+        "status",
+        "max_weekly_hours"
+      ],
+      "old_count": 60,
+      "current_count": 60,
+      "equal": true
+    },
+    "headers": {
+      "fields": [
+        "period_id",
+        "employee_id",
+        "status",
+        "errors",
+        "submitted_at",
+        "updated_at",
+        "sample_batch_id"
+      ],
+      "old_count": 2,
+      "current_count": 2,
+      "equal": true
+    },
+    "registrations": {
+      "fields": [
+        "id",
+        "period_id",
+        "employee_id",
+        "work_date",
+        "shift_id",
+        "status",
+        "submitted_at",
+        "updated_at"
+      ],
+      "old_count": 16,
+      "current_count": 16,
+      "equal": true
+    },
+    "requirements": {
+      "fields": [
+        "id",
+        "branch_id",
+        "department_id",
+        "shift_id",
+        "work_date",
+        "required_count",
+        "excludes_crew_leader",
+        "required_skill_name",
+        "sales_forecast_ref",
+        "created_by",
+        "updated_at"
+      ],
+      "old_count": 63,
+      "current_count": 63,
+      "equal": true
+    },
+    "schedules": {
+      "fields": [],
+      "old_count": 0,
+      "current_count": 0,
+      "equal": true
+    }
+  },
+  "baseline_comparison_limits": [
+    "Selected safe fields only; employee full_name not fetched; full PostgreSQL snapshot/checksum not available.",
+    "Separate REST GET requests are not transactionally consistent."
+  ],
+  "actual": {
+    "branch_employees": 60,
+    "skills": {
+      "CREW_LEADER": 7,
+      "CREW_TRAINING": 12,
+      "NEW": 8,
+      "REGULAR": 33
+    },
+    "branch_profiles": 62,
+    "real_registrations": 16,
+    "headers": 2,
+    "demand_cells": 63,
+    "demand_positions": 308,
+    "demand_evidence_md5": "34ef45ab2d0038f49faf75c9958bca0e",
+    "daily_distinct_employees": [
+      2,
+      1,
+      2,
+      2,
+      1,
+      2,
+      2
+    ],
+    "target_period_schedules": {
+      "value": 0,
+      "source": "USER_CONFIRMED_ZERO_ORIGINAL_40"
+    },
+    "missing_auth_bindings": 0,
+    "planned_auth_and_profile_missing": 17,
+    "planned_uuid_set_matches_seed": true,
+    "employee_password_change_required": 1,
+    "period_stored_status": "PLANNED",
+    "period_effective_status": "CLOSED"
+  },
+  "planned_profile_checks": [
+    {
+      "id": "ca7df3c3-6626-4263-8486-b40b783dc03f",
+      "username": "tv3_test_ld_bep_1",
+      "auth_id_exists": false,
+      "profile_id_exists": false,
+      "username_collisions": []
+    },
+    {
+      "id": "f071838d-8a02-4bc4-85f0-d8db520edb33",
+      "username": "tv3_test_ld_bep_2",
+      "auth_id_exists": false,
+      "profile_id_exists": false,
+      "username_collisions": []
+    },
+    {
+      "id": "48a53fa7-a749-48bc-8afe-94e5d462bec2",
+      "username": "tv3_test_ld_bep_3",
+      "auth_id_exists": false,
+      "profile_id_exists": false,
+      "username_collisions": []
+    },
+    {
+      "id": "b8ca0646-33ca-4a18-87d2-131ca14f4434",
+      "username": "tv3_test_ld_bep_4",
+      "auth_id_exists": false,
+      "profile_id_exists": false,
+      "username_collisions": []
+    },
+    {
+      "id": "bc729aa0-dac5-4333-8d31-4668776226f8",
+      "username": "tv3_test_ld_bep_5",
+      "auth_id_exists": false,
+      "profile_id_exists": false,
+      "username_collisions": []
+    },
+    {
+      "id": "314545a6-bf6a-4cfd-89e1-aa7acf3d34f0",
+      "username": "tv3_test_ld_bep_6",
+      "auth_id_exists": false,
+      "profile_id_exists": false,
+      "username_collisions": []
+    },
+    {
+      "id": "4aeab042-7467-42ea-8556-ca245dd6a7e3",
+      "username": "tv3_test_ld_pv_1",
+      "auth_id_exists": false,
+      "profile_id_exists": false,
+      "username_collisions": []
+    },
+    {
+      "id": "563b8cc8-f2b5-4217-835f-70a476eb21d5",
+      "username": "tv3_test_ld_pv_2",
+      "auth_id_exists": false,
+      "profile_id_exists": false,
+      "username_collisions": []
+    },
+    {
+      "id": "129c84a7-9e46-47cd-8392-da3c9df7a862",
+      "username": "tv3_test_ld_pv_3",
+      "auth_id_exists": false,
+      "profile_id_exists": false,
+      "username_collisions": []
+    },
+    {
+      "id": "19346c89-4d56-405a-8bd0-1a411e935bbb",
+      "username": "tv3_test_ld_pv_4",
+      "auth_id_exists": false,
+      "profile_id_exists": false,
+      "username_collisions": []
+    },
+    {
+      "id": "576374dd-0857-4f0c-8612-7f91c987f0c2",
+      "username": "tv3_test_ld_pv_5",
+      "auth_id_exists": false,
+      "profile_id_exists": false,
+      "username_collisions": []
+    },
+    {
+      "id": "0a17c374-34f4-492c-8655-3c1e0f0fd724",
+      "username": "tv3_test_ld_pv_6",
+      "auth_id_exists": false,
+      "profile_id_exists": false,
+      "username_collisions": []
+    },
+    {
+      "id": "bad58911-4003-44e0-8332-8f4ffb9104b0",
+      "username": "tv3_test_ld_tn_1",
+      "auth_id_exists": false,
+      "profile_id_exists": false,
+      "username_collisions": []
+    },
+    {
+      "id": "6b34425e-224d-4403-80af-728cb7f15de2",
+      "username": "tv3_test_ld_tn_2",
+      "auth_id_exists": false,
+      "profile_id_exists": false,
+      "username_collisions": []
+    },
+    {
+      "id": "49a61669-f3a1-4399-818c-4c515ca90b13",
+      "username": "tv3_test_ld_tn_3",
+      "auth_id_exists": false,
+      "profile_id_exists": false,
+      "username_collisions": []
+    },
+    {
+      "id": "7de5ad27-e3d7-4f35-8c2f-906f85a7ea11",
+      "username": "tv3_test_ld_tn_4",
+      "auth_id_exists": false,
+      "profile_id_exists": false,
+      "username_collisions": []
+    },
+    {
+      "id": "9de42104-0a53-4864-8d24-683ee19c3057",
+      "username": "tv3_test_ld_tn_5",
+      "auth_id_exists": false,
+      "profile_id_exists": false,
+      "username_collisions": []
+    }
+  ],
+  "old_project_references": [
+    "backend\\migrations\\20261105_scoped_dev_import.sql",
+    "backend\\scripts\\dev-import-executor.cjs",
+    "backend\\scripts\\collect-live-preflight.cjs",
+    "backend\\scripts\\prepare-tv2-test-project.cjs",
+    "backend\\tests\\tv2-official-bundle.test.cjs",
+    "backend\\src\\registrations\\dev-import-policy.ts",
+    "docs\\deployment-6.3.1\\readiness.json",
+    "docs\\deployment-6.3.1\\README.md",
+    "docs\\deployment-6.2\\README.md",
+    "docs\\tv2-release\\final\\PUSH-FILES.md",
+    "docs\\tv2-test\\wimikwyuzhltpjciafod\\01_foundation.sql",
+    "docs\\tv2-test\\wimikwyuzhltpjciafod\\02_auth_compatibility.sql",
+    "docs\\tv2-test\\wimikwyuzhltpjciafod\\03_tv2_m1.sql",
+    "docs\\tv2-test\\wimikwyuzhltpjciafod\\04_tv2_m2.sql",
+    "docs\\tv2-test\\wimikwyuzhltpjciafod\\05_test_fixture.sql",
+    "docs\\tv2-test\\wimikwyuzhltpjciafod\\06_verify.sql",
+    "docs\\tv2-test\\wimikwyuzhltpjciafod\\manifest.json",
+    "docs\\tv2-test\\wimikwyuzhltpjciafod\\backend-env.example.txt",
+    "docs\\tv2-test\\wimikwyuzhltpjciafod\\README.md"
+  ],
+  "local_validation": {
+    "backend": {
+      "pass": 242,
+      "skip": 24,
+      "fail": 0
+    },
+    "frontend": {
+      "pass": 183,
+      "fail": 0
+    },
+    "postgres_regression": {
+      "pass": 25,
+      "skip": 0,
+      "fail": 0
+    },
+    "profiling_cohorts": 2,
+    "profiling_tests_each": {
+      "pass": 2,
+      "fail": 0
+    },
+    "backend_typecheck": "PASS",
+    "backend_build": "PASS",
+    "frontend_typecheck": "PASS",
+    "frontend_build": "PASS",
+    "existing_fixture_native": {
+      "pass": 2,
+      "fail": 0
+    },
+    "expanded_fixture_native": {
+      "pass": 2,
+      "fail": 0
+    },
+    "fixture_unit_tests": {
+      "pass": 3,
+      "fail": 0
+    }
+  },
+  "dev_import_scope_rebound_local": true,
+  "rebound_evidence": {
+    "directory": "docs/deployment-6.3.1/rebound",
+    "bundle_sha256": "d47a3bd0c16d4fc331d9bbf0f6bc30942c0759f3ef3f5494c2da025967f5cce1",
+    "synthetic_plan_sha256": "da1fa2fcce281fd42c8dc435e18d64ebd042b2e5af65f4ae13f954f995db7ca2",
+    "not_live_apply_authorization": true,
+    "native_result": "PASS",
+    "engine_validation": {
+      "daily": [
+        {
+          "work_date": "2026-11-02",
+          "distinct_employees": 67
+        },
+        {
+          "work_date": "2026-11-03",
+          "distinct_employees": 66
+        },
+        {
+          "work_date": "2026-11-04",
+          "distinct_employees": 67
+        },
+        {
+          "work_date": "2026-11-05",
+          "distinct_employees": 67
+        },
+        {
+          "work_date": "2026-11-06",
+          "distinct_employees": 66
+        },
+        {
+          "work_date": "2026-11-07",
+          "distinct_employees": 67
+        },
+        {
+          "work_date": "2026-11-08",
+          "distinct_employees": 67
+        }
+      ],
+      "assigned": 308,
+      "required": 308,
+      "shortage": 0,
+      "composition_cells": 0,
+      "optimization": {
+        "method": "DETERMINISTIC_SINGLE_REPLACEMENT",
+        "objective": "WITHIN_DEPARTMENT_SQUARED_HOUR_DEVIATION",
+        "max_iterations": 200,
+        "iterations": 10,
+        "converged": true,
+        "limit_reached": false,
+        "before": {
+          "objective": 5532.61111111111,
+          "departments": [
+            {
+              "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+              "employee_count": 18,
+              "total_hours": 434,
+              "mean_hours": 24.11111111111111,
+              "squared_deviation": 3047.777777777778
+            },
+            {
+              "department_id": "22222222-2222-2222-2222-222222222222",
+              "employee_count": 28,
+              "total_hours": 490,
+              "mean_hours": 17.5,
+              "squared_deviation": 1249
+            },
+            {
+              "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+              "employee_count": 24,
+              "total_hours": 518,
+              "mean_hours": 21.583333333333332,
+              "squared_deviation": 1235.8333333333328
+            }
+          ]
+        },
+        "after": {
+          "objective": 5224.61111111111,
+          "departments": [
+            {
+              "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+              "employee_count": 18,
+              "total_hours": 434,
+              "mean_hours": 24.11111111111111,
+              "squared_deviation": 3047.777777777778
+            },
+            {
+              "department_id": "22222222-2222-2222-2222-222222222222",
+              "employee_count": 28,
+              "total_hours": 490,
+              "mean_hours": 17.5,
+              "squared_deviation": 1209
+            },
+            {
+              "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+              "employee_count": 24,
+              "total_hours": 518,
+              "mean_hours": 21.583333333333332,
+              "squared_deviation": 967.8333333333334
+            }
+          ]
+        }
+      },
+      "registration_count": 607
+    }
+  },
+  "pending_manual_actions": [
+    "Review DEPLOY-READY.md and approve 7-file migration bundle",
+    "After migration passes, review fresh A-plan digest and approve import separately"
+  ],
+  "resolved_local_blockers": [
+    "ISOLATED_DRAFT_SAVE_BUDGET_EXCEEDED_REPRODUCIBLE",
+    "CRITICAL_METADATA_NOT_REVIEWED"
+  ],
+  "draft_performance": {
+    "scope": "ISOLATED_POSTGRESQL_ONLY",
+    "budget_ms": 3000,
+    "assignment_count": 308,
+    "source_reports": [
+      {
+        "file": "draft-profile-run1.json",
+        "captured_at": "2026-11-02T04:19:42.808Z"
+      },
+      {
+        "file": "draft-profile.json",
+        "captured_at": "2026-11-02T04:27:18.872Z"
+      }
+    ],
+    "sql_rpc_only": true,
+    "before": {
+      "runs": 6,
+      "pass": 0,
+      "fail": 6,
+      "median_ms": 3137.8462499999987,
+      "p95_ms": 4201.045299999998,
+      "min_ms": 3008.992400000003,
+      "max_ms": 4201.045299999998,
+      "timings_ms": [
+        4201.045299999998,
+        3015.225599999998,
+        3460.5996000000014,
+        3233.3087000000014,
+        3042.383799999996,
+        3008.992400000003
+      ]
+    },
+    "after": {
+      "runs": 20,
+      "pass": 20,
+      "fail": 0,
+      "median_ms": 727.2565500000055,
+      "p95_ms": 898.5480000000098,
+      "min_ms": 620.3889999999956,
+      "max_ms": 929.6482999999935,
+      "timings_ms": [
+        929.6482999999935,
+        718.3702000000048,
+        804.2825000000012,
+        786.8029999999999,
+        701.6754000000074,
+        666.3885999999911,
+        734.3016000000061,
+        780.1609999999928,
+        671.7725999999966,
+        898.5480000000098,
+        686.6562999999951,
+        720.2115000000049,
+        812.2850000000035,
+        846.9374000000025,
+        673.4850000000006,
+        620.3889999999956,
+        632.9482999999891,
+        714.5154000000039,
+        814.1826999999903,
+        824.521900000007
+      ]
+    },
+    "budget_unchanged": true,
+    "all_after_under_budget": true,
+    "report": "docs/deployment-6.3.1/performance/README.md",
+    "sql_budget_unchanged": true,
+    "gateway_web_and_commit_latency_not_benchmarked": true
+  },
+  "deployment_order_conditional": [
+    "20261029_tv4_schedule_workflow.sql IF MISSING AND COMPATIBLE",
+    "20261101_tv3_rule_contract_v2.sql",
+    "20261102_tv4_workflow_v2.sql",
+    "20261103_employee_schedule_read.sql",
+    "20261104_tv5_shift_replacement.sql",
+    "20261105_scoped_dev_import.sql",
+    "20261106_dev_import_source_materialization.sql"
+  ],
+  "catalog_csv_review": {
+    "status": "PARTIAL_METADATA_VERIFIED_NO_GO",
+    "report": "docs/deployment-6.3.1/catalog-review-20261102/REPORT.md",
+    "inventory": "docs/deployment-6.3.1/catalog-review-20261102/inventory.md",
+    "query_coverage": "docs/deployment-6.3.1/catalog-review-20261102/query-coverage.md",
+    "audit": "docs/deployment-6.3.1/catalog-review-20261102/audit.json",
+    "archive_sha256": "4d684f0e1bb438aec829370f9390301b22b06370a6d916485cd079ff99c6b860",
+    "csv_count": 24,
+    "function_checksums_verified": 18,
+    "complete_exports": {
+      "S1": 206,
+      "S2": 18,
+      "S3": 64,
+      "S4": 54
+    },
+    "function_guard_20261101": "PASS_AT_SNAPSHOT_NOT_ROLLOUT_APPROVAL",
+    "missing_export_evidence_not_execution": [
+      "C1.1/version",
+      "C3.1 constraints",
+      "C6 trigger attachments",
+      "C7.2 default ACL",
+      "C8.1 RLS flags",
+      "C8.2 policies",
+      "C8.3 table privileges",
+      "C9 view definitions/options/ACL",
+      "C10 event trigger attachments",
+      "S5 migration-history presence/versions"
+    ],
+    "zero_rows": [
+      {
+        "original_query": 40,
+        "query": "D1.3",
+        "rows_reported_by_user": 0,
+        "evidence": "USER_CONFIRMED_ZERO_NO_DISTINCT_RESULT_CSV_IN_ARCHIVE",
+        "supplemental_csv": [],
+        "explicit_no_csv_confirmed_by_user": true,
+        "not_sql_error": true,
+        "not_inference_about_execution": true
+      },
+      {
+        "original_query": 46,
+        "query": "D4.1",
+        "rows_reported_by_user": 0,
+        "evidence": "USER_CONFIRMED_ZERO_PLUS_COUNT_CSV",
+        "supplemental_csv": [
+          "Supabase Snippet Untitled query (46).csv"
+        ],
+        "explicit_no_csv_confirmed_by_user": false,
+        "not_sql_error": true,
+        "not_inference_about_execution": true
+      },
+      {
+        "original_query": 47,
+        "query": "D4.2",
+        "rows_reported_by_user": 0,
+        "evidence": "USER_CONFIRMED_ZERO_PLUS_COUNT_CSV",
+        "supplemental_csv": [
+          "Supabase Snippet Untitled query (47).csv"
+        ],
+        "explicit_no_csv_confirmed_by_user": false,
+        "not_sql_error": true,
+        "not_inference_about_execution": true
+      },
+      {
+        "original_query": 48,
+        "query": "D4.3",
+        "rows_reported_by_user": 0,
+        "evidence": "USER_CONFIRMED_ZERO_PLUS_COUNT_CSV",
+        "supplemental_csv": [
+          "Supabase Snippet Untitled query (48).csv"
+        ],
+        "explicit_no_csv_confirmed_by_user": false,
+        "not_sql_error": true,
+        "not_inference_about_execution": true
+      },
+      {
+        "original_query": 50,
+        "query": "D5.1",
+        "rows_reported_by_user": 0,
+        "evidence": "USER_CONFIRMED_ZERO_NO_DISTINCT_RESULT_CSV_IN_ARCHIVE",
+        "supplemental_csv": [],
+        "explicit_no_csv_confirmed_by_user": true,
+        "not_sql_error": true,
+        "not_inference_about_execution": true
+      },
+      {
+        "original_query": 51,
+        "query": "D5.2",
+        "rows_reported_by_user": 0,
+        "evidence": "USER_CONFIRMED_ZERO_NO_DISTINCT_RESULT_CSV_IN_ARCHIVE",
+        "supplemental_csv": [],
+        "explicit_no_csv_confirmed_by_user": false,
+        "not_sql_error": true,
+        "not_inference_about_execution": true
+      },
+      {
+        "original_query": 52,
+        "query": "D6.1",
+        "rows_reported_by_user": 0,
+        "evidence": "USER_CONFIRMED_ZERO_NO_DISTINCT_RESULT_CSV_IN_ARCHIVE",
+        "supplemental_csv": [],
+        "explicit_no_csv_confirmed_by_user": false,
+        "not_sql_error": true,
+        "not_inference_about_execution": true
+      },
+      {
+        "original_query": 53,
+        "query": "D6.2",
+        "rows_reported_by_user": 0,
+        "evidence": "USER_CONFIRMED_ZERO_NO_DISTINCT_RESULT_CSV_IN_ARCHIVE",
+        "supplemental_csv": [],
+        "explicit_no_csv_confirmed_by_user": false,
+        "not_sql_error": true,
+        "not_inference_about_execution": true
+      },
+      {
+        "original_query": 54,
+        "query": "D6.3",
+        "rows_reported_by_user": 0,
+        "evidence": "USER_CONFIRMED_ZERO_NO_DISTINCT_RESULT_CSV_IN_ARCHIVE",
+        "supplemental_csv": [],
+        "explicit_no_csv_confirmed_by_user": false,
+        "not_sql_error": true,
+        "not_inference_about_execution": true
+      },
+      {
+        "original_query": 55,
+        "query": "D6.4",
+        "rows_reported_by_user": 0,
+        "evidence": "USER_CONFIRMED_ZERO_NO_DISTINCT_RESULT_CSV_IN_ARCHIVE",
+        "supplemental_csv": [],
+        "explicit_no_csv_confirmed_by_user": true,
+        "not_sql_error": true,
+        "not_inference_about_execution": true
+      }
+    ],
+    "conflicts_or_limits": [
+      "Files (35)/(36) are identical S4 exports; neither proves S5.",
+      "Files (39)/(40) are identical D1.2 exports; filename 40 is not original query 40.",
+      "File (55) matches dev-import SELECT 3 structure despite reported not run 3-6; its capture provenance is unconfirmed.",
+      "File (53) current_setting(transaction_read_only)=off; does not prove writes occurred or a consistent/read-only export transaction.",
+      "Aggregate row counts do not establish immutable per-row baseline checksums.",
+      "No backup/restore evidence supplied."
+    ]
+  },
+  "previous_rest_actual": {
+    "employees": 60,
+    "real_registration_rows": 16,
+    "headers": 2,
+    "demand_cells": 63,
+    "demand_positions": 308,
+    "branch_skills": {
+      "NEW": 8,
+      "REGULAR": 33,
+      "CREW_TRAINING": 12,
+      "CREW_LEADER": 7
+    },
+    "global_schedules": 0,
+    "global_requests": 0,
+    "global_incidents": 0,
+    "global_invitations": 0,
+    "auth_users": 74,
+    "profiles": 74,
+    "missing_auth_bindings": 0,
+    "missing_profile_bindings": 0,
+    "branch_binding_mismatches": 0,
+    "planned_missing_auth": 17,
+    "planned_missing_profiles": 17,
+    "planned_username_collisions": 0
+  },
+  "actual_source": "Current supplied CSV plus explicitly attributed user-confirmed zero results; not a consistent PostgreSQL snapshot",
+  "rollout_plan": {
+    "file": "docs/deployment-6.3.1/rollout-plan/plan.json",
+    "sha256": "a1d212326b10f1bc03e922989c4a3e7e80cac25e3ee35734db8b18b085bfdfd3",
+    "report": "docs/deployment-6.3.1/rollout-plan/PLAN.md",
+    "write_approvals_granted": false
+  },
+  "phase_gates": {
+    "migration": {
+      "status": "READY_FOR_SEPARATE_APPROVAL",
+      "blockers": [
+        "MIGRATION_APPROVAL_PENDING"
+      ]
+    },
+    "auth_provisioning": {
+      "status": "NOT_READY",
+      "prerequisites": [
+        "MIGRATION_POSTFLIGHT_PASS",
+        "DB_AUTH_TRIGGER_REVIEW_PASS_RECHECK_API_HOOKS_AT_PROVISIONING",
+        "PROVISIONING_EXECUTOR_AND_RECEIPT_REHEARSED",
+        "SEPARATE_APPROVAL"
+      ]
+    },
+    "registration_import": {
+      "status": "NOT_READY",
+      "prerequisites": [
+        "MATCHING_AUTH_PROFILE_BINDINGS",
+        "FRESH_PREPARE_MISSING_PROFILES_ZERO",
+        "BASELINE_AND_PLAN_DIGEST_APPROVED"
+      ]
+    },
+    "draft": {
+      "status": "LOCAL_PASS_LIVE_PENDING",
+      "prerequisites": [
+        "APPROVED_IMPORT",
+        "EXPLICIT_CONFIG_ENABLE_APPROVAL"
+      ]
+    },
+    "workflow_employee_tv5": {
+      "status": "LOCAL_PASS_LIVE_PENDING",
+      "prerequisites": [
+        "DRAFT_LIVE_PASS",
+        "EXPLICIT_ENABLE_APPROVAL",
+        "REAL_WEB_AND_API_EVIDENCE"
+      ]
+    },
+    "backup": {
+      "status": "ARCHIVE_CHECKED_NOT_RESTORE_TESTED",
+      "backup_created": true,
+      "backup_checked": true,
+      "restore_tested": false
+    },
+    "metadata": {
+      "status": "FRESH_POSTGRES_PREFLIGHT_PASS",
+      "writes_authorized": false
+    },
+    "backup_restore": {
+      "status": "BACKUP_CHECKED_RESTORE_DEFERRED_BY_OWNER",
+      "backup_created": true,
+      "backup_checked": true,
+      "restore_success": false
+    }
+  },
+  "later_stage_dependencies": [
+    "FRESH_LIVE_EXISTING_EMPLOYEE_SEED_PLAN_AFTER_MIGRATION",
+    "REAL_WEB_API_E2E_ACCEPTANCE"
+  ],
+  "migration_history_note": "S5 absence is missing inventory evidence, not independent rollout blocker; stop if actual ledger conflicts with catalog",
+  "owner_context": "SOLE_DEVELOPMENT_OWNER_EXISTING_DATA_PRESERVED",
+  "metadata_supplement_review": {
+    "report": "docs/deployment-6.3.1/metadata-review-20261102/REPORT.md",
+    "audit": "docs/deployment-6.3.1/metadata-review-20261102/audit.json",
+    "audit_sha256": "dc05f6168726bcb5b7fc98500f1f50b1ee3ee36ecb4a0a615f394f4e8051a25c",
+    "inventory": "docs/deployment-6.3.1/metadata-review-20261102/inventory.md",
+    "groups_verified": 8,
+    "csv_count": 9,
+    "schema_conflict_found": false,
+    "backup_restore_guide": "docs/deployment-6.3.1/metadata-review-20261102/BACKUP-RESTORE.md"
+  },
+  "backup_restore_verified": false,
+  "backup_policy": {
+    "mode": "MINIMAL_PUBLIC_AUTH_ARCHIVE_CHECK",
+    "selected_by_owner": true,
+    "create_additional_supabase_project": false,
+    "create_restore_environment_now": false,
+    "restore_test_deferred": true,
+    "restore_tested": false,
+    "guide": "docs/deployment-6.3.1/MINIMAL-BACKUP-WINDOWS.md"
+  },
+  "backup_status": {
+    "project_ref": "wlbpprpiieonjrqglicv",
+    "created_at": "2026-11-02T16:27:56.067Z",
+    "server_version": "17.11",
+    "pg_dump_version": "17.11",
+    "connection_kind": "SESSION_POOLER",
+    "scope": [
+      "public",
+      "auth",
+      "extensions",
+      "large_objects"
+    ],
+    "backup_created": true,
+    "backup_checked": true,
+    "restore_tested": false,
+    "restore_status": "DEFERRED_BY_OWNER",
+    "migration_approved": false,
+    "archive_decoded_offline": true,
+    "archive_toc_checked": true,
+    "bytes": 340433,
+    "sha256": "6a4d9511784339108ad303af140854d2a524fe366a73dacf363b8ef813b8e919",
+    "scope_inventory_reviewed": true,
+    "scope_table_count": 53,
+    "public_table_count": 26,
+    "auth_table_count": 27,
+    "metadata_snapshot_copied": true,
+    "backup_path": "D:/JolliShift-private/minimal-backup/backup-ready-20261102",
+    "receipt": "D:/JolliShift-private/minimal-backup/backup-ready-20261102/receipt.json"
+  },
+  "tool_inspection": {
+    "pg_dump_version": "17.11",
+    "pg_restore_version": "17.11",
+    "psql_version": "17.11",
+    "bin_path": "D:/JolliShift-private/pg17-client-17.11/bin",
+    "supabase_cli_on_path": false,
+    "docker_on_path_or_checked_default_path": false,
+    "source_server_version": "17.11",
+    "private_connection_files_present": true,
+    "disk_free_gb_at_inspection": {
+      "D": 211.71,
+      "C": 2.15
+    },
+    "legacy_pg_dump_16_not_used": true,
+    "postgresql_server_installed_this_stage": false
+  },
+  "demo_preparation": {
+    "file": "docs/deployment-6.3.1/demo-preparation.json",
+    "sha256": "da0d4cc02794cbe63a6bfddd740bfb20b1514f1734fd3022d93553f4acce503f",
+    "guide": "docs/deployment-6.3.1/DEMO-PREPARATION.md"
+  },
+  "latest_readonly_evidence": {
+    "file": "docs/deployment-6.3.1/target-rest-1793633173491.json",
+    "sha256": "7a37628ceed71fc17d6d8530a85074142dac1e47c6980604f95ee9b453dc0fa4",
+    "collector_get_requests": 18,
+    "backend_db_health_get_select": 1
+  },
+  "latest_demo_source": {
+    "branch_employees": 60,
+    "target_registrations": 16,
+    "demand_cells": 63,
+    "positions": 308,
+    "schedules_all_project": 0,
+    "planned_missing_auth": 17,
+    "planned_missing_profiles": 17,
+    "naturally_open_branch_periods": 0
+  },
+  "demo_datasets": {
+    "guide": "docs/demo-datasets/README.md",
+    "release": "docs/demo-datasets/1793634151022/release-manifest.json",
+    "sha256": "e0798ac5d43c17577f3ef62d398a1a78d097bdd0e80d8d6d4e7646e6e4c962d6",
+    "primary": {
+      "fixture_policy": "existing-employees-v1",
+      "new_auth": 0,
+      "new_employees": 0,
+      "new_headers": 51,
+      "new_registrations": 640,
+      "total_registrations": 656,
+      "assigned": 308,
+      "required": 308,
+      "shortage": 0,
+      "experience_shortage_cells": 0,
+      "daily": [
+        {
+          "work_date": "2026-11-02",
+          "distinct_employees": 53
+        },
+        {
+          "work_date": "2026-11-03",
+          "distinct_employees": 52
+        },
+        {
+          "work_date": "2026-11-04",
+          "distinct_employees": 53
+        },
+        {
+          "work_date": "2026-11-05",
+          "distinct_employees": 53
+        },
+        {
+          "work_date": "2026-11-06",
+          "distinct_employees": 52
+        },
+        {
+          "work_date": "2026-11-07",
+          "distinct_employees": 53
+        },
+        {
+          "work_date": "2026-11-08",
+          "distinct_employees": 53
+        }
+      ]
+    },
+    "independent": {
+      "file": "docs/demo-datasets/1793634151022/shortage-input.json",
+      "employees": 9,
+      "required": 36,
+      "assigned": 21,
+      "missing_positions": 15,
+      "import_authorized": false
+    },
+    "postgres_rehearsal": "PASS",
+    "legacy_regression": "PASS"
+  },
+  "primary_demo_requires_auth_provisioning": false,
+  "deployment_bundle": {
+    "file": "docs/deployment-6.3.1/deployment-bundle.json",
+    "sha256": "80010867af3ec434e5d159b598c08bb05552d0a7f74d43945fb71fb0a4893d8a",
+    "migration_approved": true,
+    "import_approved": true
+  },
+  "next_week_registration": [
+    {
+      "id": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+      "work_start_date": "2026-11-09",
+      "work_end_date": "2026-11-15",
+      "open_at": "2026-11-06T08:00:00.000Z",
+      "close_at": "2026-11-08T05:00:00.000Z",
+      "effective_status": "PLANNED"
+    }
+  ],
+  "updated_at": "2026-11-03T10:18:44.495Z",
+  "deployment_execution": {
+    "report": "docs/deployment-6.3.1/execution-20261102/REPORT.md",
+    "seven_files_committed": true,
+    "postflight_pass": true,
+    "existing_public_tables_preserved": 26,
+    "auth_users_and_identities_preserved": true,
+    "acl_checks": 54,
+    "helper_acl_checks": 12,
+    "public_rls_tables": 27,
+    "registry_rows": 0,
+    "backup_restore_tested": false,
+    "import_performed": false,
+    "auth_created": false,
+    "runtime_writers_enabled": false
+  },
+  "data_a_import": {
+    "status": "PASS",
+    "approved_digest": "b9dcd9fbb121b39816458ae6ef82d28c84c5b93fb12c4e82dd5830a029850979",
+    "report": "docs/deployment-6.3.1/import-A-execution-20261103/REPORT.md",
+    "postflight": "docs/deployment-6.3.1/import-A-execution-20261103/after.json",
+    "added_headers": 51,
+    "added_registrations": 640,
+    "employees": 60,
+    "total_headers": 53,
+    "total_registrations": 656,
+    "demand_cells": 63,
+    "demand_positions": 308,
+    "real_rows_preserved": 16,
+    "new_auth": 0,
+    "new_employees": 0,
+    "schedules_created": 0,
+    "receipt_verified": true,
+    "after_images_verified": true,
+    "rollback_eligible_at_postflight": true,
+    "runtime_flags_enabled": false
+  },
+  "runtime_draft": {
+    "enabled": true,
+    "dev_import_source_enabled": true,
+    "project_ref": "wlbpprpiieonjrqglicv",
+    "branch_id": "11111111-1111-1111-1111-111111111111",
+    "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+    "scope_guard_enabled": true,
+    "workflow_enabled": true,
+    "tv5_enabled": false,
+    "report": "docs/deployment-6.3.1/runtime-draft-20261103/REPORT.md",
+    "schedule_write_invoked_by_agent": false
+  },
+  "runtime_workflow": {
+    "enabled": true,
+    "scope_guard_enabled": true,
+    "project_ref": "wlbpprpiieonjrqglicv",
+    "branch_id": "11111111-1111-1111-1111-111111111111",
+    "period_id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+    "draft_id": "969c3446-9357-40ef-a40e-1296cca573b8",
+    "draft_assignments": 308,
+    "can_submit": true,
+    "transitions_invoked_by_agent": false,
+    "employee_draft_visibility": 0,
+    "tv5_enabled": true,
+    "report": "docs/deployment-6.3.1/runtime-workflow-20261103/REPORT.md",
+    "status_observed": "PUBLISHED"
+  },
+  "runtime_registration_test": {
+    "enabled": true,
+    "scope_branch": "11111111-1111-1111-1111-111111111111",
+    "scope_period": "7f48f53e-d707-4a32-9f15-eb32aeb0095a",
+    "clock_override_only": true,
+    "original_deadlines_unchanged": true,
+    "backend_only": true,
+    "driver": "PRIVATE_EXISTING_PG_CLIENT_TRANSACTION",
+    "manual_registration_invoked_by_agent": false,
+    "disable_flag": "REGISTRATION_DEV_TEST_MODE=false",
+    "report": "docs/deployment-6.3.1/runtime-fixes-20261103/REPORT.md"
+  },
+  "runtime_tv5": {
+    "enabled": true,
+    "scope_guard_enabled": true,
+    "local_pg_rpc_enabled": true,
+    "statement_timeout_ms": 8000,
+    "read_only_candidate_check_pass": true,
+    "request_create_invoked_by_agent": false,
+    "shift_replacement_invoked_by_agent": false,
+    "report": "docs/deployment-6.3.1/runtime-tv5-20261103/REPORT.md"
+  }
+}

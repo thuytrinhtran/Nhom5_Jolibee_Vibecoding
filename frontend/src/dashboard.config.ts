@@ -42,7 +42,7 @@ export const dashboardConfig: Record<UserRole, DashboardConfig> = {
       { label: 'Tổng quan', path: '/manager', icon: LayoutDashboard,group:'Tổng quan' },
       { label: 'Đăng ký ca', path: '/manager/registrations', icon: ClipboardList,group:'Lập lịch làm việc' },
       { label: 'Nhu cầu nhân sự', path: '/manager/demand', icon: Users,group:'Lập lịch làm việc' },
-      { label: 'Xếp lịch & AI', path: '/manager/schedule', icon: CalendarDays,group:'Lập lịch làm việc' },
+      { label: 'Xếp lịch làm việc', path: '/manager/schedule', icon: CalendarDays,group:'Lập lịch làm việc' },
       { label: 'Phê duyệt & công bố', path: '/manager/publish', icon: CheckSquare,group:'Lập lịch làm việc' },
       { label: 'Lịch làm việc chính thức', path: '/manager/official-schedule', icon: Calendar,group:'Vận hành' },
       { label: 'Xử lý đổi ca', path: '/manager/shift-requests', icon: ArrowLeftRight,group:'Vận hành' },

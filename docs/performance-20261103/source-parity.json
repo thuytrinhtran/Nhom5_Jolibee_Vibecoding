@@ -1,0 +1,11 @@
+{
+  "same": true,
+  "old_ms": 4952,
+  "new_ms": 1632,
+  "headers": 53,
+  "rows": 656,
+  "old_sha256": "114388ac20a01fdddd1bae6ba2b9a4818e24458de30bced22f1c2bd8c9868b6e",
+  "new_sha256": "114388ac20a01fdddd1bae6ba2b9a4818e24458de30bced22f1c2bd8c9868b6e",
+  "optimized_join_ms": 1447,
+  "optimized_join_sha256": "114388ac20a01fdddd1bae6ba2b9a4818e24458de30bced22f1c2bd8c9868b6e"
+}

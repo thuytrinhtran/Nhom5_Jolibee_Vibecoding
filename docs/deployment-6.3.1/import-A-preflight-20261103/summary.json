@@ -1,0 +1,150 @@
+{
+  "stage": "PRE_IMPORT_READ_ONLY_PASS_AWAITING_DIGEST_APPROVAL",
+  "created_at": "2026-11-03T07:28:20.355Z",
+  "project_ref": "wlbpprpiieonjrqglicv",
+  "connection_kind": "SESSION_POOLER",
+  "branch_id": "11111111-1111-1111-1111-111111111111",
+  "period": {
+    "id": "79a979cc-8347-48b5-a411-f03bd8aceb92",
+    "branch_id": "11111111-1111-1111-1111-111111111111",
+    "work_start_date": "2026-11-02",
+    "work_end_date": "2026-11-08",
+    "open_at": "2026-10-30T08:00:00.000Z",
+    "close_at": "2026-11-01T05:00:00.000Z",
+    "status": "PLANNED"
+  },
+  "batch_id": "6e1d2026-1102-4000-8000-000000000017",
+  "source": {
+    "read_only": "on",
+    "branch_name": "Jollibee Lê Duẩn",
+    "employees": 60,
+    "registrations": 16,
+    "headers": 2,
+    "demand_cells": 63,
+    "demand_positions": 308,
+    "schedules": 0,
+    "batch_registry_rows": 0
+  },
+  "collisions": 0,
+  "planned": {
+    "headers": 51,
+    "registrations": 640,
+    "employees": 0,
+    "profiles": 0,
+    "auth": 0,
+    "combined_registrations": 656
+  },
+  "validation": {
+    "daily": [
+      {
+        "work_date": "2026-11-02",
+        "distinct_employees": 53
+      },
+      {
+        "work_date": "2026-11-03",
+        "distinct_employees": 52
+      },
+      {
+        "work_date": "2026-11-04",
+        "distinct_employees": 53
+      },
+      {
+        "work_date": "2026-11-05",
+        "distinct_employees": 53
+      },
+      {
+        "work_date": "2026-11-06",
+        "distinct_employees": 52
+      },
+      {
+        "work_date": "2026-11-07",
+        "distinct_employees": 53
+      },
+      {
+        "work_date": "2026-11-08",
+        "distinct_employees": 53
+      }
+    ],
+    "assigned": 308,
+    "required": 308,
+    "shortage": 0,
+    "composition_cells": 0,
+    "optimization": {
+      "method": "DETERMINISTIC_SINGLE_REPLACEMENT",
+      "objective": "WITHIN_DEPARTMENT_SQUARED_HOUR_DEVIATION",
+      "max_iterations": 200,
+      "iterations": 8,
+      "converged": true,
+      "limit_reached": false,
+      "before": {
+        "objective": 350.55167055167055,
+        "departments": [
+          {
+            "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+            "employee_count": 13,
+            "total_hours": 434,
+            "mean_hours": 33.38461538461539,
+            "squared_deviation": 9.076923076923078
+          },
+          {
+            "department_id": "22222222-2222-2222-2222-222222222222",
+            "employee_count": 22,
+            "total_hours": 490,
+            "mean_hours": 22.272727272727273,
+            "squared_deviation": 290.3636363636364
+          },
+          {
+            "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+            "employee_count": 18,
+            "total_hours": 518,
+            "mean_hours": 28.77777777777778,
+            "squared_deviation": 51.1111111111111
+          }
+        ]
+      },
+      "after": {
+        "objective": 90.55167055167055,
+        "departments": [
+          {
+            "department_id": "0a3de5e1-873b-5f7b-acfc-e71e5b8e97f8",
+            "employee_count": 13,
+            "total_hours": 434,
+            "mean_hours": 33.38461538461539,
+            "squared_deviation": 9.076923076923078
+          },
+          {
+            "department_id": "22222222-2222-2222-2222-222222222222",
+            "employee_count": 22,
+            "total_hours": 490,
+            "mean_hours": 22.272727272727273,
+            "squared_deviation": 46.36363636363635
+          },
+          {
+            "department_id": "e10533b2-57df-55e0-adf0-64894c2ca58a",
+            "employee_count": 18,
+            "total_hours": 518,
+            "mean_hours": 28.77777777777778,
+            "squared_deviation": 35.111111111111114
+          }
+        ]
+      }
+    },
+    "registration_count": 656
+  },
+  "plan_path": "D:/JolliShift-private/minimal-backup/fresh-A-plan-20261103.json",
+  "plan_sha256": "b9dcd9fbb121b39816458ae6ef82d28c84c5b93fb12c4e82dd5830a029850979",
+  "plan_file_sha256": "91e6bee41f11c9f7a06d95866395d8f4d937ff9b7d6f4ec2eef79e32ad4e80da",
+  "baseline_sha256": "d95acd8c63376789b8b947432815cccd4c007ee3baf107632cee9e292ca03467",
+  "real_registration_rows_sha256": "421243c8c29a18866485093a2adbceb9b7837ac5b2f29a80ae789d3cbea82ea0",
+  "rollback": {
+    "reviewed": true,
+    "exact_owned_rows": true,
+    "after_image_guard": true,
+    "immutable_receipt": true,
+    "dependency_guard": true,
+    "no_cascade": true,
+    "retains_audit": true,
+    "executed_on_supabase": false
+  },
+  "import_performed": false
+}
