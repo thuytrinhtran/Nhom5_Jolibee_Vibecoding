@@ -42,6 +42,7 @@ function renderWorkflowWithProfile(profile) {
   const dependencies = {
     react: React,
     'react/jsx-runtime': require('react/jsx-runtime'),
+    '../../components/Toast': require('./helpers/ui-components.cjs'),
     '../../context/AuthContext': { useAuth: () => ({ user: profile }) },
     'lucide-react': { CalendarDays: 'svg' },
     './scheduleWorkflow.types': types,
@@ -87,6 +88,7 @@ function createInteractiveWorkflowHarness(profile, service, initialSchedules, mo
   const dependencies = {
     react: fakeReact,
     'react/jsx-runtime': runtime,
+    '../../components/Toast': require('./helpers/ui-components.cjs'),
     '../../context/AuthContext': { useAuth: () => ({ user: profile }) },
     'lucide-react': { CalendarDays: 'svg' },
     './scheduleWorkflow.types': types,
@@ -507,6 +509,7 @@ test('TV4 shows a success modal only after an action succeeds and keeps failures
   const successDialog = successful.harness.allNodes(successful.tree)
     .find(node => node.props['aria-labelledby'] === 'workflow-success-title');
   assert.ok(successDialog);
+  assert.equal(successDialog.props.role,'status','success feedback must not be a blocking dialog');
   assert.match(successful.harness.textOf(successDialog), /Thao tác thành công/);
   assert.match(successful.harness.textOf(successDialog), /Lịch làm việc đã được công bố/);
   assert.equal(successful.publishCalls, 1);
@@ -587,6 +590,7 @@ test('QL confirms adjustment, sends the edited shifts to the service, and keeps 
   assert.equal(harness.allNodes(tree).some(node => node.props['aria-labelledby'] === 'workflow-confirm-title'), false);
   const successDialog = harness.allNodes(tree).find(node => node.props['aria-labelledby'] === 'workflow-success-title');
   assert.ok(successDialog);
+  assert.equal(successDialog.props.role,'status','success feedback must not be a blocking dialog');
   assert.match(harness.textOf(successDialog), /đã được điều chỉnh và gửi đến GS/);
   assert.match(harness.textOf(successDialog), /Phiên bản 2 đang chờ phê duyệt/);
 });

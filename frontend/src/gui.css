@@ -1,0 +1,86 @@
+/* Shared presentation only. States, permissions and business validation stay on each page. */
+.app-content { width:100%; max-width:1600px; padding:24px; }
+.app-content :is(.workflow-page,.manager-schedule,.registration,.employee-workspace) { width:100%; min-width:0; }
+.app-content .workflow-page { max-width:none; }
+.app-content :is(.dashboard-greeting,.workflow-heading) { margin-bottom:14px; }
+.app-content :is(.dashboard-greeting h2,.workflow-heading h2) { font-size:22px; line-height:1.35; }
+.app-content :is(.dashboard-greeting p,.workflow-heading p) { max-width:80ch; line-height:1.5; }
+.app-content :is(.dashboard-metrics,.dashboard-actions) { gap:12px; }
+.app-content :is(.dashboard-metric,.dashboard-action,.dashboard-work-panel) { padding:16px; border-radius:var(--radius-md); box-shadow:none; }
+.app-content .dashboard-empty { min-height:120px; padding:16px; }
+.app-content :is(.btn,.workflow-button) { min-height:var(--control-height); border-radius:var(--radius-sm); font-size:13px; line-height:1.35; gap:7px; }
+.app-content :is(.btn-primary,.workflow-button.primary) { background:var(--primary); color:#fff; border-color:var(--primary); }
+.app-content :is(.btn-outline,.btn-secondary,.workflow-button.secondary) { background:var(--bg-surface); border:1px solid var(--border-strong); color:var(--text-primary); }
+.app-content :is(.btn-primary,.workflow-button.primary):hover:not(:disabled) { background:var(--primary-hover); border-color:var(--primary-hover); }
+.app-content :is(.btn-outline,.btn-secondary,.workflow-button.secondary):hover:not(:disabled) { background:#f1f5f9; border-color:#94a3b8; }
+.app-content button:disabled { cursor:not-allowed; opacity:.6; }
+.app-content :is(button,a,input,select,textarea,summary):focus-visible { outline:3px solid #a16207; outline-offset:3px; }
+.app-content :is(input,select,textarea) { accent-color:var(--primary); }
+.app-content :is(select,textarea,input:not([type=checkbox]):not([type=radio])) { border-radius:var(--radius-sm); }
+.app-content :is(.workspace-filters,.planner-filters,.schedule-controls,.demand-toolbar) { gap:10px; align-items:end; }
+.app-content :is(.workspace-filters,.planner-filters) label { min-width:0; }
+.app-content :is(.workflow-details,.workflow-card-toggle) { padding:14px 16px; }
+.app-content :is(.workflow-table-wrap,.schedule-table-scroll,.demand-sheet-scroll) { overscroll-behavior-x:contain; }
+.app-content :is(.workflow-details,.schedule-table-scroll,.demand-sheet-scroll) table th { background:#f8fafc; color:var(--text-secondary); font-weight:600; }
+.app-content :is(.workflow-details,.schedule-table-scroll,.demand-sheet-scroll) table tbody tr:hover { background:#f8fafc; }
+.app-content :is(.schedule-alert,.workflow-alert,.reg-alert,.employee-alert) { border-radius:var(--radius-sm); line-height:1.5; overflow-wrap:anywhere; }
+.app-content :is(.workflow-alert.error,.schedule-alert-error,.reg-alert) { background:var(--danger-subtle); color:var(--danger); border-left:3px solid var(--danger); }
+.app-content :is(.planner-actions,.workflow-actions,.reg-actions) { gap:8px; }
+.app-content .planner-actions { background:var(--bg-surface); border-color:var(--border-subtle); }
+.app-content .planner-actions p { flex-basis:100%; margin:0; font-size:12px; }
+.app-content .planner-progress { gap:8px; }
+.app-content .planner-progress li { padding:8px 10px; }
+.app-content .planner-board { padding:14px; }
+.app-content .planner-cell-panel { border:1px solid var(--primary-border); }
+.app-content .timeline-assignment { background:#fff; border-color:#cbd5e1; box-shadow:var(--shadow-sm); }
+.app-content .timeline-assignment.is-selected { border-color:var(--primary); background:var(--primary-subtle); }
+.app-content .timeline-department h4 { font-size:14px; margin-top:12px; padding:8px 10px; }
+.app-content .timeline-lane { margin-bottom:8px; }
+.app-content .schedule-timeline { min-width:860px; padding-right:18px; }
+.app-content .timeline-cell-actions .btn { min-height:36px; padding:6px 8px; }
+.app-content .rule-suggestion-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr)); gap:10px; }
+.app-content .rule-suggestion-card { min-width:0; padding:12px; }
+.app-content .employee-request-card { padding:14px; border-radius:var(--radius-md); }
+.app-content .employee-steps { margin:12px 0; }
+.app-content .workflow-mock-banner { padding:9px 12px; margin-bottom:12px; font-size:12px; }
+.ui-help { display:block; color:var(--text-secondary); font-size:12px; line-height:1.5; margin-top:6px; }
+.page-skeleton { color:var(--text-secondary); padding:16px 0; }
+.page-skeleton>div { display:grid; gap:12px; margin-top:16px; }
+.page-skeleton span { display:block; height:72px; border-radius:var(--radius-md); background:linear-gradient(90deg,#e2e8f0,#f8fafc,#e2e8f0); background-size:200% 100%; animation:page-skeleton-pulse 1.6s ease-in-out infinite; }
+@keyframes page-skeleton-pulse { to { background-position:200% 0; } }
+.app-content .shift-resolution { scroll-margin-top:20px; border:1px solid var(--primary-border); }
+.app-content .shift-resolution:focus { outline:3px solid #a16207; outline-offset:3px; }
+.app-content .shift-resolution>h3 { padding-bottom:10px; border-bottom:1px solid var(--border-subtle); margin-bottom:12px; }
+.app-content .shift-resolution form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:end; gap:12px; margin:12px 0; }
+.app-content .shift-resolution label { display:grid; gap:6px; font-size:13px; }
+.app-content .shift-resolution :is(select,input,textarea) { width:100%; min-width:0; min-height:42px; padding:9px; border:1px solid var(--border-strong); font:inherit; }
+.app-content .shift-resolution form>p { grid-column:1 / -1; }
+.action-toast { position:fixed; z-index:1900; right:24px; bottom:24px; width:min(460px,calc(100vw - 32px)); display:flex; align-items:flex-start; gap:10px; padding:14px; border:1px solid #86efac; border-left:4px solid var(--success); border-radius:var(--radius-md); background:var(--success-subtle); color:var(--success); box-shadow:var(--shadow-lg); max-height:40dvh; overflow:auto; }
+.action-toast>div { flex:1; min-width:0; }
+.action-toast strong { font-size:14px; }
+.action-toast p { margin:4px 0 0; font-size:13px; line-height:1.5; overflow-wrap:anywhere; }
+.action-toast-icon { font-weight:700; }
+.action-toast-dismiss { flex-shrink:0; min-height:36px; border:1px solid #86efac; padding:6px 9px; border-radius:var(--radius-sm); background:#fff; color:var(--success); cursor:pointer; }
+@media(max-width:900px) {
+  .app-content { padding:18px; }
+  .app-content .workflow-actions>label { flex:1 1 200px; }
+  .app-content .workflow-actions :is(input,textarea) { width:100%; min-width:0; }
+}
+@media(max-width:600px) {
+  .app-content { padding:14px 12px; }
+  .app-content :is(.dashboard-greeting h2,.workflow-heading h2) { font-size:20px; }
+  .app-content :is(select,textarea,input:not([type=checkbox]):not([type=radio])) { font-size:16px; }
+  .app-content .planner-filters { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .app-content .planner-filters label:first-child { grid-column:1 / -1; }
+  .app-content .workspace-filters { flex-wrap:wrap; }
+  .app-content .workspace-filters label { flex:1 1 140px; }
+  .app-content .planner-progress { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .app-content .planner-progress small { font-size:11px; }
+  .app-content .workflow-heading { align-items:flex-start; flex-wrap:wrap; }
+  .app-content .shift-resolution form { grid-template-columns:minmax(0,1fr); }
+  .app-content :is(.workflow-card-toggle,.workflow-details) { padding:12px; }
+  .action-toast { right:16px; bottom:max(16px,env(safe-area-inset-bottom)); }
+}
+@media(prefers-reduced-motion:reduce) {
+  *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; transition-duration:.01ms!important; }
+}

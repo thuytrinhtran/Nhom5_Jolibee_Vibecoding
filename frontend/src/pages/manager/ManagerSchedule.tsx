@@ -1,8 +1,9 @@
+import { Toast, errorGuidance } from '../../components/Toast';
 import { PreviewCandidates } from './PreviewCandidates';
 import { useUnsavedDemandGuard } from '../../services/staffing-demand.guard';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { AlertTriangle, CalendarDays, CheckCircle2, ChevronRight, Loader2, RefreshCw, Wand2 } from 'lucide-react';
+import { AlertTriangle, CalendarDays, ChevronRight, Loader2, RefreshCw, Wand2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ApiError } from '../../services/auth.service';
 import { schedulingService } from '../../services/scheduling.service';
@@ -43,7 +44,7 @@ export function ScheduleRevisionContext({saved,periodId,branchId,preview}:{saved
     <p>Phiên bản đã lưu: <strong>{saved.schedule.version}</strong> · {statusLabel(saved.schedule.status)}</p>
     {preview?<p>Đang chỉnh sửa phương án chưa lưu từ phiên bản {preview.edit_target?.version??saved.schedule.version}. Số phiên bản DRAFT mới được xác nhận sau khi lưu.</p>:saved.schedule.status==='DRAFT'&&<p>Đang chỉnh sửa DRAFT phiên bản {saved.schedule.version}.</p>}
     {saved.source!=='mock'&&!records&&!error&&<p role="status">Đang tải yêu cầu chỉnh sửa…</p>}
-    {error&&<div role="alert">Không tải được lý do yêu cầu chỉnh sửa: {error} <button type="button" className="btn btn-outline" onClick={()=>setReload(n=>n+1)}>Thử lại</button></div>}
+    {error&&<div role="alert">Không tải được lý do yêu cầu chỉnh sửa: {errorGuidance(error)} <button type="button" className="btn btn-outline" onClick={()=>setReload(n=>n+1)}>Thử lại</button></div>}
     {details?.previous&&<p>Phiên bản trước: {details.previous.version} · {statusLabel(details.previous.status)}</p>}
     {details?.rejected&&<div className="schedule-alert" role="note"><div><strong>Yêu cầu chỉnh sửa phiên bản {details.rejected.version}</strong><p style={{whiteSpace:'pre-wrap'}}>Lý do của giám sát: {details.decision?.reason?.trim()||'API chưa trả lý do yêu cầu chỉnh sửa.'}</p></div></div>}
     {((records&&loadedKey===key&&!details)||(saved.schedule.status==='NEEDS_REVISION'&&details&&!details.rejected))&&<p role="status">API chưa trả thông tin yêu cầu chỉnh sửa của phiên bản này.</p>}
@@ -59,8 +60,9 @@ export function PlannerBoard({context,saved,preview,summary,edited,dirty=false,s
  const [shift,setShift]=useState(''),[department,setDepartment]=useState('');
  useEffect(()=>{if(!selectedCell)return;const [,targetShift,targetDepartment]=selectedCell.split('/');if(shift&&shift!==targetShift)setShift(targetShift);if(department&&department!==targetDepartment)setDepartment(targetDepartment);},[selectedCell]);
  const trigger=useRef<HTMLButtonElement|null>(null),panelRef=useRef<HTMLElement|null>(null);
- useEffect(()=>{if(selectedCell&&trigger.current&&panelRef.current)panelRef.current.querySelector<HTMLButtonElement>('[data-close-cell]')?.focus();},[selectedCell]);
- const openCell=(key:string,button:HTMLButtonElement)=>{trigger.current=button;onSelect(key);if(key===selectedCell)panelRef.current?.querySelector<HTMLButtonElement>('[data-close-cell]')?.focus();};
+ const focusPanel=()=>{panelRef.current?.scrollIntoView?.({block:'start',behavior:'smooth'});panelRef.current?.focus();};
+ useEffect(()=>{if(selectedCell)focusPanel();},[selectedCell]);
+ const openCell=(key:string,button:HTMLButtonElement)=>{trigger.current=button;onSelect(key);if(key===selectedCell)focusPanel();};
  const plan=preview?{assignments:dirty?edited:preview.result.assignments,generation_snapshot:preview.result}:saved;
  const cells=scheduleCalendarRows(context,plan).map(c=>dirty?{...c,assigned_count:c.assignments.length,missing_count:null}:c);
  const visible=cells.filter(c=>(!day||c.work_date===day)&&(!shift||c.shift_id===shift)&&(!department||c.department_id===department));
@@ -75,33 +77,11 @@ export function PlannerBoard({context,saved,preview,summary,edited,dirty=false,s
   <div className="planner-filters"><label>Ngày<select value={day} onChange={e=>{onDay(e.target.value);onSelect('');}}><option value="">Cả tuần</option>{[...new Set(cells.map(c=>c.work_date))].map(d=><option key={d} value={d}>{dateLabel(d)}</option>)}</select></label><label>Ca<select value={shift??''} onChange={e=>{setShift(e.target.value);onSelect('');}}><option value="">Tất cả ca</option>{[...new Set(cells.map(c=>c.shift_id))].map(id=><option key={id} value={id}>{context.shifts.find(s=>s.id===id)?.name??'Ca ngoài danh mục'}</option>)}</select></label><label>Bộ phận<select value={department??''} onChange={e=>{setDepartment(e.target.value);onSelect('');}}><option value="">Tất cả bộ phận</option>{[...new Set(cells.map(c=>c.department_id))].map(id=><option key={id} value={id}>{context.departments.find(d=>d.id===id)?.name??'Bộ phận ngoài danh mục'}</option>)}</select></label></div>
   <div className="planner-view-heading"><h3>{day?dateLabel(day):'Tổng quan tuần'}</h3><div role="group" aria-label="Chế độ xem lịch"><button type="button" className="btn btn-outline" aria-pressed={!!day} onClick={()=>{onDay(day||context.period.work_start_date);onSelect('');}}>Xem ngày</button><button type="button" className="btn btn-outline" aria-pressed={!day} onClick={()=>{onDay('');onSelect('');}}>Xem tuần</button></div></div>
   <p className="planner-caption">{dirty?'Đang chọn / Cần · Chưa kiểm tra lại':'Đã xếp / Cần'} · {day?'Tên và cấp độ hiển thị theo từng vị trí':'Bấm ô để mở ngày và xem nhân viên'}{!preview&&saved?.schedule.status==='PUBLISHED'?' · Lịch đã công bố, chỉ xem':''}.</p>
-  {day?<div className="planner-day-shifts">{[...new Set(visible.map(c=>c.shift_id))].map(id=>{
-    const s=context.shifts.find(s=>s.id===id);
-    return <section className="planner-day-shift" key={id} aria-label={s?.name??'Ca ngoài danh mục'}><header><h4>{s?.name??'Ca ngoài danh mục'}</h4>{s&&<span>{s.start_time.slice(0,5)}–{s.end_time.slice(0,5)}{s.end_time<s.start_time?' (hôm sau)':''}</span>}</header>
-      <div className="planner-day-departments">{visible.filter(c=>c.shift_id===id).map(cell=>{
-        const cov=coverage.find(c=>c.id===cell.requirement_id);
-        const missing=plan&&cell.required_count!==null?Math.max(0,cell.required_count-cell.assigned_count):null;
-        return <article className="planner-department" key={cell.key}>
-          <header><h5>{context.departments.find(d=>d.id===cell.department_id)?.name??'Bộ phận ngoài danh mục'}</h5><span>Đã xếp <b>{plan?cell.assigned_count:'—'}</b> / Cần <b>{cell.required_count??'—'}</b></span></header>
-          {cell.required_skill_name&&<p className="schedule-muted">Kỹ năng: {cell.required_skill_name}</p>}
-          <ul className="planner-day-members">{cell.assignments.map((a,i)=><li key={a.id??`${a.employee_id}/${i}`}><strong>{employee(a.employee_id)}</strong><span>{skillLabel(context.employees.find(e=>e.id===a.employee_id)?.skill_level)}</span></li>)}</ul>
-          {!plan&&<p className="schedule-muted">Chưa tạo phương án phân công.</p>}
-          {cell.required_count===null&&<p className="schedule-muted">Chưa có nhu cầu trong phiên bản này.</p>}
-          {plan&&cell.required_count!==null&&cell.assigned_count>cell.required_count&&<p className="planner-experience">Vượt {cell.assigned_count-cell.required_count} người so với nhu cầu{dirty?' · Chờ kiểm tra':''}.</p>}
-          {!!cov?.existing_count&&<p className="schedule-muted">{cov.existing_count} phân công hiện hữu được giữ nguyên.</p>}
-          {missing!==null&&missing>0&&<div className="planner-vacancies"><strong>{dirty?'Đang trống':'Còn thiếu'} {missing} vị trí{dirty?' · Chờ kiểm tra':''}</strong>{Array.from({length:Math.min(missing,20)},(_,i)=><span key={i}>Vị trí trống {i+1}</span>)}{missing>20&&<span>Và {missing-20} vị trí trống khác</span>}
-            {preview&&<button type="button" className="btn btn-outline" disabled={dirty} onClick={e=>openCell(cell.key,e.currentTarget)}>Tìm nhân viên phù hợp</button>}
-          </div>}
-          {!dirty&&!!cov?.missing_experienced_count&&<p className="planner-experience">Cảnh báo: thiếu {cov.missing_experienced_count} nhân viên kinh nghiệm.</p>}
-          {dirty&&<p className="schedule-muted">Phân công đang chỉnh sửa, chưa kiểm tra lại.</p>}
-          {preview&&<button type="button" className="btn btn-outline planner-edit-cell" aria-pressed={cell.key===selectedCell} onClick={e=>openCell(cell.key,e.currentTarget)}>Điều chỉnh phân công</button>}
-        </article>;
-      })}</div></section>;
-  })}</div>:<>
+  {day?<ScheduleTimeline cells={visible} context={context} selected={selectedCell} editable={!!preview} dirty={dirty} hasPlan={!!plan} experience={Object.fromEntries(coverage.map(c=>[c.id,c.missing_experienced_count??0]))} onOpen={openCell}/>:<>
   <div className="planner-matrix-scroll" tabIndex={0} aria-label="Bảng lịch tuần"><table className="planner-matrix"><thead><tr><th>Ca / Bộ phận</th>{dates.map(d=><th key={d} title={dateLabel(d)}>{new Intl.DateTimeFormat('vi-VN',{weekday:'short',timeZone:'Asia/Ho_Chi_Minh'}).format(new Date(d+'T12:00:00+07:00'))}<small>{d.slice(8,10)}/{d.slice(5,7)}</small></th>)}</tr></thead><tbody>{groups.map(group=><tr key={`${group.shift_id}/${group.department_id}`}><th scope="row"><strong>{context.shifts.find(s=>s.id===group.shift_id)?.name??'Ca ngoài danh mục'}</strong><small>{context.departments.find(d=>d.id===group.department_id)?.name??'Bộ phận ngoài danh mục'}</small></th>{dates.map(d=>{const cell=visible.find(c=>c.work_date===d&&c.shift_id===group.shift_id&&c.department_id===group.department_id);if(!cell)return <td key={d}>—</td>;const c=coverage.find(c=>c.id===cell.requirement_id);return <td key={d}><button type="button" className={`planner-cell${cell.key===selectedCell?' is-selected':''}${!plan||cell.required_count===null?' is-unknown':dirty?' is-dirty':cell.missing_count||cell.assigned_count>cell.required_count?' is-short':''}`} aria-pressed={cell.key===selectedCell} aria-expanded={cell.key===selectedCell} aria-controls={cell.key===selectedCell?'planner-cell-detail':undefined} aria-label={`${dateLabel(d)} · ${context.shifts.find(s=>s.id===cell.shift_id)?.name??'Ca'} · ${context.departments.find(v=>v.id===cell.department_id)?.name??'Bộ phận'}: ${plan?cell.assigned_count:'chưa xếp'} / ${cell.required_count??'chưa có nhu cầu'}`} onClick={e=>{trigger.current=e.currentTarget;onDay(cell.work_date);onSelect(cell.key);}}><strong>{plan?cell.assigned_count:'—'} / {cell.required_count??'—'}</strong><small>{dirty?'Chờ kiểm tra':cell.required_count===null?'Chưa có nhu cầu':!plan?'Chưa xếp':cell.required_count!==null&&cell.assigned_count>cell.required_count?`Vượt ${cell.assigned_count-cell.required_count}`:cell.missing_count?`Thiếu ${cell.missing_count}`:'Đủ người'}</small>{!dirty&&!!c?.missing_experienced_count&&<small className="planner-experience">Thiếu {c.missing_experienced_count} kinh nghiệm</small>}</button></td>;})}</tr>)}</tbody></table></div>
   </>}
   {!groups.length&&<p>Không có ô lịch phù hợp bộ lọc.</p>}
- </section>{chosen&&<aside ref={panelRef} id="planner-cell-detail" className="card planner-cell-panel" aria-label="Chi tiết ô lịch" onKeyDown={e=>{if(e.key==='Escape')close();}}><header><div><h3>{dateLabel(chosen.work_date)}</h3><p>{context.shifts.find(s=>s.id===chosen.shift_id)?.name??'Ca ngoài danh mục'} · {context.departments.find(d=>d.id===chosen.department_id)?.name??'Bộ phận ngoài danh mục'}</p></div><button data-close-cell className="btn btn-outline" onClick={close} aria-label="Đóng chi tiết ô lịch">Đóng</button></header>
+ </section>{chosen&&<aside ref={panelRef} id="planner-cell-detail" tabIndex={-1} className="card planner-cell-panel" aria-label="Chi tiết ô lịch" onKeyDown={e=>{if(e.key==='Escape')close();}}><header><div><h3>{dateLabel(chosen.work_date)}</h3><p>{context.shifts.find(s=>s.id===chosen.shift_id)?.name??'Ca ngoài danh mục'} · {context.departments.find(d=>d.id===chosen.department_id)?.name??'Bộ phận ngoài danh mục'}</p></div><button data-close-cell className="btn btn-outline" onClick={close} aria-label="Đóng chi tiết ô lịch">Đóng</button></header>
   {registration&&<p>Đăng ký: {registration.registered_count} · Đủ điều kiện: {registration.eligible_count??'chưa xác định'}</p>}
   {children??<><p>Đã xếp {plan?chosen.assigned_count:'—'} / Cần {chosen.required_count??'chưa có dữ liệu'}</p>{chosen.required_skill_name&&<p>Kỹ năng: {chosen.required_skill_name}</p>}{chosen.required_count===null&&chosen.current_required_count!==null&&<p>Nhu cầu hiện tại: {chosen.current_required_count}. Lịch đang xem chưa có nhu cầu này.</p>}{coverage.filter(c=>c.id===chosen.requirement_id&&c.experienced_target!==undefined).map(c=><p key={c.id}>Kinh nghiệm: {c.experienced_count}/{c.experienced_target}{!!c.existing_count&&` · ${c.existing_count} phân công có sẵn`}</p>)}{!chosen.assignments.length&&<p>Chưa có nhân viên trong ô này.</p>}<ul className="planner-members">{chosen.assignments.map((a,i)=><li key={a.id??`${a.employee_id}/${i}`}><details><summary>{employee(a.employee_id)}</summary><p>{({NEW:'Nhân viên mới',REGULAR:'Có kinh nghiệm',CREW_TRAINING:'Hướng dẫn viên',CREW_LEADER:'Trưởng ca'} as Record<string,string>)[context.employees.find(e=>e.id===a.employee_id)?.skill_level??'']??'Chưa có thông tin kinh nghiệm'} · {stats.find(s=>s.employee_id===a.employee_id)?.total_weekly_hours??'—'} giờ/tuần</p><p>{a.reason?.startsWith('LOCAL_SEARCH')?'Được chọn sau khi cân bằng giờ.':a.reason?.includes('MANAGER')?'Phân công do quản lý xác nhận.':a.reason?'Được chọn từ đăng ký hợp lệ.':'Lịch cũ chưa có lý do lựa chọn.'}</p>{a.selection_history&&<><p>Ban đầu: {employee(a.selection_history.initial.employee_id)} · {a.selection_history.replacements.length} lần điều chỉnh</p>{a.selection_history.replacements.map((v,j)=><p key={j}>{employee(v.from_employee_id)} → {employee(v.to_employee_id)} · Chỉ số cân bằng {v.objective_before.toFixed(2)} → {v.objective_after.toFixed(2)}</p>)}</>}</details></li>)}</ul></>}
  </aside>}</div>;
@@ -212,13 +192,14 @@ export function ManagerSchedule() {
   const [needId,setNeedId]=useState('');
   const [,setEmployeeId]=useState('');
   const [saving,setSaving]=useState(false);
-  const [previewDay,setPreviewDay]=useState('');
+  const [previewDay,setPreviewDay]=useState<string|null>(null);
   const [tab,setTab]=useState<'create'|'assignments'>('assignments');
   const [replaceIndex,setReplaceIndex]=useState<number|undefined>();
   const [selectedCell,setSelectedCell]=useState('');
   const [moveTargets,setMoveTargets]=useState<Record<number,string>>({});
   const [checkedCandidates,setCheckedCandidates]=useState<CheckedPreviewCandidates[]>([]);
   const [prepareAfterSave,setPrepareAfterSave]=useState(false);
+  const [summaryPeriod,setSummaryPeriod]=useState('');
   const activeTab=tab??'create';
   const sequence = useRef(0);
   const submitting = useRef(false);
@@ -334,37 +315,36 @@ export function ManagerSchedule() {
       <button type="button" className="btn btn-outline" disabled={busy} onClick={() => {if(confirmDiscard())setReload(n => n + 1);}}><RefreshCw size={16} aria-hidden="true" />Tải lại tuần</button>
       <Link className="btn btn-outline" to="/manager/publish">Phê duyệt & công bố</Link>
       {context&&!loadingWeek&&<span data-schedule-status={preview?'PREVIEW':saved?.schedule.status} className={`badge ${saved?.schedule.status==='DRAFT'?'badge-yellow':'badge-slate'}`}>{preview?'Lịch dự kiến — chưa lưu':statusLabel(saved?.schedule.status||context.period.status)}</span>}
-      <button type="button" className="btn btn-primary" disabled={!canGenerate} onClick={() => void generate()}>{generating ? <Loader2 className="spin" size={17} aria-hidden="true" /> : <Wand2 size={17} aria-hidden="true" />}{generating ? 'Đang kiểm tra phương án…' : preview?'Đề xuất lại':'Tạo lịch dự kiến'}</button>
+      <button type="button" className="btn btn-primary" title={!canGenerate?(busy?'Đang xử lý, vui lòng chờ.':!context?.requirements.length?'Nhập nhu cầu nhân sự trước khi tạo lịch.':saved&&!['DRAFT','NEEDS_REVISION'].includes(saved.schedule.status)?'Lịch đã gửi duyệt hoặc công bố, chỉ để xem.':'Cần đóng đăng ký trước khi tạo lịch.'):undefined} disabled={!canGenerate} onClick={() => void generate()}>{generating ? <Loader2 className="spin" size={17} aria-hidden="true" /> : <Wand2 size={17} aria-hidden="true" />}{generating ? 'Đang kiểm tra phương án…' : preview?'Tạo lại lịch dự kiến':'Tạo lịch dự kiến'}</button>
     </div>
     {saved&&selected&&user?.branch_id&&!loadingPeriods&&!loadingWeek&&<ScheduleRevisionContext key={`${saved.schedule.id}/${saved.schedule.version}`} saved={saved} periodId={selected.id} branchId={user.branch_id} preview={preview}/>}
     <div hidden={activeTab!=='create'} className="planner-pane">
     {saved&&!preview&&!loadingPeriods&&!loadingWeek&&saved.schedule.status==='DRAFT'&&<ScheduleReviewPanel key={`${saved.schedule.id}/${saved.schedule.version}`} saved={saved} prepareOnMount={prepareAfterSave} onSubmitted={()=>{setPrepareAfterSave(false);setReload(n=>n+1);}}/>}
     {context?.source === 'mock' && <div className="schedule-info" role="status">Dữ liệu thử nghiệm — lịch chỉ lưu trong bộ nhớ backend, không gửi lên Supabase. {context.test_rules?.max_shifts_per_day?`Giới hạn ${context.test_rules.max_shifts_per_day} ca/ngày là cấu hình kiểm thử.`:'Không áp đặt giới hạn ca/ngày khi chưa cấu hình.'}</div>}
-    {!loadingPeriods && <details className="workspace-disclosure"><summary>Đăng ký và khả năng đáp ứng nhân sự</summary><RegistrationSummaryPanel periodId={selected?.id || ''} refreshKey={reload} context={context} onSummary={setRegistrationSummary}/></details>}
+    {!loadingPeriods && <details key={periodId} className="workspace-disclosure" onToggle={e=>{setSummaryPeriod(e.currentTarget.open?periodId:'');if(!e.currentTarget.open)setRegistrationSummary(null);}}><summary>Đăng ký và khả năng đáp ứng nhân sự</summary>{summaryPeriod===periodId&&!!periodId&&<RegistrationSummaryPanel periodId={selected?.id || ''} refreshKey={reload} context={context} onSummary={setRegistrationSummary}/>}</details>}
     </div>
     {!user?.branch_id && <div className="schedule-alert" role="alert">Tài khoản quản lý chưa được phân công chi nhánh.</div>}
-    {error && <div className="schedule-alert schedule-alert-error" role="alert"><AlertTriangle size={18} aria-hidden="true" /><span>{error}</span></div>}
-    {notice && <div className="schedule-alert schedule-alert-success" role="status"><CheckCircle2 size={18} aria-hidden="true" /><span>{notice}</span></div>}
+    {error && <div className="schedule-alert schedule-alert-error" role="alert"><AlertTriangle size={18} aria-hidden="true" /><span>{errorGuidance(error)}</span></div>}
+    {notice && Toast({message:notice,onDismiss:()=>setNotice('')})}
     {(loadingPeriods || loadingWeek) && <div className="schedule-empty" role="status"><Loader2 className="spin" size={24} aria-hidden="true" />Đang đọc dữ liệu tuần và lịch đã lưu…</div>}
-    {!loadingPeriods && !periods.length && !error && user?.branch_id && <div className="card schedule-empty"><CalendarDays size={30} aria-hidden="true" /><h3>Chưa có tuần đăng ký</h3><p>Nguồn dữ liệu đang chọn chưa có đợt cho chi nhánh. Có thể bật chế độ dữ liệu thử nghiệm trong development để thử TV3 mà không chờ TV2.</p></div>}
+    {!loadingPeriods && !periods.length && !error && user?.branch_id && <div className="card schedule-empty"><CalendarDays size={30} aria-hidden="true" /><h3>Chưa có tuần đăng ký</h3><p>Chưa có đợt đăng ký cho chi nhánh. Kiểm tra lại tuần làm việc.</p></div>}
     {context && !loadingWeek && <>
       {saved&&!preview&&saved.schedule.status==='PENDING_APPROVAL'&&<div className="schedule-info" role="status">Lịch đã gửi và đang chờ Giám sát phê duyệt. Chưa công bố cho nhân viên.</div>}
-      {(context.development_preview||context.open_registration_preview_enabled)&&<p className="schedule-info">Preview development khi đăng ký còn mở · Không thể lưu DRAFT. Đăng ký mới sẽ làm phương án cũ hết hiệu lực.</p>}
-      {preview&&<div className="planner-actions"><div className="preview-review-actions"><button type="button" className="btn btn-primary" disabled={busy||!editDirty} onClick={()=>void generate(true)}>{generating?<><Loader2 className="spin" size={16} aria-hidden="true"/>Đang kiểm tra…</>:'Kiểm tra lại phương án'}</button><button type="button" className="btn btn-outline" disabled={busy||editDirty||!preview.persistence.enabled} onClick={()=>void savePreview()}>{saving?'Đang lưu phương án…':'Lưu DRAFT'}</button></div><span className="schedule-muted">{editDirty?'Có thay đổi chưa kiểm tra':'Phương án đã kiểm tra · Chưa lưu'}</span></div>}
-      {preview&&!preview.persistence.enabled&&<p className="schedule-info" role="status">{preview.persistence.reason}</p>}
+      {selected?.status==='OPEN'&&<p className="schedule-info" role="status">Đăng ký ca còn mở. Lịch có thể thay đổi; chỉ lưu DRAFT và gửi duyệt sau khi đóng đăng ký.</p>}
+      {preview&&<div className="planner-actions"><div className="preview-review-actions"><button type="button" className="btn btn-primary" disabled={busy||!editDirty} onClick={()=>void generate(true)}>{generating?<><Loader2 className="spin" size={16} aria-hidden="true"/>Đang kiểm tra…</>:'Kiểm tra lại phương án'}</button><button type="button" className="btn btn-outline" title={busy?'Đang xử lý.':editDirty?'Kiểm tra lại phương án trước khi tiếp tục.':!preview.persistence.enabled?preview.persistence.reason:undefined} disabled={busy||editDirty||!preview.persistence.enabled} onClick={()=>void savePreview()}>{saving?'Đang lưu phương án…':'Lưu DRAFT'}</button></div><span className="schedule-muted">{editDirty?'Có thay đổi chưa kiểm tra':'Phương án đã kiểm tra · Chưa lưu'}</span></div>}
+      {preview&&selected?.status!=='OPEN'&&!preview.persistence.enabled&&<p className="schedule-info" role="status">{preview.persistence.reason}</p>}
       {preview&&<div className="planner-actions" aria-label="Tiếp tục với phương án">
-        <button type="button" className="btn btn-primary" disabled={busy||editDirty||!preview.persistence.enabled} onClick={()=>void savePreview(true)}>Gửi giám sát duyệt</button>
+        <button type="button" className="btn btn-primary" title={busy?'Đang xử lý.':editDirty?'Kiểm tra lại phương án trước khi tiếp tục.':!preview.persistence.enabled?preview.persistence.reason:undefined} disabled={busy||editDirty||!preview.persistence.enabled} onClick={()=>void savePreview(true)}>Gửi giám sát duyệt</button>
         <button type="button" className="btn btn-outline" disabled={busy} onClick={()=>setTab('assignments')}>Cân đối lịch</button>
-        <button type="button" className="btn btn-outline" disabled={busy} onClick={()=>void generate()}>Đề xuất lịch</button>
         <p className="schedule-muted">Gửi giám sát duyệt sẽ lưu DRAFT và chuẩn bị kiểm tra; bạn cần xác nhận gửi ở bước tiếp theo.</p>
       </div>}
       <div hidden={activeTab!=='assignments'} className="planner-pane">
-      {!preview&&<p className="schedule-muted">{saved?.schedule.status==='PUBLISHED'?'Lịch đã công bố chỉ để xem. Có thể phân tích AI sau khi tạo phương án hợp lệ.':saved?'Mở bản nháp để điều chỉnh nếu muốn AI đánh giá phương án chưa lưu.':'Tạo phương án bằng Rule Engine để được kiểm tra và phân tích AI khi cần.'}</p>}
-      <div className="planner-workspace"><div className="planner-primary"><PlannerBoard context={context} saved={saved} preview={preview} summary={registrationSummary} edited={edited} dirty={editDirty} selectedCell={selectedCell??''} onSelect={key=>{setReplaceIndex(undefined);setSelectedCell(key);const n=context.requirements.find(n=>scheduleCellKey(n)===key);setNeedId(n?.id??'');setEmployeeId('');}} day={previewDay??''} onDay={setPreviewDay}>
+      {!preview&&<p className="schedule-muted">{saved?.schedule.status==='PUBLISHED'?'Lịch đã công bố, chỉ để xem.':saved?'Mở bản nháp để điều chỉnh phân công.':'Tạo lịch để xem phân công và các vị trí còn thiếu.'}</p>}
+      <div className="planner-workspace"><div className="planner-primary"><PlannerBoard context={context} saved={saved} preview={preview} summary={registrationSummary} edited={edited} dirty={editDirty} selectedCell={selectedCell??''} onSelect={key=>{setReplaceIndex(undefined);setSelectedCell(key);const n=context.requirements.find(n=>scheduleCellKey(n)===key);setNeedId(n?.id??'');setEmployeeId('');}} day={previewDay??context.period.work_start_date} onDay={setPreviewDay}>
       {preview&&selectedCell ? <section className="preview-editor" aria-label="Điều chỉnh lịch dự kiến" aria-busy={generating}>
         <header className="preview-editor-heading">
           <div><h3>Điều chỉnh lịch dự kiến</h3><p className="schedule-muted">Lịch dự kiến — chưa lưu. Chọn nhân viên rồi kiểm tra lại trước khi tiếp tục.</p></div>
-          <span className={`badge ${generating||editDirty?'badge-yellow':error?'badge-slate':'badge-green'}`} role="status">{generating?'Đang kiểm tra':error?'Kiểm tra thất bại':editDirty?'Có thay đổi chưa kiểm tra':notice?'Kiểm tra thành công':'Đã được hệ thống xác nhận'}</span>
+          <span className={`badge ${generating||editDirty?'badge-yellow':error?'badge-slate':'badge-green'}`} role="status">{generating?'Đang kiểm tra':error?'Kiểm tra thất bại':editDirty?'Có thay đổi chưa kiểm tra':notice?'Kiểm tra thành công':'Đã kiểm tra · Chưa lưu'}</span>
         </header>
         <p className="schedule-muted">{editDirty?'Các lựa chọn chưa được kiểm tra; chỉ số tổng vẫn theo phương án đã xác nhận gần nhất.':'Phương án đã được kiểm tra; chưa lưu hoặc gửi phê duyệt.'}</p>
         <div className="preview-groups">
@@ -402,7 +382,7 @@ export function ManagerSchedule() {
       {preview&&<div className="planner-evaluation"><ScheduleAIPanel preview={preview} previewDirty={editDirty||busy} employees={context.employees} checkedCandidates={checkedCandidates} onOpenCell={key=>{
         const need=context.requirements.find(n=>scheduleCellKey(n)===key);if(!need)return;
         setTab('assignments');setPreviewDay(need.work_date);setSelectedCell(key);setNeedId(need.id);setReplaceIndex(undefined);setEmployeeId('');
-        requestAnimationFrame(()=>document.querySelector('.planner-cell-panel')?.scrollIntoView({block:'nearest',behavior:'smooth'}));
+        requestAnimationFrame(()=>{const panel=document.querySelector<HTMLElement>('.planner-cell-panel');panel?.scrollIntoView?.({block:'start',behavior:'smooth'});panel?.focus?.();});
       }}/></div>}
       </div>
       <div hidden={activeTab!=='create'} className="planner-pane">
@@ -427,4 +407,36 @@ export function ManagerSchedule() {
     </>}
     {error && <Link className="schedule-help-link" to="/manager">Về tổng quan quản lý</Link>}
   </section>;
+}
+
+type Cell=ReturnType<typeof scheduleCalendarRows>[number];
+export function timelinePosition(start:string,end:string){
+  const minute=(s:string)=>Number(s.slice(0,2))*60+Number(s.slice(3,5));
+  const from=minute(start),to=minute(end)+(end<start?1440:0);
+  const left=Math.max(0,Math.min(840,from-480)),right=Math.max(left,Math.min(840,to-480));
+  return {left:left/840*100,width:(right-left)/840*100,outside:from<480||to>1320};
+}
+export function ScheduleTimeline({cells,context,selected,editable,dirty,hasPlan,experience,onOpen}:{cells:Cell[];context:SchedulingContext;selected:string;editable:boolean;dirty:boolean;hasPlan:boolean;experience:Record<string,number>;onOpen:(key:string,button:HTMLButtonElement)=>void}){
+ const groups=[...new Set(cells.map(c=>c.department_id))].sort((a,b)=>{
+   const order=['Bếp','Thu ngân','Phục vụ'];return order.indexOf(context.departments.find(d=>d.id===a)?.name??'')-order.indexOf(context.departments.find(d=>d.id===b)?.name??'');
+ });
+ return <div className="schedule-timeline-scroll" tabIndex={0} aria-label="Lịch theo giờ từ 08:00 đến 22:00"><div className="schedule-timeline">
+   <div className="timeline-axis"><span>Bộ phận / ca</span><div>{Array.from({length:15},(_,i)=><span key={i} style={{left:`${i/14*100}%`}}>{String(i+8).padStart(2,'0')}:00</span>)}</div></div>
+   {groups.map(id=><section className="timeline-department" key={id}><h4>{context.departments.find(d=>d.id===id)?.name??'Bộ phận ngoài danh mục'}</h4>{cells.filter(c=>c.department_id===id).map(cell=>{
+     const shift=context.shifts.find(s=>s.id===cell.shift_id),position=shift?timelinePosition(shift.start_time,shift.end_time):{left:0,width:100,outside:false};
+     const missing=hasPlan&&cell.required_count!==null?Math.max(0,cell.required_count-cell.assigned_count):null;
+     return <div className="timeline-lane" key={cell.key}><div className="timeline-shift"><strong>{shift?.name??'Ca ngoài danh mục'}</strong>{shift&&<small>{shift.start_time.slice(0,5)}–{shift.end_time.slice(0,5)}</small>}</div><div className="timeline-track"><article className={`timeline-assignment${selected===cell.key?' is-selected':''}`} style={{marginLeft:`${Math.min(position.left,85)}%`,width:`${Math.max(15,position.width)}%`}}>
+       <strong>{hasPlan?<>Đã xếp <b>{cell.assigned_count}</b></>:'Chưa tạo lịch'} / Cần <b>{cell.required_count??'chưa xác định'}</b></strong>
+       <ul>{cell.assignments.map((a,i)=><li key={a.id??`${a.employee_id}/${i}`}>{context.employees.find(e=>e.id===a.employee_id)?.full_name??'Nhân viên ngoài danh mục'} · {skillLabel(context.employees.find(e=>e.id===a.employee_id)?.skill_level)}</li>)}</ul>
+       {cell.required_count===null&&<p>Chưa có nhu cầu trong phiên bản này.</p>}
+       {hasPlan&&cell.required_count!==null&&cell.assigned_count>cell.required_count&&<p className="timeline-shortage">Vượt {cell.assigned_count-cell.required_count} người so với nhu cầu.</p>}
+       {missing!==null&&missing>0&&<p className="timeline-shortage">Thiếu {missing} vị trí{dirty?' · Chờ kiểm tra':''}</p>}
+       {missing!==null&&missing>0&&<ul>{Array.from({length:Math.min(missing,5)},(_,i)=><li key={i}>Vị trí trống {i+1}</li>)}{missing>5&&<li>Và {missing-5} vị trí khác</li>}</ul>}
+       {!dirty&&!!experience[cell.requirement_id??'']&&<p className="timeline-shortage">Thiếu {experience[cell.requirement_id??'']} người có kinh nghiệm</p>}
+       {cell.required_skill_name&&<p>Kỹ năng: {cell.required_skill_name}</p>}
+       {position.outside&&<small>Ca có giờ ngoài khung 08:00–22:00.</small>}
+       {editable&&<div className="timeline-cell-actions">{!!missing&&<button className="btn btn-outline" disabled={dirty} onClick={e=>onOpen(cell.key,e.currentTarget)}>Tìm nhân viên phù hợp</button>}<button className="btn btn-outline" aria-pressed={selected===cell.key} onClick={e=>onOpen(cell.key,e.currentTarget)}>Điều chỉnh phân công</button></div>}
+     </article></div></div>;
+   })}</section>)}
+ </div></div>;
 }

@@ -3,7 +3,7 @@ const fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript'),React
 const {renderToStaticMarkup}=require('react-dom/server');
 function load(file,deps={},globals={}){
  const code=ts.transpileModule(fs.readFileSync(file,'utf8').replace('import.meta.env',"{VITE_API_URL:'/api'}"),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText;
- const box={exports:{},Date,Intl,AbortSignal,Error,...globals,require(id){if(id in deps)return deps[id];if(id.endsWith('.css'))return{};if(id==='react'||id==='react/jsx-runtime')return require(id);return{};}};
+ const box={exports:{},Date,Intl,AbortSignal,Error,...globals,require(id){if(id==='../../components/Toast')return require('./helpers/ui-components.cjs');if(id in deps)return deps[id];if(id.endsWith('.css'))return{};if(id==='react'||id==='react/jsx-runtime')return (id==='../../components/Toast'?require('./helpers/ui-components.cjs'):require(id));return{};}};
  vm.runInNewContext(code,box);return box.exports;
 }
 const record=(id,version,status,patch={})=>({id,version,status,period_id:'period',branch_id:'branch',schedule_group_id:'group',approvals:[],...patch});

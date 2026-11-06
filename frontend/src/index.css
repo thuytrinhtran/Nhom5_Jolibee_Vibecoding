@@ -351,3 +351,12 @@ h1, h2, h3, h4, h5, h6 {
 .password-change-submit { width: 100%; margin-top: 24px; min-height: 44px; }
 .password-change-logout { margin: 20px auto 0; display: flex; align-items: center; gap: 8px; padding: 8px; border: 0; background: none; color: var(--text-secondary); cursor: pointer; font: inherit; font-size: 14px; }
 @media (max-width: 480px) { .password-change-card { padding: 24px 20px; } }
+:root {
+  --success: #166534;
+  --success-subtle: #f0fdf4;
+  --warning: #854d0e;
+  --warning-subtle: #fffbeb;
+  --danger: #991b1b;
+  --danger-subtle: #fef2f2;
+  --control-height: 42px;
+}

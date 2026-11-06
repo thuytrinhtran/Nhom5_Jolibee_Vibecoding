@@ -6,7 +6,7 @@ class ApiError extends Error{constructor(message,status,code){super(message);thi
 function load(file,overrides={},globals={}){
   const source=fs.readFileSync(file,'utf8').replace('import.meta.env',JSON.stringify({VITE_API_URL:'http://api.test/api/'}));
   const code=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022}}).outputText;
-  const context={exports:{},AbortSignal,Intl,Date,...globals,require(id){if(id==='../../services/staffing-demand.guard')return{useUnsavedDemandGuard:()=>{}};if(id==='./PreviewCandidates')return{PreviewCandidates:()=>null};if(id in overrides)return overrides[id];if(id.endsWith('.css'))return{};return require(id);}};
+  const context={exports:{},AbortSignal,Intl,Date,...globals,require(id){if(id==='../../services/staffing-demand.guard')return{useUnsavedDemandGuard:()=>{}};if(id==='./PreviewCandidates')return{PreviewCandidates:()=>null};if(id in overrides)return overrides[id];if(id.endsWith('.css'))return{};return (id==='../../components/Toast'?require('./helpers/ui-components.cjs'):require(id));}};
   vm.runInNewContext(code,context);return context.exports;
 }
 const views=load('src/services/scheduling.view.ts');
@@ -154,7 +154,7 @@ function interactivePage(api,browser,search='') {
     states,
     async settle(){for(let i=0;i<8;i++){stateIndex=refIndex=effectIndex=0;tree=ManagerSchedule();while(pending.length)pending.shift()();await new Promise(r=>setImmediate(r));}},
     html(){return renderToStaticMarkup(tree);},
-    generate(){const visit=node=>{if(!React.isValidElement(node))return null;if(node.type==='button'&&React.Children.toArray(node.props.children).some(c=>c==='Tạo lịch dự kiến'))return node;for(const child of React.Children.toArray(node.props.children)){const found=visit(child);if(found)return found;}return null;};const button=visit(tree);assert.ok(button);assert.equal(button.props.disabled,false);button.props.onClick();},
+    generate(){const visit=node=>{if(!React.isValidElement(node))return null;if(node.type==='button'&&React.Children.toArray(node.props.children).some(c=>['Tạo lịch dự kiến','Tạo lại lịch dự kiến'].includes(c)))return node;for(const child of React.Children.toArray(node.props.children)){const found=visit(child);if(found)return found;}return null;};const button=visit(tree);assert.ok(button);assert.equal(button.props.disabled,false);button.props.onClick();},
   };
 }
 
@@ -186,7 +186,7 @@ test('regenerate reload and changing week require confirmation and cancellation 
  const value={kind:'preview',persisted:false,input_revision:'revision',period,context,result:{assignments:[assignment],coverage:context.requirements,shortages:[],notes:[]},warnings:[],persistence:{enabled:false,reason:'Disabled'}};
  const p=interactivePage({periods:async()=>[period,{...period,id:'next'}],context:async()=>{reads++;return context},preview:async()=>{previews++;return value}},{confirm:()=>{confirmations++;return false}});
  await p.settle();p.generate();await p.settle();const prior=p.states[11],count=reads;
- p.find(n=>n.type==='button'&&React.Children.toArray(n.props.children).includes('Đề xuất lại')).props.onClick();await p.settle();
+ p.find(n=>n.type==='button'&&React.Children.toArray(n.props.children).includes('Tạo lại lịch dự kiến')).props.onClick();await p.settle();
  p.find(n=>n.type==='button'&&React.Children.toArray(n.props.children).includes('Tải lại tuần')).props.onClick();await p.settle();
  p.find(n=>n.type==='select'&&n.props.id==='schedule-week').props.onChange({target:{value:'next'}});await p.settle();
  assert.equal(confirmations,3);assert.equal(previews,1);assert.equal(reads,count);assert.equal(p.states[11],prior);assert.equal(p.states[1],'period');
@@ -299,7 +299,7 @@ test('manager chooses balance or a fresh engine proposal; send only saves and pr
  await p.settle();p.generate();await p.settle();
  assert.equal(p.find(n=>n.props.previewDirty!==undefined).props.preview,value);assert.equal(p.find(n=>n.props.autoEvaluate===true),null);
  p.find(n=>n.type==='button'&&n.props.children==='Cân đối lịch').props.onClick();await p.settle();assert.equal(p.states[16],'assignments');
- p.find(n=>n.type==='button'&&n.props.children==='Đề xuất lịch').props.onClick();await p.settle();assert.equal(calls.filter(c=>c==='engine').length,2);
+ p.generate();await p.settle();assert.equal(calls.filter(c=>c==='engine').length,2);
  p.find(n=>n.type==='button'&&n.props.children==='Gửi giám sát duyệt').props.onClick();await p.settle();
  assert.equal(calls.at(-1),'save');const handoff=p.find(n=>typeof n.props.onSubmitted==='function');assert.equal(handoff.props.prepareOnMount,true);assert.equal(handoff.props.saved,persisted);
 });
@@ -324,7 +324,7 @@ test('planner filters only presentation and keeps saved zero distinct from undec
  const {PlannerBoard}=page(),data=threeShiftContext();
  const zero={...saved,generation_snapshot:{coverage:[{...context.requirements[0],required_count:0}]}};
  const html=renderToStaticMarkup(React.createElement(PlannerBoard,{context:data,saved:zero,preview:null,edited:[],selectedCell:'',onSelect(){},day:'2026-11-02',onDay(){}}));
- assert.equal((html.match(/class="planner-department"/g)||[]).length,9);assert.ok(html.includes('Đã xếp <b>1</b> / Cần <b>0</b>'));assert.ok(html.includes('Vượt 1'));assert.ok(html.includes('Chưa có nhu cầu'));
+ assert.equal((html.match(/class="timeline-assignment[\" ]/g)||[]).length,9);assert.ok(html.includes('Đã xếp <b>1</b> / Cần <b>0</b>'));assert.ok(html.includes('Vượt 1'));assert.ok(html.includes('Chưa có nhu cầu'));
 });
 
 test('planner progress never equates approval with publication',()=>{
@@ -332,6 +332,11 @@ test('planner progress never equates approval with publication',()=>{
  const approved=renderToStaticMarkup(React.createElement(PlannerProgress,{periodStatus:'CLOSED',scheduleStatus:'APPROVED',hasPreview:false}));
  assert.ok(approved.includes('Đã duyệt'));assert.ok(approved.includes('Chưa công bố'));assert.ok(!approved.includes('Đã công bố'));
  const published=renderToStaticMarkup(React.createElement(PlannerProgress,{periodStatus:'CLOSED',scheduleStatus:'PUBLISHED',hasPreview:false}));assert.equal((published.match(/class="is-complete"/g)||[]).length,4);
+});
+test('timeline positions use actual times and mark hours outside the display window',()=>{
+ const {timelinePosition}=page();
+ const morning=timelinePosition('08:00:00','12:00:00');assert.equal(morning.left,0);assert.ok(Math.abs(morning.width-400/14)<0.001);assert.equal(morning.outside,false);
+ const night=timelinePosition('20:00:00','02:00:00');assert.equal(night.outside,true);assert.ok(night.left+night.width<=100.001);
 });
 
 test('day view renders employee names, levels, shift times and actionable vacancies directly',()=>{
@@ -364,7 +369,7 @@ test('published planner is read-only and AI is advisory with no proposal applica
  const published={...saved,schedule:{...saved.schedule,status:'PUBLISHED'}};
  const p=interactivePage({periods:async()=>[{...period,schedules:[published.schedule]}],context:async()=>context,read:async()=>published,preview:()=>assert.fail('Published must not generate')});
  await p.settle();assert.equal(p.find(n=>n.type==='button'&&React.Children.toArray(n.props.children).includes('Tạo lịch dự kiến')).props.disabled,true);assert.equal(p.find(n=>n.type==='select'&&n.props.id==='preview-employee-0'),null);
- assert.equal(p.find(n=>typeof n.props.onApplied==='function'),null);assert.ok(p.html().includes('Lịch đã công bố chỉ để xem'));assert.ok(!p.find(n=>n.props.autoEvaluate===true));
+ assert.equal(p.find(n=>typeof n.props.onApplied==='function'),null);assert.ok(p.html().includes('Lịch đã công bố, chỉ để xem.'));assert.ok(!p.find(n=>n.props.autoEvaluate===true));
 });
 
 test('changing week clears the selected cell and date filter while preserving the selected tab',async()=>{
@@ -391,5 +396,5 @@ test('disabled DRAFT persistence explains its reason and cannot invoke the write
 });
 
 test('OPEN preview requires backend capability and never auto-saves',async()=>{
- for(const enabled of [false,true]){const open={...period,status:'OPEN',schedules:[]};let calls=0;const api={periods:async()=>[open],context:async()=>({...context,period:open,open_registration_preview_enabled:enabled}),read:async()=>saved,preview:async()=>{calls++;return {kind:'preview',persisted:false,period:open,input_revision:'new',context:{...context,period:open,open_registration_preview_enabled:enabled},result:{assignments:[assignment],coverage:[],shortages:[],notes:[]},warnings:[],persistence:{enabled:false,reason:'Preview only'}}},savePreview:()=>assert.fail('No automatic save')};const p=interactivePage(api);await p.settle();const button=p.find(n=>n.type==='button'&&React.Children.toArray(n.props.children).includes("Tạo lịch dự kiến"));assert.ok(button);assert.equal(button.props.disabled,!enabled);if(enabled){p.generate();await p.settle();assert.equal(calls,1);assert.ok(p.html().includes('Không thể lưu DRAFT'));}else assert.equal(calls,0);}
+ for(const enabled of [false,true]){const open={...period,status:'OPEN',schedules:[]};let calls=0;const api={periods:async()=>[open],context:async()=>({...context,period:open,open_registration_preview_enabled:enabled}),read:async()=>saved,preview:async()=>{calls++;return {kind:'preview',persisted:false,period:open,input_revision:'new',context:{...context,period:open,open_registration_preview_enabled:enabled},result:{assignments:[assignment],coverage:[],shortages:[],notes:[]},warnings:[],persistence:{enabled:false,reason:'Preview only'}}},savePreview:()=>assert.fail('No automatic save')};const p=interactivePage(api);await p.settle();const button=p.find(n=>n.type==='button'&&React.Children.toArray(n.props.children).includes("Tạo lịch dự kiến"));assert.ok(button);assert.equal(button.props.disabled,!enabled);if(enabled){p.generate();await p.settle();assert.equal(calls,1);assert.ok(p.html().includes('chỉ lưu DRAFT và gửi duyệt sau khi đóng đăng ký'));}else assert.equal(calls,0);}
 });

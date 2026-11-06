@@ -42,6 +42,7 @@ export function EmployeeSchedule({dashboard=false}:{dashboard?:boolean}={}){
   employeeScheduleService.week(start).then(value=>{if(active)setData(value);}).catch(e=>{if(active){setError(e instanceof Error?e.message:'Không thể tải lịch.');setExpired(e instanceof ApiError&&e.status===401);}}).finally(()=>{if(active){setLoading(false);setLoadedKey(key);}});
   return()=>{active=false;};
  },[start,reload,user?.id,user?.branch_id]);
+ useEffect(()=>{if(typeof window==='undefined'||typeof window.addEventListener!=='function')return;const refresh=()=>{if(typeof document==='undefined'||document.visibilityState==='visible')setReload(n=>n+1);};window.addEventListener('focus',refresh);window.addEventListener('jollishift:data-changed',refresh);return()=>{window.removeEventListener('focus',refresh);window.removeEventListener('jollishift:data-changed',refresh);};},[]);
  return <section className={`manager-schedule employee-workspace${dashboard?' employee-calendar-dashboard':''}`} aria-busy={loading||!current}>
   {!dashboard&&<><h2>Lịch làm của tôi</h2><p>Chỉ hiển thị phân công đang có hiệu lực trong lịch đã công bố. Giờ theo Việt Nam.</p></>}
   {dashboard&&<><div className="employee-kpis">
