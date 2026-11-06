@@ -52,3 +52,20 @@ test('read after service reload queries database and branch, never in-memory sta
     const result=await service.readDraft(id,id);assert.equal(result.schedule.id,id);assert.deepEqual(tables,['schedules','shift_assignments','audit_logs']);
   }finally{db.from=original;}
 });
+
+test('additive RPC business errors and lock contention are safe, explicit and never fallback',async()=>{
+  const original=db.rpc;
+  try{
+    for(const [error,status,code] of [
+      [{code:'22023',message:'PERIOD_NOT_CLOSED'},409,'PERIOD_NOT_CLOSED'],
+      ...['NO_REQUIREMENTS','INVALID_REQUIREMENT','INVALID_RESULT','ASSIGNMENT_CONSTRAINT_FAILED','DUPLICATE_ASSIGNMENT','DEMAND_EXCEEDED','SHIFT_OVERLAP','WEEKLY_LIMIT_EXCEEDED'].map(message=>[{code:'22023',message},422,message]),
+      [{code:'55P03',message:'private lock details'},503,'SCHEDULING_BUSY'],
+      [{code:'40P01',message:'private deadlock details'},503,'SCHEDULING_BUSY'],
+      [{code:'22023',message:'private unknown details'},503,'SCHEDULING_DATABASE_ERROR'],
+    ]){
+      let calls=0;db.rpc=async()=>{calls++;return {error};};
+      await assert.rejects(createDraft(id,id),e=>e.status===status&&e.code===code&&!e.message.includes('private'));
+      assert.equal(calls,1);
+    }
+  }finally{db.rpc=original;}
+});
