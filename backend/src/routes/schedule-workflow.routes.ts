@@ -150,7 +150,8 @@ for(const [path,role,action] of [['submit','QL','SUBMIT'],['decision','GS',null]
    const selected=action??req.body?.decision;
    if(!selected||!['SUBMIT','APPROVED','NEEDS_REVISION','PUBLISH'].includes(selected)||(path==='decision'&&!['APPROVED','NEEDS_REVISION'].includes(selected)))throw new ScheduleError(400,'INVALID_DECISION','Invalid decision');
    const body={...req.body};delete body.decision;
-   return res.json(await transitionSchedule(req.params.id,req.user!,body,selected));
+   const result=await transitionSchedule(req.params.id,req.user!,body,selected);
+   return res.json({...result,status:'ok'});
   }catch(e){return workflowError(res,e);}
  });
 }
