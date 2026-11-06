@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { draftWriteScopeAllowed } from './draft-write-scope.js';
+import { draftPeriodWriteScopeAllowed } from './draft-write-scope.js';
 import { registrationSummaryRepository } from '../repositories/registration-summary.repository.js';
 import { readDraft } from './scheduling.service.js';
 import { schedulingInput } from './scheduling-input.js';
@@ -43,6 +43,11 @@ export async function inspectSchedule(id:string,branchId:string,expectedVersion:
   const assignments:Assignment[]=active.map(a=>({employee_id:a.employee_id,work_date:a.work_date,shift_id:a.shift_id,department_id:a.department_id}));
   try{const input=schedulingInput(ownFree);generateSchedule(input);checked=reviewAssignments(input,assignments);hard='PASS';}
   catch(err){const issue=err instanceof ScheduleError?err:new ScheduleError(422,'INCOMPLETE_INPUT','Không đủ dữ liệu để kiểm tra lịch.');hard=['INCOMPLETE_EMPLOYEE_DATA','NO_REQUIREMENTS','MISSING_SHIFT','INVALID_REQUIREMENT','INVALID_LIMIT'].includes(issue.code)?'UNKNOWN':'FAIL';issues.push({code:issue.code,message:issue.message});}
+  // Preserve the assignment upper bound, including valid bookings from other schedules.
+  // Surplus candidates in the registration summary are a separate advisory measure.
+  if(checked?.coverage.some(row=>row.excess_count>0)){
+    hard='FAIL';issues.push({code:'DEMAND_EXCEEDED',message:'Số người đã phân công vượt nhu cầu được khai báo.'});
+  }
   const summary=summarizeRegistrations(ownFree);
   const unknown=summary.rows.filter(row=>row.status==='UNKNOWN');
   let dataComplete=unknown.length===0&&!summary.warnings.some(w=>w.code==='INVALID_REGISTRATION'||w.code==='INVALID_REQUIREMENT'||w.code==='MISSING_REQUIREMENT');
@@ -52,14 +57,17 @@ export async function inspectSchedule(id:string,branchId:string,expectedVersion:
   const inputCurrent=!('demand_changed' in saved&&saved.demand_changed===true);
   if(!inputCurrent)issues.push({code:'INPUT_CHANGED',message:'Dữ liệu đã đổi sau khi tạo lịch. Cần tạo lại hoặc cập nhật phiên bản nháp trước.'});
   const coverageComplete=!!checked&&checked.shortages.length===0;
-  if(checked&&!coverageComplete)issues.push({code:'STAFFING_SHORTAGE',message:`Lịch còn thiếu ${checked.shortages.reduce((n,r)=>n+r.missing_count,0)} lượt phân công.`});
+  const staffingWarnings:ScheduleValidation['warnings']=[];
+  if(checked&&!coverageComplete)staffingWarnings.push({code:'STAFFING_SHORTAGE',message:`Lịch còn thiếu ${checked.shortages.reduce((n,r)=>n+r.missing_count,0)} lượt phân công; giám sát xem xét khi phê duyệt.`});
+  const surplus=summary.rows.reduce((n,row)=>n+(row.surplus_count??0),0);
+  if(surplus>0)staffingWarnings.push({code:'CANDIDATE_SURPLUS',message:`Có ${surplus} lượt ứng viên đủ điều kiện vượt nhu cầu, tính độc lập theo từng ca; không phải phân công vượt định biên.`});
   const statusEligible=['DRAFT','NEEDS_REVISION'].includes(saved.schedule.status);
   if(!statusEligible)issues.push({code:'INVALID_HANDOFF_STATUS',message:'TV3 chỉ chuẩn bị bàn giao bản DRAFT hoặc NEEDS_REVISION.'});
   const periodClosed=snapshot.period.status==='CLOSED';if(!periodClosed)issues.push({code:'PERIOD_NOT_CLOSED',message:'Đợt đăng ký chưa đóng.'});
   const validation:ScheduleValidation={schedule_id:id,version:expectedVersion,scope:'DECLARED_REQUIREMENTS_AND_VALID_REGISTRATIONS',
     hard_constraints:hard,data_complete:dataComplete,coverage_complete:coverageComplete,input_current:inputCurrent,
-    can_submit:hard==='PASS'&&dataComplete&&coverageComplete&&inputCurrent&&statusEligible&&periodClosed,
-    issues,warnings:[...summary.warnings,...(checked?.coverage.filter(r=>r.warning).map(r=>({code:r.warning!,message:`Thiếu ${r.missing_experienced_count} nhân viên kinh nghiệm so với mục tiêu ${r.experienced_target} của ô lịch.`}))??[])],
+    can_submit:hard==='PASS'&&dataComplete&&inputCurrent&&statusEligible&&periodClosed,
+    issues,warnings:[...summary.warnings,...staffingWarnings,...(checked?.coverage.filter(r=>r.warning).map(r=>({code:r.warning!,message:`Thiếu ${r.missing_experienced_count} nhân viên kinh nghiệm so với mục tiêu ${r.experienced_target} của ô lịch.`}))??[])],
     coverage:checked?.coverage??[],checked_at:new Date().toISOString(),input_revision:createHash('sha256').update(JSON.stringify(snapshot)).digest('hex')};
   return {saved,snapshot,rule_snapshot:ownFree,assignments,validation};
 }
@@ -77,5 +85,5 @@ export async function prepareApprovalHandoff(id:string,branchId:string,actorId:s
     note:typeof request.note==='string'?request.note.trim()||null:('note' in saved&&typeof saved.note==='string'?saved.note:null),
   }:null;
   return {validation,payload,current_status:saved.schedule.status,target_status:'PENDING_APPROVAL' as const,
-    delivery:{configured:process.env.TV4_WORKFLOW_PERSISTENCE_ENABLED==='true'&&process.env.TV3_TEST_PREVIEW_ENABLED!=='true'&&snapshot.source==='supabase'&&draftWriteScopeAllowed(snapshot.period.id,branchId),sent:false,message:'Chưa gửi lịch. Sau khi kiểm tra đạt, bấm Gửi Giám sát khu vực phê duyệt để lưu trạng thái chờ duyệt.'}};
+    delivery:{configured:process.env.TV4_WORKFLOW_PERSISTENCE_ENABLED==='true'&&process.env.TV3_TEST_PREVIEW_ENABLED!=='true'&&snapshot.source==='supabase'&&draftPeriodWriteScopeAllowed(snapshot.period),sent:false,message:'Chưa gửi lịch. Sau khi kiểm tra đạt, bấm Gửi Giám sát khu vực phê duyệt để lưu trạng thái chờ duyệt.'}};
 }

@@ -3,7 +3,7 @@ import { supabaseAdmin } from '../config/supabase.js';
 import { transitionSchedule, workflowReview, workflowEnabled } from '../services/schedule-workflow.service.js';
 import { ScheduleError } from '../services/scheduling.engine.js';
 import { authenticate, requireRole } from '../middleware/auth.middleware.js';
-import { draftWriteScopeAllowed } from '../services/draft-write-scope.js';
+import { draftPeriodWriteScopeAllowed } from '../services/draft-write-scope.js';
 
 const router = Router();
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -107,7 +107,8 @@ router.get('/', async (req, res) => {
     }
     const withLatest = markLatestVersions(schedules, versions);
     return res.json({ workflow_enabled:workflowEnabled(), schedules: withLatest.map(schedule => ({
-      ...schedule,workflow_enabled:workflowEnabled()&&draftWriteScopeAllowed(schedule.period_id,schedule.branch_id),
+      ...schedule,workflow_enabled:workflowEnabled()&&draftPeriodWriteScopeAllowed({id:schedule.period_id,branch_id:schedule.branch_id,
+        ...(Array.isArray(schedule.registration_periods)?schedule.registration_periods[0]:schedule.registration_periods)}),
       approvals: approvals.filter(approval => approval.schedule_id === schedule.id),
     })) });
   } catch (error: any) {

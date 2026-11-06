@@ -6,7 +6,8 @@ import { previewSnapshot, previewRevision } from './schedule-preview.service.js'
 import { databaseError } from './scheduling.service.js';
 import { schedulingInput } from './scheduling-input.js';
 import { requireDraftPersistenceEnabled } from './draft-write-policy.js';
-import { requireDraftWriteScope } from './draft-write-scope.js';
+import { requireDraftWriteScope, requireDraftPeriodWriteScope } from './draft-write-scope.js';
+import { requireStoredDraftWriteScope } from './stored-write-scope.js';
 import { generateSchedule, reviewAssignments, ScheduleError, type Assignment, type SchedulingInput } from './scheduling.engine.js';
 
 // Compare rule inputs, not UI labels/DB timestamps or query ordering. SQL repeats
@@ -35,7 +36,7 @@ export function serverVerifiedPlan(input:SchedulingInput,assignments:Assignment[
 }
 export async function persistPreview(periodId:string,branchId:string,actorId:string,body:Record<string,unknown>,scheduleId?:string) {
   requireDraftPersistenceEnabled();
-  requireDraftWriteScope(periodId,branchId);
+  await requireStoredDraftWriteScope(periodId,branchId);
   requireRealSchedulingData();
   const allowed=['period_id','assignments','input_revision','request_id',...(scheduleId?['expected_version']:[])];
   const fields=['employee_id','work_date','shift_id','department_id'];
@@ -53,15 +54,18 @@ export async function persistPreview(periodId:string,branchId:string,actorId:str
     if(replay.error)databaseError(replay.error);return replay.data;
   }
   const {snapshot}=await previewSnapshot(periodId,branchId,{...(scheduleId?{schedule_id:scheduleId,expected_version:body.expected_version}:{})},registrationSummaryRepository());
+  requireDraftPeriodWriteScope(snapshot.period);
   if(previewRevision(snapshot)!==body.input_revision)throw new ScheduleError(409,'PREVIEW_STALE','Dữ liệu nguồn đã thay đổi. Hãy tạo và kiểm tra lại phương án.');
   const sourceInput=schedulingInput(snapshot);generateSchedule(sourceInput);reviewAssignments(sourceInput,body.assignments as Assignment[]);
   const args={p_period_id:periodId,p_actor_id:actorId,p_schedule_id:scheduleId??null,p_expected_version:body.expected_version??null};
   const loaded=await supabaseAdmin.rpc('persist_schedule_draft',args);if(loaded.error)databaseError(loaded.error);
   if(loaded.data?.input?.rule_version!==SCHEDULING_RULE_VERSION)throw new ScheduleError(503,'PERSISTENCE_CONTRACT_MISMATCH','Chưa đồng bộ phiên bản lưu DRAFT. Cần cập nhật database theo migration đã duyệt.');
+  requireDraftPeriodWriteScope(loaded.data.input.period);
   if(!loaded.data?.input||canonicalInput(sourceInput)!==canonicalInput(loaded.data.input))throw new ScheduleError(409,'INPUT_CHANGED','Dữ liệu nguồn đã thay đổi hoặc chưa đồng nhất. Hãy tải lại tuần.');
   generateSchedule(loaded.data.input);
   const result=serverVerifiedPlan(loaded.data.input,body.assignments as Assignment[]);
   requireDraftPersistenceEnabled();
+  requireDraftWriteScope(periodId,branchId);
   const saved=await supabaseAdmin.rpc('persist_schedule_draft',{...args,p_snapshot:loaded.data.input,p_result:result,p_request_id:body.request_id,p_fingerprint:fingerprint});
   if(saved.error)databaseError(saved.error);
   if(!saved.data?.result?.schedule?.id)throw new ScheduleError(503,'INVALID_DATABASE_RESPONSE','Chưa thể xác nhận lưu. Hãy tải lại tuần trước khi thử lại.');

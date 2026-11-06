@@ -5,6 +5,7 @@ export function ScheduleValidationView({validation}:{validation:ScheduleValidati
   return <div className="summary-panel">
     <p>Ràng buộc phân công: <strong>{{PASS:'Đạt kiểm tra',FAIL:'Có vi phạm',UNKNOWN:'Chưa đủ dữ liệu'}[validation.hard_constraints]}</strong> · Định biên: <strong>{validation.coverage_complete?'Đủ người':'Chưa đủ người hoặc chưa thể đánh giá'}</strong></p>
     <p className="schedule-muted">Đối chiếu với nhu cầu và đăng ký hợp lệ. Đây chưa phải kết quả phê duyệt.</p>
+    <p className="schedule-muted">Thiếu nhân lực hoặc dư ứng viên là cảnh báo để giám sát xem xét, không chặn gửi duyệt khi các kiểm tra bắt buộc đạt.</p>
     {validation.issues.map((issue,index)=><div className="schedule-alert" key={`${issue.code}/${index}`}>{issue.message}</div>)}
     {validation.warnings.map((warning,index)=><p className="schedule-muted" key={`${warning.code}/${index}`}>{warning.message}</p>)}
   </div>;

@@ -22,7 +22,7 @@ test('complete TV3 journey uses real frontend client/grid and Express with isola
  const oldEnv=envKeys.map(k=>process.env[k]),old={from:db.from,rpc:db.rpc,getUser:db.auth.getUser,fetch:global.fetch};
  Object.assign(process.env,{NODE_ENV:'development',SCHEDULING_DATA_SOURCE:'mock',SCHEDULING_MOCK_SCENARIO:'tv3-flow',TV3_AI_EXTERNAL_ENABLED:'true',TV3_AI_PROVIDER:'gemini',TV3_AI_MODEL:'gemini-test',TV3_AI_DEVELOPMENT_MODEL:'gemini-test',GEMINI_API_KEY:'isolated-journey-key'});
  const branch='00000000-0000-4000-8000-000000008901',actor='00000000-0000-4000-8000-000000008902';
- const authTables=[];let providerCalls=0,requests=0,lastSummary;
+ const authTables=[],requests=[];let providerCalls=0,lastSummary;
  db.auth.getUser=async()=>({data:{user:{id:actor}}});db.rpc=()=>assert.fail('No RPC allowed in mock journey');
  db.from=table=>{
   authTables.push(table);assert.ok(['users','branches','employees'].includes(table),'No business/AI database tables allowed');
@@ -31,7 +31,7 @@ test('complete TV3 journey uses real frontend client/grid and Express with isola
  const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));const origin=`http://127.0.0.1:${server.address().port}`;
  global.fetch=async(input,options)=>{
   const url=String(input);
-  if(url.startsWith(origin+'/')){requests++;return old.fetch(input,options);}
+  if(url.startsWith(origin+'/')){requests.push({path:new URL(url).pathname,method:options?.method??'GET',body:options?.body?JSON.parse(options.body):null});return old.fetch(input,options);}
   if(url==='https://generativelanguage.googleapis.com/v1beta/models/gemini-test:generateContent'){
    providerCalls++;const request=JSON.parse(options.body);lastSummary=JSON.parse(request.contents[0].parts[0].text);
    const schema=request.generationConfig.responseJsonSchema;
@@ -56,6 +56,13 @@ test('complete TV3 journey uses real frontend client/grid and Express with isola
    const key=view.demandRowKey(cell);if(!data.requirements.some(r=>view.demandRowKey(r)===key))draft=grid.updateCell(data,draft,key,{count:'0',forecast:''});
   }
   const written=await grid.saveGrid(data,draft,service);assert.equal(Object.keys(written.errors).length,0);
+  // The grid uses the batch API. Assert every intended cell was sent exactly once,
+  // rather than requiring the obsolete one-HTTP-request-per-cell implementation.
+  const batches=requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/requirements/batch'));
+  assert.equal(batches.length,1);
+  assert.equal(batches[0].body.items.length,Object.keys(draft).length);
+  assert.deepEqual(batches[0].body.items.map(item=>view.demandRowKey(item.input)).sort(),Object.keys(draft).sort());
+  for(const item of batches[0].body.items){assert.equal(item.operation,'save');assert.equal(item.input.required_count,0);assert.equal(item.input.expected_updated_at,null);}
   data=await service.demand(period);assert.equal(data.requirements.length,63);
   const summary=await service.summary(period);assert.equal(summary.rows.length,63);
   const generated=await service.generate(period),first=await service.read(generated.id);
@@ -65,8 +72,10 @@ test('complete TV3 journey uses real frontend client/grid and Express with isola
   assert.equal(supply.eligible_count,2);assert.equal(shortage.assigned_count,1,'eligible supply must not be confused with assigned staff');
   assert.equal((await service.aiEvaluation(first.schedule.id,1)).status,'NOT_EVALUATED');assert.equal(providerCalls,0);
   const aiShort=await service.evaluateAI(first.schedule.id,1);assert.equal(aiShort.evaluation.report.conclusion,'NEEDS_ADJUSTMENT');
-  assert.equal((await service.validate(first.schedule.id,1)).can_submit,false);
-  assert.equal((await service.prepareHandoff(first.schedule.id,1,'Shortage check')).payload,null);
+  const shortageReview=await service.validate(first.schedule.id,1);
+  assert.equal(shortageReview.can_submit,true);assert.equal(shortageReview.coverage_complete,false);
+  assert.ok(shortageReview.warnings.some(w=>w.code==='STAFFING_SHORTAGE'));
+  assert.ok((await service.prepareHandoff(first.schedule.id,1,'Shortage check')).payload);
   // Delete and add back a valid assignment through the same UI client.
   const deleted=await service.editDraft(first.schedule.id,{expected_version:1,assignments:first.assignments.slice(1).map(plain)});
   const second=await service.read(deleted.schedule.id);assert.equal(second.schedule.version,2);assert.equal(second.assignments.length,7);
@@ -90,7 +99,10 @@ test('complete TV3 journey uses real frontend client/grid and Express with isola
   assert.deepEqual(await service.read(fourth.schedule.id),before);
   assert.equal((await service.periods())[0].schedules[0].id,fourth.schedule.id,'reopening week returns latest persisted mock version');
   for(const e of (await service.context(period)).employees)assert.ok(!JSON.stringify(lastSummary).includes(e.id));
-  assert.equal(providerCalls,3);assert.ok(requests>75);assert.ok(authTables.length>0);
+  assert.equal(providerCalls,3);
+  for(const [method,suffix,count] of [['POST','/generate',2],['PATCH','/draft-assignments',3],['POST','/validate',3],['POST','/approval-handoff',2]])
+   assert.equal(requests.filter(r=>r.method===method&&r.path.endsWith(suffix)).length,count,method+' '+suffix);
+  assert.ok(requests.every(r=>r.path.startsWith('/api/schedules/')));assert.ok(authTables.length>0);
  }finally{
   global.fetch=old.fetch;db.from=old.from;db.rpc=old.rpc;db.auth.getUser=old.getUser;
   envKeys.forEach((k,i)=>{if(oldEnv[i]===undefined)delete process.env[k];else process.env[k]=oldEnv[i];});

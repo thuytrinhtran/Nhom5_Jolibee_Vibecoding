@@ -1,5 +1,5 @@
 ﻿import { registrationSummaryRepository } from '../repositories/registration-summary.repository.js';
-import { requireIntegrationTestWriteScope } from './draft-write-scope.js';
+import { requireIntegrationTestWriteScope, isTestWriteScope, requireDraftPeriodWriteScope } from './draft-write-scope.js';
 import type { DemandInput, RegistrationSummaryRepository, SummarySnapshot } from '../repositories/registration-summary.types.js';
 import { readSummarySnapshot } from '../repositories/read-summary.js';
 import { summarizeRegistrations } from './registration-summary.service.js';
@@ -51,6 +51,7 @@ export async function saveDemandBatch(periodId:string,branchId:string,actorId:st
     if(keys.has(key))throw new ScheduleError(400,'DUPLICATE_DEMAND','Mỗi ô chỉ được gửi một lần.');keys.add(key);
   }
   const snapshot=await repository.load(branchId,periodId);
+  if(isTestWriteScope())requireDraftPeriodWriteScope(snapshot.period);
   const scoped=new Proxy(repository,{get(target,key){if(key==='load')return async()=>snapshot;const member=Reflect.get(target,key);return typeof member==='function'?member.bind(target):member;}});
   const results: {index:number;requirement?:SummarySnapshot['requirements'][number];cleared?:boolean;error?:string}[]=new Array(value.items.length);
   let cursor=0;
@@ -71,6 +72,7 @@ export async function clearDemand(periodId:string,branchId:string,body:unknown,r
   const input=validateDemandInput({...body,required_count:0,required_skill_name:null,sales_forecast_ref:null});
   if (!input.expected_updated_at) throw new ScheduleError(400,'INVALID_DEMAND_VERSION','Cần phiên bản nhu cầu đã lưu trước khi xóa.');
   const snapshot=await repository.load(branchId,periodId);
+  if(isTestWriteScope())requireDraftPeriodWriteScope(snapshot.period);
   if(input.work_date<snapshot.period.work_start_date||input.work_date>snapshot.period.work_end_date)
     throw new ScheduleError(422,'DEMAND_OUTSIDE_PERIOD','Ngày phải thuộc tuần đã chọn.');
   const rows=snapshot.requirements.filter(r=>r.work_date===input.work_date&&r.shift_id===input.shift_id&&r.department_id===input.department_id);
@@ -82,6 +84,7 @@ export async function saveDemand(periodId: string, branchId: string, actorId: st
   requireIntegrationTestWriteScope(periodId,branchId);
   const input = validateDemandInput(body);
   const snapshot = await repository.load(branchId,periodId);
+  if(isTestWriteScope())requireDraftPeriodWriteScope(snapshot.period);
   if (input.work_date < snapshot.period.work_start_date || input.work_date > snapshot.period.work_end_date)
     throw new ScheduleError(422,'DEMAND_OUTSIDE_PERIOD','Ngày nhập nhu cầu phải thuộc tuần đã chọn.');
   if (!snapshot.departments.some(d=>d.id===input.department_id)) throw new ScheduleError(422,'UNKNOWN_DEPARTMENT','Bộ phận chưa được cấu hình.');

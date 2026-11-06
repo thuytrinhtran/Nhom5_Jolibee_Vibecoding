@@ -30,7 +30,7 @@ export function WorkflowInspection({scheduleId,service}:{scheduleId:string;servi
   if(error)return <p role="alert">Không thể kiểm tra dữ liệu hiện tại: {errorGuidance(error)}</p>;
   if(!result)return <p role="status">Đang kiểm tra định biên và cơ cấu kinh nghiệm…</p>;
   return <section aria-label="Kiểm tra nghiệp vụ lịch">
-    <p>Kiểm tra lịch: {result.validation.hard_constraints==='PASS'?'Đạt':'Cần kiểm tra'} · {result.ready?'Đủ điều kiện xử lý':'Cần xử lý cảnh báo trước khi tiếp tục'}</p>
+    <p>Kiểm tra lịch: {result.validation.hard_constraints==='PASS'?'Đạt':'Cần kiểm tra'} · {result.ready?'Đủ điều kiện xử lý':'Cần xử lý vi phạm hoặc bổ sung dữ liệu trước khi tiếp tục'}</p>
     {!result.workflow_enabled&&<p>Chức năng xử lý lịch chưa được bật cho tuần này.</p>}
     {[...result.validation.issues,...result.validation.warnings].map((w,i)=><p key={i}>{w.message}</p>)}
     <details><summary>Xem định biên và cơ cấu từng ca ({result.validation.coverage.length} ô)</summary><div className="workflow-table-wrap"><table><thead><tr><th>Ngày</th><th>Ca / bộ phận</th><th>Đã xếp / nhu cầu</th><th>Kinh nghiệm / mục tiêu</th><th>Còn thiếu</th></tr></thead><tbody>

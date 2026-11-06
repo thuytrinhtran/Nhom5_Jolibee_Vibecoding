@@ -1,5 +1,5 @@
 import { requireEmployeeOwner } from '../middleware/data-scope.middleware.js';
-import { requireIntegrationTestWriteScope } from '../services/draft-write-scope.js';
+import { requireIntegrationTestWriteScope, isTestWriteScope, requireDraftPeriodWriteScope } from '../services/draft-write-scope.js';
 import { effectivePeriodStatus } from '../registrations/period-status.js';
 import { Router } from 'express';
 import { supabaseAdmin as db } from '../config/supabase.js';
@@ -84,6 +84,7 @@ registrationRoutes.put('/:periodId/me', async (req, res) => {
     const p = await db.from('registration_periods').select('*').eq('id', req.params.periodId).eq('branch_id', employee.branch_id).maybeSingle();
     if (p.error) throw p.error;
     if (!p.data) throw new RegistrationError('Không có quyền truy cập đợt đăng ký.', 403);
+    if(isTestWriteScope())try{requireDraftPeriodWriteScope(p.data);}catch{throw new RegistrationError('Khoảng ngày của kỳ nằm ngoài phạm vi kiểm thử được phép.',403);}
     const now = Date.now();
     const testWindow=usesDevTestWindow(p.data,employee.branch_id);
     if (!testWindow&&effectivePeriodStatus(p.data, now) !== 'OPEN') throw new RegistrationError('Đợt chưa mở hoặc đã đóng; không thể chỉnh sửa.', 409);

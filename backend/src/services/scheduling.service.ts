@@ -6,7 +6,9 @@ import { supabaseAdmin } from '../config/supabase.js';
 import { generateSchedule, ScheduleError, SchedulingInput } from './scheduling.engine.js';
 import { requireDraftPersistenceEnabled } from './draft-write-policy.js';
 import { readSummarySnapshot } from '../repositories/read-summary.js';
-import { requireDraftWriteScope } from './draft-write-scope.js';
+import { requireDraftWriteScope, requireDraftPeriodWriteScope, isIsolatedWriteScope } from './draft-write-scope.js';
+import { requireStoredDraftWriteScope } from './stored-write-scope.js';
+import { SCHEDULING_RULE_VERSION } from './scheduling-contract.js';
 
 export function databaseError(error: { code?: string; message?: string }): never {
   if (error.code === 'PGRST202') throw new ScheduleError(503, 'SCHEDULING_NOT_CONFIGURED', 'Chức năng tạo lịch chưa được cấu hình trên hệ thống. Vui lòng liên hệ quản trị viên.');
@@ -24,7 +26,7 @@ export function databaseError(error: { code?: string; message?: string }): never
 }
 export async function createDraft(periodId: string, actorId: string, branchId?:string, options:{regenerate?:boolean;expectedVersion?:number}={}) {
   requireDraftPersistenceEnabled();
-  requireDraftWriteScope(periodId,branchId);
+  await requireStoredDraftWriteScope(periodId,branchId);
   if(isMockSchedulingFlow()){
     if(!branchId)throw new ScheduleError(403,'BRANCH_REQUIRED','Quản lý chưa được phân công chi nhánh.');
     return createMockDraft(periodId,branchId,actorId,options);
@@ -36,8 +38,11 @@ export async function createDraft(periodId: string, actorId: string, branchId?:s
   if (loaded.data?.result) return loaded.data;
   if (!loaded.data?.input) throw new ScheduleError(503, 'INVALID_DATABASE_RESPONSE', 'Không thể đọc dữ liệu xếp lịch.');
   const input = loaded.data.input as SchedulingInput;
+  if(isIsolatedWriteScope()&&input.rule_version!==SCHEDULING_RULE_VERSION)throw new ScheduleError(503,'PERSISTENCE_CONTRACT_MISMATCH','Chưa đồng bộ hợp đồng tv3.rules.v2 trên database kiểm thử.');
+  requireDraftPeriodWriteScope(input.period);
   const result = generateSchedule(input);
   requireDraftPersistenceEnabled();
+  requireDraftWriteScope(periodId,branchId);
   const saved = await supabaseAdmin.rpc('generate_schedule_draft', {
     p_period_id: periodId, p_actor_id: actorId, p_snapshot: input, p_result: result,
   });
