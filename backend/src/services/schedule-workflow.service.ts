@@ -4,12 +4,13 @@ import { requireNonTestScheduleWrites } from './test-preview-policy.js';
 import { inspectSchedule } from './schedule-review.service.js';
 import { requireRealSchedulingData } from '../repositories/registration-summary.repository.js';
 import { draftWriteScopeAllowed, isTestWriteScope } from './draft-write-scope.js';
+import { workflowEnabled, workflowWriteAvailability } from './workflow-write-policy.js';
 
-export const workflowEnabled=()=>process.env.TV4_WORKFLOW_PERSISTENCE_ENABLED==='true'&&process.env.TV3_TEST_PREVIEW_ENABLED!=='true';
+export { workflowEnabled } from './workflow-write-policy.js';
 export function requireWorkflowWrites(){
  requireNonTestScheduleWrites();
  if(isTestWriteScope()&&process.env.TV3_WRITE_SCOPE_ENABLED!=='true')throw new ScheduleError(403,'WORKFLOW_SCOPE_FORBIDDEN','Chế độ nghiệm thu yêu cầu giới hạn ghi đúng kỳ test.');
- if(!workflowEnabled())throw new ScheduleError(503,'WORKFLOW_PERSISTENCE_DISABLED','Chưa bật lưu workflow TV4. Cần nghiệm thu migration trước.');
+ if(!workflowEnabled())throw new ScheduleError(503,'WORKFLOW_PERSISTENCE_DISABLED','Backend chưa cho phép ghi workflow: TV4_WORKFLOW_PERSISTENCE_ENABLED chưa bằng true. Cần nghiệm thu migration/RPC trước khi bật.');
  requireRealSchedulingData();
 }
 export async function transitionSchedule(id:string,actor:{id:string;role:string;branch_id?:string|null},body:Record<string,unknown>,action:string){
@@ -58,7 +59,8 @@ export async function transitionSchedule(id:string,actor:{id:string;role:string;
 export async function workflowReview(id:string,branchId:string,version:number){
  const checked=await inspectSchedule(id,branchId,version);
  const validation={...checked.validation,issues:checked.validation.issues.filter(i=>i.code!=='INVALID_HANDOFF_STATUS')};
- const ready=validation.hard_constraints==='PASS'&&validation.data_complete&&validation.coverage_complete&&validation.input_current&&validation.issues.length===0;
- return {validation,ready,workflow_enabled:workflowEnabled()&&draftWriteScopeAllowed(checked.saved.schedule.period_id,branchId),generation_snapshot:checked.saved.generation_snapshot,
+ const ready=validation.hard_constraints==='PASS'&&validation.data_complete&&validation.input_current&&validation.issues.length===0;
+ const availability=workflowWriteAvailability(checked.saved.schedule.period_id,branchId,checked.snapshot.source);
+ return {validation,ready,workflow_enabled:availability.configured,workflow_blocker:availability.code?{code:availability.code,message:availability.message}:null,generation_snapshot:checked.saved.generation_snapshot,
   labels:{shifts:Object.fromEntries(checked.snapshot.shifts.map(s=>[s.id,s.name])),departments:Object.fromEntries(checked.snapshot.departments.map(d=>[d.id,d.name]))}};
 }

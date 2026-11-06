@@ -11,23 +11,16 @@ const branch='00000000-0000-4000-8000-000000000001';
 const row=(s,name,day='2026-11-02')=>s.rows.find(r=>r.department_name===name&&r.work_date===day);
 function databaseFixture(snapshot,fail=false){
   const queries=[];
-<<<<<<< Updated upstream
   const tables={registration_periods:[{...snapshot.period,open_at:'2026-10-01T00:00:00Z',close_at:'2026-10-02T00:00:00Z',schedules:[]}],branches:[snapshot.branch],departments:snapshot.departments,
     employees:snapshot.employees.map(e=>({...e,user:{is_active:e.is_active,role:e.role,branch_id:e.branch_id}})),
     registration_submissions_sourced:[...new Set(snapshot.registrations.map(r=>r.employee_id))].map(employee_id=>({employee_id,status:'VALID',submitted_at:'2026-10-01T01:00:00Z',updated_at:'2026-10-01T01:00:00Z',sample_batch_id:null})),
     shifts:snapshot.shifts,shift_registrations:snapshot.registrations.map(r=>({...r,submitted_at:'2026-10-01T01:00:00Z'})),staffing_requirements:snapshot.requirements,
-=======
-  const tables={registration_periods_effective:[{...snapshot.period,schedules:[]}],branches:[snapshot.branch],departments:snapshot.departments,
-    employees:snapshot.employees.map(e=>({...e,user:{is_active:e.is_active,role:e.role,branch_id:e.branch_id}})),
-    shifts:snapshot.shifts,shift_registrations:snapshot.registrations.map(r=>({...r,submitted_at:'2026-10-29T01:00:00Z'})),staffing_requirements:snapshot.requirements,
-    registration_submissions_sourced:[...new Set(snapshot.registrations.filter(r=>r.status==='VALID').map(r=>r.employee_id))].map(employee_id=>({period_id:snapshot.period.id,employee_id,status:'VALID',submitted_at:'2026-10-29T01:00:00Z',sample_batch_id:null})),
->>>>>>> Stashed changes
     employee_skills:snapshot.employees.flatMap(e=>(e.skills||[]).map(skill_name=>({employee_id:e.id,skill_name}))),
     shift_assignments:snapshot.existing,warning_configs:[]};
   const db={from(table){const query={table,filters:[],from:0,to:499};queries.push(query);
     const result=()=>({data:(tables[table]||[]).slice(query.from,query.to+1),error:fail?(typeof fail==='object'?fail:{message:'private failure'}):null});
     return {select(columns){query.columns=columns;return this},eq(k,v){query.filters.push([k,v]);return this},neq(){return this},gte(){return this},lte(){return this},or(){return this},order(){return this},range(a,b){query.from=a;query.to=b;return this},
-      maybeSingle:async()=>{let data=result().data[0]??null;if(data&&table==='registration_periods_effective'){const {schedules,...period}=data;data=period;}return{...result(),data}},single:async()=>({...result(),data:result().data[0]??null}),then(resolve){resolve(result())}};
+      maybeSingle:async()=>{let data=result().data[0]??null;if(data&&table==='registration_periods'){const {schedules,...period}=data;data=period;}return{...result(),data}},single:async()=>({...result(),data:result().data[0]??null}),then(resolve){resolve(result())}};
   }};return{db,queries,tables};
 }
 test('deduplicates VALID registrations, separates eligibility and computes balanced/short/surplus',()=>{
@@ -71,26 +64,16 @@ test('Mock and Supabase adapters produce identical summary contract and branch-s
   const snapshot=mockSummarySnapshot(branch);snapshot.registrations=[...new Map(snapshot.registrations.map(r=>[r.employee_id+'/'+r.work_date+'/'+r.shift_id,r])).values()];const fixture=databaseFixture(snapshot);
   const mock=new MockRegistrationSummaryRepository();const real=new SupabaseRegistrationSummaryRepository(fixture.db);
   const a=summarizeRegistrations(await mock.load(branch,MOCK_PERIOD_ID));const b=summarizeRegistrations(await real.load(branch,MOCK_PERIOD_ID));
-<<<<<<< Updated upstream
   assert.deepEqual(a.rows.map(r=>({...r,warnings:r.warnings.filter(w=>w.code!=='DUPLICATE_REGISTRATION')})),b.rows);assert.equal(a.period.id,b.period.id);assert.equal(a.period.status,b.period.status);assert.equal(a.source,'mock');assert.equal(b.source,'supabase');assert.equal(b.is_mock,false);
   assert.equal((await real.listPeriods(branch))[0].status,'CLOSED');
   for(const name of ['registration_periods','employees','staffing_requirements','branches'])assert.ok(fixture.queries.filter(q=>q.table===name).every(q=>q.filters.some(([k,v])=>(k==='branch_id'||(name==='branches'&&k==='id'))&&v===branch)));
-=======
-  assert.deepEqual(a.rows,b.rows);assert.deepEqual(a.period,b.period);assert.equal(a.source,'mock');assert.equal(b.source,'supabase');assert.equal(b.is_mock,false);
-  assert.deepEqual(await mock.listPeriods(branch),await real.listPeriods(branch));
-  for(const name of ['registration_periods_effective','employees','staffing_requirements','branches'])assert.ok(fixture.queries.filter(q=>q.table===name).every(q=>q.filters.some(([k,v])=>(k==='branch_id'||(name==='branches'&&k==='id'))&&v===branch)));
->>>>>>> Stashed changes
   assert.ok(fixture.queries.find(q=>q.table==='shift_registrations').filters.some(([k,v])=>k==='status'&&v==='VALID'));
   assert.ok(fixture.queries.find(q=>q.table==='employee_skills').filters.some(([k,v])=>k==='employee.branch_id'&&v===branch));
 });
 test('Supabase pagination never silently caps the period list at one page',async()=>{
-<<<<<<< Updated upstream
   const fixture=databaseFixture(mockSummarySnapshot(branch));fixture.tables.registration_periods=Array.from({length:501},(_,i)=>({id:String(i),open_at:'2026-10-01T00:00:00Z',close_at:'2026-10-02T00:00:00Z'}));
-=======
-  const fixture=databaseFixture(mockSummarySnapshot(branch));fixture.tables.registration_periods_effective=Array.from({length:501},(_,i)=>({id:String(i)}));
->>>>>>> Stashed changes
   assert.equal((await new SupabaseRegistrationSummaryRepository(fixture.db).listPeriods(branch)).length,501);
-  assert.equal(fixture.queries.filter(q=>q.table==='registration_periods_effective').length,2);
+  assert.equal(fixture.queries.filter(q=>q.table==='registration_periods').length,2);
 });
 test('mock is explicit development-only; database failures never fallback',async()=>{
   assert.equal(registrationSummaryRepository({NODE_ENV:'development',SCHEDULING_DATA_SOURCE:'mock'}).source,'mock');
@@ -113,7 +96,7 @@ test('no registrations retains all declared needs with zero eligible supply',()=
 });
 test('Supabase period outside manager branch returns 404 before loading employee data',async()=>{
   const filters=[];let calls=0;
-  const db={from(table){calls++;assert.equal(table,'registration_periods_effective');return{select(){return this},eq(k,v){filters.push([k,v]);return this},maybeSingle:async()=>({data:null,error:null})}}};
+  const db={from(table){calls++;assert.equal(table,'registration_periods');return{select(){return this},eq(k,v){filters.push([k,v]);return this},maybeSingle:async()=>({data:null,error:null})}}};
   await assert.rejects(new SupabaseRegistrationSummaryRepository(db).load(branch,MOCK_PERIOD_ID),e=>e.status===404);
   assert.equal(calls,1);assert.ok(filters.some(([k,v])=>k==='branch_id'&&v===branch));
 });
@@ -148,12 +131,12 @@ test('Supabase availability follows TV2 confirmed non-sample header and row time
   assert.equal((await new SupabaseRegistrationSummaryRepository(f.db).load(branch,MOCK_PERIOD_ID)).registrations.length,0);
 });
 
-test('effective period status is authoritative and schema/access errors never fall back to raw tables or MOCK',async()=>{
-  const f=databaseFixture(mockSummarySnapshot(branch));Object.assign(f.tables.registration_periods_effective[0],{status:'OPEN',stored_status:'PLANNED'});
+test('period status is derived from timestamps and schema/access errors never fall back to MOCK',async()=>{
+  const f=databaseFixture(mockSummarySnapshot(branch));Object.assign(f.tables.registration_periods[0],{status:'PLANNED',open_at:new Date(Date.now()-3600000).toISOString(),close_at:new Date(Date.now()+3600000).toISOString()});
   const repository=new SupabaseRegistrationSummaryRepository(f.db);
   assert.equal((await repository.listPeriods(branch))[0].status,'OPEN');assert.equal((await repository.load(branch,MOCK_PERIOD_ID)).period.status,'OPEN');
-  assert.ok(!f.queries.some(q=>q.table==='registration_periods'));
-  for(const [code,expected] of [['PGRST205','SUMMARY_SCHEMA_NOT_READY'],['42703','SUMMARY_SCHEMA_NOT_READY'],['PGRST200','SUMMARY_SCHEMA_NOT_READY'],['42501','SUMMARY_ACCESS_DENIED'],['XX000','SUMMARY_DATABASE_ERROR']]){
+  assert.ok(f.queries.every(q=>q.table!=='registration_periods_effective'));
+  for(const [code,expected] of [['PGRST205','DEMAND_SCHEMA_NOT_READY'],['42703','DEMAND_SCHEMA_NOT_READY'],['PGRST200','SUMMARY_DATABASE_ERROR'],['42501','SUMMARY_DATABASE_ERROR'],['XX000','SUMMARY_DATABASE_ERROR']]){
     const broken=databaseFixture(mockSummarySnapshot(branch),{code,message:'private-provider-details'});
     await assert.rejects(new SupabaseRegistrationSummaryRepository(broken.db).load(branch,MOCK_PERIOD_ID),e=>e.code===expected&&e.status===503&&!e.message.includes('private-'));
   }

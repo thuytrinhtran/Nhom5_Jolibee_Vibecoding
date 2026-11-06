@@ -1,9 +1,9 @@
 import { createHash } from 'node:crypto';
-import { draftWriteScopeAllowed } from './draft-write-scope.js';
+import { workflowWriteAvailability } from './workflow-write-policy.js';
 import { registrationSummaryRepository } from '../repositories/registration-summary.repository.js';
 import { readDraft } from './scheduling.service.js';
 import { schedulingInput } from './scheduling-input.js';
-import { generateSchedule, reviewAssignments, ScheduleError, type Assignment } from './scheduling.engine.js';
+import { reviewAssignments, ScheduleError, type Assignment } from './scheduling.engine.js';
 import { summarizeRegistrations } from './registration-summary.service.js';
 
 export interface ScheduleValidation {
@@ -41,7 +41,7 @@ export async function inspectSchedule(id:string,branchId:string,expectedVersion:
   let hard:ScheduleValidation['hard_constraints']='UNKNOWN';let checked:ReturnType<typeof reviewAssignments>|null=null;
   const active=(saved.assignments??[]).filter(a=>a.status!=='REPLACED');
   const assignments:Assignment[]=active.map(a=>({employee_id:a.employee_id,work_date:a.work_date,shift_id:a.shift_id,department_id:a.department_id}));
-  try{const input=schedulingInput(ownFree);generateSchedule(input);checked=reviewAssignments(input,assignments);hard='PASS';}
+  try{checked=reviewAssignments(schedulingInput(ownFree),assignments);hard='PASS';}
   catch(err){const issue=err instanceof ScheduleError?err:new ScheduleError(422,'INCOMPLETE_INPUT','Không đủ dữ liệu để kiểm tra lịch.');hard=['INCOMPLETE_EMPLOYEE_DATA','NO_REQUIREMENTS','MISSING_SHIFT','INVALID_REQUIREMENT','INVALID_LIMIT'].includes(issue.code)?'UNKNOWN':'FAIL';issues.push({code:issue.code,message:issue.message});}
   const summary=summarizeRegistrations(ownFree);
   const unknown=summary.rows.filter(row=>row.status==='UNKNOWN');
@@ -52,14 +52,18 @@ export async function inspectSchedule(id:string,branchId:string,expectedVersion:
   const inputCurrent=!('demand_changed' in saved&&saved.demand_changed===true);
   if(!inputCurrent)issues.push({code:'INPUT_CHANGED',message:'Dữ liệu đã đổi sau khi tạo lịch. Cần tạo lại hoặc cập nhật phiên bản nháp trước.'});
   const coverageComplete=!!checked&&checked.shortages.length===0;
-  if(checked&&!coverageComplete)issues.push({code:'STAFFING_SHORTAGE',message:`Lịch còn thiếu ${checked.shortages.reduce((n,r)=>n+r.missing_count,0)} lượt phân công.`});
+  const cellLabel=(r:NonNullable<typeof checked>['coverage'][number])=>`${r.work_date} / ${snapshot.shifts.find(s=>s.id===r.shift_id)?.name??r.shift_id} / ${snapshot.departments.find(d=>d.id===r.department_id)?.name??r.department_id}`;
+  const staffingWarnings:ScheduleValidation['warnings']=checked?.coverage.flatMap(r=>[
+    ...(r.missing_count>0?[{code:'STAFFING_SHORTAGE',message:`Ô lịch ${cellLabel(r)} còn thiếu ${r.missing_count} người (${r.assigned_count}/${r.required_count}).`}]:[]),
+    ...(r.excess_count>0?[{code:'STAFFING_EXCESS',message:`Ô lịch ${cellLabel(r)} dư ${r.excess_count} người (${r.assigned_count}/${r.required_count}).`}]:[]),
+  ])??[];
   const statusEligible=['DRAFT','NEEDS_REVISION'].includes(saved.schedule.status);
   if(!statusEligible)issues.push({code:'INVALID_HANDOFF_STATUS',message:'TV3 chỉ chuẩn bị bàn giao bản DRAFT hoặc NEEDS_REVISION.'});
   const periodClosed=snapshot.period.status==='CLOSED';if(!periodClosed)issues.push({code:'PERIOD_NOT_CLOSED',message:'Đợt đăng ký chưa đóng.'});
   const validation:ScheduleValidation={schedule_id:id,version:expectedVersion,scope:'DECLARED_REQUIREMENTS_AND_VALID_REGISTRATIONS',
     hard_constraints:hard,data_complete:dataComplete,coverage_complete:coverageComplete,input_current:inputCurrent,
-    can_submit:hard==='PASS'&&dataComplete&&coverageComplete&&inputCurrent&&statusEligible&&periodClosed,
-    issues,warnings:[...summary.warnings,...(checked?.coverage.filter(r=>r.warning).map(r=>({code:r.warning!,message:`Thiếu ${r.missing_experienced_count} nhân viên kinh nghiệm so với mục tiêu ${r.experienced_target} của ô lịch.`}))??[])],
+    can_submit:hard==='PASS'&&dataComplete&&inputCurrent&&statusEligible&&periodClosed&&issues.length===0,
+    issues,warnings:[...summary.warnings,...staffingWarnings,...(checked?.coverage.filter(r=>r.warning).map(r=>({code:r.warning!,message:`Thiếu ${r.missing_experienced_count} nhân viên kinh nghiệm so với mục tiêu ${r.experienced_target} của ô lịch.`}))??[])],
     coverage:checked?.coverage??[],checked_at:new Date().toISOString(),input_revision:createHash('sha256').update(JSON.stringify(snapshot)).digest('hex')};
   return {saved,snapshot,rule_snapshot:ownFree,assignments,validation};
 }
@@ -77,5 +81,5 @@ export async function prepareApprovalHandoff(id:string,branchId:string,actorId:s
     note:typeof request.note==='string'?request.note.trim()||null:('note' in saved&&typeof saved.note==='string'?saved.note:null),
   }:null;
   return {validation,payload,current_status:saved.schedule.status,target_status:'PENDING_APPROVAL' as const,
-    delivery:{configured:process.env.TV4_WORKFLOW_PERSISTENCE_ENABLED==='true'&&process.env.TV3_TEST_PREVIEW_ENABLED!=='true'&&snapshot.source==='supabase'&&draftWriteScopeAllowed(snapshot.period.id,branchId),sent:false,message:'Chưa gửi lịch. Sau khi kiểm tra đạt, bấm Gửi Giám sát khu vực phê duyệt để lưu trạng thái chờ duyệt.'}};
+    delivery:{...workflowWriteAvailability(snapshot.period.id,branchId,snapshot.source),sent:false}};
 }

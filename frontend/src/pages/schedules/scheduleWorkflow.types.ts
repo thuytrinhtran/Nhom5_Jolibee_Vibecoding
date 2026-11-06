@@ -74,7 +74,7 @@ export interface ResubmitScheduleRequest {
 export interface ScheduleWorkflowService {
   /** Identifies whether this provider uses fixtures or the authenticated backend. */
   mode?: 'mock' | 'api';
-  reviewSchedule?(scheduleId:string):Promise<{validation:ScheduleValidation;ready:boolean;workflow_enabled:boolean;labels?:{shifts:Record<string,string>;departments:Record<string,string>}}>;
+  reviewSchedule?(scheduleId:string):Promise<{validation:ScheduleValidation;ready:boolean;workflow_enabled:boolean;workflow_blocker?:{code:string;message:string}|null;labels?:{shifts:Record<string,string>;departments:Record<string,string>}}>;
   listSchedules(actor: ScheduleWorkflowActor, view: ScheduleWorkflowView): Promise<ScheduleWorkflowRecord[]>;
   decideSchedule(actor: ScheduleWorkflowActor, scheduleId: string, decision: ScheduleDecision, reason?: string, expectedVersion?:number): Promise<ScheduleWorkflowRecord>;
   resubmitSchedule(actor: ScheduleWorkflowActor, scheduleId: string, adjustmentNote: string, assignments: ScheduleAssignment[], expectedVersion: number, expectedScheduleGroupId: string): Promise<ScheduleWorkflowRecord>;

@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { ScheduleWorkflowError, TV4_SHIFT_DEFINITIONS, mockActorForProfile, resolveTv4MockBranch } from './scheduleWorkflow.types';
 import type { ScheduleAssignment, ScheduleWorkflowService, ScheduleWorkflowView, ScheduleWorkflowRecord } from './scheduleWorkflow.types';
 import { scheduleWorkflowApiService } from './scheduleWorkflow.api.service';
+import { PublishDraftReview } from './PublishDraftReview';
 import './ScheduleWorkflow.css';
 
 const errorText = (error: unknown) => error instanceof Error ? error.message : 'Có lỗi xảy ra. Vui lòng thử lại.';
@@ -30,8 +31,9 @@ export function WorkflowInspection({scheduleId,service}:{scheduleId:string;servi
   if(error)return <p role="alert">Không thể kiểm tra dữ liệu hiện tại: {errorGuidance(error)}</p>;
   if(!result)return <p role="status">Đang kiểm tra định biên và cơ cấu kinh nghiệm…</p>;
   return <section aria-label="Kiểm tra nghiệp vụ lịch">
-    <p>Kiểm tra lịch: {result.validation.hard_constraints==='PASS'?'Đạt':'Cần kiểm tra'} · {result.ready?'Đủ điều kiện xử lý':'Cần xử lý cảnh báo trước khi tiếp tục'}</p>
-    {!result.workflow_enabled&&<p>Chức năng xử lý lịch chưa được bật cho tuần này.</p>}
+    <p>Kiểm tra lịch: {result.validation.hard_constraints==='PASS'?'Đạt':'Cần kiểm tra'} · {result.ready?'Đủ điều kiện xử lý':'Cần xử lý lỗi bắt buộc trước khi tiếp tục'}</p>
+    <p>Thiếu/dư nhân sự và thiếu kinh nghiệm là cảnh báo để Giám sát quyết định.</p>
+    {!result.workflow_enabled&&<p>{result.workflow_blocker?.message??'Chức năng xử lý lịch chưa được bật cho tuần này.'}</p>}
     {[...result.validation.issues,...result.validation.warnings].map((w,i)=><p key={i}>{w.message}</p>)}
     <details><summary>Xem định biên và cơ cấu từng ca ({result.validation.coverage.length} ô)</summary><div className="workflow-table-wrap"><table><thead><tr><th>Ngày</th><th>Ca / bộ phận</th><th>Đã xếp / nhu cầu</th><th>Kinh nghiệm / mục tiêu</th><th>Còn thiếu</th></tr></thead><tbody>
       {result.validation.coverage.map(c=><tr key={c.id}><td>{c.work_date}</td><td>{result.labels?.shifts[c.shift_id]??c.shift_id} / {result.labels?.departments[c.department_id]??c.department_id}</td><td>{c.assigned_count}/{c.required_count}</td><td>{c.experienced_count}/{c.experienced_target}</td><td>{c.missing_count} người · {c.missing_experienced_count} kinh nghiệm</td></tr>)}
@@ -123,6 +125,7 @@ export const ScheduleWorkflow = ({
       : mode === 'publication-history' ? 'publicationHistory' : 'manager';
   const scope=JSON.stringify([actor?.id,actor?.role,actor?.branch_id,view]);
   const [loadedScope,setLoadedScope]=useState(scope);
+  const [draftReviewId,setDraftReviewId]=useState<string|null>(null);
   const schedules=loadedScope===scope?scheduleRows:[];
   const loadSequence=useRef(0),working=useRef(false),currentScope=useRef(scope);
   currentScope.current=scope;
@@ -158,8 +161,9 @@ export const ScheduleWorkflow = ({
   }, [actor, branchResolution, service, view, usesMockWorkflow,scope]);
 
   useEffect(() => { void load();return()=>{loadSequence.current++;}; }, [load]);
-  useEffect(()=>{if(typeof window==='undefined'||typeof window.addEventListener!=='function')return;const refresh=()=>{if(!working.current&&!confirmation&&(typeof document==='undefined'||document.visibilityState==='visible'))void load();};window.addEventListener('focus',refresh);window.addEventListener('jollishift:data-changed',refresh);return()=>{window.removeEventListener('focus',refresh);window.removeEventListener('jollishift:data-changed',refresh);};},[load,confirmation]);
-  useEffect(()=>{setSelected(null);setConfirmation(null);setReason('');setDeadline('');setSuccessMessage('');},[scope]);
+  useEffect(()=>{if(typeof window==='undefined'||typeof window.addEventListener!=='function')return;const refresh=()=>{if(!working.current&&!confirmation&&!draftReviewId&&(typeof document==='undefined'||document.visibilityState==='visible'))void load();};window.addEventListener('focus',refresh);window.addEventListener('jollishift:data-changed',refresh);return()=>{window.removeEventListener('focus',refresh);window.removeEventListener('jollishift:data-changed',refresh);};},[load,confirmation,draftReviewId]);
+  useEffect(()=>{setSelected(null);setDraftReviewId(null);setConfirmation(null);setReason('');setDeadline('');setSuccessMessage('');},[scope]);
+  const draftBusyChanged=useCallback((value:boolean)=>{working.current=value;setBusy(value);},[]);
 
   const perform = async (
     schedule: ScheduleWorkflowRecord,
@@ -251,7 +255,7 @@ export const ScheduleWorkflow = ({
             : mode === 'publication-history' ? 'Lịch đã công bố cùng thông tin do API hiện có trả về.'
               : 'Quản lý xem lịch trong phạm vi chi nhánh; công bố lịch đã duyệt.'}</p>
       </div>
-      <button className="workflow-button secondary" onClick={() => void load()} disabled={loading}>Làm mới</button>
+      <button className="workflow-button secondary" onClick={() => void load()} disabled={loading||!!draftReviewId||busy}>Làm mới</button>
     </div>
     {error && <div className="workflow-alert error" role="alert">{errorGuidance(error)}<button className="workflow-button secondary" onClick={() => void load()} disabled={loading}>Thử lại</button></div>}
     {loading ? <div className="workflow-empty" role="status">{usesMockWorkflow ? 'Đang tải dữ liệu giả lập…' : 'Đang tải lịch làm việc...'}</div>
@@ -269,7 +273,8 @@ export const ScheduleWorkflow = ({
           const canResubmit = usesMockWorkflow && canManagerResubmit(canPublish, schedule);
           const canPublishSchedule = canPublish && schedule.status === 'APPROVED' && schedule.is_latest;
           return <article className="workflow-card" key={schedule.id}>
-            <button className="workflow-card-toggle" onClick={() => {
+            <button className="workflow-card-toggle" disabled={busy} onClick={() => {
+              setDraftReviewId(null);
               setSelected(open ? null : schedule.id);
               setDayFilter('');setDepartmentFilter('');setAssignmentPage(0);
               setReason(''); setAdjustmentNote(''); setAdjustmentShifts({}); setDeadline('');
@@ -293,7 +298,9 @@ export const ScheduleWorkflow = ({
             </div>}
             {open && <div className="workflow-details">
               <WorkflowInspection scheduleId={schedule.id} service={service}/>{schedule.workflow_enabled===false&&<p className="ui-help" role="status">Chưa mở xử lý cho tuần này. Liên hệ quản trị; không thể duyệt hoặc công bố.</p>}
-              {!usesMockWorkflow&&canPublish&&schedule.is_latest&&schedule.status==='DRAFT'&&<a className="workflow-button primary" href={`/manager/schedule?period_id=${encodeURIComponent(schedule.period_id)}`}>Mở bản nháp và gửi phê duyệt</a>}
+              {!usesMockWorkflow&&canPublish&&schedule.is_latest&&schedule.status==='DRAFT'&&(draftReviewId===schedule.id
+                ?<PublishDraftReview schedule={schedule} onBusyChange={draftBusyChanged} onClose={()=>{draftBusyChanged(false);setDraftReviewId(null);}} onSubmitted={()=>{if(currentScope.current!==scope)return;draftBusyChanged(false);setDraftReviewId(null);setSuccessMessage(`Đã gửi phiên bản ${schedule.version}, đang chờ Giám sát phê duyệt.`);void load();}}/>
+                :<button className="workflow-button primary" disabled={busy} onClick={()=>setDraftReviewId(schedule.id)}>Mở bản nháp và gửi phê duyệt</button>)}
               {schedule.status==='PENDING_APPROVAL'&&<p>Đang chờ giám sát phê duyệt. Nhân viên chưa nhìn thấy lịch này.</p>}
               {canReview && schedule.status === 'PENDING_APPROVAL' && schedule.is_latest && <div className="workflow-actions">
                 <button className="workflow-button primary" disabled={busy||schedule.workflow_enabled===false} onClick={() => setConfirmation({ schedule, action: 'approve' })}>Phê duyệt</button>

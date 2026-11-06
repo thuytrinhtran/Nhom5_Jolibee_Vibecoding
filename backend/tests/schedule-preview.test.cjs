@@ -22,12 +22,12 @@ test('preview rejects open periods, missing demand and untrusted fields',async()
  data.period.status='OPEN';await assert.rejects(previewSchedule('p','b',{},repo));
  data.period.status='CLOSED';data.requirements=[];await assert.rejects(previewSchedule('p','b',{},repo));
 });
-test('review rejects excess demand and unregistered employee, then accepts a valid replacement',async()=>{
+test('review warns on excess staffing, rejects unregistered employee, then accepts a valid replacement',async()=>{
  const data=fixture();data.employees.push({...data.employees[0],id:'b',full_name:'Second'});data.registrations.push({...data.registrations[0],id:'r2',employee_id:'b'});
  const repo={load:async()=>data},initial=await previewSchedule('p','b',{},repo);
  const a={employee_id:'a',work_date:'2026-11-02',shift_id:'s',department_id:'d'},b={...a,employee_id:'b'};
  const review=assignments=>previewSchedule('p','b',{assignments,input_revision:initial.input_revision},repo);
- await assert.rejects(review([a,b]),e=>e.status===422&&e.code==='DEMAND_EXCEEDED');
+ const excess=await review([a,b]);assert.equal(excess.result.coverage[0].excess_count,1);assert.ok(excess.result.coverage[0].warnings.includes('STAFFING_EXCESS'));
  data.employees.push({...data.employees[0],id:'unregistered'});
  const fresh=await previewSchedule('p','b',{},repo);
  await assert.rejects(previewSchedule('p','b',{assignments:[{...a,employee_id:'unregistered'}],input_revision:fresh.input_revision},repo),e=>e.status===422&&e.code==='REGISTRATION_REQUIRED');
@@ -60,7 +60,8 @@ test('preview HTTP requires manager and own branch; no database mutation or RPC'
  const post=(body={period_id:id},auth=true)=>fetch(url,{method:'POST',headers:{'Content-Type':'application/json',...(auth?{Authorization:'Bearer fixture'}:{})},body:JSON.stringify(body)});
  try{assert.equal((await post({},false)).status,401);for(const r of ['NV','GS']){role=r;assert.equal((await post()).status,403)}role='QL';branch=null;assert.equal((await post()).status,403);branch=id;assert.equal((await post({period_id:'bad'})).status,400);assert.equal(loads,0);const response=await post();assert.equal(response.status,200);const preview=(await response.json()).result;assert.equal(preview.persisted,false);assert.equal(loads,1);
  const assignment={employee_id:'a',work_date:'2026-11-02',shift_id:'s',department_id:'d'};
- for(const [assignments,code] of [[[assignment,{...assignment,employee_id:'b'}],'DEMAND_EXCEEDED'],[[{...assignment,employee_id:'unregistered'}],'REGISTRATION_REQUIRED']]){
+ const excess=await post({period_id:id,input_revision:preview.input_revision,assignments:[assignment,{...assignment,employee_id:'b'}]});assert.equal(excess.status,200);assert.equal((await excess.json()).result.result.coverage[0].excess_count,1);
+ for(const [assignments,code] of [[[{...assignment,employee_id:'unregistered'}],'REGISTRATION_REQUIRED']]){
   const rejected=await post({period_id:id,input_revision:preview.input_revision,assignments});assert.equal(rejected.status,422);const body=await rejected.json();assert.equal(body.code,code);assert.ok(body.message.length>10);
  }
  const accepted=await post({period_id:id,input_revision:preview.input_revision,assignments:[{...assignment,employee_id:'b'}]});assert.equal(accepted.status,200);assert.equal((await accepted.json()).result.result.assignments[0].employee_id,'b');

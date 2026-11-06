@@ -6,7 +6,7 @@ class ApiError extends Error{constructor(message,status,code){super(message);thi
 function load(file,overrides={},globals={}){
   const source=fs.readFileSync(file,'utf8').replace('import.meta.env',JSON.stringify({VITE_API_URL:'http://api.test/api/'}));
   const code=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022}}).outputText;
-  const context={exports:{},AbortSignal,Intl,Date,...globals,require(id){if(id==='../../services/staffing-demand.guard')return{useUnsavedDemandGuard:()=>{}};if(id==='./PreviewCandidates')return{PreviewCandidates:()=>null};if(id in overrides)return overrides[id];if(id.endsWith('.css'))return{};return (id==='../../components/Toast'?require('./helpers/ui-components.cjs'):require(id));}};
+  const context={exports:{},AbortSignal,AbortController,setTimeout,clearTimeout,Intl,Date,...globals,require(id){if(id==='../../services/staffing-demand.guard')return{useUnsavedDemandGuard:()=>{}};if(id==='./PreviewCandidates')return{PreviewCandidates:()=>null};if(id in overrides)return overrides[id];if(id.endsWith('.css'))return{};return (id==='../../components/Toast'?require('./helpers/ui-components.cjs'):require(id));}};
   vm.runInNewContext(code,context);return context.exports;
 }
 const views=load('src/services/scheduling.view.ts');
@@ -134,7 +134,7 @@ test('API errors, non-JSON and network failures are surfaced without fake succes
   }
 });
 
-function interactivePage(api,browser,search='') {
+function interactivePage(api,browser,search='',globals={}) {
   const states=[],refs=[],effects=[];let stateIndex=0,refIndex=0,effectIndex=0;let tree;
   const pending=[];
   const hooks={...React,
@@ -148,7 +148,7 @@ function interactivePage(api,browser,search='') {
     react:hooks,'react-router-dom':{Link:({children})=>React.createElement('a',{},children),useSearchParams:()=>[new URLSearchParams(search),()=>{}]},
     '../../context/AuthContext':{useAuth:()=>({user:{branch_id:'branch',branch_name:'Test Branch'}})},
     '../../services/auth.service':{ApiError},'../../services/scheduling.service':{schedulingService:{revisionHistory:async()=>[],...api}},'../../services/scheduling.view':views,
-  },{crypto:require('node:crypto').webcrypto,requestAnimationFrame:fn=>fn(),document:{querySelector:()=>null},...(browser?{window:browser}:{})});
+  },{crypto:require('node:crypto').webcrypto,requestAnimationFrame:fn=>fn(),document:{querySelector:()=>null},...(browser?{window:browser}:{}),...globals});
   return {
     find(predicate){const visit=node=>{if(!React.isValidElement(node))return null;if(predicate(node))return node;for(const child of React.Children.toArray(node.props.children)){const found=visit(child);if(found)return found;}return null;};return visit(tree);},
     states,
@@ -157,6 +157,20 @@ function interactivePage(api,browser,search='') {
     generate(){const visit=node=>{if(!React.isValidElement(node))return null;if(node.type==='button'&&React.Children.toArray(node.props.children).some(c=>['Tạo lịch dự kiến','Tạo lại lịch dự kiến'].includes(c)))return node;for(const child of React.Children.toArray(node.props.children)){const found=visit(child);if(found)return found;}return null;};const button=visit(tree);assert.ok(button);assert.equal(button.props.disabled,false);button.props.onClick();},
   };
 }
+
+test('week context and DRAFT load concurrently; a failed DRAFT exits loading and allows retry',async()=>{
+ let resolveContext,reads=0,fail=true;
+ const p={...period,schedules:[{id:'saved',version:5,created_at:'2026-11-06'}]};
+ const page=interactivePage({periods:async()=>[p],context:()=>fail?new Promise(r=>resolveContext=r):Promise.resolve(context),read:async()=>{reads++;if(fail)throw new ApiError('DRAFT unavailable',503);return saved}});
+ await page.settle();assert.equal(reads,1,'DRAFT read starts even while context is pending');assert.match(page.html(),/DRAFT unavailable/);assert.equal(page.states[5],false);
+ fail=false;page.find(n=>n.type==='button'&&React.Children.toArray(n.props.children).includes('Tải lại tuần')).props.onClick();await page.settle();assert.ok(reads>=2);assert.equal(page.states[5],false);assert.equal(page.states[3],saved);resolveContext(context);await page.settle();assert.equal(page.states[3],saved,'old context cannot replace the retry result');
+});
+test('a stalled week read releases loading and rejects late data after a bounded timeout',async()=>{
+ let complete;const timers=new Map();let count=0;
+ const page=interactivePage({periods:async()=>[period],context:()=>new Promise(r=>complete=r)},undefined,'',{setTimeout(fn){timers.set(++count,fn);return count},clearTimeout(id){timers.delete(id)}});
+ await page.settle();assert.equal(page.states[5],true);for(const fn of [...timers.values()])fn();await page.settle();assert.equal(page.states[5],false);assert.match(page.html(),/Hết thời gian tải dữ liệu tuần/);
+ complete(context);await page.settle();assert.equal(page.states[2],null);
+});
 
 test('review sends both edited assignments, retains rejected edits and updates only accepted plan',async()=>{
  const value={kind:'preview',persisted:false,input_revision:'revision',period,context,result:{assignments:[assignment],coverage:context.requirements,shortages:[],notes:[]},warnings:[],persistence:{enabled:false,reason:'Saving disabled'}};

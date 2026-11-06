@@ -18,7 +18,12 @@ export function databaseError(error: { code?: string; message?: string }): never
   if (error.code === '40001') throw new ScheduleError(409, 'INPUT_CHANGED', 'Dữ liệu đã thay đổi. Vui lòng thử tạo lịch lại.');
   if (error.message?.includes('PERIOD_NOT_CLOSED')) throw new ScheduleError(409,'PERIOD_NOT_CLOSED','Đợt đăng ký phải được đóng trước khi xếp lịch.');
   if (error.code === '23505') throw new ScheduleError(409,'SCHEDULE_CONFLICT','Dữ liệu lịch bị trùng. Vui lòng tải lại tuần.');
-  if (error.code === '22023') throw new ScheduleError(422,'INVALID_ASSIGNMENTS','Phân công không phù hợp dữ liệu hiện tại. Vui lòng tải lại tuần và kiểm tra ràng buộc.');
+  if (error.code === '22023') {
+    const messages:Record<string,string>={NO_REQUIREMENTS:'Chưa khai báo nhu cầu nhân sự.',INVALID_REQUIREMENT:'Nhu cầu nhân sự không hợp lệ.',INVALID_RESULT:'Kết quả lịch không hợp lệ.',ASSIGNMENT_CONSTRAINT_FAILED:'Phân công vi phạm ràng buộc bắt buộc.',DUPLICATE_ASSIGNMENT:'Phân công bị trùng.',DEMAND_EXCEEDED:'RPC từ chối phân công theo nhu cầu. Kiểm tra ô nhu cầu và phiên bản chính sách định biên đã triển khai.',SHIFT_OVERLAP:'Nhân viên có các ca làm trùng thời gian.',WEEKLY_LIMIT_EXCEEDED:'Phân công vượt giới hạn giờ làm trong tuần.'};
+    const code=Object.keys(messages).find(key=>error.message?.includes(key));
+    if(code)throw new ScheduleError(422,code,messages[code]);
+    if(!error.message)throw new ScheduleError(422,'INVALID_ASSIGNMENTS','Phân công không phù hợp dữ liệu hiện tại. Vui lòng kiểm tra ràng buộc.');
+  }
   if (['55P03','57014','40P01'].includes(error.code || '')) throw new ScheduleError(503,'SCHEDULING_BUSY','Dữ liệu đang được xử lý. Vui lòng tải lại tuần trước khi thử lại.');
   throw new ScheduleError(503, 'SCHEDULING_DATABASE_ERROR', 'Không thể đọc hoặc lưu lịch. Vui lòng thử lại.');
 }

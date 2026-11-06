@@ -212,9 +212,11 @@ export function ManagerSchedule() {
 
   useEffect(() => {
     let active = true;
+    const controller=new AbortController();
     setLoadingPeriods(true); setPeriods([]); setError(''); setNotice(''); setContext(null); setSaved(null); setPreview(null); setEdited([]); setEditDirty(false);
     if (!user?.branch_id) { setLoadingPeriods(false); return; }
-    schedulingService.periods().then(data => {
+    const timer=setTimeout(()=>{if(active){active=false;controller.abort();setLoadingPeriods(false);setError('Hết thời gian tải danh sách tuần sau 20 giây. Hãy tải lại tuần.');}},20000);
+    schedulingService.periods(controller.signal).then(data => {
       if (!active) return;
       setPeriods(data);
       setPeriodId(current => {
@@ -225,25 +227,29 @@ export function ManagerSchedule() {
         return current||(data.find(p=>p.status==='CLOSED')||data[0])?.id||'';
       });
     }).catch(err => { if (active) setError(fail(err)); })
-      .finally(() => { if (active) setLoadingPeriods(false); });
-    return () => { active = false; };
+      .finally(() => { clearTimeout(timer);if (active) setLoadingPeriods(false); });
+    return () => { active = false;clearTimeout(timer);controller.abort(); };
   }, [user?.id, user?.branch_id, reload]);
 
   useEffect(() => {
     const request = ++sequence.current;
     if (loadingPeriods || !selected) { setLoadingWeek(false); return; }
+    const controller=new AbortController();
+    const timer=setTimeout(()=>{if(sequence.current===request){sequence.current++;controller.abort();setLoadingWeek(false);setError('Hết thời gian tải dữ liệu tuần hoặc DRAFT sau 20 giây. Hãy tải lại tuần; lịch chưa được gửi.');}},20000);
     setLoadingWeek(true); setError(''); setNotice(''); setContext(null); setSaved(null); setPreview(null); setEdited([]); setEditDirty(false); setPreviewDay('');setSelectedCell('');
     const load = async () => {
-      const data = await schedulingService.context(selected.id);
       const existing = latestSchedule(selected);
-      const persisted = existing ? await schedulingService.read(existing.id) : null;
+      const [data,persisted]=await Promise.all([
+        schedulingService.context(selected.id,controller.signal),
+        existing?schedulingService.read(existing.id,controller.signal):Promise.resolve(null),
+      ]);
       if (sequence.current !== request) return;
       setContext(data); setSaved(persisted);setPreviewDay(data.period.work_start_date);
     };
     void load().catch(err => { if (sequence.current === request) setError(fail(err)); })
-      .finally(() => { if (sequence.current === request) setLoadingWeek(false); });
-    return () => { sequence.current++; };
-  }, [selected?.id, loadingPeriods]);
+      .finally(() => { clearTimeout(timer);if (sequence.current === request) setLoadingWeek(false); });
+    return () => { sequence.current++;clearTimeout(timer);controller.abort(); };
+  }, [selected?.id, loadingPeriods,user?.id,user?.branch_id,reload]);
 
   const plain=(a:ScheduleAssignment)=>({employee_id:a.employee_id,work_date:a.work_date,shift_id:a.shift_id,department_id:a.department_id});
   const generate = async (review=false,openSaved=false) => {

@@ -22,7 +22,7 @@ test('candidate list checks full plan, excludes unregistered/over-hours/duplicat
  const preview=await previewSchedule(period,'b',{},repo);
  const body={period_id:period,input_revision:preview.input_revision,assignments:preview.result.assignments.map(({employee_id,work_date,shift_id,department_id})=>({employee_id,work_date,shift_id,department_id})),requirement_id:'n',replace_index:0};
  const rows=await previewCandidates(period,'b',body,repo);assert.deepEqual(rows.map(e=>e.id),['b']);assert.equal(rows[0].phone,'0900000000');assert.equal(rows[0].employee_status,'ACTIVE');assert.equal(rows[0].status,'ELIGIBLE');
- const full=await previewCandidates(period,'b',Object.fromEntries(Object.entries(body).filter(([k])=>k!=='replace_index')),repo);assert.equal(full.length,0);
+ const full=await previewCandidates(period,'b',Object.fromEntries(Object.entries(body).filter(([k])=>k!=='replace_index')),repo);assert.deepEqual(full.map(e=>e.id),['b'],'eligible excess staff remain available for supervisor review');
  data.employees[1].max_weekly_hours=2;await assert.rejects(previewCandidates(period,'b',body,repo),e=>e.code==='PREVIEW_STALE');
  const fresh=await previewSchedule(period,'b',{},repo);const filtered=await previewCandidates(period,'b',{...body,input_revision:fresh.input_revision},repo);assert.deepEqual(filtered.map(e=>e.id),[]);
 });

@@ -54,6 +54,6 @@ test('manual add remove replacement preserves original suggestion and recomputes
  const f=fixture(3,2),original=verify(f),before=JSON.stringify(original);
  const removed=reviewAssignments(f,[assignment('nv-03')]);assert.equal(removed.assigned_count,1);assert.equal(removed.shortages[0].missing_count,1);
  const replaced=reviewAssignments(f,[assignment('nv-02'),assignment('nv-03')]);assert.equal(replaced.assigned_count,2);assert.equal(replaced.shortages.length,0);
- assert.throws(()=>reviewAssignments(f,[assignment('nv-01'),assignment('nv-02'),assignment('nv-03')]),e=>e.code==='DEMAND_EXCEEDED');
+ const excess=reviewAssignments(f,[assignment('nv-01'),assignment('nv-02'),assignment('nv-03')]);assert.equal(excess.coverage[0].excess_count,1);assert.ok(excess.coverage[0].warnings.includes('STAFFING_EXCESS'));
  f.employees[0].department_id='service';assert.throws(()=>reviewAssignments(f,[assignment('nv-01')]),e=>e.code==='DEPARTMENT_MISMATCH');assert.equal(JSON.stringify(original),before);
 });

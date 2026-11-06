@@ -49,6 +49,7 @@ function renderWorkflowWithProfile(profile) {
     './tv4MockWorkflow.service': { tv4MockWorkflowService: { listSchedules: async () => [] } },
     './scheduleWorkflow.api.service': { scheduleWorkflowApiService: serviceModule.tv4MockWorkflowService },
     './ScheduleWorkflow.css': {},
+    './PublishDraftReview': {PublishDraftReview:()=>null},
   };
   vm.runInNewContext(javascript, {
     exports: loaded.exports,
@@ -95,6 +96,7 @@ function createInteractiveWorkflowHarness(profile, service, initialSchedules, mo
     './tv4MockWorkflow.service': { tv4MockWorkflowService: service },
     './scheduleWorkflow.api.service': { scheduleWorkflowApiService: service },
     './ScheduleWorkflow.css': {},
+    './PublishDraftReview': {PublishDraftReview:()=>null},
   };
   vm.runInNewContext(javascript, {
     exports: loaded.exports,
@@ -645,6 +647,17 @@ test('API rejection links to the shared validated editor instead of demo shift c
  const link=h.allNodes(tree).find(n=>n.type==='a'&&n.props.href?.startsWith('/manager/schedule?period_id='));
  assert.ok(link);assert.equal(link.props.href,`/manager/schedule?period_id=${encodeURIComponent(schedule.period_id)}`);
  assert.equal(h.allNodes(tree).some(n=>n.type==='select'&&n.props['aria-label']?.startsWith('Ca điều chỉnh')),false);
+});
+
+test('API DRAFT action opens review inline on publish and cannot navigate or submit immediately',async()=>{
+ const seed=serviceModule.createTv4MockSeed().schedules.find(row=>row.status==='DRAFT');
+ const schedule={...seed,version:5,is_latest:true};
+ const profile={id:'manager',username:'manager',role:'QL',branch_id:schedule.branch_id};
+ const service={mode:'api',listSchedules:async()=>[schedule],submitApproval:()=>assert.fail('Opening review cannot submit')};
+ const h=createInteractiveWorkflowHarness(profile,service,[schedule]);h.render();h.runEffects();await flushPromises();
+ let tree=h.render();h.allNodes(tree).find(n=>n.type==='button'&&n.props.className==='workflow-card-toggle').props.onClick();tree=h.render();
+ const action=h.allNodes(tree).find(n=>n.type==='button'&&h.textOf(n)==='Mở bản nháp và gửi phê duyệt');assert.ok(action);assert.equal(action.props.href,undefined);action.props.onClick();tree=h.render();
+ const panel=h.allNodes(tree).find(n=>typeof n.type==='function'&&n.props.schedule?.id===schedule.id);assert.ok(panel);assert.equal(panel.props.schedule.version,5);assert.equal(typeof panel.props.onSubmitted,'function');
 });
 
 

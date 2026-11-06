@@ -257,7 +257,7 @@ export function buildScheduleResult(input:SchedulingInput, assigned:ExplainedAss
     const levels = rows.map(a => employees.find(e => e.id === a.employee_id)!.skill_level);
     const experiencedTarget=Math.min(2,r.required_count),experiencedCount=levels.filter(l=>l==='REGULAR'||l==='CREW_TRAINING').length;
     const missingExperience=Math.max(0,experiencedTarget-experiencedCount);
-    const warnings=[...(rows.length<r.required_count?['STAFFING_SHORTAGE']:[]),...(missingExperience?['EXPERIENCE_SHORTAGE']:[])];
+    const warnings=[...(rows.length<r.required_count?['STAFFING_SHORTAGE']:[]),...(rows.length>r.required_count?['STAFFING_EXCESS']:[]),...(missingExperience?['EXPERIENCE_SHORTAGE']:[])];
     return {...r,assigned_count:rows.length,new_assigned_count:newRows.length,existing_count:existingRows.length,
       missing_count:Math.max(0,r.required_count-rows.length),excess_count:Math.max(0,rows.length-r.required_count),
       experienced_target:experiencedTarget,experienced_count:experiencedCount,missing_experienced_count:missingExperience,
@@ -283,14 +283,13 @@ export function reviewAssignments(input:SchedulingInput, assignments:Assignment[
   input={...input,existing:uniqueAssignments(input.existing)};
   // Apply the same input validation even for an empty manual proposal.
   generateSchedule(input,{optimize:false});
-  const covered=existingCoverage(input);
   const checked:(Assignment & {requirement_id:string;reason:string})[]=[];
   const seen=new Set<string>();
   for(const assignment of assignments){
     const key=`${assignment.employee_id}/${assignment.work_date}/${assignment.shift_id}`;
     if(seen.has(key))throw new ScheduleError(422,'DUPLICATE_ASSIGNMENT','Phân công bị trùng.');seen.add(key);
     const need=input.requirements.find(r=>r.work_date===assignment.work_date&&r.shift_id===assignment.shift_id&&r.department_id===assignment.department_id);
-    if(!need||checked.filter(a=>a.requirement_id===need.id).length+covered.filter(a=>sameCell(a,need)).length>=need.required_count)throw new ScheduleError(422,'DEMAND_EXCEEDED','Phân công không có nhu cầu hoặc vượt số người cần.');
+    if(!need)throw new ScheduleError(422,'DEMAND_EXCEEDED','Phân công không thuộc ô nhu cầu đã khai báo.');
     const employee=input.employees.find(e=>e.id===assignment.employee_id);
     if(!employee)throw new ScheduleError(422,'UNKNOWN_EMPLOYEE','Nhân viên không thuộc dữ liệu lịch.');
     const issue=assignmentIssue(input,employee,need,[...input.existing,...checked]);

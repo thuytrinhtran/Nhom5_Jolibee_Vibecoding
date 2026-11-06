@@ -1,5 +1,6 @@
 export interface ScheduleSummary {
   id: string; status: string; version: number; created_at: string; period_id?: string;
+  branch_id?:string; schedule_group_id?:string;
 }
 export interface ScheduleRevisionRecord {
   id:string; period_id:string; branch_id:string; schedule_group_id:string;
@@ -98,7 +99,7 @@ export interface ScheduleValidation {
 }
 export interface ApprovalHandoff {
   validation:ScheduleValidation;payload:Record<string,unknown>|null;current_status:string;target_status:'PENDING_APPROVAL';
-  delivery:{configured:boolean;sent:boolean;message:string};
+  delivery:{configured:boolean;sent:boolean;message:string;code?:string|null};
 }
 
 export interface AIProposalAssignment {employee_code:string;work_date:string;shift_code:string;department_code:string}

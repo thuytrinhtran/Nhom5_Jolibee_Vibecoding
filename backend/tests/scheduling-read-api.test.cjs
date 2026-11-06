@@ -12,16 +12,8 @@ test('manager period APIs are registered, branch-scoped, validated and read-only
   db.auth.getUser=async()=>({data:{user:{id}}});
   db.from=table=>{
     const filters=[];const query={table,filters};queries.push(query);
-<<<<<<< Updated upstream
     const data=()=> table==='registration_periods' ? [{id,branch_id:id,work_start_date:'2026-11-02',work_end_date:'2026-11-08',status:'PLANNED',open_at:'2026-10-01T00:00:00Z',close_at:'2026-10-02T00:00:00Z',schedules:[]}]
       :table==='employees'?[{id,full_name:'Test Employee',department_id:id,branch_id:id,status:'ACTIVE',skill_level:'REGULAR',user:{is_active:true,role:'NV',branch_id:id}}]:table==='shift_registrations'?[1,2,3].map(n=>({id:String(n),period_id:id,employee_id:id,work_date:'2026-11-02',shift_id:String(n),status:'VALID',submitted_at:'stamp'})):table==='shifts'?[1,2,3].map(n=>({id:String(n),branch_id:id,is_active:true})):table==='registration_submissions_sourced'?[{employee_id:id,status:'VALID',submitted_at:'stamp',updated_at:'stamp',sample_batch_id:null}]:[];
-=======
-    const data=()=> table==='registration_periods_effective' ? [{id,branch_id:id,work_start_date:'2026-11-02',work_end_date:'2026-11-08',status:'CLOSED',schedules:[]}]
-      :table==='employees'?[{id,full_name:'Test Employee',department_id:id,branch_id:id,status:'ACTIVE',skill_level:'REGULAR',max_weekly_hours:null,user:{role:'NV',is_active:true,branch_id:id}}]
-      :table==='shifts'?[{id,name:'Test shift',start_time:'08:00',end_time:'12:00',is_active:true,branch_id:id}]
-      :table==='registration_submissions_sourced'?[{period_id:id,employee_id:id,status:'VALID',submitted_at:'2026-10-30T01:00:00Z',sample_batch_id:null}]
-      :table==='shift_registrations'?[2,3,4].map(n=>({id:'r'+n,period_id:id,employee_id:id,shift_id:id,work_date:'2026-11-0'+n,status:'VALID',submitted_at:'2026-10-30T01:00:00Z'})):[];
->>>>>>> Stashed changes
     return {select(columns){query.columns=columns;return this},eq(k,v){filters.push([k,v]);return this},neq(){return this},gte(){return this},lte(){return this},or(value){query.or=value;return this},order(){return this},range(){return this},
       single:async()=>({data:table==='users'?{id,username:'fixture',role,branch_id:id,is_active:true,must_change_password:false}:{name:'Test Branch'}}),
       maybeSingle:async()=>({data:missing?null:data()[0],error:fail?{message:'private failure'}:null}),
@@ -35,7 +27,7 @@ test('manager period APIs are registered, branch-scoped, validated and read-only
     for(const value of ['NV','GS']){role=value;assert.equal((await get('/periods')).status,403);assert.equal((await get('/periods/'+id)).status,403);}
     role='QL';queries.length=0;
     const periods=await get('/periods?branch_id=untrusted');assert.equal(periods.status,200);assert.equal((await periods.json()).periods[0].id,id);
-    assert.ok(queries.find(q=>q.table==='registration_periods_effective').filters.some(([k,v])=>k==='branch_id'&&v===id));
+    assert.ok(queries.find(q=>q.table==='registration_periods').filters.some(([k,v])=>k==='branch_id'&&v===id));
     assert.equal((await get('/periods/bad')).status,400);
     const detail=await get('/periods/'+id);assert.equal(detail.status,200);
     const body=(await detail.json()).result;assert.equal(body.valid_registration_count,3);assert.equal(body.employees[0].full_name,'Test Employee');

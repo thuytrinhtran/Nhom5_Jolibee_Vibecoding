@@ -11,7 +11,10 @@ async function request<T>(path: string, options: RequestInit = {}, workflowList 
   const send = async () => {
     let response: Response;
     try {
-      response = await (fetchWithReadDedupe??fetch)(`${API_URL}/schedules${path}`, { ...options,
+      // A component-owned abort signal must not cancel a deduplicated reader
+      // belonging to another effect (including React StrictMode remounts).
+      const fetcher=options.signal&&(options.method??'GET')==='GET'?fetch:(fetchWithReadDedupe??fetch);
+      response = await fetcher(`${API_URL}/schedules${path}`, { ...options,
         headers: { ...options.headers, Authorization: `Bearer ${authService.getStoredToken() || ''}` },
         signal: options.signal??AbortSignal.timeout(60000), cache: 'no-store' });
     } catch (error) {
@@ -92,7 +95,10 @@ export const schedulingService = {
     return(await request<{result:ApprovalHandoff}>(`/${encodeURIComponent(id)}/approval-handoff`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({expected_version,note})})).result;
   },
   async submitApproval(id:string,expected_version:number,note:string,request_id:string):Promise<{schedule:SavedSchedule['schedule'];reused:boolean}>{
-    return request(`/workflow/${encodeURIComponent(id)}/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({expected_version,note,request_id})});
+    // TV4 RPC uses {schedule,reused}, not TV3's {status:'ok',result} envelope.
+    const result=await request<{schedule:SavedSchedule['schedule'];reused:boolean}>(`/workflow/${encodeURIComponent(id)}/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({expected_version,note,request_id})},true);
+    if(result?.schedule?.id!==id||result.schedule.version!==expected_version||result.schedule.status!=='PENDING_APPROVAL'||typeof result.reused!=='boolean')throw new ApiError('Không xác nhận được lịch và phiên bản chờ phê duyệt. Hãy tải lại lịch trước khi thử lại cùng yêu cầu.',502,'INVALID_WORKFLOW_RESPONSE');
+    return result;
   },
   async demand(periodId: string): Promise<DemandContext> {
     return (await request<{result:DemandContext}>(`/periods/${encodeURIComponent(periodId)}/requirements`)).result;
@@ -108,11 +114,11 @@ export const schedulingService = {
   async summary(periodId: string): Promise<RegistrationSummary> {
     return (await request<{ result: RegistrationSummary }>(`/periods/${encodeURIComponent(periodId)}/registrations-summary`)).result;
   },
-  async periods(): Promise<SchedulingPeriod[]> {
-    return (await request<{ periods: SchedulingPeriod[] }>('/periods')).periods;
+  async periods(signal?:AbortSignal): Promise<SchedulingPeriod[]> {
+    return (await request<{ periods: SchedulingPeriod[] }>('/periods',{signal})).periods;
   },
-  async context(periodId: string): Promise<SchedulingContext> {
-    return (await request<{ result: SchedulingContext }>(`/periods/${encodeURIComponent(periodId)}`)).result;
+  async context(periodId: string,signal?:AbortSignal): Promise<SchedulingContext> {
+    return (await request<{ result: SchedulingContext }>(`/periods/${encodeURIComponent(periodId)}`,{signal})).result;
   },
   async editDraft(id:string,input:{expected_version:number;assignments:ScheduleAssignment[];note?:string}) {
     return (await request<{result:{schedule:SavedSchedule['schedule']}}>(`/${encodeURIComponent(id)}/draft-assignments`,{
@@ -125,7 +131,7 @@ export const schedulingService = {
     });
     return { id: data.result.schedule.id, reused: data.reused };
   },
-  async read(id: string): Promise<SavedSchedule> {
-    return (await request<{ result: SavedSchedule }>(`/${encodeURIComponent(id)}`)).result;
+  async read(id: string,signal?:AbortSignal): Promise<SavedSchedule> {
+    return (await request<{ result: SavedSchedule }>(`/${encodeURIComponent(id)}`,{signal})).result;
   },
 };

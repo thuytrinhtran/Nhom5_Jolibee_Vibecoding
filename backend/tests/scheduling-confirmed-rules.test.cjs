@@ -43,7 +43,7 @@ test('valid existing work covers demand once, counts experience and never enters
  const x=fixture();const a=booking('0','2026-11-02');x.existing=[a,{...a}];x.requirements[0].required_count=2;
  const r=verify(x);assert.equal(r.existing_count,1);assert.equal(r.assigned_count,1);assert.equal(r.covered_count,2);assert.equal(r.shortages.length,0);assert.equal(r.coverage[0].experienced_count,2);
  assert.equal(r.employee_statistics.find(e=>e.employee_id==='0').total_weekly_hours,4);
- assert.throws(()=>reviewAssignments(x,[booking('1','2026-11-02'),booking('2','2026-11-02')]),e=>e.code==='DEMAND_EXCEEDED');
+ const excess=reviewAssignments(x,[booking('1','2026-11-02'),booking('2','2026-11-02')]);assert.equal(excess.coverage[0].excess_count,1);assert.ok(excess.coverage[0].warnings.includes('STAFFING_EXCESS'));
 });
 test('existing outside period, wrong department, without registration or skill never covers demand',()=>{
  for(const change of [x=>x.existing[0].work_date='2026-11-01',x=>x.existing[0].department_id='other',x=>x.registrations=x.registrations.filter(r=>r.employee_id!=='0'),x=>x.employees[0].skills=[]]){

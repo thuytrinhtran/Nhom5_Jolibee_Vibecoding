@@ -63,3 +63,25 @@ test('preview send choice prepares the saved DRAFT on mount but never submits it
  ScheduleReviewPanel({saved,prepareOnMount:true});for(const effect of effects)effect();await new Promise(r=>setImmediate(r));
  assert.equal(prepared,1);assert.equal(submitted,0);assert.equal(states[1],handoff);
 });
+
+test('TV4 submission accepts the real RPC envelope and rejects mismatched, empty or failed workflow responses',async()=>{
+ class ApiError extends Error{constructor(message,status,code){super(message);this.status=status;this.code=code;}}
+ let payload={reused:false,schedule:{id:'saved',version:5,status:'PENDING_APPROVAL'}},status=200;const calls=[];
+ const service=load('src/services/scheduling.service.ts',{'./auth.service':{ApiError,authService:{ensureSession:async()=>{},getStoredToken:()=> 'fixture'}}},{fetch:async(url,options)=>{calls.push({url,options});return new Response(JSON.stringify(payload),{status})}}).schedulingService;
+ assert.equal((await service.submitApproval('saved',5,'checked','request')).schedule.status,'PENDING_APPROVAL');assert.equal(calls[0].url,'/api/schedules/workflow/saved/submit');assert.equal(JSON.parse(calls[0].options.body).expected_version,5);
+ for(const schedule of [undefined,{id:'other',version:5,status:'PENDING_APPROVAL'},{id:'saved',version:6,status:'PENDING_APPROVAL'},{id:'saved',version:5,status:'DRAFT'}]){payload={schedule,reused:false};await assert.rejects(service.submitApproval('saved',5,'checked','request'),e=>e.code==='INVALID_WORKFLOW_RESPONSE');}
+ payload={code:'WORKFLOW_PERSISTENCE_DISABLED',message:'TV4_WORKFLOW_PERSISTENCE_ENABLED chưa bằng true'};status=503;await assert.rejects(service.submitApproval('saved',5,'checked','request'),e=>e.code==='WORKFLOW_PERSISTENCE_DISABLED'&&e.message.includes('TV4_WORKFLOW_PERSISTENCE_ENABLED'));
+});
+
+test('under/full/over staffed schedules can send only after explicit confirmation, including experience warnings',async()=>{
+ for(const [assigned,required] of [[1,3],[2,2],[3,1]]){
+  const ready={...validation,can_submit:true,issues:[],warnings:[{code:'EXPERIENCE_SHORTAGE',message:'Experience warning'}],coverage:[{assigned_count:assigned,required_count:required,missing_count:Math.max(0,required-assigned),excess_count:Math.max(0,assigned-required),missing_experienced_count:1}]};
+  const states=[ready,{...handoff,validation:ready,delivery:{configured:true,sent:false,message:'Ready'}},'',false,''],refs=[];let i=0,r=0,sends=0,confirmed=false,confirmation='';
+  const hooks={...React,useState(initial){const n=i++;if(!(n in states))states[n]=initial;return[states[n],v=>states[n]=v]},useRef(initial){return refs[r++]||={current:initial}},useEffect:()=>{}};
+  const {ScheduleReviewPanel}=component(hooks,{submitApproval:async()=>{sends++;return{schedule:{status:'PENDING_APPROVAL'}}}},{window:{confirm:text=>{confirmation=text;return confirmed}},crypto:require('node:crypto').webcrypto});
+  const render=()=>{i=r=0;return ScheduleReviewPanel({saved})};
+  const find=n=>{if(!React.isValidElement(n))return null;if(n.type==='button'&&n.props.children==='Gửi Giám sát khu vực phê duyệt')return n;for(const c of React.Children.toArray(n.props.children)){const b=find(c);if(b)return b;}return null;};
+  assert.equal(find(render()).props.disabled,false);find(render()).props.onClick();await new Promise(setImmediate);assert.equal(sends,0);assert.match(confirmation,/phiên bản 2/);assert.match(confirmation,/thiếu 1 nhân viên kinh nghiệm/);
+  confirmed=true;find(render()).props.onClick();await new Promise(setImmediate);assert.equal(sends,1);assert.equal(find(render()).props.disabled,true);
+ }
+});
