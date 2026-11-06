@@ -13,5 +13,18 @@ test('supervisor inspection renders server coverage, experience warnings and rea
  const box={exports:{},require(id){if(id==='react')return hooks;if(id==='react/jsx-runtime')return (id==='../../components/Toast'?require('./helpers/ui-components.cjs'):require(id));if(id.endsWith('.css'))return{};return{};}};vm.runInNewContext(code,box);
  const html=renderToStaticMarkup(React.createElement(box.exports.WorkflowInspection,{scheduleId:'s',service:{reviewSchedule:()=>{throw Error('No SSR effect')}}}));
  for(const text of ['Đạt','Morning','Kitchen','2/2','1/2','One experienced employee missing'])assert.ok(html.includes(text),text);
+ assert.ok(html.includes('Cảnh báo thiếu nhân viên kinh nghiệm không tự chặn gửi duyệt'));
+ assert.ok(html.includes('Đạt kiểm tra dữ liệu'));
+ assert.ok(html.includes('Workflow chưa được bật hoặc lịch nằm ngoài phạm vi ghi'));
  assert.equal(html.includes('<button'),false,'inspection cannot itself mutate state');
+});
+
+test('workflow inspection displays blocking period and staffing reasons separately from warnings',()=>{
+ const result={ready:false,workflow_enabled:true,validation:{hard_constraints:'PASS',issues:[{code:'PERIOD_NOT_CLOSED',message:'Đợt đăng ký chưa đóng.'},{code:'STAFFING_SHORTAGE',message:'Lịch còn thiếu 2 lượt phân công.'}],warnings:[],coverage:[]}};
+ let n=0;const hooks={...React,useState:()=>[n++===0?result:'',()=>{}],useEffect:()=>{}};
+ const code=ts.transpileModule(fs.readFileSync('src/pages/schedules/ScheduleWorkflow.tsx','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText;
+ const box={exports:{},require(id){if(id==='react')return hooks;if(id==='react/jsx-runtime')return require(id);return{};}};vm.runInNewContext(code,box);
+ const html=renderToStaticMarkup(React.createElement(box.exports.WorkflowInspection,{scheduleId:'s',service:{reviewSchedule:()=>{}}}));
+ for(const message of ['Chưa đạt điều kiện xử lý','Đợt đăng ký chưa đóng.','Lịch còn thiếu 2 lượt phân công.'])assert.ok(html.includes(message),message);
+ assert.equal(html.includes('Đạt kiểm tra dữ liệu'),false);
 });

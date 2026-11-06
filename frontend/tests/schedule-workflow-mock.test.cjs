@@ -648,6 +648,22 @@ test('API rejection links to the shared validated editor instead of demo shift c
 });
 
 
+test('API DRAFT opens its period without submitting and explains disabled workflow and editor steps',async()=>{
+ const schedule=JSON.parse(JSON.stringify(serviceModule.createTv4MockSeed().schedules[0]));
+ Object.assign(schedule,{status:'DRAFT',is_latest:true,workflow_enabled:false,period_id:'7f48f53e-d707-4a32-9f15-eb32aeb0095a'});
+ const profile={id:'manager',username:'manager',role:'QL',branch_id:schedule.branch_id};
+ let writes=0;
+ const service={mode:'api',listSchedules:async()=>[schedule],resubmitSchedule:()=>{writes++;},publishSchedule:()=>{writes++;}};
+ const h=createInteractiveWorkflowHarness(profile,service,[schedule]);h.render();h.runEffects();await flushPromises();
+ let tree=h.render();const header=h.allNodes(tree).find(n=>n.type==='button'&&h.textOf(n).includes('2026-11-02'));
+ assert.ok(header);header.props.onClick();tree=h.render();
+ const link=h.allNodes(tree).find(n=>n.type==='a'&&n.props.href?.startsWith('/manager/schedule?period_id='));
+ assert.equal(link.props.href,`/manager/schedule?period_id=${schedule.period_id}`);
+ const text=h.textOf(tree);
+ for(const expected of ['chưa gửi lịch','Tạo lịch','Chuẩn bị dữ liệu gửi phê duyệt','Gửi Giám sát khu vực phê duyệt','workflow đang tắt hoặc lịch nằm ngoài phạm vi ghi'])assert.ok(text.includes(expected),expected);
+ assert.equal(writes,0);
+});
+
 test('QL initial list returns schedules in its exact fixture scope and keeps pending approval with GS', async () => {
   const service = makeService();
   const manager = types.mockActorForProfile({

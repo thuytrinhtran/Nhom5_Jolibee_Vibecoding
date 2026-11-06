@@ -30,8 +30,9 @@ export function WorkflowInspection({scheduleId,service}:{scheduleId:string;servi
   if(error)return <p role="alert">Không thể kiểm tra dữ liệu hiện tại: {errorGuidance(error)}</p>;
   if(!result)return <p role="status">Đang kiểm tra định biên và cơ cấu kinh nghiệm…</p>;
   return <section aria-label="Kiểm tra nghiệp vụ lịch">
-    <p>Kiểm tra lịch: {result.validation.hard_constraints==='PASS'?'Đạt':'Cần kiểm tra'} · {result.ready?'Đủ điều kiện xử lý':'Cần xử lý cảnh báo trước khi tiếp tục'}</p>
-    {!result.workflow_enabled&&<p>Chức năng xử lý lịch chưa được bật cho tuần này.</p>}
+    <p>Kiểm tra lịch: {result.validation.hard_constraints==='PASS'?'Đạt':'Cần kiểm tra'} · {result.ready?'Đạt kiểm tra dữ liệu':'Chưa đạt điều kiện xử lý; xem lý do bên dưới'}</p>
+    {!result.workflow_enabled&&<p>Workflow chưa được bật hoặc lịch nằm ngoài phạm vi ghi được cấu hình. Quản trị cần kiểm tra cấu hình backend; tải được bản nháp không có nghĩa là đã được phép gửi duyệt.</p>}
+    {!!result.validation.warnings.length&&<p>Cảnh báo thiếu nhân viên kinh nghiệm không tự chặn gửi duyệt. Các lỗi định biên, dữ liệu, trạng thái đợt đăng ký và quyền xử lý vẫn phải đáp ứng.</p>}
     {[...result.validation.issues,...result.validation.warnings].map((w,i)=><p key={i}>{w.message}</p>)}
     <details><summary>Xem định biên và cơ cấu từng ca ({result.validation.coverage.length} ô)</summary><div className="workflow-table-wrap"><table><thead><tr><th>Ngày</th><th>Ca / bộ phận</th><th>Đã xếp / nhu cầu</th><th>Kinh nghiệm / mục tiêu</th><th>Còn thiếu</th></tr></thead><tbody>
       {result.validation.coverage.map(c=><tr key={c.id}><td>{c.work_date}</td><td>{result.labels?.shifts[c.shift_id]??c.shift_id} / {result.labels?.departments[c.department_id]??c.department_id}</td><td>{c.assigned_count}/{c.required_count}</td><td>{c.experienced_count}/{c.experienced_target}</td><td>{c.missing_count} người · {c.missing_experienced_count} kinh nghiệm</td></tr>)}
@@ -292,8 +293,11 @@ export const ScheduleWorkflow = ({
               Đã công bố bởi {schedule.published_by_username || 'Quản lý cửa hàng'} · {schedule.published_at ? new Date(schedule.published_at).toLocaleString('vi-VN') : 'Chưa có thời điểm'}
             </div>}
             {open && <div className="workflow-details">
-              <WorkflowInspection scheduleId={schedule.id} service={service}/>{schedule.workflow_enabled===false&&<p className="ui-help" role="status">Chưa mở xử lý cho tuần này. Liên hệ quản trị; không thể duyệt hoặc công bố.</p>}
-              {!usesMockWorkflow&&canPublish&&schedule.is_latest&&schedule.status==='DRAFT'&&<a className="workflow-button primary" href={`/manager/schedule?period_id=${encodeURIComponent(schedule.period_id)}`}>Mở bản nháp và gửi phê duyệt</a>}
+              <WorkflowInspection scheduleId={schedule.id} service={service}/>{schedule.workflow_enabled===false&&<p className="ui-help" role="status">Chưa cho phép gửi duyệt, duyệt hoặc công bố: workflow đang tắt hoặc lịch nằm ngoài phạm vi ghi được cấu hình. Liên hệ quản trị kiểm tra; thông báo này không xác định trạng thái đóng/mở của đợt đăng ký.</p>}
+              {!usesMockWorkflow&&canPublish&&schedule.is_latest&&schedule.status==='DRAFT'&&<>
+                <a className="workflow-button primary" href={`/manager/schedule?period_id=${encodeURIComponent(schedule.period_id)}`}>Mở bản nháp để chuẩn bị gửi duyệt</a>
+                <p>Liên kết chỉ mở editor của tuần này, chưa gửi lịch. Trong editor, chọn tab “Tạo lịch” → “Chuẩn bị dữ liệu gửi phê duyệt”, xử lý các lỗi kiểm tra rồi bấm “Gửi Giám sát khu vực phê duyệt” và xác nhận. Chỉ khi backend lưu trạng thái chờ phê duyệt thì GS mới nhận được lịch.</p>
+              </>}
               {schedule.status==='PENDING_APPROVAL'&&<p>Đang chờ giám sát phê duyệt. Nhân viên chưa nhìn thấy lịch này.</p>}
               {canReview && schedule.status === 'PENDING_APPROVAL' && schedule.is_latest && <div className="workflow-actions">
                 <button className="workflow-button primary" disabled={busy||schedule.workflow_enabled===false} onClick={() => setConfirmation({ schedule, action: 'approve' })}>Phê duyệt</button>
