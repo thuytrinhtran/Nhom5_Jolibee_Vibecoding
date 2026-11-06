@@ -6,6 +6,20 @@ const {SupabaseRegistrationSummaryRepository}=require('../dist/repositories/regi
 const {ScheduleError}=require('../dist/services/scheduling.engine.js');
 const branch='00000000-0000-4000-8000-000000000003',actor='00000000-0000-4000-8000-000000000004';
 const repo=new MockRegistrationSummaryRepository();
+test('batch reuses one snapshot, reports cell conflicts separately and preserves conditional writes',async()=>{
+ const {saveDemandBatch}=require('../dist/services/staffing-demand.service.js');
+ const local=new MockRegistrationSummaryRepository(),scope='batch-branch';
+ const snapshot=await local.load(scope,MOCK_PERIOD_ID),existing=snapshot.requirements[0];let loads=0;
+ const adapter=new Proxy(local,{get(target,key){if(key==='load')return async(...args)=>{loads++;return target.load(...args);};const member=target[key];return typeof member==='function'?member.bind(target):member;}});
+ const row={work_date:existing.work_date,shift_id:existing.shift_id,department_id:existing.department_id,required_count:3,required_skill_name:existing.required_skill_name??null,sales_forecast_ref:null,expected_updated_at:existing.updated_at};
+ const other={...row,work_date:snapshot.period.work_end_date,expected_updated_at:'2000-01-01T00:00:00Z'};
+ const result=await saveDemandBatch(MOCK_PERIOD_ID,scope,actor,{items:[{operation:'save',input:row},{operation:'save',input:other}]},adapter);
+ assert.equal(loads,1);assert.equal(result.results[0].requirement.required_count,3);assert.ok(result.results[1].error);
+ await assert.rejects(saveDemandBatch(MOCK_PERIOD_ID,scope,actor,{items:[{operation:'save',input:row},{operation:'clear',input:row}]},adapter),e=>e.code==='DUPLICATE_DEMAND');
+ const clear={...row,expected_updated_at:result.results[0].requirement.updated_at};
+ const cleared=await saveDemandBatch(MOCK_PERIOD_ID,scope,actor,{items:[{operation:'clear',input:clear}]},adapter);
+ assert.equal(cleared.results[0].cleared,true);assert.ok(!(await local.load(scope,MOCK_PERIOD_ID)).requirements.some(r=>r.id===existing.id));
+});
 function input(snapshot,day='2026-11-05'){return{work_date:day,shift_id:snapshot.shifts[0].id,department_id:snapshot.departments[0].id,required_count:2,required_skill_name:'Bếp nóng',sales_forecast_ref:'Nguồn dự báo tuần — mô phỏng',expected_updated_at:null};}
 test('validate count, date, foreign fields, skill length and expected revision before writing',()=>{
   const valid=input(mockSummarySnapshot(branch));assert.equal(validateDemandInput({...valid,required_count:0}).required_count,0);

@@ -37,6 +37,32 @@ function demandView(snapshot: SummarySnapshot) {
 export async function readDemand(periodId: string, branchId: string, repository: RegistrationSummaryRepository = registrationSummaryRepository()) {
   return demandView(await readSummarySnapshot(repository,branchId,periodId));
 }
+// One snapshot per request; existing row writers still enforce optimistic concurrency.
+export async function saveDemandBatch(periodId:string,branchId:string,actorId:string,body:unknown,repository:RegistrationSummaryRepository=registrationSummaryRepository()) {
+  requireIntegrationTestWriteScope(periodId,branchId);
+  const value=body as {items?:{operation:string;input:unknown}[]};
+  if(!value||Array.isArray(value)||Object.keys(value).some(k=>k!=='items')||!Array.isArray(value.items)||!value.items.length||value.items.length>250)
+    throw new ScheduleError(400,'INVALID_DEMAND_BATCH','Chọn từ 1 đến 250 ô để lưu.');
+  const keys=new Set<string>();
+  for(const item of value.items){
+    if(!item||!['save','clear'].includes(item.operation)||Object.keys(item).some(k=>!['operation','input'].includes(k)))throw new ScheduleError(400,'INVALID_DEMAND_BATCH','Danh sách ô không hợp lệ.');
+    const input=item.input as DemandInput;
+    const key=JSON.stringify([input?.work_date,input?.shift_id,input?.department_id]);
+    if(keys.has(key))throw new ScheduleError(400,'DUPLICATE_DEMAND','Mỗi ô chỉ được gửi một lần.');keys.add(key);
+  }
+  const snapshot=await repository.load(branchId,periodId);
+  const scoped=new Proxy(repository,{get(target,key){if(key==='load')return async()=>snapshot;const member=Reflect.get(target,key);return typeof member==='function'?member.bind(target):member;}});
+  const results: {index:number;requirement?:SummarySnapshot['requirements'][number];cleared?:boolean;error?:string}[]=new Array(value.items.length);
+  let cursor=0;
+  await Promise.all(Array.from({length:Math.min(4,value.items.length)},async()=>{
+    while(cursor<value.items!.length){const index=cursor++,item=value.items![index];
+      try{if(item.operation==='clear'){const input=validateDemandInput(item.input);await clearDemand(periodId,branchId,{work_date:input.work_date,shift_id:input.shift_id,department_id:input.department_id,expected_updated_at:input.expected_updated_at},scoped);results[index]={index,cleared:true};}
+        else {const saved=await saveDemand(periodId,branchId,actorId,item.input,scoped);results[index]={index,requirement:saved.requirement};}}
+      catch(error){results[index]={index,error:error instanceof ScheduleError?error.message:'Chưa lưu được ô này. Hãy tải lại để kiểm tra.'};}
+    }
+  }));
+  return {results};
+}
 // Unknown demand is absence of a row, never a numeric zero or a nullable count.
 export async function clearDemand(periodId:string,branchId:string,body:unknown,repository:RegistrationSummaryRepository=registrationSummaryRepository()) {
   requireIntegrationTestWriteScope(periodId,branchId);

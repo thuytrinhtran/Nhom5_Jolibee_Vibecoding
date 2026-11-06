@@ -11,7 +11,7 @@ import { isMockSchedulingFlow } from '../services/mock-scheduling.service.js';
 import { evaluateSchedule, readAIEvaluation } from '../services/schedule-ai.service.js';
 import { evaluatePreview, previewAIConfiguration } from '../services/preview-ai.service.js';
 import { editMockDraft } from '../services/mock-scheduling.service.js';
-import { clearDemand, readDemand, saveDemand } from '../services/staffing-demand.service.js';
+import { clearDemand, readDemand, saveDemand, saveDemandBatch } from '../services/staffing-demand.service.js';
 import { Router } from 'express';
 import { authenticate, requireRole } from '../middleware/auth.middleware.js';
 import { createDraft, readDraft, listSchedulingPeriods, readSchedulingContext, readRegistrationSummary } from '../services/scheduling.service.js';
@@ -107,6 +107,13 @@ router.get('/periods/:id/requirements', async (req, res) => {
     const error=err instanceof ScheduleError?err:new ScheduleError(503,'DEMAND_UNAVAILABLE','Không thể đọc nhu cầu nhân sự.');
     return res.status(error.status).json({status:'error',code:error.code,message:error.message});
   }
+});
+router.put('/periods/:id/requirements/batch', async (req,res)=>{
+  try{
+    if(!req.user?.branch_id)throw new ScheduleError(403,'BRANCH_REQUIRED','Chưa được phân công chi nhánh.');
+    if(!uuid.test(req.params.id))throw new ScheduleError(400,'INVALID_PERIOD_ID','Tuần không hợp lệ.');
+    return res.json({status:'ok',result:await saveDemandBatch(req.params.id,req.user.branch_id,req.user.id,req.body)});
+  }catch(err){const error=err instanceof ScheduleError?err:new ScheduleError(503,'DEMAND_UNAVAILABLE','Chưa lưu được nhu cầu. Hãy tải lại để kiểm tra.');return res.status(error.status).json({status:'error',code:error.code,message:error.message});}
 });
 router.put('/periods/:id/requirements', async (req, res) => {
   try {
