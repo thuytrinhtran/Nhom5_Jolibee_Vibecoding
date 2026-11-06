@@ -16,28 +16,10 @@ export function databaseError(error: { code?: string; message?: string }): never
   if (error.message?.includes('SCHEDULE_VERSION_CHANGED')||error.message?.includes('REQUEST_CONFLICT')) throw new ScheduleError(409,'SCHEDULE_VERSION_CHANGED','Phiên bản hoặc yêu cầu lưu đã thay đổi. Hãy tải lại lịch.');
   if (error.message?.includes('SCHEDULE_EXISTS')) throw new ScheduleError(409, 'SCHEDULE_EXISTS', 'Tuần đã có lịch; vui lòng sử dụng quy trình điều chỉnh lịch.');
   if (error.code === '40001') throw new ScheduleError(409, 'INPUT_CHANGED', 'Dữ liệu đã thay đổi. Vui lòng thử tạo lịch lại.');
-<<<<<<< Updated upstream
   if (error.message?.includes('PERIOD_NOT_CLOSED')) throw new ScheduleError(409,'PERIOD_NOT_CLOSED','Đợt đăng ký phải được đóng trước khi xếp lịch.');
   if (error.code === '23505') throw new ScheduleError(409,'SCHEDULE_CONFLICT','Dữ liệu lịch bị trùng. Vui lòng tải lại tuần.');
   if (error.code === '22023') throw new ScheduleError(422,'INVALID_ASSIGNMENTS','Phân công không phù hợp dữ liệu hiện tại. Vui lòng tải lại tuần và kiểm tra ràng buộc.');
   if (['55P03','57014','40P01'].includes(error.code || '')) throw new ScheduleError(503,'SCHEDULING_BUSY','Dữ liệu đang được xử lý. Vui lòng tải lại tuần trước khi thử lại.');
-=======
-  if (error.code === '55P03' || error.code === '40P01') throw new ScheduleError(503, 'SCHEDULING_BUSY', 'Dữ liệu đang được cập nhật. Vui lòng chờ rồi tải lại tuần trước khi thử tạo lịch.');
-  if (error.code === '22023') {
-    if (error.message === 'PERIOD_NOT_CLOSED') throw new ScheduleError(409, 'PERIOD_NOT_CLOSED', 'Đợt đăng ký phải được đóng trước khi xếp lịch.');
-    const messages: Record<string,string> = {
-      NO_REQUIREMENTS:'Chưa khai báo nhu cầu nhân sự.',
-      INVALID_REQUIREMENT:'Nhu cầu nhân sự hoặc ca làm không hợp lệ.',
-      INVALID_RESULT:'Kết quả xếp lịch không đúng hợp đồng lưu DRAFT.',
-      ASSIGNMENT_CONSTRAINT_FAILED:'Phân công không đáp ứng đăng ký, chi nhánh, bộ phận hoặc kỹ năng.',
-      DUPLICATE_ASSIGNMENT:'Phân công bị trùng.',
-      DEMAND_EXCEEDED:'Phân công vượt nhu cầu nhân sự.',
-      SHIFT_OVERLAP:'Phân công bị trùng giờ làm.',
-      WEEKLY_LIMIT_EXCEEDED:'Phân công vượt giới hạn giờ làm tuần.',
-    };
-    if (error.message && Object.prototype.hasOwnProperty.call(messages,error.message)) throw new ScheduleError(422,error.message,messages[error.message]);
-  }
->>>>>>> Stashed changes
   throw new ScheduleError(503, 'SCHEDULING_DATABASE_ERROR', 'Không thể đọc hoặc lưu lịch. Vui lòng thử lại.');
 }
 export async function createDraft(periodId: string, actorId: string, branchId?:string, options:{regenerate?:boolean;expectedVersion?:number}={}) {
@@ -93,7 +75,6 @@ export async function listSchedulingPeriods(branchId: string) {
 
 export async function readSchedulingContext(periodId: string, branchId: string) {
   const repository = registrationSummaryRepository();
-<<<<<<< Updated upstream
   if (repository.source === 'mock') {
     const data = await repository.load(branchId, periodId);
     return { source: data.source, can_generate_mock:isMockSchedulingFlow(), test_rules:data.test_rules, period: data.period, requirements: data.requirements,
@@ -106,16 +87,6 @@ export async function readSchedulingContext(periodId: string, branchId: string) 
     valid_registration_count:data.registrations.length,registration_declarations:data.registration_declarations,
     employees:data.employees.map(e=>({id:e.id,full_name:e.full_name,department_id:e.department_id,employee_code:e.employee_code,skill_level:e.skill_level,skills:e.skills,max_weekly_hours:e.max_weekly_hours})),
     shifts:data.shifts,departments:data.departments};
-=======
-  const data = await repository.load(branchId,periodId);
-  // Context counts and the supply/demand summary must share TV2's confirmed,
-  // non-sample availability and effective-period status on real data.
-  return { source:data.source, can_generate_mock:repository.source === 'mock' && isMockSchedulingFlow(), test_rules:data.test_rules,
-    period:data.period, requirements:data.requirements,
-    valid_registration_count:new Set(data.registrations.filter(r => r.status === 'VALID').map(r => `${r.employee_id}/${r.work_date}/${r.shift_id}`)).size,
-    employees:data.employees.map(e => ({id:e.id,full_name:e.full_name,department_id:e.department_id})),
-    shifts:data.shifts.filter(s => s.branch_id == null || s.branch_id === branchId), departments:data.departments };
->>>>>>> Stashed changes
 }
 
 
