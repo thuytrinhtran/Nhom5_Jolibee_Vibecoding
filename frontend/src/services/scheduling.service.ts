@@ -1,5 +1,5 @@
 import type { PreviewCandidate, ScheduleRevisionRecord } from '../types/scheduling';
-import { authService, ApiError,fetchWithReadDedupe } from './auth.service';
+import { authService, ApiError,fetchWithReadDedupe,readRequestEpoch } from './auth.service';
 import type { ManagerCalendarData,OfficialCalendarData } from '../types/manager-calendar';
 import type { SchedulePreview, PreviewAIReviewResponse, PreviewAIConfiguration } from '../types/scheduling';
 import type { AIReviewResponse, ApprovalHandoff, ScheduleValidation, DemandContext, DemandInput, DemandRequirement, ScheduleAssignment, RegistrationSummary, SavedSchedule, SchedulingContext, SchedulingPeriod } from '../types/scheduling';
@@ -44,6 +44,7 @@ async function request<T>(path: string, options: RequestInit = {}, workflowList 
   }
 }
 export const schedulingService = {
+  readEpoch:()=>typeof readRequestEpoch==='function'?readRequestEpoch():0,
   async revisionHistory():Promise<ScheduleRevisionRecord[]> {
     // TV4 list returns {schedules}, unlike TV3's {status:'ok',result} envelope.
     const data=await request<{schedules:ScheduleRevisionRecord[]}>('/workflow?view=publishable',{},true);
@@ -95,6 +96,9 @@ export const schedulingService = {
   },
   async demand(periodId: string): Promise<DemandContext> {
     return (await request<{result:DemandContext}>(`/periods/${encodeURIComponent(periodId)}/requirements`)).result;
+  },
+  async saveDemandBatch(periodId:string,items:{operation:'save'|'clear';input:DemandInput}[]):Promise<{results:{index:number;requirement?:DemandRequirement;cleared?:boolean;error?:string}[]}>{
+    return (await request<{result:{results:{index:number;requirement?:DemandRequirement;cleared?:boolean;error?:string}[]}}>(`/periods/${encodeURIComponent(periodId)}/requirements/batch`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({items})})).result;
   },
   async saveDemand(periodId: string, input: DemandInput): Promise<{source:'mock'|'supabase';is_mock:boolean;requirement:DemandRequirement}> {
     return (await request<{result:{source:'mock'|'supabase';is_mock:boolean;requirement:DemandRequirement}}>(`/periods/${encodeURIComponent(periodId)}/requirements`, {

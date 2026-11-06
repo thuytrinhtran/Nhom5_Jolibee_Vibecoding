@@ -9,10 +9,11 @@ export class ApiError extends Error {
   constructor(message: string, public status: number, public code?: string) { super(message); }
 }
 const pendingReads=new Map<string,Promise<Response>>();let readGeneration=0;
+export function readRequestEpoch(){return readGeneration;}
 export function invalidateReadRequests(){readGeneration++;pendingReads.clear();}
 export async function fetchWithReadDedupe(url:string,options:RequestInit={}):Promise<Response>{
  const method=(options.method??'GET').toUpperCase();
- if(method!=='GET'){invalidateReadRequests();try{return await fetch(url,options);}finally{invalidateReadRequests();}}
+ if(method!=='GET'){invalidateReadRequests();try{return await fetch(url,options);}finally{invalidateReadRequests();if(typeof window!=='undefined'&&typeof window.dispatchEvent==='function')window.dispatchEvent(new Event('jollishift:data-changed'));}}
  const key=JSON.stringify([sessionVersion,readGeneration,localStorage.getItem(TOKEN_KEY),url,options.headers??{},options.credentials]);
  let pending=pendingReads.get(key);
  if(!pending){pending=fetch(url,options);pendingReads.set(key,pending);const own=pending;void pending.then(()=>{if(pendingReads.get(key)===own)pendingReads.delete(key);},()=>{if(pendingReads.get(key)===own)pendingReads.delete(key);});}
