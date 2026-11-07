@@ -4,6 +4,13 @@
   "description": "Backend API for Jollibee Shift Scheduling System (MIS3047 - Team 5)",
   "main": "dist/server.js",
   "scripts": {
+    "premail": "npm run build",
+    "mail": "node scripts/send-mail.cjs",
+    "premail:send": "npm run build",
+    "mail:send": "node scripts/send-mail.cjs",
+    "mail:check": "node scripts/check-mail.cjs",
+    "premail:reminders:check": "npm run build",
+    "mail:reminders:check": "node scripts/check-registration-mail.cjs",
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",

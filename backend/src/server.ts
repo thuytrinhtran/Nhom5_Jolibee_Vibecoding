@@ -12,6 +12,7 @@ import scheduleWorkflowRoutes from './routes/schedule-workflow.routes.js';
 import { employeeScheduleRoutes } from './routes/employee-schedule.routes.js';
 import { shiftChangeRoutes } from './routes/shift-change.routes.js';
 import { notificationRoutes } from './routes/notification.routes.js';
+import { registrationMailStatus, startRegistrationMailWorker } from './services/registration-mail.service.js';
 import { testPreviewWriteGuard } from './services/test-preview-policy.js';
 import { invalidatePendingReads } from './services/read-coalescing.js';
 
@@ -68,7 +69,8 @@ app.get('/api/health', (_req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
     service: 'jollibee-scheduling-backend',
     version: '1.0.0',
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    registration_mail: registrationMailStatus()
   });
 });
 
@@ -129,6 +131,7 @@ app.use((err: { status?: number; type?: string }, _req: Request, res: Response, 
 // Start Server
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
+    startRegistrationMailWorker();
     console.log(`[Backend] Server is running at http://localhost:${PORT}`);
     console.log(`[Backend] Health check endpoint: http://localhost:${PORT}/api/health`);
   });
