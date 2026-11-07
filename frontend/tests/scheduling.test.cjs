@@ -6,14 +6,14 @@ class ApiError extends Error{constructor(message,status,code){super(message);thi
 function load(file,overrides={},globals={}){
   const source=fs.readFileSync(file,'utf8').replace('import.meta.env',JSON.stringify({VITE_API_URL:'http://api.test/api/'}));
   const code=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022}}).outputText;
-  const context={exports:{},AbortSignal,Intl,Date,...globals,require(id){if(id==='../../services/staffing-demand.guard')return{useUnsavedDemandGuard:()=>{}};if(id==='./PreviewCandidates')return{PreviewCandidates:()=>null};if(id in overrides)return overrides[id];if(id.endsWith('.css'))return{};return require(id);}};
+  const context={exports:{},AbortSignal,Intl,Date,...globals,require(id){if(id==='../../services/staffing-demand.guard')return{useUnsavedDemandGuard:()=>{}};if(id==='./PreviewCandidates')return{PreviewCandidates:()=>null};if(id in overrides)return overrides[id];if(id.endsWith('.css'))return{};return (id==='../../components/Toast'?require('./helpers/ui-components.cjs'):require(id));}};
   vm.runInNewContext(code,context);return context.exports;
 }
 const views=load('src/services/scheduling.view.ts');
 const period={id:'period',branch_id:'branch',work_start_date:'2026-11-02',work_end_date:'2026-11-08',status:'CLOSED',schedules:[]};
 const context={period,valid_registration_count:1,employees:[{id:'employee',full_name:'Nguyễn An',department_id:'dept'}],shifts:[{id:'shift',name:'Ca sáng',start_time:'08:00:00',end_time:'12:00:00'}],departments:[{id:'dept',name:'Bếp'}],requirements:[{id:'need',work_date:'2026-11-02',shift_id:'shift',department_id:'dept',required_count:3,required_skill_name:null}]};
 const assignment={employee_id:'employee',work_date:'2026-11-02',shift_id:'shift',department_id:'dept',status:'DRAFT',assignment_source:'REGULAR'};
-const saved={schedule:{id:'saved',status:'DRAFT',version:1},assignments:[assignment],generation_snapshot:{coverage:context.requirements}};
+const saved={schedule:{id:'saved',period_id:'period',status:'DRAFT',version:1},assignments:[assignment],generation_snapshot:{coverage:context.requirements}};
 function page(react=React){return load('src/pages/manager/ManagerSchedule.tsx',{
   './RegistrationSummaryPanel':{RegistrationSummaryPanel:()=>null},
   './ScheduleReviewPanel':{ScheduleReviewPanel:()=>null},'./MockDraftEditor':{MockDraftEditor:()=>null},'./ScheduleAIPanel':{ScheduleAIPanel:()=>null},
@@ -150,11 +150,12 @@ function interactivePage(api,browser,search='') {
     '../../services/auth.service':{ApiError},'../../services/scheduling.service':{schedulingService:{revisionHistory:async()=>[],...api}},'../../services/scheduling.view':views,
   },{crypto:require('node:crypto').webcrypto,requestAnimationFrame:fn=>fn(),document:{querySelector:()=>null},...(browser?{window:browser}:{})});
   return {
+    visible(predicate){const visit=node=>{if(!React.isValidElement(node)||node.props.hidden)return null;if(predicate(node))return node;for(const child of React.Children.toArray(node.props.children)){const found=visit(child);if(found)return found;}return null;};return visit(tree);},
     find(predicate){const visit=node=>{if(!React.isValidElement(node))return null;if(predicate(node))return node;for(const child of React.Children.toArray(node.props.children)){const found=visit(child);if(found)return found;}return null;};return visit(tree);},
     states,
     async settle(){for(let i=0;i<8;i++){stateIndex=refIndex=effectIndex=0;tree=ManagerSchedule();while(pending.length)pending.shift()();await new Promise(r=>setImmediate(r));}},
     html(){return renderToStaticMarkup(tree);},
-    generate(){const visit=node=>{if(!React.isValidElement(node))return null;if(node.type==='button'&&React.Children.toArray(node.props.children).some(c=>c==='Tạo lịch dự kiến'))return node;for(const child of React.Children.toArray(node.props.children)){const found=visit(child);if(found)return found;}return null;};const button=visit(tree);assert.ok(button);assert.equal(button.props.disabled,false);button.props.onClick();},
+    generate(){const visit=node=>{if(!React.isValidElement(node))return null;if(node.type==='button'&&React.Children.toArray(node.props.children).some(c=>['Tạo lịch dự kiến','Tạo lại lịch dự kiến'].includes(c)))return node;for(const child of React.Children.toArray(node.props.children)){const found=visit(child);if(found)return found;}return null;};const button=visit(tree);assert.ok(button);assert.equal(button.props.disabled,false);button.props.onClick();},
   };
 }
 
@@ -186,7 +187,7 @@ test('regenerate reload and changing week require confirmation and cancellation 
  const value={kind:'preview',persisted:false,input_revision:'revision',period,context,result:{assignments:[assignment],coverage:context.requirements,shortages:[],notes:[]},warnings:[],persistence:{enabled:false,reason:'Disabled'}};
  const p=interactivePage({periods:async()=>[period,{...period,id:'next'}],context:async()=>{reads++;return context},preview:async()=>{previews++;return value}},{confirm:()=>{confirmations++;return false}});
  await p.settle();p.generate();await p.settle();const prior=p.states[11],count=reads;
- p.find(n=>n.type==='button'&&React.Children.toArray(n.props.children).includes('Đề xuất lại')).props.onClick();await p.settle();
+ p.find(n=>n.type==='button'&&React.Children.toArray(n.props.children).includes('Tạo lại lịch dự kiến')).props.onClick();await p.settle();
  p.find(n=>n.type==='button'&&React.Children.toArray(n.props.children).includes('Tải lại tuần')).props.onClick();await p.settle();
  p.find(n=>n.type==='select'&&n.props.id==='schedule-week').props.onChange({target:{value:'next'}});await p.settle();
  assert.equal(confirmations,3);assert.equal(previews,1);assert.equal(reads,count);assert.equal(p.states[11],prior);assert.equal(p.states[1],'period');
@@ -221,6 +222,73 @@ test('reopening a week restores existing database schedule without POST',async()
   let reads=0;const page=interactivePage({periods:async()=>[{...period,schedules:[saved.schedule]}],context:async()=>context,
     generate:async()=>assert.fail('must not generate on load'),read:async id=>{assert.equal(id,'saved');reads++;return saved},
   });await page.settle();assert.equal(reads,1);assert.ok(page.html().includes('Nguyễn An'),'day view renders assigned employees directly');page.find(n=>typeof n.props.onSelect==='function'&&n.props.context).props.onSelect('2026-11-02/shift/dept');await page.settle();assert.ok(page.html().includes('Nguyễn An'));assert.ok(page.html().includes('Bản nháp'));
+});
+
+test('workflow link reopens exact DRAFT with visible submit panel; editing requires save, opening alone does not',async()=>{
+ const draft={...saved,source:'supabase'};let reads=0,previews=0;
+ const value={kind:'preview',persisted:false,input_revision:'revision',period,context,edit_target:{id:draft.schedule.id,version:draft.schedule.version},result:{assignments:[assignment],coverage:context.requirements,notes:[]},persistence:{enabled:true}};
+ const p=interactivePage({periods:async()=>[{...period,schedules:[draft.schedule]}],context:async()=>context,
+   read:async()=>{reads++;return draft},savePreview:()=>assert.fail('opening must not save'),
+   preview:async(id,body)=>{previews++;assert.equal(body.use_saved_assignments,true);assert.equal(body.schedule_id,draft.schedule.id);assert.equal(body.expected_version,draft.schedule.version);return value},
+ },undefined,`period_id=period&schedule_id=${draft.schedule.id}&expected_version=${draft.schedule.version}`);
+ await p.settle();
+ const review=n=>n.props.saved&&typeof n.props.onSubmitted==='function';
+ assert.equal(p.states[16],'assignments');assert.equal(p.visible(review).props.saved,draft);assert.equal(reads,1);assert.equal(previews,0);
+ p.find(n=>n.type==='button'&&n.props.children==='Chỉnh sửa DRAFT đã lưu').props.onClick();await p.settle();
+ assert.equal(p.states[11].unsaved,false);assert.ok(p.visible(review));
+ assert.equal(p.find(n=>n.type==='button'&&n.props.children==='Lưu DRAFT'),null);
+ p.states[11]={...p.states[11],dirty:true,unsaved:true};await p.settle();
+ assert.equal(p.visible(review),null);assert.ok(p.html().includes('lưu DRAFT trước khi gửi phê duyệt'));
+});
+
+test('stale workflow ID/version and mismatched read responses never expose submit',async()=>{
+ for(const mode of ['id','version','response']){
+  const p=interactivePage({periods:async()=>[{...period,schedules:[saved.schedule]}],context:async()=>context,
+   read:async()=>mode==='response'?{...saved,schedule:{...saved.schedule,version:99}}:assert.fail('stale target must not read'),
+  },undefined,`period_id=period&schedule_id=${mode==='id'?'old':saved.schedule.id}&expected_version=${mode==='version'?99:saved.schedule.version}`);
+  await p.settle();assert.equal(p.states[3],null);assert.ok(p.find(n=>n.props.role==='alert'));
+ }
+});
+
+test('resave unchanged 138 assignments repeatedly retains group, advances version and reads source CURRENT',async()=>{
+ const assignments=Array.from({length:138},(_,i)=>({...assignment,employee_id:`employee-${i}`}));
+ let current={...saved,source:'supabase',source_state:'UNKNOWN',schedule:{...saved.schedule,version:6,schedule_group_id:'group'},assignments};
+ const calls=[];
+ const p=interactivePage({periods:async()=>[{...period,schedules:[current.schedule]}],context:async()=>context,read:async()=>current,
+  preview:async(id,body)=>{calls.push(['preview',body]);return {kind:'preview',persisted:false,input_revision:'revision',period,context,edit_target:{id:current.schedule.id,version:current.schedule.version},result:{assignments:[...assignments].reverse()},persistence:{enabled:true}};},
+  generate:()=>assert.fail('No generation endpoint'),
+  savePreview:async(id,body,target)=>{calls.push(['save',body,target]);current={...current,source_state:'CURRENT',schedule:{...current.schedule,id:`saved-${target.version+1}`,version:target.version+1}};return{id:current.schedule.id};},
+ });
+ await p.settle();
+ for(const version of [6,7]){
+  const b=p.visible(n=>n.type==='button'&&n.props.children==='Lưu lại bản nháp');assert.ok(b);b.props.onClick();await p.settle();
+  const call=calls.filter(c=>c[0]==='save').at(-1);assert.equal(call[2].version,version);assert.equal(call[1].assignments.length,138);assert.deepEqual(call[1].assignments.map(a=>a.employee_id).sort(),assignments.map(a=>a.employee_id).sort());
+  assert.equal(p.states[3].schedule.version,version+1);assert.equal(p.states[3].source_state,'CURRENT');assert.equal(p.states[3].schedule.schedule_group_id,'group');assert.match(p.html(),/giữ nguyên 138 phân công/);
+ }
+ assert.equal(calls.filter(c=>c[0]==='save').length,2);assert.equal(calls[0][1].use_saved_assignments,true);
+});
+
+test('resave blocks invalid preserved plans, disabled persistence and stale source; never accepts changed assignments',async()=>{
+ for(const mode of ['constraint','assignments','disabled','stale']){
+  let writes=0;const draft={...saved,source:'supabase'};
+  const p=interactivePage({periods:async()=>[{...period,schedules:[draft.schedule]}],context:async()=>context,read:async()=>draft,
+   preview:async()=>{if(mode==='constraint')throw new ApiError('Đăng ký không hợp lệ',422,'INVALID_REGISTRATION');return{kind:'preview',persisted:false,input_revision:'revision',period,edit_target:{id:draft.schedule.id,version:draft.schedule.version},result:{assignments:mode==='assignments'?[]:draft.assignments},persistence:{enabled:mode!=='disabled',reason:'Persistence disabled'}};},
+   savePreview:async()=>{writes++;throw new ApiError('Nguồn đã thay đổi',409,'PREVIEW_STALE');},
+  });await p.settle();p.find(n=>n.type==='button'&&n.props.children==='Lưu lại bản nháp').props.onClick();await p.settle();
+  assert.equal(writes,mode==='stale'?1:0);assert.equal(p.states[3],draft);assert.equal(p.states[11].preview,null);assert.ok(p.find(n=>n.props.role==='alert'));
+ }
+});
+
+test('resave retries lost read response with same request and checked plan instead of creating another version',async()=>{
+ let draft={...saved,source:'supabase'},reads=0,previews=0;const requests=[];
+ const next={...draft,source_state:'CURRENT',schedule:{...draft.schedule,id:'next',version:2}};
+ const p=interactivePage({periods:async()=>[{...period,schedules:[draft.schedule]}],context:async()=>context,
+  read:async id=>{if(id==='saved')return draft;if(++reads===1)throw Error('Read failed');return next;},
+  preview:async()=>{previews++;return{kind:'preview',persisted:false,input_revision:'revision',period,edit_target:{id:'saved',version:1},result:{assignments:draft.assignments},persistence:{enabled:true}};},
+  savePreview:async(id,body)=>{requests.push(body.request_id);return{id:'next'};},
+ });await p.settle();
+ for(let i=0;i<2;i++){p.find(n=>n.type==='button'&&n.props.children==='Lưu lại bản nháp').props.onClick();await p.settle();}
+ assert.equal(previews,1);assert.equal(requests.length,2);assert.equal(requests[0],requests[1]);assert.equal(p.states[3].schedule.id,'next');
 });
 test('failed preview reports error without claiming persistence',async()=>{
  const page=interactivePage({periods:async()=>[period],context:async()=>context,preview:async()=>{throw new ApiError('Preview unavailable',503)}});
@@ -292,16 +360,17 @@ test('an unavailable requested period is not silently replaced by another week',
  await p.settle();assert.equal(p.states[1],'missing');assert.ok(p.states[7].includes('Không tìm thấy tuần được yêu cầu'));
 });
 
-test('manager chooses balance or a fresh engine proposal; send only saves and prepares, never submits automatically',async()=>{
+test('preview has one save action and no balance or premature submit; saved draft exposes send panel',async()=>{
  const calls=[],value={kind:'preview',persisted:false,input_revision:'revision',period,context,result:{assignments:[assignment],coverage:context.requirements,shortages:[],notes:[]},warnings:[],persistence:{enabled:true,reason:'Ready'}};
  const persisted={...saved,schedule:{...saved.schedule,period_id:period.id}};
  const p=interactivePage({periods:async()=>[period],context:async()=>context,preview:async()=>{calls.push('engine');return value;},savePreview:async()=>{calls.push('save');return{id:'saved'};},read:async()=>persisted,submitApproval:()=>assert.fail('No automatic submission')});
  await p.settle();p.generate();await p.settle();
  assert.equal(p.find(n=>n.props.previewDirty!==undefined).props.preview,value);assert.equal(p.find(n=>n.props.autoEvaluate===true),null);
- p.find(n=>n.type==='button'&&n.props.children==='Cân đối lịch').props.onClick();await p.settle();assert.equal(p.states[16],'assignments');
- p.find(n=>n.type==='button'&&n.props.children==='Đề xuất lịch').props.onClick();await p.settle();assert.equal(calls.filter(c=>c==='engine').length,2);
- p.find(n=>n.type==='button'&&n.props.children==='Gửi giám sát duyệt').props.onClick();await p.settle();
- assert.equal(calls.at(-1),'save');const handoff=p.find(n=>typeof n.props.onSubmitted==='function');assert.equal(handoff.props.prepareOnMount,true);assert.equal(handoff.props.saved,persisted);
+ assert.equal(p.find(n=>n.type==='button'&&n.props.children==='Cân đối lịch'),null);
+ assert.equal(p.find(n=>n.type==='button'&&n.props.children==='Gửi giám sát duyệt'),null);
+ p.generate();await p.settle();assert.equal(calls.filter(c=>c==='engine').length,2);
+ p.find(n=>n.type==='button'&&n.props.children==='Lưu DRAFT').props.onClick();await p.settle();
+ assert.equal(calls.at(-1),'save');const handoff=p.visible(n=>typeof n.props.onSubmitted==='function');assert.equal(handoff.props.saved,persisted);
 });
 
 test('planner summarizes cells instead of mounting every employee and opens only the selected cell',()=>{
@@ -324,7 +393,7 @@ test('planner filters only presentation and keeps saved zero distinct from undec
  const {PlannerBoard}=page(),data=threeShiftContext();
  const zero={...saved,generation_snapshot:{coverage:[{...context.requirements[0],required_count:0}]}};
  const html=renderToStaticMarkup(React.createElement(PlannerBoard,{context:data,saved:zero,preview:null,edited:[],selectedCell:'',onSelect(){},day:'2026-11-02',onDay(){}}));
- assert.equal((html.match(/class="planner-department"/g)||[]).length,9);assert.ok(html.includes('Đã xếp <b>1</b> / Cần <b>0</b>'));assert.ok(html.includes('Vượt 1'));assert.ok(html.includes('Chưa có nhu cầu'));
+ assert.equal((html.match(/class="timeline-assignment[\" ]/g)||[]).length,9);assert.ok(html.includes('Đã xếp <b>1</b> / Cần <b>0</b>'));assert.ok(html.includes('Vượt 1'));assert.ok(html.includes('Chưa có nhu cầu'));
 });
 
 test('planner progress never equates approval with publication',()=>{
@@ -332,6 +401,11 @@ test('planner progress never equates approval with publication',()=>{
  const approved=renderToStaticMarkup(React.createElement(PlannerProgress,{periodStatus:'CLOSED',scheduleStatus:'APPROVED',hasPreview:false}));
  assert.ok(approved.includes('Đã duyệt'));assert.ok(approved.includes('Chưa công bố'));assert.ok(!approved.includes('Đã công bố'));
  const published=renderToStaticMarkup(React.createElement(PlannerProgress,{periodStatus:'CLOSED',scheduleStatus:'PUBLISHED',hasPreview:false}));assert.equal((published.match(/class="is-complete"/g)||[]).length,4);
+});
+test('timeline positions use actual times and mark hours outside the display window',()=>{
+ const {timelinePosition}=page();
+ const morning=timelinePosition('08:00:00','12:00:00');assert.equal(morning.left,0);assert.ok(Math.abs(morning.width-400/14)<0.001);assert.equal(morning.outside,false);
+ const night=timelinePosition('20:00:00','02:00:00');assert.equal(night.outside,true);assert.ok(night.left+night.width<=100.001);
 });
 
 test('day view renders employee names, levels, shift times and actionable vacancies directly',()=>{
@@ -364,7 +438,7 @@ test('published planner is read-only and AI is advisory with no proposal applica
  const published={...saved,schedule:{...saved.schedule,status:'PUBLISHED'}};
  const p=interactivePage({periods:async()=>[{...period,schedules:[published.schedule]}],context:async()=>context,read:async()=>published,preview:()=>assert.fail('Published must not generate')});
  await p.settle();assert.equal(p.find(n=>n.type==='button'&&React.Children.toArray(n.props.children).includes('Tạo lịch dự kiến')).props.disabled,true);assert.equal(p.find(n=>n.type==='select'&&n.props.id==='preview-employee-0'),null);
- assert.equal(p.find(n=>typeof n.props.onApplied==='function'),null);assert.ok(p.html().includes('Lịch đã công bố chỉ để xem'));assert.ok(!p.find(n=>n.props.autoEvaluate===true));
+ assert.equal(p.find(n=>typeof n.props.onApplied==='function'),null);assert.ok(p.html().includes('Lịch đã công bố, chỉ để xem.'));assert.ok(!p.find(n=>n.props.autoEvaluate===true));
 });
 
 test('changing week clears the selected cell and date filter while preserving the selected tab',async()=>{
@@ -391,5 +465,16 @@ test('disabled DRAFT persistence explains its reason and cannot invoke the write
 });
 
 test('OPEN preview requires backend capability and never auto-saves',async()=>{
- for(const enabled of [false,true]){const open={...period,status:'OPEN',schedules:[]};let calls=0;const api={periods:async()=>[open],context:async()=>({...context,period:open,open_registration_preview_enabled:enabled}),read:async()=>saved,preview:async()=>{calls++;return {kind:'preview',persisted:false,period:open,input_revision:'new',context:{...context,period:open,open_registration_preview_enabled:enabled},result:{assignments:[assignment],coverage:[],shortages:[],notes:[]},warnings:[],persistence:{enabled:false,reason:'Preview only'}}},savePreview:()=>assert.fail('No automatic save')};const p=interactivePage(api);await p.settle();const button=p.find(n=>n.type==='button'&&React.Children.toArray(n.props.children).includes("Tạo lịch dự kiến"));assert.ok(button);assert.equal(button.props.disabled,!enabled);if(enabled){p.generate();await p.settle();assert.equal(calls,1);assert.ok(p.html().includes('Không thể lưu DRAFT'));}else assert.equal(calls,0);}
+ for(const enabled of [false,true]){const open={...period,status:'OPEN',schedules:[]};let calls=0;const api={periods:async()=>[open],context:async()=>({...context,period:open,open_registration_preview_enabled:enabled}),read:async()=>saved,preview:async()=>{calls++;return {kind:'preview',persisted:false,period:open,input_revision:'new',context:{...context,period:open,open_registration_preview_enabled:enabled},result:{assignments:[assignment],coverage:[],shortages:[],notes:[]},warnings:[],persistence:{enabled:false,reason:'Preview only'}}},savePreview:()=>assert.fail('No automatic save')};const p=interactivePage(api);await p.settle();const button=p.find(n=>n.type==='button'&&React.Children.toArray(n.props.children).includes("Tạo lịch dự kiến"));assert.ok(button);assert.equal(button.props.disabled,!enabled);if(enabled){p.generate();await p.settle();assert.equal(calls,1);assert.ok(p.html().includes('chỉ lưu DRAFT và gửi duyệt sau khi đóng đăng ký'));}else assert.equal(calls,0);}
+});
+
+
+test('regeneration carries all displayed plans, keeps preview on exhaustion, resets on source change and saves alternative',async()=>{
+ const value={kind:'preview',persisted:false,input_revision:'revision',period,context,result:{assignments:[assignment],coverage:context.requirements,shortages:[],notes:[]},warnings:[],edit_target:null,persistence:{enabled:true,reason:'Ready'}};
+ let calls=[],mode='FOUND',savedInput;
+ const p=interactivePage({periods:async()=>[period],context:async()=>context,preview:async(id,body)=>{calls.push(body?JSON.parse(JSON.stringify(body)):body);if(!body?.alternative_history)return value;return {...value,input_revision:mode==='SOURCE_CHANGED'?'new-revision':'revision',alternative:{status:mode,attempts:1,fingerprint:'server-only'},result:{...value.result,assignments:[{...assignment,employee_id:mode==='SOURCE_CHANGED'?'new-source':'other'}]}};},savePreview:async(id,body,target)=>{savedInput={body,target};return {id:'new-draft'};},read:async()=>({...saved,schedule:{id:'new-draft',period_id:period.id,status:'DRAFT',version:1}})});
+ await p.settle();p.generate();await p.settle();p.generate();await p.settle();assert.equal(calls[1].alternative_history.length,1);assert.equal(p.states[11].preview.result.assignments[0].employee_id,'other');
+ mode='NOT_FOUND';const previous=p.states[11].preview;p.generate();await p.settle();assert.equal(calls[2].alternative_history.length,2);assert.equal(p.states[11].preview,previous);assert.match(p.html(),/Chưa tìm thấy phương án khác/);
+ p.find(n=>n.type==='button'&&n.props.children==='Lưu DRAFT').props.onClick();await p.settle();assert.equal(savedInput.body.assignments[0].employee_id,'other');assert.equal(savedInput.body.alternative_history,undefined);
+ p.generate();await p.settle();mode='SOURCE_CHANGED';p.generate();await p.settle();assert.equal(p.states[11].preview.input_revision,'new-revision');mode='NOT_FOUND';p.generate();await p.settle();assert.equal(calls.at(-1).alternative_history.length,1);assert.equal(calls.at(-1).alternative_history[0][0].employee_id,'new-source');
 });

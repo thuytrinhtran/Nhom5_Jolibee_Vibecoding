@@ -44,6 +44,7 @@ export async function readMockDraft(id:string,branchId:string) {
   return {source:'mock' as const,is_mock:true,test_configuration:{max_shifts_per_day:record.input.test_rules?.max_shifts_per_day??null,policy_source:'TEST_ONLY'},
     schedule:record.schedule,assignments:record.result.assignments.map((a,i)=>({...a,id:`${record.schedule.id}:${i}`,status:'DRAFT',assignment_source:'REGULAR'})),
     generation_snapshot:record.result,validation:{hard_constraints:record.fingerprint===JSON.stringify(current)?'PASS':'UNKNOWN',coverage_complete:record.result.shortages.length===0&&record.fingerprint===JSON.stringify(current)},
+    source_state:record.fingerprint===JSON.stringify(current)?'CURRENT' as const:'CHANGED' as const,source_reason:record.fingerprint===JSON.stringify(current)?null:'SOURCE_CHANGED',
     demand_changed:record.fingerprint!==JSON.stringify(current),note:record.note};
 }
 export async function editMockDraft(id:string,branchId:string,actorId:string,body:unknown) {

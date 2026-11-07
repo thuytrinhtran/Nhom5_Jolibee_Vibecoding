@@ -22,7 +22,7 @@ export function MockDraftEditor({context,saved,onSaved}:{context:SchedulingConte
   return <section className="card summary-panel" aria-label="Chỉnh sửa lịch thử nghiệm">
     <h3>Chỉnh sửa lịch dự kiến thử nghiệm</h3><p className="schedule-muted">Thay người, bỏ hoặc thêm phân công. Khi lưu, Backend kiểm tra lại đăng ký, bộ phận/kỹ năng, trùng ca và các giới hạn đã cấu hình. {context.test_rules?.max_shifts_per_day?`Giới hạn thử nghiệm: ${context.test_rules.max_shifts_per_day} ca/ngày.`:''} Mỗi lần lưu hợp lệ tạo phiên bản DRAFT mới trong bộ nhớ.</p>
     {saved.demand_changed&&<div className="schedule-alert">Nhu cầu đã đổi; hãy tạo lại lịch trước khi chỉnh sửa.</div>}
-    <fieldset className="mock-edit-fields" disabled={busy||saved.demand_changed}>
+    <fieldset className="mock-edit-fields" disabled={busy||saved.demand_changed===true}>
       {assignments.map((assignment,index)=><div className="mock-assignment-row" key={index}>
         <span>{dateLabel(assignment.work_date)} · {context.shifts.find(s=>s.id===assignment.shift_id)?.name} · {context.departments.find(d=>d.id===assignment.department_id)?.name}</span>
         <select aria-label={`Nhân viên phân công ${index+1}`} value={assignment.employee_id} onChange={e=>setAssignments(rows=>rows.map((row,i)=>i===index?{...row,employee_id:e.target.value}:row))}>

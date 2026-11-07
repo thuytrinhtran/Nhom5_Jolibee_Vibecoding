@@ -103,3 +103,24 @@
 .planner-edit-cell { margin-top: 10px; font-size: 12px; }
 @media(max-width:700px) { .planner-day-departments { grid-template-columns: minmax(0,1fr); } }
 @media(max-width:1150px) { .planner-workspace .planner-board-layout.has-panel { grid-template-columns: minmax(0,1fr); } }
+
+.schedule-timeline-scroll { overflow-x:auto; }
+.schedule-timeline { min-width:980px; padding:16px 22px 16px 0; }
+.timeline-axis,.timeline-lane { display:grid; grid-template-columns:115px minmax(0,1fr); gap:12px; }
+.timeline-axis { margin-bottom:20px; font-size:11px; color:#64748b; }
+.timeline-axis>div { position:relative; height:20px; }
+.timeline-axis>div>span { position:absolute; transform:translateX(-50%); white-space:nowrap; }
+.timeline-department h4 { padding:10px 12px; background:#f1f5f9; border-radius:8px; margin:16px 0 8px; }
+.timeline-lane { margin-bottom:10px; }
+.timeline-shift { display:flex; flex-direction:column; gap:6px; font-size:13px; }
+.timeline-track { background:repeating-linear-gradient(to right,#e2e8f0 0 1px,transparent 1px calc(100% / 14)); }
+.timeline-assignment { box-sizing:border-box; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:10px; font-size:13px; overflow-wrap:anywhere; }
+.timeline-assignment.is-selected { border:2px solid #b91c1c; background:#fff7ed; }
+.timeline-assignment ul { padding-left:18px; margin:8px 0; }
+.timeline-cell-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.timeline-cell-actions .btn { white-space:normal; text-align:left; font-size:12px; }
+.timeline-shortage { color:#a12720; font-weight:600; }
+.planner-board-layout.has-panel { display:block; }
+.manager-planner .planner-cell-panel { position:static; max-height:none; overflow:visible; margin-top:20px; scroll-margin-top:24px; }
+.planner-cell-panel:focus { outline:3px solid #eab308; outline-offset:3px; }
+.planner-cell-panel>header { background:#fff7ed; padding:12px; border-radius:8px; }

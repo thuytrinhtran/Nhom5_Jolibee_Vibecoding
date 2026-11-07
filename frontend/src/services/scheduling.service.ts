@@ -1,10 +1,11 @@
 import type { PreviewCandidate, ScheduleRevisionRecord } from '../types/scheduling';
-import { authService, ApiError,fetchWithReadDedupe } from './auth.service';
+import { authService, ApiError,fetchWithReadDedupe,readRequestEpoch } from './auth.service';
 import type { ManagerCalendarData,OfficialCalendarData } from '../types/manager-calendar';
 import type { SchedulePreview, PreviewAIReviewResponse, PreviewAIConfiguration } from '../types/scheduling';
 import type { AIReviewResponse, ApprovalHandoff, ScheduleValidation, DemandContext, DemandInput, DemandRequirement, ScheduleAssignment, RegistrationSummary, SavedSchedule, SchedulingContext, SchedulingPeriod } from '../types/scheduling';
 
 const API_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
+let aiConfiguration:{token:string|null;expires:number;promise:Promise<PreviewAIConfiguration>}|null=null;
 async function request<T>(path: string, options: RequestInit = {}, workflowList = false): Promise<T> {
   // Reuse existing session validation/refresh; keep login and token storage unchanged.
   if(authService.ensureSession)await authService.ensureSession();else await authService.getMe();
@@ -44,6 +45,7 @@ async function request<T>(path: string, options: RequestInit = {}, workflowList 
   }
 }
 export const schedulingService = {
+  readEpoch:()=>typeof readRequestEpoch==='function'?readRequestEpoch():0,
   async revisionHistory():Promise<ScheduleRevisionRecord[]> {
     // TV4 list returns {schedules}, unlike TV3's {status:'ok',result} envelope.
     const data=await request<{schedules:ScheduleRevisionRecord[]}>('/workflow?view=publishable',{},true);
@@ -58,13 +60,18 @@ export const schedulingService = {
     return(await request<{result:OfficialCalendarData}>(`/periods/${encodeURIComponent(period)}/official-calendar?${query}`)).result;
   },
   async previewAIConfiguration():Promise<PreviewAIConfiguration> {
-    return(await request<{result:PreviewAIConfiguration}>('/preview/ai-evaluation',{signal:AbortSignal.timeout(15000)})).result;
+    const token=authService.getStoredToken();
+    if(aiConfiguration?.token===token&&aiConfiguration.expires>Date.now())return aiConfiguration.promise;
+    const pending={token,expires:Date.now()+30000,promise:request<{result:PreviewAIConfiguration}>('/preview/ai-evaluation',{signal:AbortSignal.timeout(15000)}).then(value=>value.result)};
+    aiConfiguration=pending;
+    void pending.promise.catch(()=>{if(aiConfiguration===pending)aiConfiguration=null;});
+    return pending.promise;
   },
   async evaluatePreviewAI(preview:SchedulePreview):Promise<PreviewAIReviewResponse> {
     const assignments=preview.result.assignments.map(({employee_id,work_date,shift_id,department_id})=>({employee_id,work_date,shift_id,department_id}));
     return(await request<{result:PreviewAIReviewResponse}>('/preview/ai-evaluation',{method:'POST',signal:AbortSignal.timeout(15000),headers:{'Content-Type':'application/json'},body:JSON.stringify({period_id:preview.period.id,input_revision:preview.input_revision,assignments,...(preview.edit_target?{schedule_id:preview.edit_target.id,expected_version:preview.edit_target.version}:{})})})).result;
   },
-  async preview(period_id:string,edit?:{input_revision?:string;assignments?:ScheduleAssignment[];schedule_id?:string;expected_version?:number;use_saved_assignments?:true}):Promise<SchedulePreview> {
+  async preview(period_id:string,edit?:{input_revision?:string;assignments?:ScheduleAssignment[];schedule_id?:string;expected_version?:number;use_saved_assignments?:true;alternative_history?:ScheduleAssignment[][]}):Promise<SchedulePreview> {
     return(await request<{result:SchedulePreview}>('/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({period_id,...edit})})).result;
   },
   async savePreview(period_id:string,input:{input_revision:string;assignments:ScheduleAssignment[];request_id:string},target?:{id:string;version:number}|null):Promise<{id:string}> {
@@ -91,10 +98,15 @@ export const schedulingService = {
     return(await request<{result:ApprovalHandoff}>(`/${encodeURIComponent(id)}/approval-handoff`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({expected_version,note})})).result;
   },
   async submitApproval(id:string,expected_version:number,note:string,request_id:string):Promise<{schedule:SavedSchedule['schedule'];reused:boolean}>{
-    return request(`/workflow/${encodeURIComponent(id)}/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({expected_version,note,request_id})});
+    const data=await request<{schedule:SavedSchedule['schedule'];reused:boolean}>(`/workflow/${encodeURIComponent(id)}/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({expected_version,note,request_id})},true);
+    if(data?.schedule?.id!==id||data.schedule.version!==expected_version||data.schedule.status!=='PENDING_APPROVAL'||typeof data.reused!=='boolean')throw new ApiError('Chưa xác nhận được kết quả gửi duyệt. Hãy tải lại tuần trước khi thử lại.',502,'INVALID_SUBMIT_RESPONSE');
+    return data;
   },
   async demand(periodId: string): Promise<DemandContext> {
     return (await request<{result:DemandContext}>(`/periods/${encodeURIComponent(periodId)}/requirements`)).result;
+  },
+  async saveDemandBatch(periodId:string,items:{operation:'save'|'clear';input:DemandInput}[]):Promise<{results:{index:number;requirement?:DemandRequirement;cleared?:boolean;error?:string}[]}>{
+    return (await request<{result:{results:{index:number;requirement?:DemandRequirement;cleared?:boolean;error?:string}[]}}>(`/periods/${encodeURIComponent(periodId)}/requirements/batch`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({items})})).result;
   },
   async saveDemand(periodId: string, input: DemandInput): Promise<{source:'mock'|'supabase';is_mock:boolean;requirement:DemandRequirement}> {
     return (await request<{result:{source:'mock'|'supabase';is_mock:boolean;requirement:DemandRequirement}}>(`/periods/${encodeURIComponent(periodId)}/requirements`, {

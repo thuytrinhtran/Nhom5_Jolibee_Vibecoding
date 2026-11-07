@@ -5,6 +5,8 @@ import { Bell, Building2, ChevronLeft, ChevronRight, LogOut, Menu, X } from 'luc
 import { useAuth } from '../../context/AuthContext';
 import { dashboardConfig } from '../../dashboard.config';
 import logoImg from '../../assets/jollibee-logo.jpg';
+import { NotificationList } from './NotificationList';
+import { PageSkeleton } from './PageSkeleton';
 
 export const AppLayout = ({ children }: { children: ReactNode }) => {
   const { user, logout } = useAuth();
@@ -17,6 +19,12 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
   const menuButton = useRef<HTMLButtonElement>(null);
   const sidebar = useRef<HTMLElement>(null);
   const notifications = useRef<HTMLDivElement>(null);
+  const previousPath = useRef(pathname);
+  useEffect(()=>{
+    if(previousPath.current===pathname)return;
+    previousPath.current=pathname;
+    document.getElementById('app-content')?.focus({preventScroll:true});
+  },[pathname]);
 
   useEffect(() => { setMobileOpen(false); setNotificationsOpen(false); }, [pathname]);
   useEffect(() => {
@@ -83,13 +91,13 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
             <span className="app-branch" title={user.branch_name || 'Chưa gán chi nhánh'}><Building2 size={16} aria-hidden="true" /><span>{user.branch_name || 'Chưa gán chi nhánh'}</span></span>
             <div className="app-notifications" ref={notifications}>
               <button className="app-icon-button" aria-label="Thông báo" aria-expanded={notificationsOpen} aria-controls="app-notifications-panel" onClick={() => setNotificationsOpen(!notificationsOpen)}><Bell size={19} /></button>
-              {notificationsOpen && <div className="app-notification-panel" id="app-notifications-panel"><h2>Thông báo</h2><p>Chưa có dữ liệu thông báo.</p></div>}
+              {notificationsOpen && <div className="app-notification-panel" id="app-notifications-panel"><NotificationList key={user.id} userId={user.id} /></div>}
             </div>
             <div className="app-account" title={`${name} · ${config.roleLabel}`}><span className="app-avatar" aria-hidden="true">{name.charAt(0).toUpperCase()}</span><div className="app-account-text"><strong>{name}</strong><span>{config.roleLabel}</span></div></div>
             <button className="app-logout" onClick={() => void logout()} aria-label="Đăng xuất"><LogOut size={18} aria-hidden="true" /><span>Đăng xuất</span></button>
           </div>
         </header>
-        <main id="app-content" className="app-content" tabIndex={-1}><Profiler id={pathname} onRender={recordPerformanceRender}><Suspense fallback={<p role="status">Đang tải trang…</p>}>{children}</Suspense></Profiler></main>
+        <main id="app-content" className="app-content" tabIndex={-1}><Profiler id={pathname} onRender={recordPerformanceRender}><Suspense fallback={<PageSkeleton/>}>{children}</Suspense></Profiler></main>
       </div>
     </div>
   );

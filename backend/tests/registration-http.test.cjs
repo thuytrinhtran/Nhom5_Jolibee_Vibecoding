@@ -76,7 +76,7 @@ test('server advertises the scoped time exception and uses token identity on its
  dev.persistDevTestRegistration=async(...args)=>{calls.push(args);return{registration_status:'VALID',errors:[]}};
  const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));const base=`http://127.0.0.1:${server.address().port}/api/registrations`,headers={Authorization:'Bearer isolated-fixture','Content-Type':'application/json'};
  try{
-  const current=await(await fetch(base+'/current',{headers})).json();assert.equal(current.period.id,s.period);assert.equal(current.registration_window.dev_test_override,true);assert.equal(current.period.status,'PLANNED');
+  Object.assign(process.env,{TV3_WRITE_SCOPE_MODE:'manual-test',TV3_WRITE_SCOPE_ENABLED:'true',TV3_WRITE_PROJECT_REF:s.project,TV3_WRITE_BRANCH_ID:s.branch,TV3_WRITE_PERIOD_ID:s.period});const current=await(await fetch(base+'/current',{headers})).json();assert.equal(current.period.id,s.period);assert.equal(current.registration_window.dev_test_override,true);assert.equal(current.period.status,'PLANNED');
   const body={mode:'submit',preferences:[{work_date:s.start,shift_id:shift}]};
   const send=(periodId,value)=>fetch(`${base}/${periodId}/me`,{method:'PUT',headers,body:JSON.stringify(value)});
   assert.equal((await send(s.period,body)).status,200);assert.equal(calls[0][0],uid);assert.equal(calls[0][1],s.period);

@@ -1,0 +1,29 @@
+.official-controls,.official-week-picker { display:flex; flex-wrap:wrap; align-items:end; gap:10px; }
+.official-controls { justify-content:space-between; }
+.official-controls label { display:grid; gap:5px; font-size:13px; min-width:0; }
+.official-controls select { padding:10px; border:1px solid var(--border-strong); background:white; min-height:42px; font:inherit; max-width:100%; }
+.official-days { display:flex; flex-wrap:wrap; gap:6px; }
+.official-days button[aria-pressed=true] { background:var(--primary-subtle); border-color:var(--primary); color:var(--primary); font-weight:700; }
+.official-view-title { font-size:18px; scroll-margin-top:20px; }
+.official-view-title:focus { outline:3px solid #a16207; outline-offset:4px; }
+.official-week-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr)); gap:12px; }
+.official-day-card { display:flex; flex-direction:column; align-items:stretch; gap:10px; text-align:left; padding:16px; border:1px solid var(--border-subtle); border-radius:var(--radius-md); background:white; color:var(--text-primary); font:inherit; cursor:pointer; }
+.official-day-card:hover { border-color:var(--primary); background:#fffafa; }
+.official-day-card>span { font-size:13px; }
+.official-week-department { display:grid; gap:4px; border-top:1px solid var(--border-subtle); padding-top:8px; }
+.official-day-link { color:var(--primary); margin-top:auto; font-weight:600; }
+.official-timeline { min-width:860px; padding:20px; }
+.official-timeline .timeline-axis { grid-template-columns:110px minmax(0,1fr); }
+.official-department { display:grid; grid-template-columns:110px minmax(0,1fr); gap:12px; border-top:1px solid var(--border-subtle); padding:12px 0; }
+.official-department h4 { font-size:14px; padding:12px 4px; }
+.official-department-track { min-width:0; background:repeating-linear-gradient(to right,#e2e8f0 0 1px,transparent 1px calc(100% / 14)); }
+.official-shift-lane { padding:4px 0; }
+.official-shift { box-sizing:border-box; border:1px solid #bfdbfe; border-left:4px solid #3b82f6; border-radius:8px; background:#eff6ff; overflow-wrap:anywhere; }
+.official-shift summary { display:grid; gap:5px; padding:10px; cursor:pointer; font-size:13px; }
+.official-shift summary small { color:var(--primary); }
+.official-shift[open] { background:white; border-color:var(--primary); }
+.official-shift-unplaced { border-style:dashed; background:#f8fafc; }
+.official-members { list-style:none; padding:0 10px 10px; }
+.official-members li { display:grid; gap:4px; padding:9px 0; border-top:1px solid var(--border-subtle); font-size:12px; }
+.official-no-shift { padding:12px; background:white; color:var(--text-secondary); font-size:13px; }
+@media(max-width:600px){.official-controls,.official-week-picker { width:100%; }.official-week-picker label { order:-1; flex-basis:100%; }.official-week-picker button { flex:1; }.official-controls>label { width:100%; }.official-days .btn { flex:1 1 130px; }}

@@ -52,17 +52,29 @@ export async function readDraft(scheduleId: string, branchId: string) {
   const { data: schedule, error } = await supabaseAdmin.from('schedules').select('*').eq('id', scheduleId).eq('branch_id', branchId).maybeSingle();
   if (error) databaseError(error);
   if (!schedule) throw new ScheduleError(404, 'SCHEDULE_NOT_FOUND', 'Không tìm thấy lịch trong chi nhánh.');
-  const assignments = await supabaseAdmin.from('shift_assignments').select('*').eq('schedule_id',scheduleId).order('work_date').order('shift_id').order('employee_id');
+  const [assignments,audit,changed]=await Promise.all([
+    (async()=>{
+      const rows:Record<string,any>[]=[];
+      for(let offset=0;;offset+=500){
+        const result=await supabaseAdmin.from('shift_assignments').select('*')
+          .eq('schedule_id',scheduleId).order('work_date').order('shift_id').order('employee_id').order('id').range(offset,offset+499);
+        if(result.error)return {data:null,error:result.error};rows.push(...(result.data??[]));if((result.data??[]).length<500)return {data:rows,error:null};
+      }
+    })(),
+    supabaseAdmin.from('audit_logs').select('new_data').eq('entity_type','schedules').eq('entity_id',scheduleId).eq('action','AUTO_GENERATE').order('created_at',{ascending:false}).limit(1).maybeSingle(),
+    schedule.status==='PUBLISHED'?supabaseAdmin.from('audit_logs').select('new_data').eq('entity_type','schedules').eq('entity_id',scheduleId).eq('action','SHIFT_REPLACED').order('created_at',{ascending:false}).order('id',{ascending:false}).limit(1).maybeSingle():Promise.resolve({data:null,error:null}),
+  ]);
   if (assignments.error) databaseError(assignments.error);
-  const audit = await supabaseAdmin.from('audit_logs').select('new_data').eq('entity_type','schedules').eq('entity_id',scheduleId).eq('action','AUTO_GENERATE').order('created_at',{ascending:false}).limit(1).maybeSingle();
   if (audit.error) databaseError(audit.error);
-  const changed=schedule.status==='PUBLISHED'?await supabaseAdmin.from('audit_logs').select('new_data').eq('entity_type','schedules').eq('entity_id',scheduleId).eq('action','SHIFT_REPLACED').order('created_at',{ascending:false}).order('id',{ascending:false}).limit(1).maybeSingle():{data:null,error:null};
   if(changed.error)databaseError(changed.error);
   const original=audit.data?.new_data??null;
-  const snapshot=changed.data?.new_data?.current_result?{...original,...changed.data.new_data.current_result,optimization:original?.optimization??null}:original;
+  const sourceState=await readScheduleSourceState(schedule.id,branchId,schedule.version,original?.source_snapshot!=null);
+  // Source inputs stay backend-only; the UI receives the result and explicit state.
+  const {source_snapshot:_sourceSnapshot,...resultSnapshot}=original??{};
+  const snapshot=changed.data?.new_data?.current_result?{...resultSnapshot,...changed.data.new_data.current_result,optimization:original?.optimization??null}:original?resultSnapshot:null;
   const key=(a:Record<string,unknown>)=>JSON.stringify([a.employee_id,a.work_date,a.shift_id,a.department_id]);
   const traces=new Map<string,Record<string,unknown>>((Array.isArray(snapshot?.assignments)?snapshot.assignments:[]).map((a:Record<string,unknown>)=>[key(a),a]));
-  return {schedule,assignments:(assignments.data??[]).map(a=>{
+  return {...sourceState,demand_changed:sourceState.source_state==='UNKNOWN'?null:sourceState.source_state==='CHANGED',schedule,assignments:(assignments.data??[]).map(a=>{
     const trace=traces.get(key(a));
     return trace?{...a,reason:trace.reason,selection_history:trace.selection_history,requirement_id:trace.requirement_id}:a;
   }),generation_snapshot:snapshot};
@@ -98,3 +110,4 @@ export async function readRegistrationSummary(periodId: string, branchId: string
     (!filters.shift_id || row.shift_id === filters.shift_id) &&
     (!filters.department_id || row.department_id === filters.department_id)) };
 }
+import { readScheduleSourceState } from './schedule-source-state.js';

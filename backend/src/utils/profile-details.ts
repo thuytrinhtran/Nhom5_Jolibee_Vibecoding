@@ -1,9 +1,13 @@
 import { supabaseAdmin } from '../config/supabase.js';
 import { EmployeeInfo, UserRole } from '../types/auth.types.js';
+import { coalesceRead } from '../services/read-coalescing.js';
 
 export class ProfileUnavailable extends Error {}
 
 export async function loadProfileDetails(userId: string, role: UserRole, branchId: string | null) {
+    return coalesceRead(JSON.stringify(['profile-details',userId,role,branchId]),()=>readProfileDetails(userId,role,branchId));
+}
+async function readProfileDetails(userId: string, role: UserRole, branchId: string | null) {
     const [branchResult,employeeResult]=await Promise.all([
       branchId?supabaseAdmin.from('branches').select('name').eq('id',branchId).single():Promise.resolve({data:null,error:null}),
       role==='NV'?supabaseAdmin.from('employees').select('id, full_name, skill_level, department_id, phone, departments:department_id(name)').eq('user_id',userId).maybeSingle():Promise.resolve({data:null,error:null}),

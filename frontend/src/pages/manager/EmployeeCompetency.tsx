@@ -1,3 +1,4 @@
+import { Toast, errorGuidance } from '../../components/Toast';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { GraduationCap, Search } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -43,7 +44,7 @@ function CompetencyModal({ employee, onClose, onSaved }: {
         {levelKeys.map(key => <option key={key} value={key}>{key} — {skillLevels[key].label}</option>)}
       </select>
       <p className="competency-description">{skillLevels[level]?.description}</p>
-      {error && <p role="alert" className="competency-error">{error}</p>}
+      {error && <p role="alert" className="competency-error">{errorGuidance(error)}</p>}
       <footer><button type="button" className="btn btn-secondary" disabled={saving} onClick={onClose}>Hủy</button>
         <button className="btn btn-primary" disabled={saving || level === employee.skill_level}>{saving ? 'Đang lưu…' : 'Lưu'}</button></footer>
     </form>
@@ -81,8 +82,8 @@ export function EmployeeCompetency() {
       <label>Bộ phận<select value={department} onChange={e => setDepartment(e.target.value)}><option value="">Tất cả bộ phận</option>{departments.map(([id, name]) => <option key={id} value={id}>{name || 'Chưa có tên'}</option>)}</select></label>
       <label>Cấp độ<select value={level} onChange={e => setLevel(e.target.value)}><option value="">Tất cả cấp độ</option>{levelKeys.map(key => <option key={key} value={key}>{skillLevels[key].label}</option>)}</select></label>
     </div>
-    {message && <p role="status" className="competency-success">{message}</p>}
-    {error ? <div role="alert" className="competency-error">{error} <button className="btn btn-secondary" onClick={() => setReload(n => n + 1)}>Tải lại danh sách</button></div>
+    {message && Toast({message,onDismiss:()=>setMessage('')})}
+    {error ? <div role="alert" className="competency-error">{errorGuidance(error)} <button className="btn btn-secondary" onClick={() => setReload(n => n + 1)}>Tải lại danh sách</button></div>
       : loading ? <p role="status">Đang tải nhân viên…</p> : <>
         <p className="competency-count">{visible.length} nhân viên</p>
         <div className="competency-table-wrap"><table><caption className="competency-sr-only">Danh sách đánh giá năng lực nhân viên</caption>

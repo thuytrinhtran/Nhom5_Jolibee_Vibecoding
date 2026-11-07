@@ -1,3 +1,4 @@
+import { findAlternative, parseAlternativeHistory, assignmentFingerprint } from './schedule-alternatives.service.js';
 import { developmentPreviewAllowed } from './preview-development-policy.js';
 import { SCHEDULING_RULE_VERSION } from './scheduling-contract.js';
 import { createHash } from 'node:crypto';
@@ -30,7 +31,7 @@ export async function previewSnapshot(periodId:string,branchId:string,body:Recor
 export const previewRevision=(snapshot:unknown)=>createHash('sha256').update(JSON.stringify({rule_version:SCHEDULING_RULE_VERSION,snapshot})).digest('hex');
 
 export async function inspectPreview(periodId:string,branchId:string,body:Record<string,unknown>,repository:RegistrationSummaryRepository=registrationSummaryRepository()) {
-  if(Object.keys(body).some(k=>!['period_id','assignments','input_revision','schedule_id','expected_version','use_saved_assignments'].includes(k)))throw new ScheduleError(400,'INVALID_PREVIEW','Chỉ gửi tuần và phương án cần kiểm tra.');
+  if(Object.keys(body).some(k=>!['period_id','assignments','input_revision','schedule_id','expected_version','use_saved_assignments','alternative_history'].includes(k)))throw new ScheduleError(400,'INVALID_PREVIEW','Chỉ gửi tuần và phương án cần kiểm tra.');
   const {snapshot,target}=await previewSnapshot(periodId,branchId,body,repository);
   const input=schedulingInput(snapshot);
   if(developmentPreviewAllowed(snapshot))input.period={...input.period,status:'CLOSED'};
@@ -38,7 +39,19 @@ export async function inspectPreview(periodId:string,branchId:string,body:Record
   // All engine constraints remain enforced; the scoped development preview alone may normalize OPEN.
   const generated=generateSchedule(input);
   let result=generated;
-  if(body.assignments!==undefined){
+  let alternative: {status: 'FOUND'|'NOT_FOUND'|'SOURCE_CHANGED';attempts:number;fingerprint:string}|undefined;
+  if(body.alternative_history!==undefined){
+    const history=parseAlternativeHistory(body.alternative_history);
+    if(body.use_saved_assignments!==undefined||!Array.isArray(body.assignments)||typeof body.input_revision!=='string')throw new ScheduleError(400,'INVALID_PREVIEW','Cần phương án hiện tại để tìm phương án khác.');
+    if(body.input_revision!==revision){
+      alternative={status:'SOURCE_CHANGED',attempts:0,fingerprint:assignmentFingerprint(generated.assignments)};
+    }else{
+      const fields=['employee_id','work_date','shift_id','department_id'];
+      if(body.assignments.length>10000||body.assignments.some(a=>!a||typeof a!=='object'||Array.isArray(a)||Object.keys(a).some(k=>!fields.includes(k))||fields.some(k=>typeof a[k]!=='string')))throw new ScheduleError(400,'INVALID_PREVIEW_ASSIGNMENTS','Phân công không hợp lệ.');
+      const found=findAlternative(input,body.assignments as Assignment[],history);result=found.result;
+      alternative={status:found.status,attempts:found.attempts,fingerprint:assignmentFingerprint(result.assignments)};
+    }
+  }else if(body.assignments!==undefined){
     if(typeof body.input_revision!=='string'||body.input_revision!==revision)throw new ScheduleError(409,'PREVIEW_STALE','Dữ liệu đã thay đổi. Hãy tạo lại phương án trước khi điều chỉnh.');
     const fields=['employee_id','work_date','shift_id','department_id'];
     if(!Array.isArray(body.assignments)||body.assignments.length>10000||body.assignments.some(a=>!a||typeof a!=='object'||Array.isArray(a)||Object.keys(a).some(k=>!fields.includes(k))||fields.some(k=>typeof a[k]!=='string')))
@@ -57,14 +70,14 @@ export async function inspectPreview(periodId:string,branchId:string,body:Record
       return original?.reason?{...a,reason:original.reason,selection_history:original.selection_history}:a;
     }),...(saved.generation_snapshot?.optimization?{optimization:saved.generation_snapshot.optimization}:{})};
   }
-  return {snapshot,target,input,revision,result};
+  return {snapshot,target,input,revision,result,alternative};
 }
 
 export async function previewSchedule(periodId:string,branchId:string,body:Record<string,unknown>,repository:RegistrationSummaryRepository=registrationSummaryRepository()) {
-  const {snapshot,target,revision,result}=await inspectPreview(periodId,branchId,body,repository);
-  return {kind:'preview' as const,persisted:false as const,source:snapshot.source,period:snapshot.period,input_revision:revision,edit_target:target,
+  const {snapshot,target,revision,result,alternative}=await inspectPreview(periodId,branchId,body,repository);
+  return {...(alternative?{alternative}:{}),kind:'preview' as const,persisted:false as const,source:snapshot.source,period:snapshot.period,input_revision:revision,edit_target:target,
     result,context:{development_preview:developmentPreviewAllowed(snapshot),source:snapshot.source,open_registration_preview_enabled:developmentPreviewAllowed(snapshot),period:snapshot.period,requirements:snapshot.requirements,valid_registration_count:snapshot.registrations.length,
       employees:snapshot.employees.map(e=>({id:e.id,full_name:e.full_name,department_id:e.department_id,employee_code:e.employee_code,skill_level:e.skill_level,skills:e.skills,max_weekly_hours:e.max_weekly_hours})),shifts:snapshot.shifts,departments:snapshot.departments},
     warnings:result.coverage.filter(c=>c.warning).map(c=>({code:c.warning!,work_date:c.work_date,shift_id:c.shift_id,department_id:c.department_id})),
-    persistence:{enabled:!developmentPreviewAllowed(snapshot)&&snapshot.source==='supabase'&&isDraftPersistenceEnabled()&&draftWriteScopeAllowed(periodId,branchId),reason:developmentPreviewAllowed(snapshot)?'Preview development khi đăng ký còn mở; không được lưu DRAFT.':!draftWriteScopeAllowed(periodId,branchId)?'Chỉ cho phép lưu DRAFT tại Lê Duẩn, kỳ 02–08/11/2026.':isDraftPersistenceEnabled()?'Lưu thành phiên bản DRAFT; dữ liệu sẽ được kiểm tra lại trước khi ghi.':'Chưa bật lưu DRAFT. Cần triển khai và xác minh migration trước.'}};
+    persistence:{enabled:!developmentPreviewAllowed(snapshot)&&snapshot.source==='supabase'&&isDraftPersistenceEnabled()&&draftWriteScopeAllowed(periodId,branchId),reason:developmentPreviewAllowed(snapshot)?'Preview development khi đăng ký còn mở; không được lưu DRAFT.':!draftWriteScopeAllowed(periodId,branchId)?'Chi nhánh hoặc kỳ chưa có trong phạm vi ghi được phê duyệt.':isDraftPersistenceEnabled()?'Lưu thành phiên bản DRAFT; dữ liệu sẽ được kiểm tra lại trước khi ghi.':'Chưa bật lưu DRAFT. Cần triển khai và xác minh migration trước.'}};
 }

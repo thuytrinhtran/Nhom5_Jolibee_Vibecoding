@@ -40,11 +40,11 @@ export async function authenticateSession(req: Request, res: Response, next: Nex
     const authUserId = authData.user.id;
 
     // Fetch user details from public.users using supabaseAdmin (bypasses RLS)
-    const { data: dbUser, error: userError } = await supabaseAdmin
+    const { data: dbUser, error: userError } = await coalesceRead('profile:'+authUserId,async()=>await supabaseAdmin
       .from('users')
       .select('id, username, role, branch_id, is_active, must_change_password, password_reset_id')
       .eq('id', authUserId)
-      .single();
+      .single());
 
     if (userError && userError.code !== 'PGRST116') {
       return res.status(503).json({ status: 'error', message: 'Không thể đọc phân quyền tài khoản. Vui lòng thử lại.' });

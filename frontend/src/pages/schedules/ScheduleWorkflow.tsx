@@ -1,3 +1,4 @@
+import { Toast, errorGuidance } from '../../components/Toast';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CalendarDays } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -26,9 +27,13 @@ export function WorkflowInspection({scheduleId,service}:{scheduleId:string;servi
     return()=>{active=false;};
   },[scheduleId,service]);
   if(!service.reviewSchedule)return null;
-  if(error)return <p role="alert">Không thể kiểm tra dữ liệu hiện tại: {error}</p>;
+  if(error)return <p role="alert">Không thể kiểm tra dữ liệu hiện tại: {errorGuidance(error)}</p>;
   if(!result)return <p role="status">Đang kiểm tra định biên và cơ cấu kinh nghiệm…</p>;
+  const totals=result.validation.coverage.reduce((sum,c)=>({required:sum.required+c.required_count,assigned:sum.assigned+c.assigned_count,missing:sum.missing+c.missing_count}),{required:0,assigned:0,missing:0});
   return <section aria-label="Kiểm tra nghiệp vụ lịch">
+    <p>Tổng nhu cầu: <strong>{totals.required}</strong> lượt · Đã phân công: <strong>{totals.assigned}</strong> lượt · Còn thiếu: <strong>{totals.missing}</strong> lượt.</p>
+    <p>Dữ liệu nguồn: {result.validation.source_state==='CURRENT'?'Khớp thời điểm lưu DRAFT':result.validation.source_state==='CHANGED'?'Đã thay đổi sau khi lưu DRAFT':'Chưa xác minh được'}.</p>
+    {totals.missing>0&&<p role="status">Lịch còn thiếu nhân sự. Cần xác nhận số lượt thiếu trước khi phê duyệt hoặc công bố.</p>}
     <p>Kiểm tra lịch: {result.validation.hard_constraints==='PASS'?'Đạt':'Cần kiểm tra'} · {result.ready?'Đủ điều kiện xử lý':'Cần xử lý cảnh báo trước khi tiếp tục'}</p>
     {!result.workflow_enabled&&<p>Chức năng xử lý lịch chưa được bật cho tuần này.</p>}
     {[...result.validation.issues,...result.validation.warnings].map((w,i)=><p key={i}>{w.message}</p>)}
@@ -88,6 +93,11 @@ const actionCopy: Record<WorkflowAction, { confirmation: string; success: string
   },
 };
 
+export function workflowShortageConfirmation(rows:{assigned_count:number;required_count:number;missing_count:number}[]){
+  const totals=rows.reduce((s,c)=>({assigned:s.assigned+c.assigned_count,required:s.required+c.required_count,missing:s.missing+c.missing_count}),{assigned:0,required:0,missing:0});
+  return `Đã phân công ${totals.assigned}/${totals.required} lượt. Còn thiếu ${totals.missing} lượt nhân sự. Xác nhận tiếp tục với tình trạng nhân sự này?`;
+}
+
 export const ScheduleWorkflow = ({
   mode,
   service = scheduleWorkflowApiService,
@@ -122,6 +132,18 @@ export const ScheduleWorkflow = ({
       : mode === 'publication-history' ? 'publicationHistory' : 'manager';
   const scope=JSON.stringify([actor?.id,actor?.role,actor?.branch_id,view]);
   const [loadedScope,setLoadedScope]=useState(scope);
+  const [confirmationReview,setConfirmationReview]=useState<{key:string;result:Awaited<ReturnType<NonNullable<ScheduleWorkflowService['reviewSchedule']>>>|null;error:string}|null>(null);
+  const needsReview=!!confirmation&&['approve','publish'].includes(confirmation.action);
+  const confirmationKey=confirmation?JSON.stringify([scope,confirmation.schedule.id,confirmation.schedule.version,confirmation.action]):'';
+  const confirmationReady=!needsReview||(usesMockWorkflow&&!service.reviewSchedule)||!!(confirmationReview?.key===confirmationKey&&confirmationReview.result?.ready&&confirmationReview.result.workflow_enabled&&confirmationReview.result.validation.source_state==='CURRENT'&&confirmationReview.result.validation.schedule_id===confirmation?.schedule.id&&confirmationReview.result.validation.version===confirmation?.schedule.version);
+  useEffect(()=>{
+    let active=true;
+    setConfirmationReview(null);
+    if(!confirmation||!needsReview)return;
+    if(!service.reviewSchedule){if(!usesMockWorkflow)setConfirmationReview({key:confirmationKey,result:null,error:'Chưa kiểm tra được dữ liệu lịch. Không thể xác nhận thao tác.'});return;}
+    void service.reviewSchedule(confirmation.schedule.id).then(result=>{if(active)setConfirmationReview({key:confirmationKey,result,error:''});}).catch(e=>{if(active)setConfirmationReview({key:confirmationKey,result:null,error:errorText(e)});});
+    return()=>{active=false;};
+  },[confirmationKey,service,needsReview,usesMockWorkflow]);
   const schedules=loadedScope===scope?scheduleRows:[];
   const loadSequence=useRef(0),working=useRef(false),currentScope=useRef(scope);
   currentScope.current=scope;
@@ -157,6 +179,7 @@ export const ScheduleWorkflow = ({
   }, [actor, branchResolution, service, view, usesMockWorkflow,scope]);
 
   useEffect(() => { void load();return()=>{loadSequence.current++;}; }, [load]);
+  useEffect(()=>{if(typeof window==='undefined'||typeof window.addEventListener!=='function')return;const refresh=()=>{if(!working.current&&!confirmation&&(typeof document==='undefined'||document.visibilityState==='visible'))void load();};window.addEventListener('focus',refresh);window.addEventListener('jollishift:data-changed',refresh);return()=>{window.removeEventListener('focus',refresh);window.removeEventListener('jollishift:data-changed',refresh);};},[load,confirmation]);
   useEffect(()=>{setSelected(null);setConfirmation(null);setReason('');setDeadline('');setSuccessMessage('');},[scope]);
 
   const perform = async (
@@ -206,7 +229,7 @@ export const ScheduleWorkflow = ({
   };
 
   const confirmAction = () => {
-    if (!confirmation) return;
+    if (!confirmation||!confirmationReady) return;
     const { schedule, action } = confirmation;
     setConfirmation(null);
     void perform(schedule, action);
@@ -251,7 +274,7 @@ export const ScheduleWorkflow = ({
       </div>
       <button className="workflow-button secondary" onClick={() => void load()} disabled={loading}>Làm mới</button>
     </div>
-    {error && <div className="workflow-alert error" role="alert">{error}<button className="workflow-button secondary" onClick={() => void load()} disabled={loading}>Thử lại</button></div>}
+    {error && <div className="workflow-alert error" role="alert">{errorGuidance(error)}<button className="workflow-button secondary" onClick={() => void load()} disabled={loading}>Thử lại</button></div>}
     {loading ? <div className="workflow-empty" role="status">{usesMockWorkflow ? 'Đang tải dữ liệu giả lập…' : 'Đang tải lịch làm việc...'}</div>
       : error ? null
         : schedules.length === 0 ? <div className="workflow-empty" role="status">
@@ -290,13 +313,13 @@ export const ScheduleWorkflow = ({
               Đã công bố bởi {schedule.published_by_username || 'Quản lý cửa hàng'} · {schedule.published_at ? new Date(schedule.published_at).toLocaleString('vi-VN') : 'Chưa có thời điểm'}
             </div>}
             {open && <div className="workflow-details">
-              <WorkflowInspection scheduleId={schedule.id} service={service}/>
-              {!usesMockWorkflow&&canPublish&&schedule.is_latest&&schedule.status==='DRAFT'&&<a className="workflow-button primary" href={`/manager/schedule?period_id=${encodeURIComponent(schedule.period_id)}`}>Mở bản nháp và gửi phê duyệt</a>}
+              <WorkflowInspection scheduleId={schedule.id} service={service}/>{schedule.workflow_enabled===false&&<p className="ui-help" role="status">Chưa mở xử lý cho tuần này. Liên hệ quản trị; không thể duyệt hoặc công bố.</p>}
+              {!usesMockWorkflow&&canPublish&&schedule.is_latest&&schedule.status==='DRAFT'&&<a className="workflow-button primary" href={`/manager/schedule?period_id=${encodeURIComponent(schedule.period_id)}&schedule_id=${encodeURIComponent(schedule.id)}&expected_version=${schedule.version}`}>Mở bản nháp và gửi phê duyệt</a>}
               {schedule.status==='PENDING_APPROVAL'&&<p>Đang chờ giám sát phê duyệt. Nhân viên chưa nhìn thấy lịch này.</p>}
               {canReview && schedule.status === 'PENDING_APPROVAL' && schedule.is_latest && <div className="workflow-actions">
                 <button className="workflow-button primary" disabled={busy||schedule.workflow_enabled===false} onClick={() => setConfirmation({ schedule, action: 'approve' })}>Phê duyệt</button>
-                <label className="workflow-reason">Lý do từ chối<textarea value={reason} onChange={event => setReason(event.target.value)} required maxLength={2000} placeholder="Nhập nội dung cần quản lý ca điều chỉnh" /></label>
-                <button className="workflow-button danger" disabled={busy || !reason.trim()||schedule.workflow_enabled===false} onClick={() => setConfirmation({ schedule, action: 'reject' })}>Từ chối</button>
+                <label className="workflow-reason">Lý do từ chối<small className="ui-help">Bắt buộc khi từ chối, giúp quản lý biết cần sửa gì.</small><textarea value={reason} onChange={event => setReason(event.target.value)} required maxLength={2000} placeholder="Nhập nội dung cần quản lý ca điều chỉnh" /></label>
+                <button className="workflow-button danger" title={!reason.trim()?'Nhập lý do cần điều chỉnh trước khi từ chối.':undefined} disabled={busy || !reason.trim()||schedule.workflow_enabled===false} onClick={() => setConfirmation({ schedule, action: 'reject' })}>Từ chối</button>
               </div>}
               {canPublishSchedule && <div className="workflow-actions">
                 <label>Thời hạn phản hồi<input type="datetime-local" value={deadline} onChange={event => setDeadline(event.target.value)} /></label>
@@ -341,24 +364,24 @@ export const ScheduleWorkflow = ({
             </div>}
           </article>;
         })}</div>}
-    {successMessage && <div className="workflow-modal-backdrop">
-      <section className="workflow-modal" role="dialog" aria-modal="true" aria-labelledby="workflow-success-title" aria-describedby="workflow-success-message">
-        <div className="workflow-modal-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21" /><path d="m14 24 7 7 14-15" /></svg></div>
-        <h2 id="workflow-success-title">Thao tác thành công</h2>
-        <p id="workflow-success-message">{successMessage}</p>
-        <button className="workflow-button primary" autoFocus onClick={() => setSuccessMessage('')}>Hoàn tất</button>
-      </section>
-    </div>}
+    {successMessage && Toast({message:successMessage,onDismiss:()=>setSuccessMessage(''),id:'workflow-success'})}
     {confirmation && <div className="workflow-modal-backdrop">
       <section className="workflow-modal" role="dialog" aria-modal="true" aria-labelledby="workflow-confirm-title" aria-describedby="workflow-confirm-message">
         <h2 id="workflow-confirm-title">Xác nhận thao tác</h2>
         <p id="workflow-confirm-message">{actionCopy[confirmation.action].confirmation}</p>
+        {needsReview&&confirmationReview?.key===confirmationKey&&confirmationReview.result&&<>
+          <p className="workflow-modal-detail" role="status">{workflowShortageConfirmation(confirmationReview.result.validation.coverage)}</p>
+          {!confirmationReady&&<p role="alert">Chưa thể tiếp tục: cần dữ liệu nguồn CURRENT, đúng version và các kiểm tra bắt buộc đạt.</p>}
+        </>}
+        {needsReview&&service.mode==='api'&&confirmationReview?.key!==confirmationKey&&<p role="status">Đang kiểm tra nguồn và số lượt nhân sự còn thiếu…</p>}
+        {needsReview&&confirmationReview?.key===confirmationKey&&confirmationReview.error&&<p role="alert">{confirmationReview.error}</p>}
+        {needsReview&&usesMockWorkflow&&!service.reviewSchedule&&<p role="status">Dữ liệu giả lập chưa có thống kê định biên để xác nhận.</p>}
         {confirmation.action === 'reject' && <p className="workflow-modal-detail">Lý do: {reason.trim()}</p>}
         {confirmation.action === 'publish'&&<p className="workflow-modal-detail">Thời hạn phản hồi: {new Date(deadline).toLocaleString('vi-VN')}</p>}
         {confirmation.action === 'resubmit' && <p className="workflow-modal-detail">Ghi chú: {adjustmentNote.trim()}</p>}
         <div className="workflow-modal-actions">
           <button className="workflow-button secondary" disabled={busy} onClick={() => setConfirmation(null)}>Hủy</button>
-          <button className={`workflow-button ${confirmation.action === 'reject' ? 'danger' : 'primary'}`} disabled={busy} onClick={confirmAction}>{busy ? 'Đang xử lý…' : 'Xác nhận'}</button>
+          <button className={`workflow-button ${confirmation.action === 'reject' ? 'danger' : 'primary'}`} disabled={busy||!confirmationReady} onClick={confirmAction}>{busy ? 'Đang xử lý…' : 'Xác nhận'}</button>
         </div>
       </section>
     </div>}

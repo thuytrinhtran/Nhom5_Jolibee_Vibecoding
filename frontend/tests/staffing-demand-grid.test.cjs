@@ -1,8 +1,21 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const vm=require('node:vm');const ts=require('typescript');const React=require('react');const {renderToStaticMarkup}=require('react-dom/server');
-function load(path,overrides={},globals={}){const code=ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022}}).outputText;const ctx={exports:{},Intl,Date,Map,Set,Error,...globals,require(id){if(id in overrides)return overrides[id];if(id.endsWith('.css'))return{};return require(id)}};vm.runInNewContext(code,ctx);return ctx.exports;}
+function load(path,overrides={},globals={}){const code=ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022}}).outputText;const ctx={exports:{},Intl,Date,Map,Set,Error,...globals,require(id){if(id in overrides)return overrides[id];if(id.endsWith('.css'))return{};return (id==='../../components/Toast'?require('./helpers/ui-components.cjs'):require(id))}};vm.runInNewContext(code,ctx);return ctx.exports;}
 const view=load('src/services/staffing-demand.view.ts'),grid=load('src/services/staffing-demand.grid.ts',{'./staffing-demand.view':view});
 function fixture(){return {period:{id:'week',branch_id:'branch',work_start_date:'2026-11-02',work_end_date:'2026-11-08',status:'CLOSED'},branch:{id:'branch'},is_mock:true,source:'mock',shifts:[['a','08:00','12:00'],['b','12:00','17:00'],['c','17:00','22:00']].map(([id,start_time,end_time],i)=>({id,name:`Ca ${i+1}`,start_time,end_time,is_active:true})),departments:[{id:'k',name:'Bếp'},{id:'t',name:'Thu ngân'},{id:'p',name:'Phục vụ'}],requirements:[{id:'saved',work_date:'2026-11-02',shift_id:'a',department_id:'k',required_count:2,required_skill_name:'Bếp nóng',sales_forecast_ref:'Forecast source',updated_at:'2026-10-29T00:00:00Z',created_by:'actor'}],summary:{rows:[],warnings:[]},skill_names:[]};}
 const key=c=>view.demandRowKey(c),value=(count,forecast='')=>({count,forecast});
+test('batch sends edits once, retains failed cells and preserves successful revisions',async()=>{
+ const data=fixture(),draft={'2026-11-02/a/k':value('4'),'2026-11-02/a/t':value('2')};let calls=0;
+ const result=await grid.saveGrid(data,draft,{saveDemand:()=>assert.fail('No per-cell calls'),clearDemand:()=>assert.fail('No per-cell calls'),saveDemandBatch:async(period,items)=>{
+   calls++;assert.equal(period,'week');assert.equal(items.length,2);assert.equal(items[0].input.expected_updated_at,data.requirements[0].updated_at);
+   return {results:[{index:0,requirement:{...data.requirements[0],required_count:4,updated_at:'new-version'}},{index:1,error:'Changed by another manager'}]};
+ }});
+ assert.equal(calls,1);assert.equal(result.saved,1);assert.equal(result.requirements[0].updated_at,'new-version');assert.equal(result.remaining['2026-11-02/a/t'].count,'2');assert.ok(result.errors['2026-11-02/a/t']);assert.equal(result.remaining['2026-11-02/a/k'],undefined);
+});
+test('batch transport failure never discards edits or claims success',async()=>{
+ const data=fixture(),draft={'2026-11-02/a/k':value('4')};
+ const result=await grid.saveGrid(data,draft,{saveDemandBatch:async()=>{throw Error('Timeout; check saved data before retry');}});
+ assert.equal(result.saved,0);assert.equal(result.remaining['2026-11-02/a/k'].count,'4');assert.ok(result.errors['2026-11-02/a/k']);
+});
 function nodes(node,predicate,result=[]){if(!React.isValidElement(node))return result;if(predicate(node))result.push(node);React.Children.forEach(node.props.children,c=>nodes(c,predicate,result));return result;}
 function workspace(data=fixture()){
  let draft={},errors={},states=[],index=0,tree,allow=true,prompts=0,focused='';

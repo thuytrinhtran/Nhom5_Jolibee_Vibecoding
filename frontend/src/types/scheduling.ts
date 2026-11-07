@@ -1,5 +1,5 @@
 export interface ScheduleSummary {
-  id: string; status: string; version: number; created_at: string; period_id?: string;
+  id: string; status: string; version: number; created_at: string; period_id?: string; schedule_group_id?:string;
 }
 export interface ScheduleRevisionRecord {
   id:string; period_id:string; branch_id:string; schedule_group_id:string;
@@ -43,7 +43,7 @@ export interface SchedulingContext {
   departments: { id: string; name: string }[];
 }
 export interface SavedSchedule {
-  source?:'mock'|'supabase';is_mock?:boolean;demand_changed?:boolean;note?:string|null;
+  source?:'mock'|'supabase';is_mock?:boolean;demand_changed?:boolean|null;source_state?:'CURRENT'|'CHANGED'|'UNKNOWN';source_reason?:string|null;note?:string|null;
   test_configuration?:{max_shifts_per_day:number|null;policy_source:string};
   schedule: ScheduleSummary;
   assignments: ScheduleAssignment[];
@@ -52,6 +52,7 @@ export interface SavedSchedule {
     employee_statistics?:{employee_id:string;shift_count:number;total_weekly_hours:number}[] } | null;
 }
 export interface SchedulePreview {
+  alternative?:{status:'FOUND'|'NOT_FOUND'|'SOURCE_CHANGED';attempts:number;fingerprint:string};
   kind:'preview';persisted:false;source:'mock'|'supabase';input_revision:string;
   period:SchedulingContext['period'];context:SchedulingContext;
   result:{rule_version?:string;plan_origin?:string;optimization?:ScheduleOptimization|null;covered_count?:number;existing_count?:number;composition_shortages?:ScheduleCoverage[];employee_statistics?:{employee_id:string;shift_count:number;total_weekly_hours:number}[];assignments:ScheduleAssignment[];coverage:ScheduleCoverage[];shortages:ScheduleCoverage[];required_count:number;assigned_count:number;new_employee_count_threshold:number|null;notes:string[]};
@@ -94,6 +95,7 @@ export interface DemandContext {
 export interface ScheduleValidation {
   schedule_id:string;version:number;scope:'DECLARED_REQUIREMENTS_AND_VALID_REGISTRATIONS';
   hard_constraints:'PASS'|'FAIL'|'UNKNOWN';data_complete:boolean;coverage_complete:boolean;input_current:boolean;can_submit:boolean;
+  source_state?:'CURRENT'|'CHANGED'|'UNKNOWN';source_reason?:string|null;
   issues:{code:string;message:string}[];warnings:{code:string;message:string}[];coverage:ScheduleCoverage[];checked_at:string;input_revision:string;
 }
 export interface ApprovalHandoff {

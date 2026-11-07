@@ -15,7 +15,7 @@ shiftChangeRoutes.use(authenticate,requireRole(['NV','QL']));
 shiftChangeRoutes.use((_req,res,next)=>{res.setHeader('Cache-Control','no-store');next();});
 async function rpc(name:string,args:Record<string,unknown>){
  const {data,error}=await(process.env.TV5_LOCAL_PG_RPC_ENABLED==='true'?localTv5Rpc(name,args):supabaseAdmin.rpc(name,args));
- if(error){const message=String(error.message??'');const code=['FORBIDDEN','ASSIGNMENT_STALE','FEEDBACK_CLOSED','DUPLICATE_OPEN_REQUEST','REASON_REQUIRED','INVALID_EXPIRY','INELIGIBLE_REPLACEMENT','CONFIRMATION_REQUIRED','INVITATION_CLOSED','SOURCE_CLOSED','DUPLICATE_INVITATION','REQUEST_CONFLICT','NOT_FOUND'].find(c=>message.includes(c));
+ if(error){const message=String(error.message??'');const code=['FORBIDDEN','ASSIGNMENT_STALE','FEEDBACK_CLOSED','DUPLICATE_OPEN_REQUEST','REASON_REQUIRED','INVALID_EXPIRY','INELIGIBLE_REPLACEMENT','CONFIRMATION_REQUIRED','INVITATION_CLOSED','SOURCE_CLOSED','DUPLICATE_INVITATION','REQUEST_CONFLICT','NOT_FOUND','REPLACEMENT_ALREADY_ACCEPTED','NO_EXPIRED_INVITATIONS'].find(c=>message.includes(c));
   throw new ScheduleError(error.code==='42501'?403:code==='NOT_FOUND'?404:code?409:503,code??'SHIFT_CHANGE_UNAVAILABLE',code?`Không thể xử lý: ${code}. Hãy tải lại và kiểm tra.`:'Chức năng chưa sẵn sàng hoặc đang bận. Thử lại cùng yêu cầu.');}
  return data;
 }

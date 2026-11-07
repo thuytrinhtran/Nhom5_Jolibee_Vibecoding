@@ -9,6 +9,7 @@ import { summarizeRegistrations } from './registration-summary.service.js';
 export interface ScheduleValidation {
   schedule_id:string;version:number;scope:'DECLARED_REQUIREMENTS_AND_VALID_REGISTRATIONS';
   hard_constraints:'PASS'|'FAIL'|'UNKNOWN';data_complete:boolean;coverage_complete:boolean;input_current:boolean;
+  source_state:'CURRENT'|'CHANGED'|'UNKNOWN';source_reason:string|null;
   can_submit:boolean;issues:{code:string;message:string}[];warnings:{code:string;message:string}[];
   coverage:ReturnType<typeof reviewAssignments>['coverage'];checked_at:string;input_revision:string;
 }
@@ -49,17 +50,19 @@ export async function inspectSchedule(id:string,branchId:string,expectedVersion:
   if(!dataComplete)issues.push({code:'INCOMPLETE_DATA',message:'Thiếu nhu cầu hoặc dữ liệu bắt buộc cho các ca đã khai báo/đăng ký.'});
   if(active.some(a=>a.assignment_source&&a.assignment_source!=='REGULAR')){dataComplete=false;issues.push({code:'EXTERNAL_STAFFING_REVIEW_REQUIRED',message:'Cần kiểm tra riêng Crew Leader/nhân sự hỗ trợ trước khi bàn giao.'});}
   if(!saved.schedule.created_by||!saved.schedule.schedule_group_id||saved.schedule.branch_id!==branchId||typeof saved.schedule.created_at!=='string'||!Number.isFinite(Date.parse(saved.schedule.created_at))){dataComplete=false;issues.push({code:'INCOMPLETE_SCHEDULE_METADATA',message:'Thiếu mã nhóm lịch, phạm vi chi nhánh, người tạo hoặc thời điểm tạo hợp lệ.'});}
-  const inputCurrent=!('demand_changed' in saved&&saved.demand_changed===true);
-  if(!inputCurrent)issues.push({code:'INPUT_CHANGED',message:'Dữ liệu đã đổi sau khi tạo lịch. Cần tạo lại hoặc cập nhật phiên bản nháp trước.'});
+  const sourceState=saved.source_state??'UNKNOWN';
+  const sourceReason=saved.source_reason??(sourceState==='UNKNOWN'?'SOURCE_SNAPSHOT_MISSING':null);
+  const inputCurrent=sourceState==='CURRENT';
+  if(!inputCurrent)issues.push({code:sourceReason??'SOURCE_CHANGED',message:sourceState==='CHANGED'?'Dữ liệu nguồn đã đổi sau khi lưu lịch. Hãy kiểm tra và lưu phiên bản DRAFT mới.':'Chưa xác minh được dữ liệu nguồn. DRAFT cũ thiếu snapshot cần được kiểm tra và lưu phiên bản mới; nếu dịch vụ kiểm tra lỗi, hãy thử lại.'});
   const coverageComplete=!!checked&&checked.shortages.length===0;
-  if(checked&&!coverageComplete)issues.push({code:'STAFFING_SHORTAGE',message:`Lịch còn thiếu ${checked.shortages.reduce((n,r)=>n+r.missing_count,0)} lượt phân công.`});
+  const shortageWarnings=checked&&!coverageComplete?[{code:'STAFFING_SHORTAGE',message:`Lịch còn thiếu ${checked.shortages.reduce((n,r)=>n+r.missing_count,0)} lượt phân công. Quản lý và giám sát cần xác nhận số lượt còn thiếu khi gửi, phê duyệt và công bố.`}]:[];
   const statusEligible=['DRAFT','NEEDS_REVISION'].includes(saved.schedule.status);
   if(!statusEligible)issues.push({code:'INVALID_HANDOFF_STATUS',message:'TV3 chỉ chuẩn bị bàn giao bản DRAFT hoặc NEEDS_REVISION.'});
   const periodClosed=snapshot.period.status==='CLOSED';if(!periodClosed)issues.push({code:'PERIOD_NOT_CLOSED',message:'Đợt đăng ký chưa đóng.'});
   const validation:ScheduleValidation={schedule_id:id,version:expectedVersion,scope:'DECLARED_REQUIREMENTS_AND_VALID_REGISTRATIONS',
-    hard_constraints:hard,data_complete:dataComplete,coverage_complete:coverageComplete,input_current:inputCurrent,
-    can_submit:hard==='PASS'&&dataComplete&&coverageComplete&&inputCurrent&&statusEligible&&periodClosed,
-    issues,warnings:[...summary.warnings,...(checked?.coverage.filter(r=>r.warning).map(r=>({code:r.warning!,message:`Thiếu ${r.missing_experienced_count} nhân viên kinh nghiệm so với mục tiêu ${r.experienced_target} của ô lịch.`}))??[])],
+    hard_constraints:hard,data_complete:dataComplete,coverage_complete:coverageComplete,input_current:inputCurrent,source_state:sourceState,source_reason:sourceReason,
+    can_submit:hard==='PASS'&&dataComplete&&inputCurrent&&saved.schedule.status==='DRAFT'&&periodClosed,
+    issues,warnings:[...summary.warnings,...shortageWarnings,...(checked?.coverage.filter(r=>r.warning).map(r=>({code:r.warning!,message:`Thiếu ${r.missing_experienced_count} nhân viên kinh nghiệm so với mục tiêu ${r.experienced_target} của ô lịch.`}))??[])],
     coverage:checked?.coverage??[],checked_at:new Date().toISOString(),input_revision:createHash('sha256').update(JSON.stringify(snapshot)).digest('hex')};
   return {saved,snapshot,rule_snapshot:ownFree,assignments,validation};
 }

@@ -93,17 +93,14 @@ router.get('/', async (req, res) => {
     let approvals: any[] = [];
     let versions: Array<{ schedule_group_id: string; version: number }> = [];
     if (ids.length) {
-      const result = await supabaseAdmin.from('schedule_approvals')
-        .select('id,schedule_id,supervisor_id,decision,reason,decided_at,users:supervisor_id(username)')
-        .in('schedule_id', ids).order('decided_at', { ascending: false });
-      if (result.error) throw result.error;
-      approvals = result.data || [];
-
       const groupIds = [...new Set(schedules.map(schedule => schedule.schedule_group_id))];
-      const versionResult = await supabaseAdmin.from('schedules')
-        .select('schedule_group_id,version').in('schedule_group_id', groupIds);
-      if (versionResult.error) throw versionResult.error;
-      versions = versionResult.data || [];
+      const [approvalResult,versionResult]=await Promise.all([
+        supabaseAdmin.from('schedule_approvals').select('id,schedule_id,supervisor_id,decision,reason,decided_at,users:supervisor_id(username)').in('schedule_id', ids).order('decided_at', { ascending: false }),
+        supabaseAdmin.from('schedules').select('schedule_group_id,version').in('schedule_group_id', groupIds),
+      ]);
+      if(approvalResult.error)throw approvalResult.error;
+      if(versionResult.error)throw versionResult.error;
+      approvals=approvalResult.data||[];versions=versionResult.data||[];
     }
     const withLatest = markLatestVersions(schedules, versions);
     return res.json({ workflow_enabled:workflowEnabled(), schedules: withLatest.map(schedule => ({

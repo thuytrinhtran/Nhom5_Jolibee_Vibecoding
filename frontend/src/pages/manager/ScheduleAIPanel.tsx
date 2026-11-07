@@ -71,7 +71,7 @@ export function ruleSuggestions(preview:SchedulePreview,checked:CheckedPreviewCa
   for(const suggestion of unique)if(!selected.includes(suggestion)&&selected.length<3)selected.push(suggestion);
   return selected;
 }
-type PanelProps=({saved:SavedSchedule;preview?:never}|{preview:SchedulePreview;saved?:never;previewDirty?:boolean;onOpenCell?:(key:string)=>void;checkedCandidates?:CheckedPreviewCandidates[]})&{employees?:{id:string;full_name:string}[]};
+type PanelProps=({saved:SavedSchedule;preview?:never}|{preview:SchedulePreview;saved?:never;previewDirty?:boolean;onOpenCell?:(key:string)=>void;checkedCandidates?:CheckedPreviewCandidates[]})&{employees?:{id:string;full_name:string}[];ruleOnly?:boolean};
 export function PreviewScheduleAIPanel({preview,dirty=false,employees=[],onOpenCell,checkedCandidates=[]}:{preview:SchedulePreview;dirty?:boolean;employees?:{id:string;full_name:string}[];onOpenCell?:(key:string)=>void;checkedCandidates?:CheckedPreviewCandidates[]}) {
   const [configuration,setConfiguration]=useState<PreviewAIConfiguration|null>(null);
   const [last,setLast]=useState<{key:string;evaluation:PreviewAIEvaluation}|null>(null);
@@ -142,6 +142,13 @@ export function PreviewScheduleAIPanel({preview,dirty=false,employees=[],onOpenC
   </section>;
 }
 export function ScheduleAIPanel(props:PanelProps) {
+  if(props.ruleOnly&&props.preview){
+    const preview=props.preview,coverage=preview.result.coverage??preview.result.shortages;
+    const suggestions=ruleSuggestions(preview,props.checkedCandidates??[]);
+    return <section className="card summary-panel" aria-label="Các ca cần chú ý"><h3>Kiểm tra nhu cầu &amp; phân công</h3><p>Còn thiếu <strong>{coverage.reduce((n,r)=>n+Math.max(0,r.missing_count),0)}</strong> vị trí.</p>
+      {props.previewDirty?<p>Kiểm tra lại thay đổi để cập nhật số liệu.</p>:<ul className="rule-suggestion-cards">{suggestions.map(s=><li className="rule-suggestion-card" key={s.key}><strong>{s.date} · {s.shift} · {s.department}</strong><p>{s.problem}</p>{s.candidateLabel&&<p>{s.candidateLabel}</p>}<p>{s.action}</p>{s.button&&props.onOpenCell&&<button type="button" className="btn btn-outline" onClick={()=>props.onOpenCell?.(s.key)}>Xem ca</button>}</li>)}</ul>}
+    </section>;
+  }
   return props.preview?<PreviewScheduleAIPanel preview={props.preview} dirty={props.previewDirty} employees={props.employees} onOpenCell={props.onOpenCell} checkedCandidates={props.checkedCandidates}/>:<SavedScheduleAIPanel saved={props.saved} employees={props.employees}/>;
 }
 

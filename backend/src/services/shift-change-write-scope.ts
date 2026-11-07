@@ -1,10 +1,10 @@
 import { supabaseAdmin } from '../config/supabase.js';
-import { draftWriteScopeAllowed, isTestWriteScope } from './draft-write-scope.js';
+import { draftWriteScopeAllowed, isLocalTestWriteScope } from './draft-write-scope.js';
 import { ScheduleError } from './scheduling.engine.js';
 
 export async function requireShiftChangeWriteScope(action:string,data:Record<string,unknown>,actorBranch?:string|null){
- if(isTestWriteScope()&&process.env.TV3_WRITE_SCOPE_ENABLED!=='true')throw new ScheduleError(403,'TV5_SCOPE_FORBIDDEN','Chế độ nghiệm thu yêu cầu giới hạn ghi đúng kỳ test.');
- if(process.env.TV3_WRITE_SCOPE_ENABLED===undefined||process.env.TV3_WRITE_SCOPE_ENABLED==='false')return;
+ if(isLocalTestWriteScope())return;
+ if(process.env.TV3_WRITE_SCOPE_ENABLED!=='true')throw new ScheduleError(403,'TV5_SCOPE_FORBIDDEN','Chưa cấu hình phạm vi đổi ca được phê duyệt.');
  const get=async(table:string,id:unknown,fields:string)=>{
   const {data:row,error}=await supabaseAdmin.from(table).select(fields).eq('id',String(id)).maybeSingle();
   if(error)throw new ScheduleError(503,'TV5_SCOPE_UNAVAILABLE','Chưa xác minh được phạm vi đổi ca.');

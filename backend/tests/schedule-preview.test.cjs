@@ -63,6 +63,7 @@ test('preview HTTP requires manager and own branch; no database mutation or RPC'
  for(const [assignments,code] of [[[assignment,{...assignment,employee_id:'b'}],'DEMAND_EXCEEDED'],[[{...assignment,employee_id:'unregistered'}],'REGISTRATION_REQUIRED']]){
   const rejected=await post({period_id:id,input_revision:preview.input_revision,assignments});assert.equal(rejected.status,422);const body=await rejected.json();assert.equal(body.code,code);assert.ok(body.message.length>10);
  }
+ const history=Array.from({length:20},()=>Array.from({length:100},()=>assignment));const alternativeBody={period_id:id,input_revision:preview.input_revision,assignments:[assignment],alternative_history:history};assert.ok(JSON.stringify(alternativeBody).length>100*1024);const alt=await post(alternativeBody);assert.equal(alt.status,200);assert.equal((await alt.json()).result.alternative.status,'FOUND');
  const accepted=await post({period_id:id,input_revision:preview.input_revision,assignments:[{...assignment,employee_id:'b'}]});assert.equal(accepted.status,200);assert.equal((await accepted.json()).result.result.assignments[0].employee_id,'b');
  }finally{db.auth.getUser=original.getUser;db.from=original.from;db.rpc=original.rpc;repositories.registrationSummaryRepository=original.repository;await new Promise(r=>server.close(r));}
 });
@@ -78,4 +79,34 @@ test('manual OPEN preview is development-only, scoped, non-persisting and revisi
  for(const [k,val] of [['NODE_ENV','production'],['TV3_OPEN_REGISTRATION_PREVIEW_ENABLED','false'],['TV3_WRITE_SCOPE_ENABLED','false'],['TV3_WRITE_PERIOD_ID','other']]){const prev=process.env[k];process.env[k]=val;await assert.rejects(previewSchedule(p,b,{},repo),e=>e.code==='PERIOD_NOT_CLOSED');process.env[k]=prev;}
  data.period.id='0f38b6da-4552-4885-9c0b-dbb295e8ef8c';await assert.rejects(previewSchedule(data.period.id,b,{},repo),e=>e.code==='PERIOD_NOT_CLOSED');
  }finally{for(const k of Object.keys(process.env))if(!(k in old))delete process.env[k];Object.assign(process.env,old);}
+});
+
+
+test('alternative preview verifies history and source revision, has no writer calls, and saved plans use unchanged persistence verification',async()=>{
+ const data=fixture();data.employees.push({...data.employees[0],id:'b',full_name:'Second'});data.registrations.push({...data.registrations[0],id:'r2',employee_id:'b'});
+ const repo={load:async()=>structuredClone(data)},plain=rows=>rows.map(({employee_id,work_date,shift_id,department_id})=>({employee_id,work_date,shift_id,department_id}));
+ const a=await previewSchedule('p','b',{},repo),body={input_revision:a.input_revision,assignments:plain(a.result.assignments),alternative_history:[plain(a.result.assignments)]};
+ const b=await previewSchedule('p','b',body,repo);assert.equal(b.alternative.status,'FOUND');assert.equal(b.persisted,false);
+ const none=await previewSchedule('p','b',{...body,assignments:plain(b.result.assignments),alternative_history:[...body.alternative_history,plain(b.result.assignments)]},repo);assert.equal(none.alternative.status,'NOT_FOUND');
+ const {serverVerifiedPlan}=require('../dist/services/draft-persistence.service.js');const verified=serverVerifiedPlan(schedulingInput(data),plain(b.result.assignments));assert.deepEqual(plain(verified.assignments),plain(b.result.assignments));assert.equal(verified.plan_origin,'MANAGER_REVIEWED');
+ await assert.rejects(previewSchedule('p','b',{...body,alternative_history:['fake hash']},repo),e=>e.code==='INVALID_ALTERNATIVE_HISTORY');
+ data.requirements[0].required_count=2;const fresh=await previewSchedule('p','b',body,repo);assert.equal(fresh.alternative.status,'SOURCE_CHANGED');assert.notEqual(fresh.input_revision,a.input_revision);assert.equal(fresh.result.assigned_count,2);
+});
+
+
+test('alternative preview saves exact assignments as a new draft version through existing RPC contract',async()=>{
+ const data=fixture();data.employees.push({...data.employees[0],id:'b'});data.registrations.push({...data.registrations[0],id:'r2',employee_id:'b'});
+ const repositories=require('../dist/repositories/registration-summary.repository.js'),services=require('../dist/services/scheduling.service.js'),{supabaseAdmin:db}=require('../dist/config/supabase.js');
+ const old={repository:repositories.registrationSummaryRepository,read:services.readDraft,from:db.from,rpc:db.rpc,flag:process.env.TV3_DRAFT_PERSISTENCE_ENABLED};
+ const target={id:'old-draft',version:1,status:'DRAFT',period_id:'p'},repo={source:'supabase',load:async()=>structuredClone(data),listPeriods:async()=>[{id:'p',schedules:[target]}]};
+ const calls=[];repositories.registrationSummaryRepository=()=>repo;services.readDraft=async()=>({schedule:target,assignments:[]});
+ db.from=()=>({select(){return this},eq(){return this},maybeSingle:async()=>({data:null,error:null})});
+ db.rpc=async(name,args)=>{calls.push({name,args});assert.equal(name,'persist_schedule_draft');assert.equal(args.p_schedule_id,target.id);assert.equal(args.p_expected_version,1);return {data:args.p_result?{reused:false,result:{...args.p_result,schedule:{...target,id:'next-draft',version:2}}}:{input:{...schedulingInput(data),rule_version:'tv3.rules.v2'}},error:null};};
+ try{
+  process.env.TV3_DRAFT_PERSISTENCE_ENABLED='true';const options={schedule_id:target.id,expected_version:1};
+  const a=await previewSchedule('p','b',options,repo),plain=rows=>rows.map(({employee_id,work_date,shift_id,department_id})=>({employee_id,work_date,shift_id,department_id}));
+  const b=await previewSchedule('p','b',{...options,input_revision:a.input_revision,assignments:plain(a.result.assignments),alternative_history:[plain(a.result.assignments)]},repo);assert.equal(b.alternative.status,'FOUND');assert.equal(calls.length,0);
+  const saved=await require('../dist/services/draft-persistence.service.js').persistPreview('p','b','actor',{period_id:'p',input_revision:b.input_revision,assignments:plain(b.result.assignments),expected_version:1,request_id:'00000000-0000-4000-8000-000000000001'},target.id);
+  assert.equal(saved.result.schedule.version,2);assert.equal(saved.result.schedule.id,'next-draft');assert.deepEqual(plain(calls.at(-1).args.p_result.assignments),plain(b.result.assignments));assert.equal(calls.at(-1).args.alternative_history,undefined);
+ }finally{repositories.registrationSummaryRepository=old.repository;services.readDraft=old.read;db.from=old.from;db.rpc=old.rpc;if(old.flag===undefined)delete process.env.TV3_DRAFT_PERSISTENCE_ENABLED;else process.env.TV3_DRAFT_PERSISTENCE_ENABLED=old.flag;}
 });

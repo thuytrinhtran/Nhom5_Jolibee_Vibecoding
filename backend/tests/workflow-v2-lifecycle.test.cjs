@@ -6,7 +6,7 @@ test('TV3/TV4 lifecycle on disposable PostgreSQL: submit reject revise approve p
  let server;
  const old={draft:process.env.TV3_DRAFT_PERSISTENCE_ENABLED,workflow:process.env.TV4_WORKFLOW_PERSISTENCE_ENABLED,source:process.env.SCHEDULING_DATA_SOURCE};
  try{
-  for(const name of ['20261029_tv4_schedule_workflow.sql','20261031_tv3_schedule_draft.sql','20261101_tv3_rule_contract_v2.sql','20261102_tv4_workflow_v2.sql'])await h.sql.exec(fs.readFileSync(path.join(__dirname,'../migrations',name),'utf8'));
+  for(const name of ['20261029_tv4_schedule_workflow.sql','20261031_tv3_schedule_draft.sql','20261101_tv3_rule_contract_v2.sql','20261102_tv4_workflow_v2.sql','20261106_tv3_persist_source_snapshot.sql','20261106_tv4_submit_staffing_shortage.sql'])await h.sql.exec(fs.readFileSync(path.join(__dirname,'../migrations',name),'utf8'));
   const q=(s,p=[])=>h.sql.query(s,p),branch=h.id(1),ql=h.id(90),gs=h.id(91),period=h.id(8),employee=h.id(4),shift=h.id(5),department=h.id(2);
   await q('INSERT INTO auth.users VALUES($1),($2)',[ql,gs]);
   await q("INSERT INTO users(id,username,role,branch_id) VALUES($1,'manager','QL',$3),($2,'supervisor','GS',NULL)",[ql,gs,branch]);
@@ -76,7 +76,7 @@ test('TV3/TV4 lifecycle on disposable PostgreSQL: submit reject revise approve p
   }
   // Actual source drift is revalidated before publication, not trusted from UI.
   await q('UPDATE staffing_requirements SET required_count=2');
-  await assert.rejects(transition(latest.id,manager,'PUBLISH',latest.version,{feedback_deadline_at:new Date(Date.now()+86400000).toISOString()}),e=>e.code==='COVERAGE_INCOMPLETE');
+  await assert.rejects(transition(latest.id,manager,'PUBLISH',latest.version,{feedback_deadline_at:new Date(Date.now()+86400000).toISOString()}),e=>e.code==='SOURCE_CHANGED');
   await q('UPDATE staffing_requirements SET required_count=1');
   const published=await transition(latest.id,manager,'PUBLISH',latest.version,{feedback_deadline_at:new Date(Date.now()+86400000).toISOString()});assert.equal(published.schedule.status,'PUBLISHED');
   assert.equal((await q('SELECT status FROM shift_assignments WHERE schedule_id=$1',[latest.id])).rows[0].status,'ACTIVE');

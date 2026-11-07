@@ -6,7 +6,7 @@ function harness(file,name,dependencies,user,props={}){
  const memo=(factory,deps)=>{const i=mi++,old=memos[i];if(!old||deps.some((d,j)=>!Object.is(d,old.deps[j])))memos[i]={deps,value:factory()};return memos[i].value;};
  const hooks={...React,useState(v){const i=si++;if(!(i in states))states[i]=typeof v==='function'?v():v;return [states[i],n=>states[i]=typeof n==='function'?n(states[i]):n]},useRef(v){return refs[ri++]||={current:v}},useMemo:memo,useCallback:(fn,deps)=>memo(()=>fn,deps),useEffect(fn,deps=[]){const i=ei++,old=effects[i];if(!old||deps.some((d,j)=>!Object.is(d,old.deps[j]))){old?.cleanup?.();effects[i]={deps};pending.push(()=>effects[i].cleanup=fn());}}};
  const code=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText;
- const box={exports:{},Date,Intl,Error,Set,Map,crypto:require('node:crypto').webcrypto,window:{confirm:()=>true,setInterval:()=>1,clearInterval(){},addEventListener(){},removeEventListener(){}},require(id){if(id==='react')return hooks;if(id==='../../context/AuthContext')return{useAuth:()=>({user:profile})};if(id in dependencies)return dependencies[id];if(id.endsWith('.css'))return{};return require(id)}};
+ const box={exports:{},Date,Intl,Error,Set,Map,crypto:require('node:crypto').webcrypto,window:{confirm:()=>true,setInterval:()=>1,clearInterval(){},addEventListener(){},removeEventListener(){}},require(id){if(id==='react')return hooks;if(id==='../../context/AuthContext')return{useAuth:()=>({user:profile})};if(id in dependencies)return dependencies[id];if(id.endsWith('.css'))return{};return (id==='../../components/Toast'?require('./helpers/ui-components.cjs'):require(id))}};
  vm.runInNewContext(code,box);
  function nodes(n,out=[]){if(!React.isValidElement(n))return out;out.push(n);React.Children.forEach(n.props.children,c=>nodes(c,out));return out;}
  const text=n=>!React.isValidElement(n)?String(n??''):React.Children.toArray(n.props.children).map(text).join('');
@@ -14,6 +14,7 @@ function harness(file,name,dependencies,user,props={}){
 }
 const row=(id,status='PENDING_APPROVAL')=>({id,version:1,status,is_latest:true,workflow_enabled:true,branch_id:'branch',schedule_group_id:id,registration_periods:{work_start_date:'2026-11-09',work_end_date:'2026-11-15'},branches:{id:'branch',name:id},shift_assignments:[],approvals:[]});
 function workflow(service,user={id:'gs',role:'GS',branch_id:'branch'}){
+ service={reviewSchedule:async id=>({ready:true,workflow_enabled:true,validation:{schedule_id:id,version:1,source_state:'CURRENT',coverage:[]}}),...service};
  return harness('src/pages/schedules/ScheduleWorkflow.tsx','ScheduleWorkflow',{'./scheduleWorkflow.types':{ScheduleWorkflowError:class extends Error{},TV4_SHIFT_DEFINITIONS:[]},'./scheduleWorkflow.api.service':{scheduleWorkflowApiService:service}},user,{mode:'approvals',service});
 }
 test('a late queue read cannot restore a pending schedule after supervisor approval',async()=>{

@@ -11,6 +11,7 @@ import { automationRoutes } from './routes/registration-automation.routes.js';
 import scheduleWorkflowRoutes from './routes/schedule-workflow.routes.js';
 import { employeeScheduleRoutes } from './routes/employee-schedule.routes.js';
 import { shiftChangeRoutes } from './routes/shift-change.routes.js';
+import { notificationRoutes } from './routes/notification.routes.js';
 import { testPreviewWriteGuard } from './services/test-preview-policy.js';
 import { invalidatePendingReads } from './services/read-coalescing.js';
 
@@ -26,6 +27,8 @@ app.use(cors({
   credentials: true
 }));
 app.use('/api/auth', (_req, res, next) => { res.setHeader('Cache-Control', 'no-store'); next(); });
+// Alternative previews carry bounded assignment history; other routes retain their existing limit.
+app.post('/api/schedules/preview',express.json({limit:'12mb'}));
 app.use(express.json());
 app.use((req,res,next)=>{
  if(!['GET','HEAD','OPTIONS'].includes(req.method)){invalidatePendingReads();res.once('finish',invalidatePendingReads);res.once('close',invalidatePendingReads);}
@@ -43,6 +46,7 @@ app.use('/api/schedules', testPreviewWriteGuard);
 app.use('/api/schedules/workflow', scheduleWorkflowRoutes);
 app.use('/api/employee-schedule', employeeScheduleRoutes);
 app.use('/api/shift-changes', shiftChangeRoutes);
+app.use('/api/notifications', notificationRoutes);
 // Match TV4 before TV3's broad /:id routes and QL-only router middleware.
 app.use('/api/schedules', schedulingRoutes);
 

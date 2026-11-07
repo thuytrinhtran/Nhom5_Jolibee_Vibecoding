@@ -1,3 +1,4 @@
+import { Toast, errorGuidance } from '../../components/Toast';
 import React, { useEffect, useRef, useState } from 'react';
 import { CalendarDays, Save, Send } from 'lucide-react';
 import { ApiError } from '../../services/auth.service';
@@ -67,8 +68,8 @@ export const ShiftRegistration: React.FC = () => {
     <header className="reg-heading"><h1><CalendarDays size={25}/> Đăng ký ca làm</h1><p>Chọn mọi ca bạn có thể làm. Ngày trống chỉ được xem là OFF sau khi gửi.</p></header>
     {registrationDemoEnabled && <details className="reg-demo"><summary><strong>DEMO – dữ liệu giả lập</strong><span>Hướng dẫn &amp; công cụ thử</span></summary><p>Lưu và gửi chỉ ở bộ nhớ; không ghi Supabase. Tải lại trang sẽ xóa DEMO. Đăng nhập vẫn dùng hệ thống thật. Ba ca liền nhau được chọn đồng thời. Gửi không chọn ca để mô phỏng nghỉ cả tuần; nháp không xác nhận OFF.</p><div className="reg-demo-actions"><button className="btn btn-secondary" disabled={loading || saving} onClick={async () => { await registrationService.resetDemo?.(); setMessage(''); await load(); }}>Đặt lại DEMO</button><button className="btn btn-secondary" disabled={loading || saving || !editable} onClick={async () => { await registrationService.closeDemo?.(); setMessage(''); await load(); }}>Mô phỏng đóng đợt</button></div></details>}
     <div className="reg-profile"><strong>{data?.employee.full_name || user?.employee?.full_name || user?.username}</strong><span>Chi nhánh: {data?.employee.branch_name || user?.branch_name || 'Chưa có thông tin'}</span><span>Bộ phận: {data?.employee.department_name || user?.employee?.department_name || 'Chưa có thông tin'}</span></div>
-    {error && <div role="alert" className="reg-alert">{error} <button className="btn" disabled={loading||saving} onClick={() => void load()}>Thử lại</button></div>}
-    {message && <p role="status" className="reg-success">{message}</p>}
+    {error && <div role="alert" className="reg-alert">{errorGuidance(error)} <button className="btn" disabled={loading||saving} onClick={() => void load()}>Thử lại</button></div>}
+    {message && Toast({message,onDismiss:()=>setMessage('')})}
     {data?.registration_window?.dev_test_override&&<p className="reg-note" role="status">Chế độ development: đăng ký tuần 09–15/11/2026 không giới hạn giờ mở/đóng. Nguyện vọng vẫn được kiểm tra và lưu thật; hạn đăng ký gốc không thay đổi. Không mở lại lịch đã gửi duyệt hoặc công bố.</p>}
     {data?.has_sample_data && <p className="reg-note">Nhóm đang có dữ liệu mẫu TV3 cho hồ sơ này. Dữ liệu mẫu không phải đăng ký của bạn; hãy chọn và gửi các ca bạn thực sự có thể làm.</p>}
     {loading ? <p role="status" className="reg-card">Đang tải đợt đăng ký…</p> : !data ? null : !period ? <p className="reg-card">Chưa có đợt đăng ký cho chi nhánh của bạn.</p> : <>

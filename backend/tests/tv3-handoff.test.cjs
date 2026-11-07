@@ -25,10 +25,10 @@ test('mock records do not cross scenario boundary even for same branch/period',a
  await mode('tv3-flow',async()=>{await assert.rejects(readDraft(summaryId,branch),e=>e.status===404);const flow=await createDraft(period,actor,branch);assert.equal(flow.result.required_count,9);assert.equal(flow.result.schedule.version,1);});
  await mode('summary',async()=>{assert.equal((await readDraft(summaryId,branch)).schedule.version,1);});
 });
-test('validation/handoff block shortage, stale inputs and old versions; preparation never changes DRAFT status',()=>mode('tv3-flow',async()=>{
+test('validation/handoff allow shortage but block stale inputs and old versions; preparation never changes DRAFT status',()=>mode('tv3-flow',async()=>{
  const branch='00000000-0000-4000-8000-000000000804';const first=await createDraft(period,actor,branch),id=first.result.schedule.id;
- let check=await validateSchedule(id,branch,1);assert.equal(check.hard_constraints,'PASS');assert.equal(check.coverage_complete,false);assert.equal(check.can_submit,false);
- const blocked=await prepareApprovalHandoff(id,branch,actor,{expected_version:1});assert.equal(blocked.payload,null);assert.equal(blocked.delivery.sent,false);assert.equal(blocked.current_status,'DRAFT');
+ let check=await validateSchedule(id,branch,1);assert.equal(check.hard_constraints,'PASS');assert.equal(check.coverage_complete,false);assert.equal(check.can_submit,true);assert.ok(check.warnings.some(w=>w.code==='STAFFING_SHORTAGE'));assert.ok(!check.issues.some(w=>w.code==='STAFFING_SHORTAGE'));
+ const blocked=await prepareApprovalHandoff(id,branch,actor,{expected_version:1});assert.ok(blocked.payload);assert.equal(blocked.delivery.sent,false);assert.equal(blocked.current_status,'DRAFT');
  const data=await readDemand(period,branch);const need=data.requirements.find(r=>r.shift_id===data.shifts[1].id&&r.department_id===data.departments[2].id);
  await saveDemand(period,branch,actor,{work_date:need.work_date,shift_id:need.shift_id,department_id:need.department_id,required_count:1,required_skill_name:need.required_skill_name,sales_forecast_ref:need.sales_forecast_ref,expected_updated_at:need.updated_at});
  check=await validateSchedule(id,branch,1);assert.equal(check.input_current,false);assert.equal(check.can_submit,false);
@@ -62,6 +62,6 @@ test('HTTP review and handoff remain QL-scoped and never invoke TV4 or Supabase 
   for(const roleValue of ['NV','GS']){role=roleValue;assert.equal((await post(`/${draft.id}/validate`,{expected_version:1})).status,403);assert.equal((await post(`/${draft.id}/approval-handoff`,{expected_version:1})).status,403);}role='QL';
   assert.equal((await fetch(base+`/${draft.id}/validate`,{method:'POST'})).status,401);
   assert.equal((await post(`/${draft.id}/validate`,{})).status,400);
-  const handoff=await post(`/${draft.id}/approval-handoff`,{expected_version:1});assert.equal(handoff.status,200);const prepared=(await handoff.json()).result;assert.equal(prepared.validation.can_submit,false);assert.equal(prepared.delivery.sent,false);assert.equal(prepared.current_status,'DRAFT');
+  const handoff=await post(`/${draft.id}/approval-handoff`,{expected_version:1});assert.equal(handoff.status,200);const prepared=(await handoff.json()).result;assert.equal(prepared.validation.can_submit,true);assert.equal(prepared.delivery.sent,false);assert.equal(prepared.current_status,'DRAFT');
  }finally{db.from=old.from;db.auth.getUser=old.getUser;db.rpc=old.rpc;await new Promise(resolve=>server.close(resolve));}
 }));

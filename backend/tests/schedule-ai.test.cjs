@@ -174,7 +174,7 @@ test('network failures, request timeouts and interrupted response streams are pr
 });
 test('DRAFT with no assigned staff still reaches AI when declared demand and mandatory data can be checked',()=>mode(async()=>{
  const branch='00000000-0000-4000-8000-000000009011',id=await make(branch),empty=await editMockDraft(id,branch,actor,{expected_version:1,assignments:[]});
- const state=await inspectSchedule(empty.schedule.id,branch,2);assert.equal(state.validation.hard_constraints,'PASS');assert.equal(state.validation.coverage_complete,false);assert.equal(state.validation.can_submit,false);
+ const state=await inspectSchedule(empty.schedule.id,branch,2);assert.equal(state.validation.hard_constraints,'PASS');assert.equal(state.validation.coverage_complete,false);assert.equal(state.validation.can_submit,true);assert.ok(state.validation.warnings.some(w=>w.code==='STAFFING_SHORTAGE'));
  let sent;const result=await evaluateSchedule(empty.schedule.id,branch,{expected_version:2},{advisor:advisor(async s=>{sent=s;return{...report(),concerns:['Test double: chưa xếp đủ 9 lượt phân công.']}})});
  assert.equal(result.status,'AVAILABLE');assert.ok(sent.coverage.every(r=>r.assigned===0));assert.equal(sent.coverage.reduce((n,r)=>n+r.required,0),9);assert.equal(result.evaluation.report.conclusion,'NEEDS_ADJUSTMENT');
 }));

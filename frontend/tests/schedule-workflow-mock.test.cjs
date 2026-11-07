@@ -42,6 +42,7 @@ function renderWorkflowWithProfile(profile) {
   const dependencies = {
     react: React,
     'react/jsx-runtime': require('react/jsx-runtime'),
+    '../../components/Toast': require('./helpers/ui-components.cjs'),
     '../../context/AuthContext': { useAuth: () => ({ user: profile }) },
     'lucide-react': { CalendarDays: 'svg' },
     './scheduleWorkflow.types': types,
@@ -68,7 +69,8 @@ function createInteractiveWorkflowHarness(profile, service, initialSchedules, mo
   }).outputText;
   const loaded = { exports: {} };
   const state = [initialSchedules, null, null, '', '', {}, '', false, false, '', '', null];
-  let stateIndex = 0,refIndex=0;
+  let stateIndex = 0,refIndex=0,effectIndex=0;
+  const effectDependencies=[];
   const refs=[];
   const effects = [];
   const jsx = (type, props, key) => ({ type, props: props || {}, key });
@@ -82,11 +84,16 @@ function createInteractiveWorkflowHarness(profile, service, initialSchedules, mo
     },
     useMemo(factory) { return factory(); },
     useCallback(callback) { return callback; },
-    useEffect(effect) { effects.push(effect); },
+    useEffect(effect, dependencies) {
+      const index=effectIndex++, previous=effectDependencies[index];
+      if(!dependencies||!previous||dependencies.some((value,i)=>!Object.is(value,previous[i]))) effects.push(effect);
+      effectDependencies[index]=dependencies;
+    },
   };
   const dependencies = {
     react: fakeReact,
     'react/jsx-runtime': runtime,
+    '../../components/Toast': require('./helpers/ui-components.cjs'),
     '../../context/AuthContext': { useAuth: () => ({ user: profile }) },
     'lucide-react': { CalendarDays: 'svg' },
     './scheduleWorkflow.types': types,
@@ -105,7 +112,7 @@ function createInteractiveWorkflowHarness(profile, service, initialSchedules, mo
   }, { filename: 'ScheduleWorkflow.tsx' });
 
   const render = () => {
-    stateIndex = 0;refIndex=0;
+    stateIndex = 0;refIndex=0;effectIndex=0;
     return loaded.exports.ScheduleWorkflow({ mode, service });
   };
   const allNodes = root => {
@@ -140,6 +147,50 @@ const nv = { id: 'tv4-demo-employee', username: 'Nhân viên Test', role: 'NV', 
 const outsiderGs = { id: 'tv4-demo-supervisor-east', username: 'Giám sát Ngoài phạm vi', role: 'GS', branch_id: null };
 const outsiderQl = { id: 'tv4-demo-manager-east', username: 'Quản lý Ngoài phạm vi', role: 'QL', branch_id: 'tv4-branch-east' };
 const makeService = () => new serviceModule.Tv4MockWorkflowService(() => new Date(instant));
+
+test('API draft navigation carries the persisted schedule ID and expected version',()=>{
+ const seed=serviceModule.createTv4MockSeed().schedules.find(s=>s.id==='tv4-seed-draft-01');
+ const h=createInteractiveWorkflowHarness(ql,{mode:'api',listSchedules:async()=>[seed]},[seed]);
+ h.clickButton(h.render(),'JolliShift Demo · Hải Châu');
+ const link=h.allNodes(h.render()).find(n=>n.type==='a'&&h.textOf(n)==='Mở bản nháp và gửi phê duyệt');
+ assert.ok(link);const query=new URL(link.props.href,'http://localhost').searchParams;
+ assert.equal(query.get('period_id'),seed.period_id);assert.equal(query.get('schedule_id'),seed.id);assert.equal(query.get('expected_version'),String(seed.version));
+});
+
+for (const action of ['approve','publish']) for (const sourceState of ['CURRENT', 'CHANGED', 'UNKNOWN']) {
+  test(`API ${action} confirmation shows shortage and blocks until source ${sourceState} is verified`, async () => {
+    const seed = serviceModule.createTv4MockSeed().schedules.find(s => s.id === (action==='approve'?'tv4-seed-pending-group-v2':'tv4-seed-approved-01'));
+    let decisions = 0;
+    const service = {
+      mode: 'api', listSchedules: async () => [seed],
+      reviewSchedule: async () => ({ready: sourceState === 'CURRENT', workflow_enabled: true,
+        validation: {schedule_id: seed.id, version: seed.version, source_state: sourceState,
+          coverage: [{assigned_count: 138, required_count: 168, missing_count: 30}]}}),
+      decideSchedule: async () => { decisions++; return {...seed, status: 'APPROVED'}; },
+      publishSchedule: async () => { decisions++; return {...seed, status: 'PUBLISHED'}; },
+    };
+    const h = createInteractiveWorkflowHarness(action==='approve'?gs:ql, service, [seed], action==='approve'?'approvals':'publish');
+    h.render(); h.runEffects(); await flushPromises();
+    h.clickButton(h.render(), 'JolliShift Demo · Hải Châu');
+    if(action==='publish') {
+      const input=h.allNodes(h.render()).find(n=>n.type==='input'&&n.props.type==='datetime-local');
+      input.props.onChange({target:{value:'2099-11-01T12:00'}});
+    }
+    h.clickButton(h.render(), action==='approve'?'Phê duyệt':'Công bố lịch');
+    let tree = h.render();
+    const confirm = t => h.allNodes(t).find(n => n.type === 'button' && h.textOf(n) === 'Xác nhận');
+    assert.equal(confirm(tree).props.disabled, true);
+    h.clickButton(tree, 'Xác nhận');
+    assert.equal(decisions, 0);
+    h.runEffects(); await flushPromises();
+    tree = h.render();
+    assert.match(h.textOf(tree), /138\/168/);
+    assert.match(h.textOf(tree), /30/);
+    assert.equal(confirm(tree).props.disabled, sourceState !== 'CURRENT');
+    h.clickButton(tree, 'Xác nhận'); await flushPromises();
+    assert.equal(decisions, sourceState === 'CURRENT' ? 1 : 0);
+  });
+}
 const get = async (service, actor, view, id) => (await service.listSchedules(actor, view)).find(row => row.id === id);
 function swapShiftAssignments(assignments, leftIndex = 0, rightIndex = 1) {
   const updated = assignments.map(assignment => ({ ...assignment, shifts: { ...assignment.shifts } }));
@@ -507,6 +558,7 @@ test('TV4 shows a success modal only after an action succeeds and keeps failures
   const successDialog = successful.harness.allNodes(successful.tree)
     .find(node => node.props['aria-labelledby'] === 'workflow-success-title');
   assert.ok(successDialog);
+  assert.equal(successDialog.props.role,'status','success feedback must not be a blocking dialog');
   assert.match(successful.harness.textOf(successDialog), /Thao tác thành công/);
   assert.match(successful.harness.textOf(successDialog), /Lịch làm việc đã được công bố/);
   assert.equal(successful.publishCalls, 1);
@@ -587,6 +639,7 @@ test('QL confirms adjustment, sends the edited shifts to the service, and keeps 
   assert.equal(harness.allNodes(tree).some(node => node.props['aria-labelledby'] === 'workflow-confirm-title'), false);
   const successDialog = harness.allNodes(tree).find(node => node.props['aria-labelledby'] === 'workflow-success-title');
   assert.ok(successDialog);
+  assert.equal(successDialog.props.role,'status','success feedback must not be a blocking dialog');
   assert.match(harness.textOf(successDialog), /đã được điều chỉnh và gửi đến GS/);
   assert.match(harness.textOf(successDialog), /Phiên bản 2 đang chờ phê duyệt/);
 });

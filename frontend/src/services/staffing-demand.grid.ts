@@ -61,6 +61,7 @@ export function pasteGrid(data:DemandContext,draft:DemandDraft,start:GridCell,te
   return next;
 }
 export interface DemandWriter {
+  saveDemandBatch?(period:string,items:{operation:'save'|'clear';input:DemandInput}[]):Promise<{results:{index:number;requirement?:DemandRequirement;cleared?:boolean;error?:string}[]}>;
   saveDemand(period:string,input:DemandInput):Promise<{requirement:DemandRequirement}>;
   clearDemand(period:string,input:Pick<DemandInput,'work_date'|'shift_id'|'department_id'|'expected_updated_at'>):Promise<void>;
 }
@@ -68,6 +69,24 @@ export interface DemandWriter {
 export async function saveGrid(data:DemandContext,draft:DemandDraft,writer:DemandWriter,onProgress:(done:number,total:number)=>void=()=>{}) {
   const errors:Record<string,string>={},remaining:DemandDraft={...draft};let requirements=[...data.requirements],saved=0,done=0;
   const changes=gridCells(data).filter(c=>draft[demandRowKey(c)]);
+  if(writer.saveDemandBatch){
+    const items:{operation:'save'|'clear';input:DemandInput}[]=[],keys:string[]=[];
+    for(const c of changes){const key=demandRowKey(c),value=draft[key],existing=data.requirements.find(r=>demandRowKey(r)===key);
+      const error=countError(value.count)||(!value.count&&!existing&&value.forecast.trim()?'Cần nhập nhu cầu trước khi lưu ghi chú.':'');
+      if(error){errors[key]=error;continue;}
+      if(value.count===''&&!existing){delete remaining[key];saved++;continue;}
+      keys.push(key);items.push({operation:value.count===''?'clear':'save',input:{...c,expected_updated_at:existing?.updated_at??null,required_count:Number(value.count),required_skill_name:existing?.required_skill_name??null,sales_forecast_ref:value.forecast.trim()||null}});
+    }
+    try{if(items.length){const response=await writer.saveDemandBatch(data.period.id,items);
+      if(!Array.isArray(response.results)||response.results.length!==items.length||new Set(response.results.map(r=>r.index)).size!==items.length)throw Error('Chưa xác nhận được kết quả lưu. Hãy tải lại để kiểm tra.');
+      for(let index=0;index<items.length;index++){const key=keys[index],result=response.results.find(r=>r.index===index);
+        if(!result||result.error||(!result.requirement&&!result.cleared)){errors[key]=result?.error||'Chưa xác nhận được ô đã lưu.';continue;}
+        if(result.requirement&&demandRowKey(result.requirement)!==key){errors[key]='Kết quả không khớp ô cần lưu.';continue;}
+        requirements=requirements.filter(r=>demandRowKey(r)!==key);if(result.requirement)requirements.push(result.requirement);delete remaining[key];saved++;
+      }
+    }}catch(error){for(const key of keys)errors[key]=error instanceof Error?error.message:'Chưa lưu được nhu cầu.';}
+    onProgress(changes.length,changes.length);return {requirements,remaining,errors,saved,total:changes.length};
+  }
   for(const c of changes) {
     const key=demandRowKey(c),value=draft[key],existing=data.requirements.find(r=>demandRowKey(r)===key);
     try {

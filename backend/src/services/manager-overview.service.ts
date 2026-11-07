@@ -24,24 +24,23 @@ export async function readManagerOverview(periodId:string,branchId:string,actorI
  if(p.error)throw new ScheduleError(503,'OVERVIEW_UNAVAILABLE','Không tải được tuần làm việc.');
  if(!p.data)throw new ScheduleError(404,'PERIOD_NOT_FOUND','Không tìm thấy tuần trong chi nhánh.');
  const all=async(make:(a:number,b:number)=>any)=>{const rows:any[]=[];for(let a=0;;a+=500){const r=await make(a,a+499);if(r.error)throw new ScheduleError(503,'OVERVIEW_UNAVAILABLE','Không tải được tổng quan.');rows.push(...(r.data??[]));if((r.data??[]).length<500)return rows;}};
- const [people,headers,schedules,assignments]=await Promise.all([
+ const loadDemand=async()=>{const rows:any[]=[];for(let offset=0;;offset+=500){
+  const result=await supabaseAdmin.from('staffing_requirements').select('work_date,shift_id,department_id,required_count').eq('branch_id',branchId).gte('work_date',p.data!.work_start_date).lte('work_date',p.data!.work_end_date).order('id').range(offset,offset+499);
+  if(result.error)throw new ScheduleError(503,'OVERVIEW_UNAVAILABLE','Không tải được nhu cầu nhân sự.');
+  rows.push(...(result.data??[]));if((result.data??[]).length<500)return rows;
+ }};
+ const [people,headers,schedules,assignments,demand,queue]=await Promise.all([
   all((a,b)=>supabaseAdmin.from('employees').select('id,branch_id,status,skill_level,user:user_id(role,is_active,branch_id)').eq('branch_id',branchId).order('id').range(a,b)),
   all((a,b)=>supabaseAdmin.from('registration_submissions_sourced').select('employee_id,status,submitted_at,updated_at,sample_batch_id'+(devImportContext()?',dev_import_allowed':'')).eq('period_id',periodId).order('employee_id').range(a,b)),
   all((a,b)=>supabaseAdmin.from('schedules').select('id,schedule_group_id,status,version,created_at,published_at').eq('branch_id',branchId).eq('period_id',periodId).order('id').range(a,b)),
   all((a,b)=>supabaseAdmin.from('shift_assignments').select('id,schedule_id,employee_id,work_date,shift_id,department_id,status,schedule:schedules!inner(branch_id,period_id)').eq('schedule.branch_id',branchId).eq('schedule.period_id',periodId).order('id').range(a,b)),
+  loadDemand(),
+  supabaseAdmin.rpc('tv5_read',{p_actor_id:actorId}),
  ]);
  const eligible=new Set(people.filter(e=>{const u=Array.isArray(e.user)?e.user[0]:e.user;return e.status==='ACTIVE'&&e.skill_level!=='CREW_LEADER'&&u?.role==='NV'&&u.is_active&&u.branch_id===branchId;}).map(e=>e.id));
  const registered=headers.filter(h=>h.status==='VALID'&&h.submitted_at&&eligible.has(h.employee_id)&&(!h.sample_batch_id||acceptedDevHeader(h,p.data!)));
  const calendar={period:p.data,employees:people,schedules,assignments,registered_employee_ids:registered.map(h=>h.employee_id)};
- const loadDemand=async()=>{const rows:any[]=[];for(let offset=0;;offset+=500){
-  const result=await supabaseAdmin.from('staffing_requirements').select('work_date,shift_id,department_id,required_count').eq('branch_id',branchId).gte('work_date',calendar.period.work_start_date).lte('work_date',calendar.period.work_end_date).order('id').range(offset,offset+499);
-  if(result.error)throw new ScheduleError(503,'OVERVIEW_UNAVAILABLE','Không tải được nhu cầu nhân sự.');
-  rows.push(...(result.data??[]));if((result.data??[]).length<500)return rows;
- }};
- const [demand,queue]=await Promise.all([
-  loadDemand(),
-  supabaseAdmin.rpc('tv5_read',{p_actor_id:actorId}),
- ]);
+
  if(queue.error||!Array.isArray(queue.data?.sources))throw new ScheduleError(503,'OVERVIEW_UNAVAILABLE','Không tải được số liệu tổng quan. Vui lòng thử lại.');
  return managerOverview(calendar,demand,queue.data.sources);
 }

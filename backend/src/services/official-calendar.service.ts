@@ -2,9 +2,11 @@ import { supabaseAdmin as db } from '../config/supabase.js';
 import { ScheduleError } from './scheduling.engine.js';
 export interface OfficialFilters {page:number;page_size:number;work_date?:string;shift_id?:string;department_id?:string;employee_id?:string;metadata:boolean}
 export async function readOfficialCalendar(periodId:string,branchId:string,f:OfficialFilters){
- const p=await db.from('registration_periods').select('id,branch_id,work_start_date,work_end_date').eq('id',periodId).eq('branch_id',branchId).maybeSingle();
+ const [p,periods]=await Promise.all([
+  db.from('registration_periods').select('id,branch_id,work_start_date,work_end_date').eq('id',periodId).eq('branch_id',branchId).maybeSingle(),
+  db.from('schedules').select('id,schedule_group_id,version,status,created_at,published_at').eq('branch_id',branchId).eq('period_id',periodId).eq('status','PUBLISHED').not('published_at','is',null).order('version',{ascending:false}),
+ ]);
  if(p.error)throw new ScheduleError(503,'CALENDAR_UNAVAILABLE','Không tải được tuần.');if(!p.data)throw new ScheduleError(404,'PERIOD_NOT_FOUND','Không có tuần tại chi nhánh.');
- const periods=await db.from('schedules').select('id,schedule_group_id,version,status,created_at,published_at').eq('branch_id',branchId).eq('period_id',periodId).eq('status','PUBLISHED').not('published_at','is',null).order('version',{ascending:false});
  if(periods.error)throw new ScheduleError(503,'CALENDAR_UNAVAILABLE','Không tải được lịch công bố.');
  if(new Set((periods.data??[]).map(s=>s.schedule_group_id)).size>1)throw new ScheduleError(409,'AMBIGUOUS_SCHEDULE','Có nhiều lịch công bố trùng tuần.');
  const all=async(make:(a:number,b:number)=>any)=>{const rows:any[]=[];for(let a=0;;a+=500){const r=await make(a,a+499);if(r.error)throw new ScheduleError(503,'CALENDAR_UNAVAILABLE','Không tải được danh mục.');rows.push(...(r.data??[]));if((r.data??[]).length<500)return rows;}};

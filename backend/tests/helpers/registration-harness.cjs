@@ -1,7 +1,7 @@
 // Test process only: Express + PostgreSQL; no Supabase network or production credentials.
 const fs=require('node:fs'),path=require('node:path');
 async function createHarness(){
- process.env.NODE_ENV='test';process.env.SUPABASE_URL='http://127.0.0.1:9';process.env.SUPABASE_SECRET_KEY='isolated-fixture-not-a-real-key';
+ process.env.DEV_IMPORT_ENABLED='false';process.env.NODE_ENV='test';process.env.SUPABASE_URL='http://127.0.0.1:9';process.env.SUPABASE_SECRET_KEY='isolated-fixture-not-a-real-key';
  const native=process.env.REGISTRATION_USE_NATIVE==='true'?await require('./native-tv3-harness.cjs').nativeHarness({empty:true}):null;
  let queue=Promise.resolve();
  const nativeQuery=(...args)=>{const result=queue.then(()=>native.admin.query(...args));queue=result.catch(()=>{});return result;};
@@ -44,6 +44,7 @@ async function createHarness(){
  sdk.rpc=async(name,args)=>{
   if(name==='tv5_read'||name==='tv5_candidates_for_actor'||name==='tv5_mutate'){try{const query=name==='tv5_read'?['SELECT tv5_read($1) result',[args.p_actor_id]]:name==='tv5_candidates_for_actor'?['SELECT tv5_candidates_for_actor($1,$2) result',[args.p_actor_id,args.p_assignment_id]]:['SELECT tv5_mutate($1,$2,$3,$4::jsonb) result',[args.p_actor_id,args.p_action,args.p_request_id,JSON.stringify(args.p_data)]];const r=await sql.query(...query);return{data:r.rows[0].result,error:null};}catch(e){return{data:null,error:{code:e.code,message:e.message}};}}
   if(name==='employee_schedule_week'){try{const r=await sql.query('SELECT employee_schedule_week($1,$2) result',[args.p_actor_id,args.p_week_start]);return{data:r.rows[0].result,error:null};}catch(e){return{data:null,error:{code:e.code,message:e.message}};}}
+  if(name==='tv4_schedule_source_state'){try{const r=await sql.query('SELECT tv4_schedule_source_state($1,$2,$3) result',[args.p_schedule_id,args.p_branch_id,args.p_expected_version]);return{data:r.rows[0].result,error:null};}catch(e){return{data:null,error:{code:e.code,message:e.message}};}}
   if(name==='tv4_transition_schedule_v2'){try{const r=await sql.query('SELECT tv4_transition_schedule_v2($1,$2,$3,$4,$5,$6,$7) result',[args.p_schedule_id,args.p_actor_id,args.p_expected_version,args.p_action,args.p_request_id,args.p_reason,args.p_feedback_deadline_at]);return{data:r.rows[0].result,error:null};}catch(e){return{data:null,error:{code:e.code,message:e.message}};}}
   if(name==='persist_schedule_draft'){try{const r=await sql.query('SELECT persist_schedule_draft($1,$2,$3::jsonb,$4::jsonb,$5,$6,$7,$8) result',[args.p_period_id,args.p_actor_id,args.p_snapshot?JSON.stringify(args.p_snapshot):null,args.p_result?JSON.stringify(args.p_result):null,args.p_schedule_id??null,args.p_expected_version??null,args.p_request_id??null,args.p_fingerprint??null]);return{data:r.rows[0].result,error:null};}catch(e){return{data:null,error:{code:e.code,message:e.message}};}}
   if(name!=='save_employee_registration')throw Error('Only registration RPC is allowed in this fixture');
@@ -55,6 +56,6 @@ async function createHarness(){
  config.createAuthClient=()=>({auth:{signInWithPassword:async({email,password})=>email===authUser.email&&password==='Fixture-only-Password!1'?{data:{user:authUser,session},error:null}:{data:{},error:{status:401}}}});
  sdk.auth.getUser=async token=>token===session.access_token?{data:{user:authUser},error:null}:{data:{},error:{status:401}};
  const app=require('../../dist/server.js').default;
- return{app,sql,id,connect:native?.connect,async close(){await sql.close();}};
+ return{app,sql,id,connect:native?.connect,gateway:native?.gateway,async close(){await sql.close();}};
 }
 module.exports={createHarness};

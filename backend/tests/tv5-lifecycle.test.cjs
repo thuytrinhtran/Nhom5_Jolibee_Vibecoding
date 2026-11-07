@@ -2,7 +2,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),fs=requir
 test('TV5 disposable PostgreSQL: ownership, consent, competing approvals, rollback, rejection and live employee view',{skip:process.env.REGISTRATION_USE_NATIVE!=='true'?'Requires isolated native PostgreSQL':false},async()=>{
  const h=await require('./helpers/registration-harness.cjs').createHarness();
  try{
-  for(const name of ['20261031_tv3_schedule_draft.sql','20261101_tv3_rule_contract_v2.sql','20261103_employee_schedule_read.sql','20261104_tv5_shift_replacement.sql'])await h.sql.exec(fs.readFileSync(path.join(__dirname,'../migrations',name),'utf8'));
+  for(const name of ['20261031_tv3_schedule_draft.sql','20261101_tv3_rule_contract_v2.sql','20261103_employee_schedule_read.sql','20261104_tv5_shift_replacement.sql','20261105_tv5_expire_finish_request.sql','20261107_tv5_operation_notifications.sql','20261107_tv5_operation_notifications.sql'])await h.sql.exec(fs.readFileSync(path.join(__dirname,'../migrations',name),'utf8'));
   const q=(s,p=[])=>h.sql.query(s,p),branch=h.id(1),dept=h.id(2),nv=h.id(3),employee=h.id(4),shift=h.id(5),period=h.id(8),gs=h.id(90),ql=h.id(91),schedule=h.id(100);
   await q('INSERT INTO auth.users VALUES($1),($2)',[gs,ql]);await q("INSERT INTO users(id,username,role,branch_id) VALUES($1,'gs','GS',NULL),($2,'ql','QL',$3)",[gs,ql,branch]);await q('UPDATE branches SET supervisor_id=$1 WHERE id=$2',[gs,branch]);await q("UPDATE registration_periods SET open_at=now()-interval '3 days',close_at=now()-interval '1 day'");
   const day=(await q('SELECT work_start_date::text d FROM registration_periods')).rows[0].d;
@@ -36,7 +36,9 @@ test('TV5 disposable PostgreSQL: ownership, consent, competing approvals, rollba
   await assert.rejects(mutate(ql,'INVITE',inviteBodies[0],inviteKeys[0]),e=>e.code==='42501');await q('UPDATE users SET branch_id=$1 WHERE id=$2',[branch,ql]);
   await assert.rejects(mutate(candidates[1].user,'ACCEPT',{invitation_id:invites[0].id}),e=>e.code==='42501');
   await assert.rejects(mutate(ql,'APPROVE',{...source,invitation_id:invites[0].id}),/CONFIRMATION_REQUIRED/);
+  await assert.rejects(mutate(ql,'EXPIRE',source),/NO_EXPIRED_INVITATIONS/);
   for(let i=0;i<2;i++)await mutate(candidates[i].user,'ACCEPT',{invitation_id:invites[i].id});
+  await assert.rejects(mutate(ql,'EXPIRE',source),/REPLACEMENT_ALREADY_ACCEPTED/);
   assert.equal((await list(nv)).invitations.length,0,'requester cannot inspect other employee inbox');
   // Source data can change after consent; eligibility must be checked again.
   await q("UPDATE shift_registrations SET status='INVALID' WHERE employee_id=$1",[candidates[0].id]);
@@ -66,8 +68,26 @@ test('TV5 disposable PostgreSQL: ownership, consent, competing approvals, rollba
   await assert.rejects(mutate(ql,'APPROVE',{...secondSource,invitation_id:expired.id}),/CONFIRMATION_REQUIRED/);
   const pendingExpired=await mutate(ql,'INVITE',{...secondSource,target_employee_id:employee,expires_at:new Date(Date.now()+3600000).toISOString()});
   await q("UPDATE replacement_invitations SET sent_at=now()-interval '2 minutes',expires_at=now()-interval '1 minute' WHERE id=$1",[pendingExpired.id]);
-  await mutate(ql,'EXPIRE',secondSource);assert.equal((await q('SELECT count(*)::int n FROM notifications')).rows[0].n,1);
-  await mutate(ql,'REJECT',{...secondSource,reason:'No available confirmed replacement'});assert.equal((await list(receiver.user)).sources.find(s=>s.id===retryRequest.id).status,'REJECTED');
+  const spare=candidates.find(person=>person.id!==receiver.id);
+  const future=await mutate(ql,'INVITE',{...secondSource,target_employee_id:spare.id,expires_at:new Date(Date.now()+3600000).toISOString()});
+  await assert.rejects(mutate(nv,'EXPIRE',secondSource),e=>e.code==='42501');
+  const beforeAssignments=(await q('SELECT * FROM shift_assignments ORDER BY id')).rows;
+  await h.sql.exec("CREATE FUNCTION fail_expiry_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.entity_type='tv5_operations' AND NEW.action='EXPIRE' THEN RAISE EXCEPTION 'rollback expiry'; END IF; RETURN NEW; END $$; CREATE TRIGGER fail_expiry_audit BEFORE INSERT ON audit_logs FOR EACH ROW EXECUTE FUNCTION fail_expiry_audit();");
+  await assert.rejects(mutate(ql,'EXPIRE',secondSource),/rollback expiry/);
+  assert.equal((await q('SELECT status FROM shift_change_requests WHERE id=$1',[retryRequest.id])).rows[0].status,'SEARCHING');
+  assert.equal((await q('SELECT status FROM replacement_invitations WHERE id=$1',[future.id])).rows[0].status,'PENDING');
+  await h.sql.exec('DROP TRIGGER fail_expiry_audit ON audit_logs');
+  const expireKey=h.id(++sequence),closed=await mutate(ql,'EXPIRE',secondSource,expireKey);
+  assert.equal(closed.status,'REJECTED');assert.ok(closed.resolved_at);assert.equal(closed.approved_by,ql);
+  assert.equal(closed.decision_reason,'Kh\u00f4ng t\u00ecm \u0111\u01b0\u1ee3c ng\u01b0\u1eddi thay');
+  assert.equal((await mutate(ql,'EXPIRE',secondSource,expireKey)).id,retryRequest.id);
+  assert.equal((await q('SELECT count(*)::int n FROM notifications WHERE type=\'REPLACEMENT_SEARCH\'')).rows[0].n,1);
+  assert.equal((await q("SELECT count(*)::int n FROM replacement_invitations WHERE shift_change_request_id=$1 AND status IN ('PENDING','ACCEPTED')",[retryRequest.id])).rows[0].n,0);
+  assert.deepEqual((await q('SELECT * FROM shift_assignments ORDER BY id')).rows,beforeAssignments);
+  assert.equal((await list(receiver.user)).sources.find(s=>s.id===retryRequest.id).status,'REJECTED');
+  await assert.rejects(mutate(ql,'REJECT',{...secondSource,reason:'Already closed'}),/SOURCE_CLOSED/);
+  await assert.rejects(mutate(spare.user,'ACCEPT',{invitation_id:future.id}),/SOURCE_CLOSED/);
+
   await q('UPDATE schedules SET feedback_deadline_at=now() WHERE id=$1',[schedule]);
   await assert.rejects(mutate(receiver.user,'CREATE_REQUEST',{assignment_id:final.id,reason:'Late'}),/FEEDBACK_CLOSED/);
   const report=await mutate(receiver.user,'REPORT',{assignment_id:final.id,reason:'Return to original employee'}),returnSource={kind:'INCIDENT',source_id:report.id};
@@ -75,6 +95,10 @@ test('TV5 disposable PostgreSQL: ownership, consent, competing approvals, rollba
   await mutate(nv,'ACCEPT',{invitation_id:returnInvite.id});const returned=await mutate(ql,'APPROVE',{...returnSource,invitation_id:returnInvite.id});
   assert.equal(returned.new_assignment.employee_id,employee);assert.notEqual(returned.new_assignment.id,assignment);assert.equal(returned.new_assignment.replaces_assignment_id,final.id);
   assert.equal((await q('SELECT employee_schedule_week($1,$2) r',[nv,day])).rows[0].r.assignments.length,1);
+  const messages=(await q("SELECT count(*)::int n,count(DISTINCT idempotency_key)::int unique_keys FROM notifications WHERE type LIKE 'TV5_%'")).rows[0];assert.ok(messages.n>0);assert.equal(messages.n,messages.unique_keys);
+  for(let i=0;i<2;i++)await h.sql.exec(fs.readFileSync(path.join(__dirname,'../rollbacks/20261107_tv5_operation_notifications.sql'),'utf8'));
+  assert.equal((await q("SELECT count(*)::int n FROM notifications WHERE type LIKE 'TV5_%'")).rows[0].n,messages.n);
+  await h.sql.exec(fs.readFileSync(path.join(__dirname,'../migrations/20261107_tv5_operation_notifications.sql'),'utf8'));
   for(const role of ['anon','authenticated'])assert.equal((await q("SELECT has_function_privilege($1,'tv5_mutate(uuid,text,uuid,jsonb)','EXECUTE') v",[role])).rows[0].v,false);
  }finally{await h.close();}
 });

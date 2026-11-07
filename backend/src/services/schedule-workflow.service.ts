@@ -3,12 +3,12 @@ import { ScheduleError } from './scheduling.engine.js';
 import { requireNonTestScheduleWrites } from './test-preview-policy.js';
 import { inspectSchedule } from './schedule-review.service.js';
 import { requireRealSchedulingData } from '../repositories/registration-summary.repository.js';
-import { draftWriteScopeAllowed, isTestWriteScope } from './draft-write-scope.js';
+import { draftWriteScopeAllowed, isLocalTestWriteScope } from './draft-write-scope.js';
 
 export const workflowEnabled=()=>process.env.TV4_WORKFLOW_PERSISTENCE_ENABLED==='true'&&process.env.TV3_TEST_PREVIEW_ENABLED!=='true';
 export function requireWorkflowWrites(){
  requireNonTestScheduleWrites();
- if(isTestWriteScope()&&process.env.TV3_WRITE_SCOPE_ENABLED!=='true')throw new ScheduleError(403,'WORKFLOW_SCOPE_FORBIDDEN','Chế độ nghiệm thu yêu cầu giới hạn ghi đúng kỳ test.');
+ if(!isLocalTestWriteScope()&&process.env.TV3_WRITE_SCOPE_ENABLED!=='true')throw new ScheduleError(403,'WORKFLOW_SCOPE_FORBIDDEN','Chưa cấu hình phạm vi ghi workflow được phê duyệt.');
  if(!workflowEnabled())throw new ScheduleError(503,'WORKFLOW_PERSISTENCE_DISABLED','Chưa bật lưu workflow TV4. Cần nghiệm thu migration trước.');
  requireRealSchedulingData();
 }
@@ -25,7 +25,7 @@ export async function transitionSchedule(id:string,actor:{id:string;role:string;
  // A past deadline may only recover an already recorded publication request.
  if(action==='PUBLISH'&&(typeof body.feedback_deadline_at!=='string'||!Number.isFinite(Date.parse(body.feedback_deadline_at))))throw new ScheduleError(400,'INVALID_FEEDBACK_DEADLINE','Thời hạn phản hồi phải là thời điểm hợp lệ.');
  // Resolve scope from storage, never from a period/branch supplied by the browser.
- if(process.env.TV3_WRITE_SCOPE_ENABLED!==undefined&&process.env.TV3_WRITE_SCOPE_ENABLED!=='false'){
+ if(!isLocalTestWriteScope()){
   const {data:target,error:scopeError}=await supabaseAdmin.from('schedules').select('id,period_id,branch_id').eq('id',id).maybeSingle();
   if(scopeError)throw new ScheduleError(503,'WORKFLOW_SCOPE_UNAVAILABLE','Chưa thể xác minh phạm vi lịch.');
   if(!target)throw new ScheduleError(404,'SCHEDULE_NOT_FOUND','Không tìm thấy lịch.');
@@ -49,7 +49,7 @@ export async function transitionSchedule(id:string,actor:{id:string;role:string;
   p_reason:typeof reason==='string'?reason.trim()||null:null,p_feedback_deadline_at:action==='PUBLISH'?body.feedback_deadline_at:null,
  });
  if(error){if(['55P03','57014','40P01'].includes(error.code??''))throw new ScheduleError(503,'WORKFLOW_BUSY','Workflow đang bận; thử lại cùng yêu cầu.');
-  const message=String(error.message??'');const code=['FORBIDDEN','SCHEDULE_NOT_FOUND','STALE_SCHEDULE_VERSION','REQUEST_CONFLICT','REASON_REQUIRED','HARD_CONSTRAINT_FAILED','COVERAGE_INCOMPLETE','INVALID_ASSIGNMENTS','INVALID_SCHEDULE_STATUS','INVALID_FEEDBACK_DEADLINE','DUPLICATE_ASSIGNMENT','INCOMPLETE_DATA','INVALID_RULE_INPUT'].find(k=>message.includes(k));
+  const message=String(error.message??'');const code=['SOURCE_CHANGED','SOURCE_SNAPSHOT_MISSING','SOURCE_SNAPSHOT_INVALID','FORBIDDEN','SCHEDULE_NOT_FOUND','STALE_SCHEDULE_VERSION','REQUEST_CONFLICT','REASON_REQUIRED','HARD_CONSTRAINT_FAILED','COVERAGE_INCOMPLETE','INVALID_ASSIGNMENTS','INVALID_SCHEDULE_STATUS','INVALID_FEEDBACK_DEADLINE','DUPLICATE_ASSIGNMENT','INCOMPLETE_DATA','INVALID_RULE_INPUT'].find(k=>message.includes(k));
   throw new ScheduleError(code==='FORBIDDEN'?403:code==='SCHEDULE_NOT_FOUND'?404:code==='INVALID_FEEDBACK_DEADLINE'?400:error.code==='42883'||error.code==='PGRST202'?503:409,code??'WORKFLOW_UNAVAILABLE',code?`Không thể chuyển trạng thái: ${code}. Hãy tải lại lịch.`:'Workflow chưa sẵn sàng hoặc đang bận; hãy thử lại cùng yêu cầu.');}
  if(!data?.schedule?.id)throw new ScheduleError(503,'INVALID_WORKFLOW_RESPONSE','Không xác nhận được kết quả workflow.');
  return data;
@@ -58,7 +58,8 @@ export async function transitionSchedule(id:string,actor:{id:string;role:string;
 export async function workflowReview(id:string,branchId:string,version:number){
  const checked=await inspectSchedule(id,branchId,version);
  const validation={...checked.validation,issues:checked.validation.issues.filter(i=>i.code!=='INVALID_HANDOFF_STATUS')};
- const ready=validation.hard_constraints==='PASS'&&validation.data_complete&&validation.coverage_complete&&validation.input_current&&validation.issues.length===0;
+ // Staffing shortage is a warning for every action; source and hard checks remain mandatory.
+ const ready=validation.hard_constraints==='PASS'&&validation.data_complete&&validation.input_current&&validation.issues.length===0;
  return {validation,ready,workflow_enabled:workflowEnabled()&&draftWriteScopeAllowed(checked.saved.schedule.period_id,branchId),generation_snapshot:checked.saved.generation_snapshot,
   labels:{shifts:Object.fromEntries(checked.snapshot.shifts.map(s=>[s.id,s.name])),departments:Object.fromEntries(checked.snapshot.departments.map(d=>[d.id,d.name]))}};
 }

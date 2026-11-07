@@ -65,8 +65,8 @@ test('complete TV3 journey uses real frontend client/grid and Express with isola
   assert.equal(supply.eligible_count,2);assert.equal(shortage.assigned_count,1,'eligible supply must not be confused with assigned staff');
   assert.equal((await service.aiEvaluation(first.schedule.id,1)).status,'NOT_EVALUATED');assert.equal(providerCalls,0);
   const aiShort=await service.evaluateAI(first.schedule.id,1);assert.equal(aiShort.evaluation.report.conclusion,'NEEDS_ADJUSTMENT');
-  assert.equal((await service.validate(first.schedule.id,1)).can_submit,false);
-  assert.equal((await service.prepareHandoff(first.schedule.id,1,'Shortage check')).payload,null);
+  assert.equal((await service.validate(first.schedule.id,1)).can_submit,true);
+  assert.equal((await service.prepareHandoff(first.schedule.id,1,'Shortage check')).payload.schedule_id,first.schedule.id);
   // Delete and add back a valid assignment through the same UI client.
   const deleted=await service.editDraft(first.schedule.id,{expected_version:1,assignments:first.assignments.slice(1).map(plain)});
   const second=await service.read(deleted.schedule.id);assert.equal(second.schedule.version,2);assert.equal(second.assignments.length,7);
@@ -90,7 +90,7 @@ test('complete TV3 journey uses real frontend client/grid and Express with isola
   assert.deepEqual(await service.read(fourth.schedule.id),before);
   assert.equal((await service.periods())[0].schedules[0].id,fourth.schedule.id,'reopening week returns latest persisted mock version');
   for(const e of (await service.context(period)).employees)assert.ok(!JSON.stringify(lastSummary).includes(e.id));
-  assert.equal(providerCalls,3);assert.ok(requests>75);assert.ok(authTables.length>0);
+  assert.equal(providerCalls,3);assert.ok(requests<100,'Complete journey stays within the API request budget');assert.ok(authTables.length>0);
  }finally{
   global.fetch=old.fetch;db.from=old.from;db.rpc=old.rpc;db.auth.getUser=old.getUser;
   envKeys.forEach((k,i)=>{if(oldEnv[i]===undefined)delete process.env[k];else process.env[k]=oldEnv[i];});

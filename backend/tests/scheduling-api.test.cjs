@@ -45,7 +45,7 @@ test('save errors and stale snapshot propagate; protected versions conflict',asy
 });
 test('read after service reload queries database and branch, never in-memory state',async()=>{
   const original=db.from;const tables=[];
-  db.from=table=>{tables.push(table);return {select(){return this},eq(key,value){if(table==='schedules'&&key==='branch_id')assert.equal(value,id);return this},order(){return this},limit(){return this},maybeSingle:async()=>({data:table==='schedules'?{id,status:'DRAFT'}:{new_data:{assigned_count:0}}}),then(resolve){resolve({data:[]});}}};
+  db.from=table=>{tables.push(table);return {select(){return this},eq(key,value){if(table==='schedules'&&key==='branch_id')assert.equal(value,id);return this},order(){return this},limit(){return this},range(){return this},maybeSingle:async()=>({data:table==='schedules'?{id,status:'DRAFT'}:{new_data:{assigned_count:0}}}),then(resolve){resolve({data:[]});}}};
   try{
     delete require.cache[require.resolve('../dist/services/scheduling.service.js')];
     const service=require('../dist/services/scheduling.service.js');

@@ -1,6 +1,7 @@
+import { Toast, errorGuidance } from '../../components/Toast';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle2, Copy, Loader2, RefreshCw, Save } from 'lucide-react';
+import { Copy, Loader2, RefreshCw, Save } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { schedulingService } from '../../services/scheduling.service';
 import { dateLabel, weekLabel } from '../../services/scheduling.view';
@@ -56,9 +57,9 @@ export function DemandWorkspace({data,draft,onChange,saving,errors}: {
                 <input id={cellId(key)} data-demand-cell={key} className="demand-number" type="text" inputMode="numeric" pattern="[0-9]*" autoComplete="off" aria-label={label} aria-invalid={!!error} aria-describedby={error?`${cellId(key)}-error`:undefined} placeholder="—" value={value.count} disabled={saving}
                   title={`${label}${stored?.required_skill_name?` · Kỹ năng: ${stored.required_skill_name}`:''}${draft[key]?' · Chưa lưu':''}`} onFocus={()=>setSelected(key)}
                   onChange={e=>onChange(updateCell(data,draft,key,{...value,count:e.target.value}))}
-                  onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();const visible=cells.filter(c=>!day||c.work_date===day),i=visible.findIndex(c=>demandRowKey(c)===key)+(e.shiftKey?-1:1)*departments.length;if(visible[i])document.getElementById(cellId(demandRowKey(visible[i])))?.focus();}}}
+                  onKeyDown={e=>{const offset=e.key==='Enter'?(e.shiftKey?-1:1)*departments.length:e.key==='ArrowDown'?departments.length:e.key==='ArrowUp'?-departments.length:e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;if(!offset)return;e.preventDefault();const visible=cells.filter(c=>!day||c.work_date===day),i=visible.findIndex(c=>demandRowKey(c)===key)+offset;if(visible[i])document.getElementById(cellId(demandRowKey(visible[i])))?.focus();}}
                   onPaste={e=>{const text=e.clipboardData.getData('text');if(!/[\t\n]/.test(text))return;e.preventDefault();try{applyCopy(pasteGrid(data,draft,cell,text));}catch(error){setCopyError(message(error));}}}/>
-                {error&&<small id={`${cellId(key)}-error`} className="demand-cell-error">{error}</small>}
+                {error&&<small id={`${cellId(key)}-error`} className="demand-cell-error">{errorGuidance(error)}</small>}
               </td>;
             })}
           </tr>)}</tbody>)}
@@ -114,7 +115,7 @@ export function ManagerDemand() {
         if(request!==sequence.current)return;
         // Keep failed edits' original revisions: refreshing must never silently bypass a conflict.
         setData(failed?{...persisted,summary:refreshed.summary}:refreshed);
-        if(!failed)setNotice(`Đã lưu và đọc lại ${result.saved} ô${refreshed.is_mock?' trong mock store Backend':' từ Supabase'}. Lịch dự kiến sẽ dùng nhu cầu vừa lưu.`);
+        if(!failed)setNotice(`Đã lưu và đọc lại ${result.saved} ô. Lịch dự kiến sẽ dùng nhu cầu vừa lưu.`);
       }catch(err){if(request===sequence.current)setError(`${failed?`Còn ${failed} ô lỗi. `:''}Đã lưu ${result.saved} ô nhưng chưa đọc lại được: ${message(err)} Tải lại tuần để kiểm tra trước khi tiếp tục.`);}
     }catch(err){if(request===sequence.current)setError(message(err));}
     finally{submitting.current=false;if(request===sequence.current)setSaving(false);}
@@ -123,14 +124,14 @@ export function ManagerDemand() {
   return <section className="manager-schedule manager-demand" aria-busy={pending||saving}>
     <header className="dashboard-greeting"><h2>Nhu cầu nhân sự</h2><p>Nhập nhanh cả tuần cho {user?.branch_name||'chi nhánh phụ trách'}. Chỉ lưu khi bạn sẵn sàng.</p></header>
     <div className="card schedule-controls demand-controls"><div className="schedule-week-field"><label htmlFor="demand-period">Tuần làm việc</label><select id="demand-period" value={periodId} disabled={pending||saving||!periods.length} onChange={e=>{if(discard())setPeriodId(e.target.value);}}><option value="" disabled>Chọn tuần</option>{periods.map(period=><option key={period.id} value={period.id}>{weekLabel(period)}</option>)}</select></div>
-      <div className="demand-data-status">{data&&<span className={`badge ${data.is_mock?'badge-yellow':'badge-slate'}`}>{data.is_mock?'Dữ liệu thử nghiệm · MOCK':'Dữ liệu Supabase'}</span>}<span role="status">{saving?`Đang lưu ${progress.done}/${progress.total} ô…`:dirty?`${dirty} ô chưa lưu`:data?(error?'Cần kiểm tra dữ liệu':'Đã đồng bộ dữ liệu'):'Chưa có dữ liệu'}</span></div>
+      <div className="demand-data-status">{data?.is_mock&&<span className="badge badge-yellow">Dữ liệu thử nghiệm</span>}<span role="status">{saving?`Đang lưu ${progress.total} ô…`:dirty?`${dirty} ô chưa lưu`:data?(error?'Cần kiểm tra dữ liệu':'Đã đồng bộ dữ liệu'):'Chưa có dữ liệu'}</span></div>
       <button type="button" className="btn btn-outline" disabled={pending||saving} onClick={()=>{if(discard())setReload(n=>n+1);}} title="Tải lại tuần"><RefreshCw size={16}/>Tải lại</button>
-      <button type="button" className="btn btn-primary demand-save" disabled={!ready||!dirty||saving||pending} onClick={()=>void save()}>{saving?<Loader2 className="spin" size={17}/>:<Save size={17}/>} {saving?'Đang lưu…':'Lưu tất cả'}</button>
+      <button type="button" className="btn btn-primary demand-save" title={saving?'Đang lưu, vui lòng chờ.':!ready?'Chọn tuần và chờ tải bảng nhu cầu.':!dirty?'Chưa có thay đổi cần lưu.':undefined} disabled={!ready||!dirty||saving||pending} onClick={()=>void save()}>{saving?<Loader2 className="spin" size={17}/>:<Save size={17}/>} {saving?'Đang lưu…':'Lưu tất cả'}</button>
     </div>
     {!user?.branch_id&&<p className="schedule-alert" role="alert">Quản lý chưa được phân công chi nhánh.</p>}
     {data?.is_mock&&<p className="demand-mock-note">Dữ liệu thử nghiệm chỉ lưu trong bộ nhớ Backend, mất khi khởi động lại. Không ghi lên Supabase chung.</p>}
-    {error&&<div className="schedule-alert schedule-alert-error" role="alert">{error}</div>}
-    {notice&&<div className="schedule-alert schedule-alert-success" role="status"><CheckCircle2 size={18}/>{notice}</div>}
+    {error&&<div className="schedule-alert schedule-alert-error" role="alert">{errorGuidance(error)}</div>}
+    {notice&&Toast({message:notice,onDismiss:()=>setNotice('')})}
     {pending&&user?.branch_id&&<p className="summary-loading" role="status"><Loader2 className="spin" size={20}/>Đang đọc nhu cầu và cung–cầu…</p>}
     {!loading&&!periods.length&&!error&&user?.branch_id&&<div className="card schedule-empty">Chưa có đợt/tuần của chi nhánh trong nguồn dữ liệu hiện tại. Có thể bật chế độ Dữ liệu thử nghiệm trong development.</div>}
     {data&&<DemandWorkspace key={data.period.id} data={data} draft={draft} onChange={next=>{setDraft(next);setNotice('');setErrors(current=>Object.fromEntries(Object.entries(current).filter(([key])=>next[key]&&next[key]===draft[key])));}} saving={saving} errors={errors}/>}
