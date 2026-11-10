@@ -1,72 +1,722 @@
-﻿.demand-editor { display: flex; flex-direction: column; gap: 18px; }
-.demand-editor h3 { font-size: 18px; }
-.demand-form fieldset { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; border: 0; min-width: 0; }
-.demand-form legend { font-size: 14px; font-weight: 600; margin-bottom: 16px; }
-.demand-form label { display: flex; flex-direction: column; gap: 7px; font-size: 13px; font-weight: 600; }
-.demand-form label:has(textarea), .demand-form p { grid-column: 1 / -1; }
-.demand-form input, .demand-form textarea { width: 100%; min-height: 42px; padding: 10px 12px; font: inherit; border: 1px solid var(--border-strong); border-radius: 8px; background: white; color: var(--text-primary); }
-.demand-form textarea { resize: vertical; }
-.demand-form :is(input,textarea):focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-.demand-form .btn { justify-self: start; }
-.demand-current-forecast { font-size: 13px; color: var(--text-secondary); white-space: pre-wrap; overflow-wrap: anywhere; }
-.demand-forecast-cell { min-width: 210px; max-width: 320px; white-space: pre-wrap; overflow-wrap: anywhere; }
-@media(max-width:600px){.demand-form fieldset{grid-template-columns:1fr;}.demand-form .btn{width:100%;}}
+/* ==========================================================================
+   Manager Staffing Demand (Nhu cầu nhân sự) - JolliShift Design System
+   Comprehensive Product Redesign (P0 Unified Studio Architecture)
+   ========================================================================== */
 
-.demand-controls { box-shadow: 0 4px 18px #0f172a08; }
-.demand-data-status { display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: var(--text-secondary); }
-.demand-save { min-width: 140px; }
-.demand-mock-note { margin: -8px 0; color: #854d0e; font-size: 13px; }
-.demand-sheet { padding: 0; overflow: hidden; }
-.demand-toolbar { padding: 18px 20px 12px; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
-.demand-toolbar label, .demand-details label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; }
-.demand-toolbar select, .demand-details select, .demand-details textarea { font: inherit; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 8px; background: white; color: var(--text-primary); min-height: 44px; }
-.demand-copy-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-.demand-sheet-hint { padding: 0 20px 16px; color: var(--text-secondary); font-size: 13px; line-height: 1.6; }
-.demand-sheet-scroll { max-height: 68vh; overflow: auto; overscroll-behavior-x: contain; }
-.demand-grid { width: 100%; min-width: 580px; border-collapse: separate; border-spacing: 0; text-align: left; table-layout: fixed; }
-.demand-grid thead th { position: sticky; top: 0; z-index: 2; background: #f8fafc; color: var(--text-primary); padding: 15px 12px; font-size: 14px; border-block: 1px solid var(--border-strong); }
-.demand-grid thead th:first-child { width: 22%; padding-left: 20px; }
-.demand-grid thead th:nth-child(2) { width: 21%; }
-.demand-grid thead th:nth-child(n+3) { text-align: center; }
-.demand-grid small { display: block; font-size: 11px; color: var(--text-secondary); margin-top: 4px; font-weight: 400; }
-.demand-grid tbody th, .demand-grid tbody td { border-bottom: 1px solid var(--border-subtle); padding: 9px 12px; }
-.demand-grid tbody + tbody tr:first-child > * { border-top: 3px solid #e8edf3; }
-.demand-grid .demand-day { vertical-align: top; padding: 20px; background: #fafbfc; }
-.demand-day strong { display: block; text-transform: capitalize; font-size: 14px; }
-.demand-day span, .demand-shift span { display: block; font-size: 12px; margin-top: 6px; color: var(--text-secondary); font-weight: 400; }
-.demand-grid .demand-shift { font-size: 13px; font-weight: 600; }
-.demand-grid .demand-weekend { background: #fffcf5; }
-.demand-grid .demand-weekend .demand-day { background: #fff5df; }
-.demand-weekend .demand-day small { color: #8a5700; }
-.demand-number { display: block; width: 100%; max-width: 150px; height: 44px; margin: auto; padding: 8px 10px; text-align: center; font: inherit; font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-primary); background: white; border: 1px solid var(--border-strong); border-radius: 7px; }
-.demand-number::placeholder { color: #94a3b8; font-weight: 400; }
-.demand-number:hover { border-color: #94a3b8; }
-.demand-number:focus-visible, .manager-demand :is(select,textarea):focus-visible, .demand-sheet-scroll:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-.demand-edited .demand-number { background: #fff8df; border-color: #c99121; }
-.demand-number[aria-invalid="true"] { border-color: #dc2626; background: #fff1f2; }
-.demand-number:disabled { opacity: .65; cursor: wait; }
-.demand-grid .demand-cell-error { color: #b91c1c; line-height: 1.5; overflow-wrap: anywhere; font-size: 12px; }
-.demand-sheet-footer { display: flex; justify-content: space-between; gap: 12px; padding: 13px 20px; font-size: 12px; color: var(--text-secondary); flex-wrap: wrap; }
-.demand-change-key { display: inline-flex; align-items: center; gap: 6px; }
-.demand-change-key i { width: 10px; height: 10px; background: #fff8df; border: 1px solid #c99121; border-radius: 2px; }
-.demand-details { padding: 18px 20px; }
-.demand-details summary { cursor: pointer; font-size: 14px; font-weight: 600; }
-.demand-details summary span { margin-left: 10px; font-size: 12px; color: var(--text-secondary); font-weight: 400; }
-.demand-details[open] > :not(summary) { margin-top: 16px; }
-.demand-details textarea { resize: vertical; width: 100%; }
-.demand-details select { max-width: 100%; }
-.demand-bottom-bar { position: sticky; bottom: 8px; z-index: 4; display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 12px 16px; background: white; border: 1px solid var(--border-subtle); border-radius: 12px; box-shadow: 0 4px 20px #0f172a12; }
-.demand-bottom-bar > span { margin-right: auto; color: var(--text-secondary); font-size: 13px; }
-.demand-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
-@media(max-width:700px) {
-  .demand-controls { position: static; }
-  .demand-data-status { width: 100%; flex-direction: row; flex-wrap: wrap; }
-  .demand-toolbar { padding: 14px; align-items: stretch; }
-  .demand-toolbar label, .demand-copy-actions { width: 100%; }
-  .demand-copy-actions .btn { flex: 1; font-size: 12px; }
-  .demand-sheet-hint { padding-inline: 14px; }
-  .demand-bottom-bar { flex-wrap: wrap; bottom: 0; gap: 8px; padding: 10px; }
-  .demand-bottom-bar > span { width: 100%; }
-  .demand-bottom-bar .btn { flex: 1; font-size: 12px; }
-  .demand-grid .demand-day { padding: 16px 12px; }
+.manager-demand {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+/* ==========================================================================
+   1. Unified Studio Command Bar
+   ========================================================================== */
+.demand-command-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem 1.75rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
+}
+
+.demand-command-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.demand-command-left .dashboard-greeting {
+  margin: 0;
+}
+
+.demand-command-left .dashboard-greeting h2 {
+  font-size: 1.5rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0 0 0.2rem;
+}
+
+.demand-command-left .dashboard-greeting p {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  margin: 0;
+}
+
+.demand-command-left .dashboard-greeting p svg {
+  color: var(--primary);
+}
+
+/* Inline Week Selector */
+.demand-controls {
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.demand-controls .schedule-week-field {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.demand-controls .schedule-week-field label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  margin: 0;
+}
+
+.demand-controls .schedule-week-field select {
+  min-height: 40px;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease-in-out;
+}
+
+.demand-controls .schedule-week-field select:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-subtle);
+}
+
+/* Command Right (Status Pill & Actions) */
+.demand-command-right {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.demand-data-status {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.demand-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  background-color: var(--bg-page);
+  border: 1px solid var(--border-strong);
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.demand-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--success);
+}
+
+.demand-status-pill.has-unsaved {
+  background-color: #fffbeb;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.demand-status-pill.has-unsaved .demand-status-dot {
+  background-color: var(--accent);
+  box-shadow: 0 0 0 2px #fef3c7;
+  animation: pulse-dot 1.5s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.demand-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.demand-save {
+  min-height: 40px;
+  min-width: 140px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 4px 0 rgba(217, 37, 42, 0.25);
+  font-weight: 700;
+}
+
+.demand-save-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.1rem 0.45rem;
+  background: #ffffff;
+  color: var(--primary);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.demand-mock-note {
+  margin: -0.25rem 0 0;
+  padding: 0.65rem 1rem;
+  background: var(--accent-subtle);
+  border: 1px solid #fde68a;
+  border-radius: var(--radius-sm);
+  color: #78350f;
+  font-size: 0.8125rem;
+}
+
+/* ==========================================================================
+   2. Main Spreadsheet Sheet Card
+   ========================================================================== */
+.demand-sheet {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  padding: 0;
+}
+
+/* Integrated Filter & Batch Copy Toolbar */
+.demand-toolbar {
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.demand-toolbar-left label {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.demand-toolbar-left select {
+  font: inherit;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.demand-copy-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.demand-copy-actions .btn {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.45rem 0.85rem;
+  min-height: 36px;
+  gap: 0.4rem;
+}
+
+/* Pro-Tip Keyboard Hint Strip */
+.demand-sheet-hint {
+  padding: 0.6rem 1.5rem;
+  background-color: #fafaf9;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.785rem;
+  color: var(--text-secondary);
+}
+
+.demand-hint-shortcuts {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.demand-hint-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.demand-hint-pill kbd {
+  display: inline-block;
+  padding: 0.15rem 0.4rem;
+  font-family: inherit;
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background-color: #ffffff;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+}
+
+.demand-hint-rules {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.785rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   3. The Demand Spreadsheet Grid Table
+   ========================================================================== */
+.demand-sheet-scroll {
+  max-height: 70vh;
+  overflow: auto;
+  overscroll-behavior-x: contain;
+  position: relative;
+}
+
+.demand-sheet-scroll:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.demand-grid {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+  table-layout: fixed;
+}
+
+.demand-grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #f8f8f7;
+  color: var(--text-primary);
+  padding: 0.85rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border-bottom: 2px solid var(--border-strong);
+  border-right: 1px solid var(--border-subtle);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.demand-grid thead th:first-child {
+  width: 22%;
+  padding-left: 1.5rem;
+  position: sticky;
+  left: 0;
+  z-index: 30;
+  background: #f4f3f0;
+}
+
+.demand-grid thead th:nth-child(2) {
+  width: 20%;
+}
+
+.demand-grid thead th:nth-child(n+3) {
+  text-align: center;
+}
+
+.demand-th-name {
+  display: block;
+  font-weight: 750;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.demand-grid small {
+  display: block;
+  font-size: 0.725rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+  font-weight: 500;
+}
+
+.demand-grid tbody th,
+.demand-grid tbody td {
+  border-bottom: 1px solid var(--border-subtle);
+  border-right: 1px solid var(--border-subtle);
+  padding: 0.55rem 0.75rem;
+}
+
+/* Day Block Separator */
+.demand-grid tbody + tbody tr:first-child > * {
+  border-top: 2px solid var(--border-strong);
+}
+
+/* Day Column Header (Sticky Left) */
+.demand-grid .demand-day {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  vertical-align: top;
+  padding: 1.25rem 1rem 1.25rem 1.5rem;
+  background: #ffffff;
+  border-right: 2px solid var(--border-strong);
+  box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.04);
+}
+
+.demand-day strong {
+  display: block;
+  text-transform: capitalize;
+  font-size: 0.9375rem;
+  font-weight: 750;
+  color: var(--text-primary);
+}
+
+.demand-day span,
+.demand-shift span {
+  display: block;
+  font-size: 0.75rem;
+  margin-top: 0.35rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.demand-grid .demand-shift {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: #ffffff;
+}
+
+/* Weekend Accent */
+.demand-grid .demand-weekend {
+  background: #fffdfa;
+}
+
+.demand-grid .demand-weekend .demand-day {
+  background: #fff8eb;
+}
+
+.demand-weekend .demand-day strong {
+  color: #92400e;
+}
+
+.demand-weekend .demand-day small {
+  display: inline-block;
+  margin-top: 0.35rem;
+  padding: 0.15rem 0.5rem;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   4. High-Productivity Cell Inputs
+   ========================================================================== */
+.demand-number {
+  display: block;
+  width: 100%;
+  max-width: 140px;
+  height: 42px;
+  margin: auto;
+  padding: 0.4rem 0.6rem;
+  text-align: center;
+  font: inherit;
+  font-size: 1.125rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  background: #ffffff;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease-in-out;
+}
+
+.demand-number::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.demand-number:hover {
+  border-color: var(--accent);
+}
+
+.demand-number:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+
+/* Edited / Unsaved indicator */
+.demand-edited .demand-number {
+  background: #fffbeb;
+  border-color: var(--accent);
+  color: #92400e;
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.demand-number[aria-invalid="true"] {
+  border-color: var(--danger);
+  background: var(--danger-subtle);
+  color: var(--danger);
+}
+
+.demand-number:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.demand-grid .demand-cell-error {
+  display: block;
+  color: var(--danger);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  font-size: 0.75rem;
+  margin-top: 0.35rem;
+  text-align: center;
+}
+
+/* ==========================================================================
+   5. Sheet Footer
+   ========================================================================== */
+.demand-sheet-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+.demand-footer-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-weight: 600;
+}
+
+.demand-change-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 500;
+}
+
+.demand-change-key i {
+  width: 12px;
+  height: 12px;
+  background: #fffbeb;
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+}
+
+/* ==========================================================================
+   6. Sales Forecast Details Accordion
+   ========================================================================== */
+.demand-details {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem 1.5rem;
+}
+
+.demand-details summary {
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.demand-details summary .demand-badge-optional {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  background: var(--bg-page);
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border-subtle);
+  font-weight: 600;
+}
+
+.demand-details[open] > :not(summary) {
+  margin-top: 1.25rem;
+}
+
+.demand-forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin: 1rem 0;
+}
+
+.demand-forecast-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.demand-forecast-grid select,
+.demand-forecast-grid textarea {
+  font: inherit;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.demand-forecast-grid textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ==========================================================================
+   7. Sticky Floating Bottom Action Bar
+   ========================================================================== */
+.demand-bottom-bar {
+  position: sticky;
+  bottom: 12px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0.85rem 1.5rem;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 20px -2px rgba(28, 25, 23, 0.12);
+}
+
+.demand-bottom-bar > span {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.demand-bottom-bar .btn {
+  font-weight: 700;
+  padding: 0.55rem 1.25rem;
+}
+
+.demand-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   8. Responsive Design
+   ========================================================================== */
+@media (max-width: 900px) {
+  .demand-command-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+  }
+
+  .demand-command-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .demand-command-right {
+    justify-content: space-between;
+  }
+
+  .demand-forecast-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .demand-toolbar {
+    padding: 1rem;
+    align-items: stretch;
+  }
+
+  .demand-toolbar-left,
+  .demand-copy-actions {
+    width: 100%;
+  }
+
+  .demand-copy-actions .btn {
+    flex: 1;
+    font-size: 0.75rem;
+  }
+
+  .demand-sheet-hint {
+    padding-inline: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .demand-bottom-bar {
+    flex-wrap: wrap;
+    bottom: 0;
+    border-radius: 0;
+    margin: 0 -1rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .demand-bottom-bar > span {
+    width: 100%;
+  }
+
+  .demand-bottom-bar .btn {
+    width: 100%;
+  }
 }

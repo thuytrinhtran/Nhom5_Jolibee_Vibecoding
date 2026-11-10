@@ -49,6 +49,7 @@ function renderWorkflowWithProfile(profile) {
     './tv4MockWorkflow.service': { tv4MockWorkflowService: { listSchedules: async () => [] } },
     './scheduleWorkflow.api.service': { scheduleWorkflowApiService: serviceModule.tv4MockWorkflowService },
     './ScheduleWorkflow.css': {},
+    './ApprovalAssignmentMatrix': require('./helpers/approval-matrix.cjs'),
   };
   vm.runInNewContext(javascript, {
     exports: loaded.exports,
@@ -100,6 +101,7 @@ function createInteractiveWorkflowHarness(profile, service, initialSchedules, mo
     './tv4MockWorkflow.service': { tv4MockWorkflowService: service },
     './scheduleWorkflow.api.service': { scheduleWorkflowApiService: service },
     './ScheduleWorkflow.css': {},
+    './ApprovalAssignmentMatrix': require('./helpers/approval-matrix.cjs'),
   };
   vm.runInNewContext(javascript, {
     exports: loaded.exports,

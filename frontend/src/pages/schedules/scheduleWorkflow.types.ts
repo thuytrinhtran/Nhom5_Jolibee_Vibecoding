@@ -20,6 +20,8 @@ export interface ScheduleWorkflowActor {
 
 export interface ScheduleAssignment {
   id: string;
+  employee_id?: string;
+  department_id?: string;
   work_date: string;
   status: 'DRAFT' | 'ACTIVE' | 'REPLACED';
   assignment_source: string;

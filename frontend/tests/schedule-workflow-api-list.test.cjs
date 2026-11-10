@@ -150,6 +150,22 @@ test('API list enforces the actor role before making a request', async () => {
   assert.equal(fetchCalls, 0);
 });
 
+test('all list views retain raw assignment IDs without substituting employee home department', async () => {
+  const api=loadApiService(),raw={...row('identity'),shift_assignments:[{
+    id:'assignment',employee_id:'employee',department_id:'work-dept',work_date:'2026-11-09',status:'DRAFT',
+    employees:[{id:'employee',full_name:'Fixture employee',department_id:'home-dept',departments:{name:'Home'}}],
+    departments:[{id:'work-dept',name:'Assigned'}],shifts:[{id:'shift',name:'Shift',start_time:'08:00:00',end_time:'12:00:00'}],
+  }]};
+  const service=api.createScheduleWorkflowApiService({getToken:()=> 'fixture',fetcher:async()=>response(200,{schedules:[raw]})});
+  for(const [actor,view] of [[gs,'pending'],[gs,'history'],[ql,'manager']]){
+    const [record]=await service.listSchedules(actor,view),a=record.shift_assignments[0];
+    assert.equal(a.employee_id,'employee');assert.equal(a.department_id,'work-dept');assert.equal(a.employees.department_id,'home-dept');assert.equal(a.departments.name,'Assigned');
+  }
+  raw.status='PUBLISHED';assert.equal((await service.listSchedules(ql,'publicationHistory'))[0].shift_assignments[0].department_id,'work-dept');
+  delete raw.shift_assignments[0].department_id;raw.shift_assignments[0].departments=[];
+  assert.equal((await service.listSchedules(gs,'pending'))[0].shift_assignments[0].department_id,undefined,'cannot use home department to place assignment');
+});
+
 test('decision and publication bind the selected version and reuse request ID after lost response',async()=>{
  const api=loadApiService(),calls=[];let fail=true;
  const service=api.createScheduleWorkflowApiService({getToken:()=> 'session',fetcher:async(url,options)=>{

@@ -299,7 +299,7 @@ test('all mock contexts allow memory-only draft generation',()=>{
   const state=[[period],'period',{...context,source:'mock'},null,false,false,false,'','',0];let index=0;
   const hooks={...React,useState:()=>[state[index++],()=>{}],useEffect:()=>{},useRef:()=>({current:0})};
   const {ManagerSchedule}=page(hooks);const html=renderToStaticMarkup(React.createElement(ManagerSchedule));
-  assert.ok(html.includes('lịch chỉ lưu trong bộ nhớ'));assert.ok(!/<button[^>]*disabled=""[^>]*>.*?Tạo lịch dự kiến/s.test(html));
+  assert.ok(html.includes('lịch chỉ lưu trong bộ nhớ'));assert.ok(!/<button[^>]*disabled=""[^>]*>(?:(?!<\/button>).)*?Tạo lịch dự kiến/s.test(html));
 });
 
 test('manual replacement and removal update only a server-reviewed preview without saving',async()=>{
@@ -339,6 +339,26 @@ test('DRAFT edit opens saved assignments and uses versioned PATCH persistence',a
  const page=interactivePage({periods:async()=>[{...period,schedules:[persisted.schedule]}],context:async()=>context,read:async()=>persisted,preview:async(id,body)=>{request=body;return value}});await page.settle();page.find(n=>n.type==='button'&&n.props.children==='Chỉnh sửa DRAFT đã lưu').props.onClick();await page.settle();assert.equal(request.schedule_id,'saved');assert.equal(request.expected_version,1);assert.equal(request.use_saved_assignments,true);assert.equal(page.states[11].preview.edit_target.id,'saved');
 });
 
+test('saved DRAFT review panel is directly accessible and still obeys loading/status/unsaved gates',async()=>{
+ const fixture={...saved,source:'supabase',schedule:{...saved.schedule,period_id:period.id}};
+ const p=interactivePage({periods:async()=>[{...period,schedules:[fixture.schedule]}],context:async()=>context,read:async()=>fixture});
+ const review=()=>p.find(n=>typeof n.props.onSubmitted==='function');
+ await p.settle();assert.ok(review());
+ const root=p.find(n=>n.type==='section'&&n.props.className?.includes('schedule-controls-original'));
+ assert.ok(React.Children.toArray(root.props.children).some(n=>React.isValidElement(n)&&typeof n.props.onSubmitted==='function'),'review must be a direct page child, not inside collapsed details or a hidden tab');
+ for(const tab of ['create','assignments']){p.states[16]=tab;await p.settle();assert.ok(review());}
+ p.states[5]=true;await p.settle();assert.equal(review(),null);
+ p.states[5]=false;await p.settle();assert.ok(review());
+ p.states[11].unsaved=true;await p.settle();assert.equal(review(),null);
+ p.states[11].unsaved=false;p.states[11].dirty=true;await p.settle();assert.equal(review(),null);
+ p.states[11].dirty=false;
+ p.states[11].preview={period,input_revision:'fixture',result:{assignments:[assignment]},edit_target:{id:fixture.schedule.id,version:1},persistence:{enabled:true,reason:'Fixture'}};
+ await p.settle();assert.ok(review(),'opening a saved preview without unsaved changes must not hide original review');
+ p.states[11].preview=null;
+ for(const status of ['PENDING_APPROVAL','PUBLISHED','APPROVED','NEEDS_REVISION']){p.states[3]={...fixture,schedule:{...fixture.schedule,status}};await p.settle();assert.equal(review(),null,status);}
+ p.states[3]=null;await p.settle();assert.equal(review(),null);
+});
+
 test('rejected editor keeps requested week, reviews saved assignments and saves a new server version before handoff',async()=>{
  const rejected={...saved,source:'supabase',schedule:{id:'rejected',version:2,status:'NEEDS_REVISION',period_id:period.id,created_at:'2026-11-03'}};
  const next={...saved,source:'supabase',schedule:{id:'revised',version:4,status:'DRAFT',period_id:period.id,created_at:'2026-11-04'}};
@@ -373,11 +393,11 @@ test('preview has one save action and no balance or premature submit; saved draf
  assert.equal(calls.at(-1),'save');const handoff=p.visible(n=>typeof n.props.onSubmitted==='function');assert.equal(handoff.props.saved,persisted);
 });
 
-test('planner summarizes cells instead of mounting every employee and opens only the selected cell',()=>{
+test('planner shows names in weekly cells and opens only the selected detail panel',()=>{
  const {PlannerBoard}=page(),data=threeShiftContext();
  const props={context:data,saved,preview:null,edited:[],selectedCell:'',onSelect(){},day:'',onDay(){}};
  const before=JSON.stringify(data),html=renderToStaticMarkup(React.createElement(PlannerBoard,props));
- assert.equal((html.match(/class="planner-cell[ "]/g)||[]).length,63);assert.ok(!html.includes('Nguyễn An'));assert.ok(!html.includes('Chi tiết ô lịch'));
+ assert.equal((html.match(/class="planner-cell[ "]/g)||[]).length,63);assert.ok(html.includes('Nguyễn An'));assert.ok(html.includes('planner-cell-names'));assert.ok(!html.includes('Chi tiết ô lịch'));
  const panel=renderToStaticMarkup(React.createElement(PlannerBoard,{...props,selectedCell:'2026-11-02/shift/dept'}));
  assert.ok(panel.includes('Chi tiết ô lịch'));assert.ok(panel.includes('Nguyễn An'));assert.ok(panel.includes('Đã xếp 1 / Cần 3'));assert.equal(JSON.stringify(data),before);
 });
@@ -406,6 +426,19 @@ test('timeline positions use actual times and mark hours outside the display win
  const {timelinePosition}=page();
  const morning=timelinePosition('08:00:00','12:00:00');assert.equal(morning.left,0);assert.ok(Math.abs(morning.width-400/14)<0.001);assert.equal(morning.outside,false);
  const night=timelinePosition('20:00:00','02:00:00');assert.equal(night.outside,true);assert.ok(night.left+night.width<=100.001);
+});
+
+test('compact timeline packs adjacent shifts but keeps overlapping shifts on separate rows without changing data',()=>{
+ const {PlannerBoard}=page(),data=threeShiftContext();
+ const props={context:data,saved,preview:null,edited:[],selectedCell:'',onSelect(){},day:'2026-11-02',onDay(){}};
+ const before=JSON.stringify(data),html=renderToStaticMarkup(React.createElement(PlannerBoard,props));
+ assert.equal((html.match(/grid-row:1/g)||[]).length,9);
+ assert.equal((html.match(/class="timeline-department-track"/g)||[]).length,3);
+ assert.equal(JSON.stringify(data),before);
+ const overlapping={...data,shifts:data.shifts.map(s=>({...s,start_time:'08:00:00',end_time:'12:00:00'}))};
+ const stacked=renderToStaticMarkup(React.createElement(PlannerBoard,{...props,context:overlapping}));
+ for(const row of [1,2,3])assert.equal((stacked.match(new RegExp(`grid-row:${row}`,'g'))||[]).length,3);
+ assert.equal((stacked.match(/class="timeline-assignment[\" ]/g)||[]).length,9);
 });
 
 test('day view renders employee names, levels, shift times and actionable vacancies directly',()=>{

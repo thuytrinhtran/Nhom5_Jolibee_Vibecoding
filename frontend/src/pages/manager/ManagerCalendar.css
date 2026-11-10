@@ -1,1 +1,397 @@
-.manager-calendar{display:grid;gap:1.25rem;min-width:0}.calendar-heading{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}.calendar-heading h2{margin:0}.calendar-heading p{color:#64748b;margin:.4rem 0}.calendar-tabs{display:flex;gap:.5rem;border-bottom:1px solid #e2e8f0}.calendar-tabs button{border:0;background:transparent;padding:.9rem 1rem;font:inherit;font-weight:600;cursor:pointer;color:#475569;border-bottom:3px solid transparent}.calendar-tabs button[aria-selected=true]{color:#d9252a;border-color:#d9252a}.calendar-filters{display:flex;gap:1rem;align-items:end;flex-wrap:wrap}.calendar-filters label{display:grid;gap:.4rem;font-size:.875rem;flex:1;min-width:170px}.calendar-filters select{width:100%;padding:.65rem;border:1px solid #cbd5e1;border-radius:8px;background:white;font:inherit}.calendar-note{background:#fff9e8;padding:1rem;border-radius:10px;color:#624e17;line-height:1.6}.calendar-status{padding:.8rem;border:1px solid #e2e8f0;border-radius:8px}.calendar-scroll{overflow:auto;border:1px solid #e2e8f0;border-radius:10px;background:white;max-height:70vh}.calendar-scroll table{border-collapse:collapse;min-width:1100px;width:100%;font-size:.875rem}.calendar-scroll caption{text-align:left;padding:1rem;font-weight:600}.calendar-scroll th,.calendar-scroll td{padding:.8rem;border:1px solid #e2e8f0;text-align:left;vertical-align:top;min-width:135px}.calendar-scroll thead th{background:#fff1f2}.calendar-scroll th[scope=row]{background:#f8fafc}.calendar-scroll small{display:block;color:#64748b;margin-top:.3rem;font-weight:400}.calendar-slot{padding:.5rem;background:#fff5f5;border-left:3px solid #d9252a;border-radius:4px;margin-bottom:.4rem}.calendar-empty{color:#64748b}.calendar-links{line-height:1.7}.manager-calendar button:focus-visible,.manager-calendar select:focus-visible,.calendar-scroll:focus-visible{outline:3px solid #f5b51b;outline-offset:3px}@media(max-width:600px){.calendar-filters{display:grid;grid-template-columns:1fr}.calendar-filters label{min-width:0}.calendar-heading .btn{width:100%}.calendar-tabs button{flex:1;padding:.8rem .4rem}}
+/* ==========================================================================
+   Manager Calendar (Employee Shift Registrations) - JolliShift Design System
+   ========================================================================== */
+
+.manager-calendar {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+/* 1. Header & Context */
+.calendar-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.calendar-heading-info h2 {
+  font-size: 1.5rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0 0 0.25rem;
+}
+
+.calendar-heading-info p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.calendar-heading .btn-primary {
+  box-shadow: 0 2px 4px 0 rgba(217, 37, 42, 0.2);
+}
+
+/* 2. Modern Segmented Control Tabs */
+.calendar-tabs {
+  display: inline-flex;
+  padding: 0.25rem;
+  background-color: var(--border-subtle);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-strong);
+  gap: 0.25rem;
+  width: fit-content;
+}
+
+.calendar-tabs button {
+  border: none;
+  background: transparent;
+  padding: 0.55rem 1.25rem;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.calendar-tabs button:hover:not([aria-selected="true"]) {
+  color: var(--text-primary);
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.calendar-tabs button[aria-selected="true"] {
+  background-color: var(--bg-surface);
+  color: var(--primary);
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+
+/* 3. Toolbar & Filter Cards */
+.calendar-toolbar {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.calendar-filters {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.calendar-filters label {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex: 1;
+  min-width: 170px;
+}
+
+.calendar-filters select {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.calendar-filters select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-subtle);
+}
+
+.calendar-filters .btn-outline {
+  align-self: flex-end;
+  min-height: 38px;
+}
+
+/* 4. Streamlined Info Banners */
+.calendar-note {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: var(--accent-subtle);
+  border: 1px solid #fde68a;
+  border-left: 4px solid var(--accent);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  color: #78350f;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.calendar-status {
+  padding: 0.65rem 1rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.calendar-status strong {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* 5. Sticky Matrix Schedule Table */
+.calendar-scroll {
+  overflow: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-sm);
+  max-height: 72vh;
+  position: relative;
+}
+
+.calendar-scroll:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.calendar-scroll table {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 1180px;
+  width: 100%;
+  font-size: 0.875rem;
+}
+
+.calendar-scroll caption {
+  text-align: left;
+  padding: 0.875rem 1.25rem;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Column Header (Days) */
+.calendar-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #f8f8f7;
+  color: var(--text-primary);
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid var(--border-strong);
+  border-right: 1px solid var(--border-subtle);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.calendar-scroll thead th:first-child {
+  position: sticky;
+  left: 0;
+  top: 0;
+  z-index: 30;
+  background: #f4f3f0;
+  min-width: 200px;
+  max-width: 240px;
+}
+
+/* Weekend Highlights */
+.calendar-scroll thead th.calendar-col-weekend {
+  background: #fff8eb;
+  color: #92400e;
+}
+
+.calendar-scroll td.calendar-col-weekend {
+  background-color: #fffdfa;
+}
+
+/* Employee Sticky Row Header */
+.calendar-scroll th[scope="row"] {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background: var(--bg-surface);
+  border-right: 2px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0.875rem 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 200px;
+  max-width: 240px;
+  box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+.calendar-employee-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.calendar-employee-badge small {
+  display: inline-block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Cells & Slots */
+.calendar-scroll td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-subtle);
+  border-right: 1px solid var(--border-subtle);
+  vertical-align: top;
+  min-width: 140px;
+}
+
+.calendar-slot {
+  padding: 0.5rem 0.65rem;
+  background: #ffffff;
+  border: 1px solid #fed7aa;
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #7c2d12;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.calendar-slot:last-child {
+  margin-bottom: 0;
+}
+
+.calendar-slot small {
+  display: block;
+  font-size: 0.725rem;
+  color: #9a3412;
+  font-weight: 500;
+  margin-top: 0.2rem;
+}
+
+/* Status Chips inside cell */
+.calendar-empty {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* OFF chip */
+.calendar-chip-off {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  background-color: var(--border-subtle);
+  color: var(--text-secondary);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Pending / Chưa gửi chip */
+.calendar-chip-pending {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  background-color: #fef2f2;
+  color: #991b1b;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px dashed #fecaca;
+}
+
+/* 6. Footer Navigation Links */
+.calendar-links {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  font-size: 0.875rem;
+}
+
+.calendar-links a {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: color 0.15s ease;
+}
+
+.calendar-links a:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+.calendar-links-separator {
+  color: var(--border-strong);
+}
+
+/* 7. Responsive Styles */
+@media (max-width: 768px) {
+  .calendar-heading {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .calendar-heading .btn-primary {
+    width: 100%;
+  }
+
+  .calendar-filters {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-filters label {
+    min-width: 0;
+  }
+
+  .calendar-tabs {
+    width: 100%;
+    display: flex;
+  }
+
+  .calendar-tabs button {
+    flex: 1;
+    justify-content: center;
+    padding: 0.6rem 0.5rem;
+  }
+}

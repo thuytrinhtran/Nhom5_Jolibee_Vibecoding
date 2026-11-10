@@ -12,17 +12,17 @@
 .app-content :is(.btn-primary,.workflow-button.primary) { background:var(--primary); color:#fff; border-color:var(--primary); }
 .app-content :is(.btn-outline,.btn-secondary,.workflow-button.secondary) { background:var(--bg-surface); border:1px solid var(--border-strong); color:var(--text-primary); }
 .app-content :is(.btn-primary,.workflow-button.primary):hover:not(:disabled) { background:var(--primary-hover); border-color:var(--primary-hover); }
-.app-content :is(.btn-outline,.btn-secondary,.workflow-button.secondary):hover:not(:disabled) { background:#f1f5f9; border-color:#94a3b8; }
+.app-content :is(.btn-outline,.btn-secondary,.workflow-button.secondary):hover:not(:disabled) { background:var(--bg-page); border-color:var(--text-muted); }
 .app-content button:disabled { cursor:not-allowed; opacity:.6; }
-.app-content :is(button,a,input,select,textarea,summary):focus-visible { outline:3px solid #a16207; outline-offset:3px; }
+.app-content :is(button,a,input,select,textarea,summary):focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 .app-content :is(input,select,textarea) { accent-color:var(--primary); }
 .app-content :is(select,textarea,input:not([type=checkbox]):not([type=radio])) { border-radius:var(--radius-sm); }
 .app-content :is(.workspace-filters,.planner-filters,.schedule-controls,.demand-toolbar) { gap:10px; align-items:end; }
 .app-content :is(.workspace-filters,.planner-filters) label { min-width:0; }
 .app-content :is(.workflow-details,.workflow-card-toggle) { padding:14px 16px; }
 .app-content :is(.workflow-table-wrap,.schedule-table-scroll,.demand-sheet-scroll) { overscroll-behavior-x:contain; }
-.app-content :is(.workflow-details,.schedule-table-scroll,.demand-sheet-scroll) table th { background:#f8fafc; color:var(--text-secondary); font-weight:600; }
-.app-content :is(.workflow-details,.schedule-table-scroll,.demand-sheet-scroll) table tbody tr:hover { background:#f8fafc; }
+.app-content :is(.workflow-details,.schedule-table-scroll,.demand-sheet-scroll) table th { background:var(--bg-page); color:var(--text-secondary); font-weight:600; }
+.app-content :is(.workflow-details,.schedule-table-scroll,.demand-sheet-scroll) table tbody tr:hover { background:var(--bg-page); }
 .app-content :is(.schedule-alert,.workflow-alert,.reg-alert,.employee-alert) { border-radius:var(--radius-sm); line-height:1.5; overflow-wrap:anywhere; }
 .app-content :is(.workflow-alert.error,.schedule-alert-error,.reg-alert) { background:var(--danger-subtle); color:var(--danger); border-left:3px solid var(--danger); }
 .app-content :is(.planner-actions,.workflow-actions,.reg-actions) { gap:8px; }

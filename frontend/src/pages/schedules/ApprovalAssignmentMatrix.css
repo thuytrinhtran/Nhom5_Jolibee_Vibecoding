@@ -1,0 +1,42 @@
+.approval-assignment-matrix{margin-top:18px;color:var(--text-primary,#1c1917);font-size:12px}
+.approval-assignment-matrix .approval-matrix-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.approval-assignment-matrix h3{margin:0;font-size:15px}
+.approval-assignment-matrix h4{margin:0;font-size:13px}
+.approval-assignment-matrix p{margin:7px 0;line-height:1.6}
+.approval-matrix-heading>span,.approval-assignment-matrix .approval-matrix-muted{font-size:11px;color:var(--text-secondary,#57534e)}
+.approval-assignment-matrix button,.approval-assignment-matrix select{font:inherit;color:inherit;border:1px solid var(--border-strong,#e7e5e4);border-radius:6px;background:var(--bg-surface,#fff);padding:7px 9px;cursor:pointer}
+.approval-assignment-matrix :is(button,select,summary,[tabindex]):focus-visible{outline:3px solid var(--accent,#f59e0b);outline-offset:2px}
+.approval-matrix-filters{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin:12px 0}
+.approval-matrix-filters label{display:grid;gap:4px;font-size:11px;min-width:0}
+.approval-matrix-legend{display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--text-secondary,#57534e);margin:9px 0}
+.approval-matrix-legend>span:not(:last-child)::before{content:'';display:inline-block;width:7px;height:7px;background:#15803d;border-radius:50%;margin-right:5px}
+.approval-matrix-legend>span:nth-child(2)::before{background:#d9252a}
+.approval-matrix-legend>span:nth-child(3)::before{background:#d97706}
+.approval-matrix-scroll{overflow-x:auto;max-width:100%}
+.approval-assignment-matrix .approval-matrix-table{border-collapse:collapse;table-layout:fixed;width:100%;min-width:680px;font-size:11px}
+.approval-assignment-matrix .approval-matrix-table :is(th,td){border:1px solid var(--border-strong,#e7e5e4);padding:0;vertical-align:top;text-align:left}
+.approval-assignment-matrix .approval-matrix-table thead th{background:var(--bg-page,#fbfbfa);padding:8px 4px;text-align:center;font-weight:600;position:static}
+.approval-matrix-table th:first-child{width:112px}
+.approval-assignment-matrix .approval-matrix-table tbody th{padding:9px 7px;background:var(--bg-page,#fbfbfa)}
+.approval-matrix-table tbody th :is(strong,span,small){display:block;overflow-wrap:anywhere}
+.approval-matrix-table tbody th small{font-size:10px;color:var(--text-secondary,#57534e);margin-top:4px}
+.approval-assignment-matrix .approval-matrix-cell{display:flex;flex-direction:column;gap:5px;width:100%;min-height:105px;height:100%;border:0;border-radius:0;text-align:left;padding:8px 6px;line-height:1.45;overflow-wrap:anywhere}
+.approval-matrix-cell strong{font-size:13px;font-variant-numeric:tabular-nums}
+.approval-matrix-cell small{font-size:10px}
+.approval-matrix-cell.covered{color:#166534;background:#fff}
+.approval-matrix-cell.shortage{color:#9f1239;background:#fff1f2}
+.approval-matrix-cell.experience,.approval-matrix-cell .approval-matrix-experience{color:#92400e;background:#fffbeb}
+.approval-matrix-cell.unknown{color:#57534e;background:#fafaf9}
+.approval-assignment-matrix .approval-matrix-cell[aria-pressed=true]{box-shadow:inset 0 0 0 2px var(--primary,#d9252a)}
+.approval-matrix-filtered{text-align:center!important;padding:12px!important;color:#a8a29e;background:#fafaf9}
+.approval-matrix-detail{border:1px solid var(--border-strong,#e7e5e4);border-radius:7px;padding:12px;margin-top:12px;scroll-margin-top:90px}
+.approval-matrix-people{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:10px}
+.approval-assignment-matrix .approval-matrix-person{border:1px solid var(--border-strong,#e7e5e4);border-radius:5px;margin:0;padding:8px;background:#fff;min-width:0}
+.approval-assignment-matrix .approval-matrix-person>summary{padding:0;font-size:12px;cursor:pointer;overflow-wrap:anywhere}
+.approval-matrix-person p{font-size:11px;overflow-wrap:anywhere}
+.approval-assignment-matrix .approval-matrix-notice{padding:7px 9px;border-left:3px solid #d97706;background:#fffbeb;color:#92400e;font-size:11px}
+.approval-matrix-empty{padding:16px;border:1px dashed var(--border-strong,#e7e5e4)}
+.approval-matrix-ungrouped{padding:10px;margin-top:12px}
+.approval-matrix-ungrouped>summary{cursor:pointer}
+@media(max-width:1100px){.approval-matrix-people{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.approval-matrix-people{grid-template-columns:1fr}.approval-matrix-filters label{flex:1;min-width:100px}.approval-matrix-filters select{max-width:100%}.approval-matrix-heading{align-items:flex-start!important}.approval-matrix-detail{padding:10px}}

@@ -113,6 +113,8 @@ function normalizeSchedule(row: ApiRow): ScheduleWorkflowRecord {
       const shift = one<ApiRow>(assignment.shifts);
       return {
         id: assignment.id,
+        employee_id: assignment.employee_id || employee?.id || undefined,
+        department_id: assignment.department_id || department?.id || undefined,
         work_date: assignment.work_date,
         status: assignment.status,
         assignment_source: assignment.assignment_source,

@@ -6,6 +6,7 @@ import { ScheduleWorkflowError, TV4_SHIFT_DEFINITIONS, mockActorForProfile, reso
 import type { ScheduleAssignment, ScheduleWorkflowService, ScheduleWorkflowView, ScheduleWorkflowRecord } from './scheduleWorkflow.types';
 import { scheduleWorkflowApiService } from './scheduleWorkflow.api.service';
 import './ScheduleWorkflow.css';
+import { ApprovalAssignmentMatrix } from './ApprovalAssignmentMatrix';
 
 const errorText = (error: unknown) => error instanceof Error ? error.message : 'Có lỗi xảy ra. Vui lòng thử lại.';
 const statusLabel: Record<string, string> = {
@@ -327,6 +328,7 @@ export const ScheduleWorkflow = ({
                 <p>Lịch đã phê duyệt chưa hiển thị cho nhân viên. Nhập thời hạn phản hồi, bấm Công bố lịch rồi Xác nhận.</p>
                 <button className="workflow-button primary" disabled={busy || !!publicationDeadlineError(deadline)||schedule.workflow_enabled===false} onClick={() => setConfirmation({ schedule, action: 'publish' })}>Công bố lịch</button>
               </div>}
+              {mode === 'approvals' ? <ApprovalAssignmentMatrix schedule={schedule} service={service}/> : <>
               <h3>Chi tiết phân công ({entries.length})</h3>
               <div className="workspace-filters"><label>Ngày<select value={dayFilter} onChange={e=>setDayFilter(e.target.value)}><option value="">Tất cả ngày</option>{[...new Set(entries.map(e=>e.work_date))].sort().map(d=><option key={d} value={d}>{d}</option>)}</select></label><label>Bộ phận<select value={departmentFilter} onChange={e=>setDepartmentFilter(e.target.value)}><option value="">Tất cả bộ phận</option>{[...new Set(entries.map(e=>e.departments.name))].map(d=><option key={d} value={d}>{d}</option>)}</select></label></div>
               {entries.length ? <div className="workflow-table-wrap"><table><thead><tr><th>Ngày</th><th>Ca</th>{canResubmit && editingScheduleId === schedule.id && <th>Ca điều chỉnh</th>}<th>Nhân viên</th><th>Bộ phận</th><th>Trạng thái lịch</th></tr></thead><tbody>
@@ -341,6 +343,7 @@ export const ScheduleWorkflow = ({
                 </tr>)}
               </tbody></table></div> : <p>Phiên bản lịch này chưa có phân công.</p>}
               {entries.length>0&&<nav className="workspace-pagination" aria-label="Phân trang chi tiết"><button disabled={!assignmentPage} onClick={()=>setAssignmentPage(p=>p-1)}>Trước</button><span>{filteredEntries.length} phân công · Trang {assignmentPage+1}/{Math.max(1,Math.ceil(filteredEntries.length/20))}</span><button disabled={(assignmentPage+1)*20>=filteredEntries.length} onClick={()=>setAssignmentPage(p=>p+1)}>Sau</button></nav>}
+              </>}
               {schedule.resubmission_note && <p className="workflow-revision-note">Ghi chú điều chỉnh khi trình lại: {schedule.resubmission_note}</p>}
               {!usesMockWorkflow && canPublish && schedule.status==='NEEDS_REVISION' && schedule.is_latest && <a className="workflow-button primary" href={`/manager/schedule?period_id=${encodeURIComponent(schedule.period_id)}`}>Chỉnh sửa, lưu bản nháp và gửi lại</a>}
               {schedule.approvals.length > 0 && <div className="workflow-approval-history">

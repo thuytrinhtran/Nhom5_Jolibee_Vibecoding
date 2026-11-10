@@ -1,0 +1,113 @@
+/* Approved compact workspace. Presentation only; existing controls own validation. */
+.schedule-controls-original>.planner-progress{gap:8px}
+.schedule-controls-original>.planner-progress li{padding:10px 12px;box-shadow:none}
+.schedule-controls-original>.planner-progress strong{font-size:12px}
+.schedule-controls-original>.planner-progress small{font-size:10px;white-space:normal}
+.schedule-controls-original>.summary-panel{margin:0;padding:12px 14px;box-shadow:none}
+.schedule-controls-original>.summary-panel h3{font-size:14px;margin-bottom:6px}
+.schedule-controls-original>.summary-panel p{font-size:11px;line-height:1.6;margin:5px 0}
+.schedule-controls-original .mock-edit-note{display:grid;font-size:11px;gap:5px;margin:8px 0;min-width:0}
+.schedule-controls-original .mock-edit-note textarea{width:100%;min-height:60px;padding:8px;font-size:12px;border:1px solid var(--border-strong);border-radius:6px;resize:vertical}
+.schedule-controls-original>section[aria-label="Gửi lịch phê duyệt"]{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 20px;align-items:start}
+.schedule-controls-original>section[aria-label="Gửi lịch phê duyệt"]>h3{grid-column:1/-1}
+.schedule-controls-original>section[aria-label="Gửi lịch phê duyệt"]>p:nth-of-type(1),.schedule-controls-original>section[aria-label="Gửi lịch phê duyệt"]>p:nth-of-type(2){grid-column:1}
+.schedule-controls-original>section[aria-label="Gửi lịch phê duyệt"]>.mock-edit-note{grid-column:2;grid-row:2/span 2;margin:0}
+.schedule-controls-original>section[aria-label="Gửi lịch phê duyệt"]>.schedule-review-actions{grid-column:1}
+.schedule-controls-original>section[aria-label="Gửi lịch phê duyệt"]>p:nth-of-type(3){grid-column:2;grid-row:4;font-size:10px}
+.schedule-controls-original>section[aria-label="Gửi lịch phê duyệt"]>div:not(.schedule-review-actions){grid-column:1/-1}
+.schedule-controls-original .schedule-review-actions{margin:8px 0}
+.schedule-controls-original .schedule-review-actions .btn{font-size:12px;min-height:34px}
+.schedule-workspace-clean.manager-planner{gap:12px;max-width:none;width:100%}
+.schedule-workspace-clean .schedule-command-bar{padding:10px 12px 0;gap:8px 12px;box-shadow:none}
+.schedule-workspace-clean .schedule-week-field{flex:0 1 350px;flex-direction:row;align-items:center;gap:8px;max-width:420px}
+.schedule-workspace-clean .schedule-week-field label{font-size:11px}
+.schedule-workspace-clean .schedule-week-field select{min-height:34px;font-size:12px}
+.schedule-workspace-clean .schedule-command-actions{flex:1 1 290px;gap:6px}
+.schedule-workspace-clean .schedule-command-actions .btn{min-height:32px;font-size:11px;padding:6px 9px}
+.schedule-workspace-clean .badge{font-size:10px;white-space:normal}
+.schedule-workspace-clean .planner-tabs{gap:22px}
+.schedule-workspace-clean .planner-tabs button{min-height:38px;padding:9px 0;font-size:12px}
+.schedule-workspace-clean .planner-metrics{display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;justify-content:flex-end;margin:-4px 0 0}
+.schedule-workspace-clean .planner-metrics .dashboard-metric{display:flex;align-items:baseline;gap:7px;background:transparent;border:0;box-shadow:none;padding:0;border-radius:0;min-width:0}
+.schedule-workspace-clean .dashboard-metric-heading{font-size:10px;font-weight:400;color:var(--text-secondary)}
+.schedule-workspace-clean .schedule-metric-value{font-size:14px;line-height:1.4;margin:0;font-variant-numeric:tabular-nums}
+.schedule-workspace-clean .workspace-disclosure{margin:0;padding:0;font-size:11px;box-shadow:none}
+.schedule-workspace-clean .workspace-disclosure>summary{padding:9px 12px;cursor:pointer;font-size:11px;font-weight:600}
+.schedule-workspace-clean .workspace-disclosure[open]>:not(summary){margin:10px 12px}
+.schedule-workspace-clean .schedule-info,.schedule-workspace-clean .schedule-alert{margin:0;font-size:11px;padding:9px 12px}
+.schedule-workspace-clean .planner-pane:not([hidden]){gap:10px}
+.schedule-workspace-clean .planner-board{padding:0;box-shadow:none;overflow:hidden}
+.schedule-workspace-clean .planner-board-layout{gap:12px}
+.schedule-workspace-clean .planner-board-layout.has-panel{grid-template-columns:minmax(0,1fr) 310px}
+.planner-board-toolbar{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--border-strong)}
+.schedule-workspace-clean .planner-filters{display:flex;gap:8px;flex:1 1 350px;margin:0}
+.schedule-workspace-clean .planner-filters label{flex:1;min-width:0;font-size:10px;gap:4px}
+.schedule-workspace-clean .planner-filters select{font-size:11px;min-height:32px;padding:5px 7px}
+.schedule-workspace-clean .planner-view-heading{margin:0;gap:8px;flex-wrap:wrap}
+.schedule-workspace-clean .planner-view-heading h3{font-size:12px}
+.schedule-workspace-clean .planner-view-heading .btn{min-height:28px;font-size:10px;padding:4px 7px}
+.schedule-workspace-clean .planner-caption{font-size:10px;margin:0;padding:7px 12px;background:var(--bg-page)}
+.schedule-workspace-clean .schedule-timeline-scroll,.schedule-workspace-clean .planner-matrix-scroll{border:0;border-radius:0;max-height:calc(100dvh - 335px);min-height:280px;overscroll-behavior:contain;scrollbar-gutter:stable}
+.schedule-workspace-clean .schedule-timeline{min-width:820px}
+.schedule-workspace-clean .timeline-axis{grid-template-columns:90px minmax(0,1fr);padding:7px 16px 7px 0;border-bottom:1px solid var(--border-strong);background:var(--bg-page)}
+.schedule-workspace-clean .timeline-axis>span{padding-left:10px;font-size:10px}
+.schedule-workspace-clean .timeline-axis>div{height:17px}
+.schedule-workspace-clean .timeline-axis>div span{font-size:9px}
+.schedule-workspace-clean .timeline-department{display:grid;grid-template-columns:90px minmax(0,1fr);border:0;border-bottom:1px solid var(--border-strong);padding-right:8px}
+.schedule-workspace-clean .timeline-department h4{align-self:stretch;padding:14px 10px;display:flex;align-items:flex-start;font-size:11px;z-index:1;background:white;border-right:1px solid var(--border-strong);text-transform:none;letter-spacing:normal}
+.timeline-department-track{display:grid;grid-template-columns:repeat(840,minmax(0,1fr));gap:0;row-gap:7px;padding:8px 0;background:repeating-linear-gradient(90deg,transparent,transparent calc(100%/14 - 1px),var(--border-subtle) calc(100%/14 - 1px),var(--border-subtle) calc(100%/14))}
+.schedule-workspace-clean .timeline-assignment{position:relative;top:auto;min-width:0;width:auto;max-width:none;min-height:120px;margin:0 3px;padding:8px;border:1px solid var(--border-strong);border-radius:5px;box-shadow:none;gap:4px;overflow-wrap:anywhere;overflow:visible;transition:none;display:flex;flex-direction:column}
+.schedule-workspace-clean .timeline-assignment.is-selected{border-color:var(--primary);background:var(--primary-subtle);box-shadow:inset 2px 0 var(--primary)}
+.timeline-card-heading{display:flex;justify-content:space-between;align-items:baseline;gap:4px;flex-wrap:wrap;margin-bottom:2px}
+.schedule-workspace-clean .timeline-card-heading strong{font-size:11px}
+.timeline-card-heading small{font-size:9px;color:var(--text-secondary)}
+.schedule-workspace-clean .timeline-assignment>strong{font-size:10px;font-weight:500}
+.schedule-workspace-clean .timeline-assignment li{font-size:11px;line-height:1.45;white-space:normal;text-overflow:clip;overflow:visible}
+.schedule-workspace-clean .timeline-assignment p{font-size:10px;line-height:1.5;margin:0}
+.schedule-workspace-clean .timeline-cell-actions{margin-top:auto;gap:4px;padding-top:5px}
+.schedule-workspace-clean .timeline-cell-actions .btn,.schedule-workspace-clean .timeline-detail-button{font-size:9px;min-height:26px;padding:4px 6px;white-space:normal}
+.timeline-vacancies{font-size:9px;color:var(--text-secondary)}
+.timeline-vacancies summary{cursor:pointer}
+.schedule-workspace-clean .planner-cell-panel{position:sticky;top:12px;max-height:calc(100dvh - 300px);overflow:auto;padding:12px;box-shadow:none;scrollbar-gutter:stable}
+.schedule-workspace-clean .planner-cell-panel>header{padding-bottom:9px;margin-bottom:9px}
+.schedule-workspace-clean .planner-cell-panel h3{font-size:14px}
+.schedule-workspace-clean .planner-cell-panel p{font-size:10px}
+.schedule-workspace-clean .preview-editor-heading{gap:6px;flex-direction:column;align-items:flex-start}
+.schedule-workspace-clean .preview-editor h3{font-size:13px}
+.schedule-workspace-clean .preview-editor{padding:0;border:0;border-radius:0;gap:8px}
+.schedule-workspace-clean .preview-editor .schedule-muted{font-size:10px}
+.schedule-workspace-clean .preview-group{padding:0;border:0;background:transparent}
+.schedule-workspace-clean .preview-group-heading h4{display:none}
+.schedule-workspace-clean .preview-group-heading h4{font-size:11px}
+.schedule-workspace-clean .preview-group-counts{font-size:10px;gap:10px}
+.schedule-workspace-clean .preview-employee-row{grid-template-columns:minmax(0,1fr) auto;gap:7px;padding:9px 0}
+.schedule-workspace-clean .preview-employee-row>span{font-size:11px}
+.schedule-workspace-clean .preview-employee-row>label:has(select){grid-column:1/-1}
+.schedule-workspace-clean .preview-employee-row>.btn{min-height:28px;font-size:10px;white-space:normal}
+.preview-employee-edit{grid-column:1/-1;font-size:10px}
+.preview-employee-edit>summary{cursor:pointer;color:var(--primary);padding:4px 0}
+.preview-employee-edit[open]{display:flex;flex-wrap:wrap;gap:6px}
+.preview-employee-edit[open]>summary,.preview-employee-edit>label{flex-basis:100%;width:100%}
+.preview-employee-edit>label{display:grid;gap:4px;margin:8px 0}
+.preview-employee-edit .btn{font-size:10px;min-height:28px;padding:4px 7px}
+.schedule-workspace-clean .preview-candidates{font-size:11px}
+.schedule-workspace-clean .candidate-contact{font-size:11px;overflow-wrap:anywhere}
+.schedule-workspace-clean .planner-actions{padding:9px 12px;gap:8px;background:var(--bg-surface);border-color:var(--border-strong);border-radius:8px}
+.schedule-workspace-clean .planner-actions .btn{font-size:11px;min-height:32px}
+.schedule-workspace-clean .planner-actions .schedule-muted{margin-left:auto;font-size:10px}
+.schedule-workspace-clean .planner-matrix{min-width:820px}
+.schedule-workspace-clean .planner-cell{min-height:68px;text-align:left;padding:6px;box-shadow:none;gap:3px}
+.schedule-workspace-clean .planner-cell strong{font-size:11px}
+.schedule-workspace-clean .planner-cell small{font-size:9px}
+.planner-cell-names{display:grid;gap:2px;font-size:10px;font-weight:400;line-height:1.45;overflow-wrap:anywhere}
+.schedule-workspace-clean .planner-matrix td{vertical-align:top}
+.schedule-workspace-clean.schedule-controls-original .planner-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:0;justify-content:normal}
+.schedule-workspace-clean.schedule-controls-original .planner-metrics .dashboard-metric{display:block;padding:10px 12px;border:1px solid var(--border-strong);border-radius:6px;background:var(--bg-surface)}
+.schedule-controls-original .planner-metrics .schedule-metric-value{font-size:22px;margin-top:4px}
+.schedule-controls-original .planner-metrics .dashboard-metric-heading{font-size:11px}
+.schedule-workspace-clean.schedule-controls-original .planner-actions{background:var(--accent-subtle);border-color:#f1dfb2}
+@media(max-width:1100px){.schedule-workspace-clean .planner-board-layout.has-panel{grid-template-columns:minmax(0,1fr) 290px}.schedule-workspace-clean .planner-board-toolbar{align-items:flex-start}.schedule-workspace-clean .planner-view-heading{width:100%;justify-content:space-between}}
+@media(max-width:900px){.schedule-workspace-clean .planner-board-layout.has-panel{grid-template-columns:minmax(0,1fr)}.schedule-workspace-clean .planner-cell-panel{position:static;max-height:none}.schedule-workspace-clean .schedule-timeline-scroll,.schedule-workspace-clean .planner-matrix-scroll{max-height:470px;min-height:0}}
+@media(max-width:800px){.schedule-controls-original>section[aria-label="Gửi lịch phê duyệt"]{display:block}.schedule-controls-original>section[aria-label="Gửi lịch phê duyệt"]>.mock-edit-note{margin:8px 0}}
+@media(max-width:600px){.schedule-workspace-clean.schedule-controls-original .planner-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.schedule-controls-original>.planner-progress{grid-template-columns:repeat(2,minmax(0,1fr))}.schedule-controls-original>.planner-progress li{padding:8px;gap:7px}.schedule-controls-original>.planner-progress strong{font-size:11px}}
+@media(max-width:600px){.schedule-workspace-clean .schedule-week-field{flex-basis:100%;max-width:none;flex-wrap:wrap}.schedule-workspace-clean .schedule-week-field select{flex-basis:100%;width:100%}.schedule-workspace-clean .schedule-command-actions{justify-content:flex-start}.schedule-workspace-clean .schedule-command-actions .btn-primary{flex:0 1 auto}.schedule-workspace-clean .planner-metrics{justify-content:flex-start;gap:6px 14px}.schedule-workspace-clean .planner-filters{flex-wrap:wrap;flex-basis:100%}.schedule-workspace-clean .planner-filters label{flex:1 1 100px}.schedule-workspace-clean .planner-actions .schedule-muted{margin-left:0}}
