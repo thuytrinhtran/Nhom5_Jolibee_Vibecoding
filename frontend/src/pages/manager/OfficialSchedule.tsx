@@ -57,7 +57,7 @@ export function OfficialTimeline({data,day,department,levels={}}:{data:OfficialC
  const order=['Bếp','Thu ngân','Phục vụ'];
  const departments=data.departments.filter(d=>!department||d.id===department).sort((a,b)=>{const rank=(s:string)=>order.includes(s)?order.indexOf(s):99;return rank(a.name)-rank(b.name)||a.name.localeCompare(b.name,'vi');});
  return <section className="official-day" aria-label={`Timeline ${dateLabel(day)}`}><p className="ui-help">Mở khối ca để xem nhân viên và giờ làm. Cấp độ là thông tin hồ sơ hiện tại.</p>
- <div className="schedule-timeline-scroll" tabIndex={0} aria-label="Cuộn lịch từ 08:00 đến 22:00"><div className="schedule-timeline official-timeline"><div className="timeline-axis"><span>Bộ phận</span><div>{Array.from({length:15},(_,i)=><span key={i} style={{left:`${i/14*100}%`}}>{String(i+8).padStart(2,'0')}:00</span>)}</div></div>
+ <div className="official-timeline-scroll" tabIndex={0} aria-label="Cuộn lịch từ 08:00 đến 22:00"><div className="official-timeline"><div className="official-time-axis"><span>Bộ phận</span><div className="official-time-labels">{Array.from({length:15},(_,i)=><span key={i} style={{left:`${i/14*100}%`}}>{String(i+8).padStart(2,'0')}:00</span>)}</div></div>
  {departments.map(d=><section className="official-department" key={d.id}><h4>{d.name}</h4><div className="official-department-track">{!rows.some(r=>r.department_id===d.id)?<p className="official-no-shift">Không có phân công trong ngày.</p>:officialShiftGroups(rows.filter(r=>r.department_id===d.id)).map(group=>{
    const row=group[0],shift=row.shift??data.shifts.find(s=>s.id===row.shift_id);
    const start=shift?minutes(shift.start_time):480,end=shift?minutes(shift.end_time)+(shift.end_time<=shift.start_time?1440:0):1320;
